@@ -10,15 +10,21 @@
    [stars.hardware.nano.connected :as nk-conn]
    [clojure.edn :as edn]))
 
+ (= 0 bank)  (led-on nk :record)
+   (= 2 bank)  (led-on nk :play)
+   (= 4 bank)  (led-on nk :stop)
+   (= 8 bank)  (led-on nk :fast-forward)
+   (= 16 bank) (led-on nk :rewind)))
+
 (defn nk-bank
   "Returns the nk bank number for the specified bank key"
   [bank-k]
   (case bank-k
-    :master 0
-    :m64 2
-    :m128 4
-    :riffs 8
-    :synths 16))
+    :master 0 ; record
+    :m64 2    ; play
+    :m128 4   ; stop
+    :riffs 8  ; fast-forward
+    :synths 16)) ; rewind
 
 (defonce default-mixer-g (group :tail (foundation-safe-post-default-group)))
 
