@@ -1,13 +1,14 @@
 (ns stars.warm-up
   (:use
    [overtone.live]
-   [stars.synths.mixers :only [basic-mixer]])
+   [stars.synths.mixers :only [basic-mixer]]
+   [nano-kontrol2.config :only [mixer-init-state]])
   (:require
-   [stars.timing :as tim]
-   [stars.mixer :as mx]
-   [stars.hardware.nano.stateful-device :as nksd]
-   [stars.hardware.nano.state-maps :as nksm]
-   [stars.hardware.nano.connected :as nk-conn]
+   [nano-kontrol2.core :as nk2]
+   [nano-kontrol2.buttons :as btn]
+
+   [stars.engine.timing :as tim]
+   [stars.engine.mixer :as mx]
    [clojure.edn :as edn]))
 
 (defn nk-bank
@@ -45,13 +46,11 @@
 
 (on-latest-event [:v-nanoKON2 (nk-bank :synths) :r7 :control-change :slider7]
                  (fn [{:keys [val]}]
-                   (println :DOIT)
                    (ctl basic-synth-mix :amp val))
                  ::synths-master-amp)
 
 (on-latest-event [:v-nanoKON2 (nk-bank :riffs) :r7 :control-change :slider7]
                  (fn [{:keys [val]}]
-                   (println :DOIT)
                    (ctl basic-riffs-mix :amp val))
                  ::riffs-master-amp)
 
@@ -159,89 +158,18 @@
    (freesound 147479)
    (freesound 147478)])
 
-(defonce mixer-init-state (merge (nksd/nk-state-map 0)
-                                 {:slider7 0}
-                                 {:pot2 1}
-                                 {:pot3 1}
-                                 {:pot5 1}
-                                 {:pot6 1}
-                                 {:pot7 0.5}))
+(def cfg
+  {:synths {:s0 mixer-init-state :s1 mixer-init-state :s2 mixer-init-state :m0 mixer-init-state :m1 mixer-init-state :r0 mixer-init-state}
+   :riffs  {:s0 mixer-init-state :s1 mixer-init-state :m0 mixer-init-state :m1 mixer-init-state}
+   :master {:s7 mixer-init-state :m7 mixer-init-state :r7 mixer-init-state}})
 
-(defonce basic-mixer-init-state (merge (nksd/nk-state-map 0)
-                                       {:slider7 1
-                                        :slider6 0}))
-
-(defonce __ADD-STATE-MAPS__
-  ;; Adds a new set of state-maps to the initial nk state-maps. This
-  ;; allows us to specify which nk button to bind the location and
-  ;; also
-  ;; which event key to use.
-  (do
-    (nksm/add-state nk-conn/state-maps (nk-bank :synths) :s0 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :synths) :s1 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :synths) :s2 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :synths) :m0 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :synths) :m1 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :synths) :r0 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :synths) :r7 basic-mixer-init-state)
-
-    (nksm/add-state nk-conn/state-maps (nk-bank :riffs) :s0 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :riffs) :s1 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :riffs) :m0 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :riffs) :m1 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :riffs) :r7 basic-mixer-init-state)
-
-    (nksm/add-state nk-conn/state-maps (nk-bank :m128) "m128-0" :s0 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :m128) "m128-1" :m0 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :m128) "m128-2" :r0 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :m128) "m128-3" :s1 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :m128) "m128-4" :m1 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :m128) "m128-5" :r1 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :m128) "m128-triggers" :s3 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :m128) "m128-master" :r7 basic-mixer-init-state)
-
-    (nksm/add-state nk-conn/state-maps (nk-bank :m64) "m64-0" :s0 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :m64) "m64-1" :m0 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :m64) "m64-2" :r0 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :m64) "m64-3" :s1 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :m64) "m64-4" :m1 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :m64) "m64-5" :r1 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :m64) "m64-triggers" :s3 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :m64) "m64-master" :r7 basic-mixer-init-state)
-
-    (nksm/add-state nk-conn/state-maps (nk-bank :master) :s7 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :master) :m7 mixer-init-state)
-    (nksm/add-state nk-conn/state-maps (nk-bank :master) :r7 mixer-init-state)
-
-    ;;(nksm/add-state nk-conn/state-maps 0 "m64-2" :r3
-    ;;mixer-init-state)
-    ;;(nksm/add-state nk-conn/state-maps 0 "m64-3" :s4
-    ;;mixer-init-state)
-    ;;(nksm/add-state nk-conn/state-maps 0 "m64-4" :m4
-    ;;mixer-init-state)
-    ;;(nksm/add-state nk-conn/state-maps 0 "m64-5" :r4
-    ;;mixer-init-state)
-
-    ;; give each nk an initial state
-    (doseq [nk nk-conn/nano-kons]
-      (nksm/switch-state nk-conn/state-maps nk 0 :s7))))
-
-;;(def m64 (mon/find-monome "/dev/tty.usbserial-m64-0790"))
-;;(def m128 (mon/find-monome "/dev/tty.usbserial-m128-115"))
-;;(def m256 (mon/find-monome "/dev/tty.usbserial-m256-203"))
+(def banks
+  {:master btn/record
+   :m64    btn/play
+   :m128   btn/stop
+   :riffs  btn/fast-forward
+   :synths btn/rewind})
 
 (ctl tim/root-s :rate 5)
 
-(defonce nano-kontrol-dev (osc-server 4499))
-
-(osc-handle nano-kontrol-dev
-            "/nk-event/simple"
-            (fn [m]
-              (println :event m)
-              (let [payload (edn/read-string (first (:args m)))]
-                (event [:v-nanoKON2
-                        (:bank payload)
-                        (:key payload)
-                        :control-change
-                        (:id payload)]
-                       payload))))
+(nk2/start! banks cfg)
