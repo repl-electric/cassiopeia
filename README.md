@@ -1,13 +1,15 @@
 # The Stars My Destination
 
+![Tyger](http://s21.postimg.org/im4iendmv/Tyger.jpg])
+
 A space for _Machines_ and _Humans_ to make music together.
 
-    Tyger Tyger burning bright,
-    in the forests of the night,
-    what immortal hand or eye
-    could frame thy fearful symmetry?
+
+# Recorded Experiments
 
 https://soundcloud.com/the-stars-my-destination
+
+# Influences
 
 Inspired by Meta-ex https://github.com/meta-ex/ignite
 
