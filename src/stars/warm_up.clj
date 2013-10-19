@@ -2,7 +2,7 @@
   (:use
    [overtone.live]
    [stars.synths.mixers :only [basic-mixer]]
-   [nano-kontrol2.config :only [mixer-init-state]])
+   [nano-kontrol2.config :only [mixer-init-state basic-mixer-init-state]])
   (:require
    [nano-kontrol2.core :as nk2]
    [nano-kontrol2.buttons :as btn]
@@ -26,8 +26,8 @@
 ;;(defonce mixer-master (mx/add-nk-mixer 0 :master))
 
 (def cfg
-  {:synths {:s0 mixer-init-state :s1 mixer-init-state :s2 mixer-init-state :m0 mixer-init-state :m1 mixer-init-state :r0 mixer-init-state}
-   :riffs  {:s0 mixer-init-state :s1 mixer-init-state :m0 mixer-init-state :m1 mixer-init-state}
+  {:synths {:s0 mixer-init-state :s1 mixer-init-state :s2 mixer-init-state :m0 mixer-init-state :m1 mixer-init-state :r0 mixer-init-state :r7 basic-mixer-init-state}
+   :riffs  {:s0 mixer-init-state :s1 mixer-init-state :m0 mixer-init-state :m1 mixer-init-state :r7 basic-mixer-init-state}
    :master {:s7 mixer-init-state :m7 mixer-init-state :r7 mixer-init-state}})
 
 (def banks
