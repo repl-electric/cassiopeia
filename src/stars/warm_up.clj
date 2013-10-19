@@ -10,12 +10,6 @@
    [stars.hardware.nano.connected :as nk-conn]
    [clojure.edn :as edn]))
 
- (= 0 bank)  (led-on nk :record)
-   (= 2 bank)  (led-on nk :play)
-   (= 4 bank)  (led-on nk :stop)
-   (= 8 bank)  (led-on nk :fast-forward)
-   (= 16 bank) (led-on nk :rewind)))
-
 (defn nk-bank
   "Returns the nk bank number for the specified bank key"
   [bank-k]
