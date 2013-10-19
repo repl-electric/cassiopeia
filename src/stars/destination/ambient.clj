@@ -1,7 +1,10 @@
 (ns stars.ambient
   (:use [overtone.live]
-        [stars.destination]
-        [stars.mixer]))
+        [stars.warm-up]
+        [stars.engine.mixer]
+        [overtone.synth.sampled-piano])
+  (:require [stars.timing :as tim]
+            [stars.synths :as syn]))
 
 (def stream ((:stream-under-bridge atmossy) :loop? true :rate 0.15))
 (def bird ((:birdsong atmossy) :loop? true))

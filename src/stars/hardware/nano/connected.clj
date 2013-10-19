@@ -14,7 +14,7 @@
 ;;   [state-map-k id val]
 ;;   (nksm/update-state state-maps state-map-k id val))
 
-;; (update-state :grumbles :slider7 1)
+;;(update-state :grumbles :slider7 1)
 
 (e/on-event [:nanoKON2 :control-change :marker-right]
             (fn [m]
@@ -64,4 +64,4 @@
 
 ;; To help debug:
 ;;
-;;(.printStackTrace (agent-error state-maps))
+(println :error (agent-error state-maps))

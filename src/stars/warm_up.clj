@@ -1,4 +1,4 @@
-(ns stars.core
+(ns stars.warm-up
   (:use
    [overtone.live]
    [stars.synths.mixers :only [basic-mixer]])

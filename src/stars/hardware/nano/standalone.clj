@@ -83,7 +83,7 @@
 ;;          :val val)
 
 (defonce out-osc
-  (osc/osc-client "localhost"  4499))
+  (osc/osc-client "localhost" 4499))
 
 ;; (e/on-latest-event [:v-nanoKON2]
 ;;                    (fn [m]

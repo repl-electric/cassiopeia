@@ -1,4 +1,4 @@
-(ns stars.synths
+(ns stars.synths.synths
   (:use [overtone.core]))
 
 (defsynth woah [note 52 out-bus 0 x 0]
