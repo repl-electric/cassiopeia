@@ -27,30 +27,27 @@
    14 17 14 17 14 17 14 17 14 17 14 17 14 17 14 17 14 17 0 17 0 17 0 17 0 17 0 17 0 17 0 17
    0 17 0 17 0 17 0 17 0 17 0 17 19 14 19 11 14 11 14 11 14])
 
-(defsynth space-organ []
+(defsynth space-organ [out-bus 0]
   (let [f     (map #(midicps (duty:kr % 0 (dseq satellite-data INF)))
                    [1 1/2 1/4])
         tones (map #(blip (* % %2) (mul-add:kr (lf-noise1:kr 1/2) 3 4))
                    f
                    [1 4 8])]
-    (out 0 (g-verb (sum tones) 200 8))))
+    (out out-bus (g-verb (sum tones) 200 8))))
 
 (defonce space-organ-g (group))
+(def ob (nkmx :s1))
 
-(space-organ [:head space-organ-g])
+(space-organ [:head space-organ-g] :out-bus ob)
 
-(volume 0.1)
+(stop)
 
-(ctl space-organ-g :speed 10)
+(volume 0.90)
 
 (do
-  (defonce soundscape (sample (freesound 38969))))
+  (defonce soundscape-sample (sample (freesound-path 38969)))
+  (defonce soundscape (soundscape-sample :loop? true :rate 0.15)))
 
-(ctl  (nkmx-sctl :s1)
-     :freq-mul-13 1/8
-     :mul-13 1
-     :add-13 0.5)
-
-
+(ctl soundscape :rate 0.15 :out-bud (nkmx :s1))
 
 (stop)
