@@ -36,7 +36,8 @@
                         (sample (freesound-path 116730))
                         (sample (freesound-path 113700))
                         (sample (freesound-path 113701))
-                        (sample (freesound-path 113702))])
+                        (sample (freesound-path 113702))
+                        (sample (freesound-path 60507))])
 
 (defonce trigger-samples [(sample (freesound-path 86773))
                         (sample (freesound-path 77305))
@@ -53,13 +54,14 @@
                                (sample (freesound-path 36325))])
 
 (defonce atmossy {:stream-under-bridge (sample (freesound-path 117329))
-                        :birdsong            (sample (freesound-path 18765))
-                        :rain-with-thunder   (sample (freesound-path 2523))
-                        :ocean-waves         (sample (freesound-path 48412))
-                        :water-dripping      (sample (freesound-path 116730))
-                        :bubbles1            (sample (freesound-path 113700))
-                        :bubbles2            (sample (freesound-path 113701))
-                        :bubbles3            (sample (freesound-path 113702))})
+                  :birdsong            (sample (freesound-path 18765))
+                  :rain-with-thunder   (sample (freesound-path 2523))
+                  :ocean-waves         (sample (freesound-path 48412))
+                  :ocean-waves2        (sample (freesound-path 60507))
+                  :water-dripping      (sample (freesound-path 116730))
+                  :bubbles1            (sample (freesound-path 113700))
+                  :bubbles2            (sample (freesound-path 113701))
+                  :bubbles3            (sample (freesound-path 113702))})
 
 (defonce bleep-samples
   [(freesound 34205)

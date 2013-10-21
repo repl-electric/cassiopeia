@@ -1,7 +1,7 @@
 (ns stars.synths.synths
   (:use [overtone.core]))
 
-(defsynth supersaw2 [freq 440 amp 2.5 fil-mul 2 rq 0.3 out-bus 0]
+(defsynth supersaw2 [freq 440 amp 2.5 fil-mul 2 rq 0.3 out-bus 0 duration 10]
   (let [input  (lf-saw freq)
         shift1 (lf-saw 4)
         shift2 (lf-saw 7)
@@ -19,7 +19,7 @@
         output (leak-dc:ar (* output 0.25))
         output (normalizer (rlpf output (* freq fil-mul) rq))]
 
-    (out out-bus (* amp output (line 1 0 10 FREE)))))
+    (out out-bus (* amp output (line 1 0 duration FREE)))))
 
 (defsynth guitar
   [amp 1 out-bus 0 in-bus 1]

@@ -30,23 +30,55 @@
 (defsynth spacey [out-bus 0 amp 1]
   (out out-bus (* amp (g-verb (blip (mouse-y 24 48) (mouse-x 1 100)) 200 8))))
 
-(defsynth space-organ [out-bus 0]
+(spacey)
+
+(defsynth space-organ-opera [out-bus 0 amp 1]
   (let [f     (map #(midicps (duty:kr % 0 (dseq satellite-data INF)))
                    [1 1/2 1/4])
         tones (map #(blip (* % %2) (mul-add:kr (lf-noise1:kr 1/2) 3 4))
                    f
                    [1 4 8 16 32 64])]
-    (out out-bus (g-verb (sum tones) 200 8))))
+    (out out-bus (* amp (g-verb (sum tones) 200 8)))))
 
 (defonce space-organ-g (group))
 
-(volume 0.5)
+(defsynth space-organ [out-bus 0 tone 1 duration 3 amp 1]
+  (let [f     (map #(midicps (duty:kr % 0 (dseq 2 4)))
+                   [1])
+        tones (map #(blip (* % %2) (mul-add:kr (lf-noise1:kr 1/8) 2 4))
+                   f
+                   [tone])]
+    (out out-bus (* amp (g-verb (sum tones) 200 8) (line 1 0 duration FREE)))))
+
+(space-organ :tone 50 :out-bus (nkmx :s1) :amp 0.05)
+
+(map (fn [[tone len]] (space-organ :tone tone :out-bus (nkmx :s1) :amp 0.35) (Thread/sleep (* 1000) len)) [[32 2] [36 4] [32 4] [32 4]])
+(map #(do (space-organ :tone % :out-bus (nkmx :s1) :amp 0.35 :duration 5) (Thread/sleep 2000)) [16 32])
+
+(periodic 2000 #(space-organ :amp 0.35 :tone 4 :out-bus (nkmx :s2)))
+
+(periodic 1000 #(doseq [[tone dur] [[4 1] [ 8 1] [16 1] [32 1] [16 1] [8 1]]] (space-organ :tone tone :out-bus (nkmx :s2) :amp 0.35 :duration dur) (Thread/sleep 500)))
+
+
+(kill beat)
+(stop)
+
+(volume 1)
+
+(sampled-piano :note 42)
 
 (spacey :out-bus (nkmx :s2))
-(space-organ [:head space-organ-g] :out-bus (nkmx :s1))
+(def opera (space-organ-opera [:head space-organ-g] :amp 0.2 :out-bus (nkmx :s1)))
+
+(ctl opera :amp 0.2)
 
 (def soundscape (sample-player (sample (freesound-path 38969)) :loop? true :rate 0.5))
 
-(ctl soundscape :rate 0.15 :out-bus (nkmx :s1))
+(ctl soundscape :rate 0.15 :amp 0.1 :out-bus (nkmx :s1))
+(kill soundscape)
 
+(def waves ((:ocean-waves2 atmossy) :loop? true :rate 0.50 :amp 0.1 :out-bus (nkmx :s2)))
+(ctl waves :amp 1 :rate 1)
+
+(kill waves)
 (stop)
