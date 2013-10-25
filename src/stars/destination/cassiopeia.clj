@@ -56,6 +56,8 @@
 
 (doseq [[tone len] [[32 2] [36 4] [32 4] [32 4]]]
   (space-organ :tone tone :out-bus (nkmx :s1) :amp 0.35) (Thread/sleep (* 1000 len)))
+(doseq [[tone len] [[24 5] [32 2] [18 4] [19 3]]]
+  (space-organ :tone tone :out-bus 0 :amp 0.35) (Thread/sleep (* 500 len)))
 
 (doseq [tone [16 32]]
   (space-organ :tone tone :out-bus (nkmx :s1) :amp 0.35 :duration 5) (Thread/sleep 2000))
