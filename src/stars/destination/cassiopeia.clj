@@ -54,13 +54,16 @@
 
 (space-organ :tone 50 :out-bus (nkmx :s1) :amp 0.05)
 
-(doseq [[tone len] [[32 2] [36 4] [32 4] [32 4]]] (space-organ :tone tone :out-bus (nkmx :s1) :amp 0.35) (Thread/sleep (* 1000 len)))
+(doseq [[tone len] [[32 2] [36 4] [32 4] [32 4]]]
+  (space-organ :tone tone :out-bus (nkmx :s1) :amp 0.35) (Thread/sleep (* 1000 len)))
 
-(doseq [tone [16 32]] (space-organ :tone tone :out-bus (nkmx :s1) :amp 0.35 :duration 5) (Thread/sleep 2000))
+(doseq [tone [16 32]]
+  (space-organ :tone tone :out-bus (nkmx :s1) :amp 0.35 :duration 5) (Thread/sleep 2000))
 
 (periodic 2000 #(space-organ :amp 0.35 :tone 4 :out-bus (nkmx :s2)))
 
-(periodic 1000 #(doseq [[tone dur] [[4 1] [ 8 1] [16 1] [32 1] [16 1] [8 1]]] (space-organ :tone tone :out-bus (nkmx :s2) :amp 0.35 :duration dur) (Thread/sleep 500)))
+(periodic 1000 #(doseq [[tone dur] [[4 1] [ 8 1] [16 1] [32 1] [16 1] [8 1]]]
+                  (space-organ :tone tone :out-bus (nkmx :s2) :amp 0.35 :duration dur) (Thread/sleep 500)))
 
 
 (kill beat)
