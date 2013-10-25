@@ -30,13 +30,13 @@
 (defsynth spacey [out-bus 0 amp 1]
   (out out-bus (* amp (g-verb (blip (mouse-y 24 48) (mouse-x 1 100)) 200 8))))
 
-(defsynth space-organ-opera [out-bus 0 amp 1]
+(defsynth space-organ-opera [out-bus 0 amp 1 room 200]
   (let [f     (map #(midicps (duty:kr % 0 (dseq satellite-data INF)))
                    [1 1/2 1/4])
         tones (map #(blip (* % %2) (mul-add:kr (lf-noise1:kr 1/2) 3 4))
                    f
                    [1 4 8 16 32 64])]
-    (out out-bus (* amp (g-verb (sum tones) 200 8)))))
+    (out out-bus (* amp (g-verb (sum tones) room 8)))))
 
 (defonce space-organ-g (group))
 
