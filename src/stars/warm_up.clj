@@ -6,24 +6,22 @@
   (:require
    [nano-kontrol2.core :as nk2]
    [nano-kontrol2.buttons :as btn]
+   [clojure.edn :as edn]
 
    [stars.engine.timing :as tim]
-   [stars.engine.mixer :as mx]
-   [clojure.edn :as edn]))
+   [stars.engine.mixer :as mx]))
 
 (defn nk-bank
   "Returns the nk bank number for the specified bank key"
   [bank-k]
   (case bank-k
-    :master 0 ; record
-    :m64 2    ; play
-    :m128 4   ; stop
-    :riffs 8  ; fast-forward
+    :master 0    ; record
+    :m64    2    ; play
+    :m128   4    ; stop
+    :riffs  8    ; fast-forward
     :synths 16)) ; rewind
 
 (defonce default-mixer-g (group :tail (foundation-safe-post-default-group)))
-
-;;(defonce mixer-master (mx/add-nk-mixer 0 :master))
 
 (def cfg
   {:synths {:s0 mixer-init-state :s1 mixer-init-state :s2 mixer-init-state :m0 mixer-init-state :m1 mixer-init-state :r0 mixer-init-state :r7 basic-mixer-init-state}

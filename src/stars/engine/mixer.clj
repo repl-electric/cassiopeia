@@ -4,8 +4,7 @@
   (:require [stars.engine.timing :as tim]))
 
 ;;State to store the currently active nk mixers
-(defonce korg-nano-kontrol-mixers
-  (atom {}))
+(defonce korg-nano-kontrol-mixers (atom {}))
 
 (defcgen wobble
   "wobble an input src"
@@ -244,10 +243,10 @@
                          (let [id  (:id msg)
                                val (:val msg)]
                            (if-let [f (get nano2-fns id)]
-                             (do ;;(println "-->" id ctl-bus (bus-get
-                               ;;ctl-bus))
+                             (do
+                               ;;(println "-->" id ctl-bus (bus-get ctl-bus))
                                (f val sin-ctl))
-;;                             (println "unbound: " note)
+                             (println "unbound: ?")
                              )))
                        (str handler-k control-id)))
     (on-node-destroyed mixer
