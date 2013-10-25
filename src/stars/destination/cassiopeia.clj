@@ -8,7 +8,7 @@
             [stars.synths.synths :as syn]))
 
 (def satellite-data
-  "Noise from a satellite pointed towards the Cassiopeia star"
+  "Noise from a satellite pointed towards the Cassiopeia constellation"
   [9 11 5 11 5 11 14 11 14 11 14 11 14 17 14 17 14 9 4 14 9 17
    14 17 9 21 9 4 14 4 9 4 9 21 4 9 21 4 9 14 17 14 17 14 17 9 17 14 17 0 17 0 17 0 14
    17 14 17 14 17 0 17 0 17 0 17 0 17 0 17 0 4 0 4 0 4 0 4 0 4 0 17 9 17 14 17 4 14 9 4 14
@@ -30,8 +30,6 @@
 (defsynth spacey [out-bus 0 amp 1]
   (out out-bus (* amp (g-verb (blip (mouse-y 24 48) (mouse-x 1 100)) 200 8))))
 
-(spacey)
-
 (defsynth space-organ-opera [out-bus 0 amp 1]
   (let [f     (map #(midicps (duty:kr % 0 (dseq satellite-data INF)))
                    [1 1/2 1/4])
@@ -50,10 +48,15 @@
                    [tone])]
     (out out-bus (* amp (g-verb (sum tones) 200 8) (line 1 0 duration FREE)))))
 
+;;Score
+
+(spacey)
+
 (space-organ :tone 50 :out-bus (nkmx :s1) :amp 0.05)
 
-(map (fn [[tone len]] (space-organ :tone tone :out-bus (nkmx :s1) :amp 0.35) (Thread/sleep (* 1000) len)) [[32 2] [36 4] [32 4] [32 4]])
-(map #(do (space-organ :tone % :out-bus (nkmx :s1) :amp 0.35 :duration 5) (Thread/sleep 2000)) [16 32])
+(doseq [[tone len] [[32 2] [36 4] [32 4] [32 4]]] (space-organ :tone tone :out-bus (nkmx :s1) :amp 0.35) (Thread/sleep (* 1000) len))
+
+(doseq [tone [16 32]] (do (space-organ :tone tone :out-bus (nkmx :s1) :amp 0.35 :duration 5) (Thread/sleep 2000)) )
 
 (periodic 2000 #(space-organ :amp 0.35 :tone 4 :out-bus (nkmx :s2)))
 
@@ -64,8 +67,6 @@
 (stop)
 
 (volume 1)
-
-(sampled-piano :note 42)
 
 (spacey :out-bus (nkmx :s2))
 (def opera (space-organ-opera [:head space-organ-g] :amp 0.2 :out-bus (nkmx :s1)))
