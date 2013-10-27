@@ -48,6 +48,13 @@
                    [tone])]
     (out out-bus (* amp (g-verb (sum tones) 200 8) (line 1 0 duration FREE)))))
 
+(defsynth plain-space-organ [out-bus 0 tone 1 duration 3 amp 1]
+  (let [tones (map #(blip (* % 2) (mul-add:kr 1/8 1 4)) [tone])]
+    (out out-bus (* amp (g-verb (sum tones) 200 8) (line 1 0 duration FREE)))))
+
+(def windy (sample (freesound-path 17553)) :loop? true)
+(ctl windy :rate 1 :vol 1 :out-bus (nkmx :m0))
+
 ;;Score
 
 (spacey)
