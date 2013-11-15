@@ -16,7 +16,8 @@
                  [org.lwjgl.lwjgl/lwjgl_util "2.8.5"]
                  [org.lwjgl.lwjgl/lwjgl-platform "2.8.5" :classifier "natives-osx"]
                  [watchtower "0.1.1"]
-                 [korg-nano-kontrol2 "0.1.0-SNAPSHOT"]]
+                 [korg-nano-kontrol2 "0.1.0-SNAPSHOT"]
+                 [launchpad "0.1.0-SNAPSHOT"]]
 
 :jvm-opts [
 ;;             "-agentpath:/Applications/YourKit_Java_Profiler_12.0.5.app/bin/mac/libyjpagent.jnilib"
@@ -53,4 +54,3 @@
                                   ;  to the older generation, rather
                                         ;  than copying them.
 )
-
