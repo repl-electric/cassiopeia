@@ -95,3 +95,57 @@
 
 (kill waves)
 (stop)
+
+(defonce beat-rep-key (uuid))
+(defonce get-beat-s (get-beat))
+
+(metronome/start lp :mixer count-trig-id beat-rep-key)
+
+(def pad-samples [kick-s snare-s high-hat-open-s heavy-bass-kick-s clap-s sizzling-high-hat-s])
+(def lp-sequencer (mk-sequencer "launchpad-sequencer" pad-samples phrase-size beat-cnt-bus beat-trg-bus 0))
+(defonce refresh-beat-key (uuid))
+
+  ;; 1 0 0 0 1 0 0 0 - 1 0 0 0 1 0 0 0
+  ;; 0 0 1 0 0 0 1 0 - 0 0 1 0 0 0 0 0
+  ;; 0 1 0 0 0 0 0 0 - 0 1 0 0 0 0 0 0
+  ;; 0 0 0 0 0 0 0 0 - 0 0 0 0 0 0 1 0
+  ;; 0 1 0 0 0 0 0 0 - 0 0 0 0 1 0 0 0
+
+
+(on-trigger count-trig-id (beat/grid-refresh lp lp-sequencer phrase-size) refresh-beat-key)
+(beat/setup-side-controls :up lp-sequencer)
+
+;;Adjust bpm
+(bind :up :7x6 (fn [] (ctl b-trg :div (swap! current-beat inc))))
+(bind :up :7x5 (fn [] (ctl b-trg :div (swap! current-beat dec))))
+
+;;Shutdown
+(bind :up :arm  (fn [lp] (beat/off lp lp-sequencer)))
+
+
+  (def space-notes [8 16 32 16 8])
+  (def space-tones [8 16 24])
+  (defsynth space-organ [out-bus 0 vol 1 size 200 r 8 noise 10 trig]
+    (let [notes (map #(midicps (duty:kr % 0 (dseq space-notes INF))) [1 1/2 1/4 1/8])
+          tones (map (fn [note tone] (blip (* note tone)
+                                          (mul-add:kr (lf-noise1:kr noise) 3 4))) notes space-tones)]
+      (out out-bus (* vol (g-verb (sum tones) size r)))))
+
+  (def so (space-organ :vol 0.5))
+  (ctl so :vol 0.01)
+
+  (ctl so :r 200)
+  (ctl so :size 0)
+  (ctl so :size 900)
+  (ctl so :noise 10)
+
+  (ctl so :vol 0.5)
+
+  (ctl so)
+
+  (stop)
+  (demo 5 (duty 1 0 (dseq [8 16 32 16 8] INF)))
+
+  (demo (free-verb (saw (midicps 32)) 3 500 200))
+  (kill space-organ)
+
