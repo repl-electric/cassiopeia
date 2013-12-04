@@ -1,6 +1,7 @@
 (ns stars.engine.timing
-  (:use [overtone.core]
-        [overtone.synth.timing]))
+  (:use [overtone.core])
+  (:require
+   [overtone.synth.timing :as timing]))
 
 (defonce count-trig-id (trig-id))
 (defonce root-trg-bus (control-bus)) ;; global metronome pulse
