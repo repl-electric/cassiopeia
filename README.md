@@ -1,8 +1,6 @@
-# The Stars My Destination
+# DefStars
 
 A space for _Machines_ and _Humans_ to make music together.
-
-![Tyger](http://s23.postimg.org/vepv6q8ln/Tyger.jpg])
 
 # Recorded Experiments
 
