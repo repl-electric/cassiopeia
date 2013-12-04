@@ -1,16 +1,16 @@
-# DefStars
+#DefStars - Cassiopeia
 
 A space for _Machines_ and _Humans_ to make music together.
 
-# Recorded Experiments
+#Recorded Experiments
 
 https://soundcloud.com/the-stars-my-destination
 
-# Influences
+#Influences
 
 Inspired by Meta-ex https://github.com/meta-ex/ignite
 
-## License
+##License
 
 Copyright © 2013 Joseph Wilk
 
