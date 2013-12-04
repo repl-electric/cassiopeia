@@ -1,11 +1,14 @@
 (ns stars.warm-up
   (:use
    [overtone.live]
-   [nano-kontrol2.config :only [mixer-init-state basic-mixer-init-state]])
+   [overtone.helpers.lib :only [uuid]]
+   [nano-kontrol2.config :only [mixer-init-state basic-mixer-init-state]]
+   [stars.samples])
   (:require
    [launchpad.core :as lp-core]
    [launchpad.plugin.metronome :as metronome]
    [launchpad.plugin.beat :as beat]
+   [launchpad.sequencer :as sequencer]
    [nano-kontrol2.core :as nk2]
    [nano-kontrol2.buttons :as btn]
    [clojure.edn :as edn]
@@ -46,16 +49,16 @@
 
 (def samples-set-1 [kick-s snare-s high-hat-open-s heavy-bass-kick-s clap-s sizzling-high-hat-s])
 
-(def lp-sequencer (mk-sequencer "launchpad-sequencer" samples-set-1 phrase-size timing/beat-cnt-bus timing/beat-trg-bus 0))
+(def lp-sequencer (sequencer/mk-sequencer "launchpad-sequencer" samples-set-1 phrase-size timing/beat-cnt-bus timing/beat-trg-bus 0))
 
 (defonce refresh-beat-key (uuid))
 
-(on-trigger count-trig-id (beat/grid-refresh lp lp-sequencer phrase-size) refresh-beat-key)
+(on-trigger timing/count-trig-id (beat/grid-refresh lp lp-sequencer phrase-size) refresh-beat-key)
 (beat/setup-side-controls :up lp-sequencer)
 
 ;;Adjust bpm
-(bind :up :7x6 (fn [] (ctl b-trg :div (swap! current-beat inc))))
-(bind :up :7x5 (fn [] (ctl b-trg :div (swap! current-beat dec))))
+(lp-core/bind :up :7x6 (fn [] (ctl timing/b-trg :div (swap! timing/current-beat inc))))
+(lp-core/bind :up :7x5 (fn [] (ctl timing/b-trg :div (swap! timing/current-beat dec))))
 
 ;;Shutdown
-(bind :up :arm  (fn [lp] (beat/off lp lp-sequencer))))
+(lp-core/bind :up :arm  (fn [lp] (beat/off lp lp-sequencer)))
