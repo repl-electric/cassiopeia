@@ -173,7 +173,7 @@
 
    ]
 
-  (let [clk (in:kr timing/beat-cnt-bus)]
+  (let [clk (in:kr timing/pi-x-bus)]
     (out:kr out-bus [(* amp-0 (mul-add:kr (/ (+ 1 (sin  (mul-add clk freq-mul-0 phase-shift-0))) 2) mul-0 add-0))
                      (* amp-1 (mul-add:kr (/ (+ 1 (sin  (mul-add clk freq-mul-1 phase-shift-1))) 2) mul-1 add-1))
                      (* amp-2 (mul-add:kr (/ (+ 1 (sin  (mul-add clk freq-mul-2 phase-shift-2))) 2) mul-2 add-2))
@@ -192,7 +192,6 @@
                      (* amp-15 (mul-add:kr (/ (+ 1 (sin  (mul-add clk freq-mul-15 phase-shift-15))) 2) mul-15 add-15))
 
                      ])))
-
 
 (def nano2-fns {:slider0 (fn [v mixer-g] (ctl mixer-g :rev-mix v))
                 :slider1 (fn [v mixer-g] (ctl mixer-g :delay-decay v))
@@ -213,22 +212,22 @@
 
 })
 
-;; (def nano2-fns {:slider0 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-0 v))
-;;                 :slider1 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-1 v))
-;;                 :slider2 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-2 v))
-;;                 :slider3 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-3 v))
-;;                 :slider4 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-4 v))
-;;                 :slider5 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-5 v))
-;;                 :slider6 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-6 v))
-;;                 :slider7 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-7 v))
-;;                 :pot0    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-8 v))
-;;                 :pot1    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-9 v))
-;;                 :pot2    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-10 v))
-;;                 :pot3    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-11 v))
-;;                 :pot4    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-12 v))
-;;                 :pot5    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-13 v))
-;;                 :pot6    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-14  v))
-;;                 :pot7    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-15 v))})
+(def nano2-fns {:slider0 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-0 v))
+                :slider1 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-1 v))
+                :slider2 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-2 v))
+                :slider3 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-3 v))
+                :slider4 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-4 v))
+                :slider5 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-5 v))
+                :slider6 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-6 v))
+                :slider7 (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-7 v))
+                :pot0    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-8 v))
+                :pot1    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-9 v))
+                :pot2    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-10 v))
+                :pot3    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-11 v))
+                :pot4    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-12 v))
+                :pot5    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-13 v))
+                :pot6    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-14  v))
+                :pot7    (fn [v sin-ctl-s] (ctl sin-ctl-s :amp-15 v))})
 
 (def nano2-controls (keys nano2-fns))
 
@@ -247,8 +246,10 @@
                        (fn [msg]
                          (let [id  (:id msg)
                                val (:val msg)]
+                           (println :msg msg)
                            (if-let [f (get nano2-fns id)]
-                             (do ;;(println "-->" id ctl-bus (bus-get ctl-bus))
+                             (do
+                               (println "-->" id ctl-bus)
                                (f val sin-ctl)
                                )
 ;;                             (println "unbound: " note)
