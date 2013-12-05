@@ -56,25 +56,18 @@
 ;;(defonce drum-trigger-mix-g (group :after drum-g))
 ;;(defonce drum-basic-mixer-g (group :after default-mixer-g))
 
-(def sequencer-64   (lp-sequencer/mk-sequencer
-                     "lp68"
-                     samples-set-1
-                     phrase-size
-                     timing/beat-cnt-bus
-                     timing/beat-trg-bus
-                     0))
+(def sequencer-64
+  (sequencer/mk-sequencer
+   (nk-bank :lp64)
+   "lp68"
+   samples-set-1
+   phrase-size
+   drum-g
+   timing/beat-cnt-bus
+   timing/beat-trg-bus
+   0))
 
-(comment
-  (def sequencer-64
-    (sequencer/mk-sequencer
-     (nk-bank :lp64)
-     "lp68"
-     samples-set-1
-     phrase-size
-     drum-g
-     timing/beat-cnt-bus
-     timing/beat-trg-bus
-     0)))
+;;(def sequencer-64 (lp-sequencer/mk-sequencer "launchpad-sequencer" samples-set-1 phrase-size timing/beat-cnt-bus timing/beat-trg-bus 0))
 
 (defonce refresh-beat-key (uuid))
 
@@ -88,19 +81,18 @@
 ;;Shutdown
 (lp-core/bind :up :arm  (fn [lp] (beat/off lp sequencer-64)))
 
-(comment
-  (defonce synth-bus (audio-bus 2))
-  (defonce riffs-bus (audio-bus 2))
-  (defonce basic-synth-mix (mixers/basic-mixer [:after default-mixer-g] :in-bus synth-bus))
-  (defonce basic-riffs-mix (mixers/basic-mixer [:after default-mixer-g] :in-bus riffs-bus))
 
-  (on-latest-event [:v-nanoKON2 (nk-bank :synths) :r7 :control-change :slider7]
-                   (fn [{:keys [val]}]
-                     (ctl basic-synth-mix :amp val))
-                   ::synths-master-amp)
+(defonce synth-bus (audio-bus 2))
+(defonce riffs-bus (audio-bus 2))
+(defonce basic-synth-mix (mixers/basic-mixer [:after default-mixer-g] :in-bus synth-bus))
+(defonce basic-riffs-mix (mixers/basic-mixer [:after default-mixer-g] :in-bus riffs-bus))
 
-  (on-latest-event [:v-nanoKON2 (nk-bank :riffs) :r7 :control-change :slider7]
-                   (fn [{:keys [val]}]
-                     (ctl basic-riffs-mix :amp val))
-                   ::riffs-master-amp)
-)
+(on-latest-event [:v-nanoKON2 (nk-bank :synths) :r7 :control-change :slider7]
+                 (fn [{:keys [val]}]
+                   (ctl basic-synth-mix :amp val))
+                 ::synths-master-amp)
+
+(on-latest-event [:v-nanoKON2 (nk-bank :riffs) :r7 :control-change :slider7]
+                 (fn [{:keys [val]}]
+                   (ctl basic-riffs-mix :amp val))
+                 ::riffs-master-amp)
