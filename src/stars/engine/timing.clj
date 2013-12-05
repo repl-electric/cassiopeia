@@ -3,6 +3,8 @@
   (:require
    [overtone.synth.timing :as timing]))
 
+(defonce root-b (control-bus))
+
 (defonce count-trig-id (trig-id))
 (defonce root-trg-bus (control-bus)) ;; global metronome pulse
 (defonce root-cnt-bus (control-bus)) ;; global metronome count
@@ -17,3 +19,5 @@
 (defsynth get-beat [] (send-trig (in:kr beat-trg-bus) count-trig-id (+ (in:kr beat-cnt-bus) 1)))
 
 (defonce get-beat-s (get-beat))
+
+(defonce pi-x-bus (control-bus))
