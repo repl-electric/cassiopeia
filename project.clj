@@ -5,19 +5,11 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
 :dependencies [[org.clojure/clojure "1.5.1"]
-                 [aleph "0.3.0-beta7"]
-                 [overtone "0.9.0-SNAPSHOT"]
-                 [polynome "0.3.0-SNAPSHOT"]
-                 [quil "1.6.0"]
-                 [compojure "1.1.1"]
-                 [org.clojure/data.json "0.1.2"]
-                 [seesaw "1.4.3"]
-                 [org.lwjgl.lwjgl/lwjgl "2.8.5"]
-                 [org.lwjgl.lwjgl/lwjgl_util "2.8.5"]
-                 [org.lwjgl.lwjgl/lwjgl-platform "2.8.5" :classifier "natives-osx"]
-                 [watchtower "0.1.1"]
-                 [korg-nano-kontrol2 "0.1.0-SNAPSHOT"]
-                 [launchpad "0.1.0-SNAPSHOT"]]
+               [overtone "0.9.1"]
+
+               [korg-nano-kontrol2 "0.1.0-SNAPSHOT"]
+               [launchpad "0.1.0-SNAPSHOT"]
+               [overtone.synths "0.1.0-SNAPSHOT"]]
 
 :jvm-opts [
 ;;             "-agentpath:/Applications/YourKit_Java_Profiler_12.0.5.app/bin/mac/libyjpagent.jnilib"
