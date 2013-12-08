@@ -8,6 +8,7 @@
    [launchpad.core :as lp-core]
    [launchpad.plugin.metronome :as metronome]
    [launchpad.plugin.beat :as beat]
+     [launchpad.plugin.beat-scroll :as beat-scroll]
    [launchpad.sequencer :as lp-sequencer]
    [nano-kontrol2.core :as nk2]
    [nano-kontrol2.buttons :as btn]
@@ -36,6 +37,7 @@
           :s1 ["lp64-3" mixer-init-state]
           :m1 ["lp64-4" mixer-init-state]
           :r1 ["lp64-5" mixer-init-state]
+          :s2 ["lp64-6" mixer-init-state]
           :s3 ["lp64-triggers" mixer-init-state]
           :r7 ["lp64-master" basic-mixer-init-state]}})
 
@@ -54,7 +56,7 @@
 (defonce beat-rep-key (uuid))
 (metronome/start lp :mixer timing/count-trig-id beat-rep-key)
 
-(def samples-set-1 [kick-s snare-s high-hat-open-s heavy-bass-kick-s clap-s sizzling-high-hat-s])
+(def samples-set-1 [kick-s snare-s high-hat-open-s heavy-bass-kick-s clap-s sizzling-high-hat-s hat-s boom-s bell-s godzilla-s])
 
 (defonce default-mixer-g (group :tail (foundation-safe-post-default-group)))
 (defonce drum-g (group))
@@ -64,6 +66,8 @@
 (defonce lp64-b  (audio-bus 2 "lp64 basic-mixer"))
 (defonce bas-mix-s64  (mixers/basic-mixer [:head drum-basic-mixer-g] :in-bus lp64-b :mute 0))
 (defonce trig64-mixer (mixers/add-nk-mixer (nk-bank :lp64) "lp64-triggers" drum-trigger-mix-g lp64-b))
+
+(ctl bas-mix-s64 :mute 1)
 
 (defonce sequencer-64
   (sequencer/mk-sequencer
@@ -76,11 +80,9 @@
    timing/beat-trg-bus
    lp64-b))
 
-;;(def sequencer-64 (lp-sequencer/mk-sequencer "launchpad-sequencer" samples-set-1 phrase-size timing/beat-cnt-bus timing/beat-trg-bus 0))
-
 (defonce refresh-beat-key (uuid))
 
-(on-trigger timing/count-trig-id (beat/grid-refresh lp sequencer-64 phrase-size) refresh-beat-key)
+(on-trigger timing/count-trig-id (beat-scroll/grid-refresh lp sequencer-64 phrase-size :up) refresh-beat-key)
 (beat/setup-side-controls :up sequencer-64)
 
 ;;Adjust bpm
@@ -88,8 +90,9 @@
 (lp-core/bind :up :7x5 (fn [] (ctl timing/b-trg :div (swap! timing/current-beat dec))))
 
 ;;Shutdown
-(lp-core/bind :up :arm  (fn [lp] (beat/off lp sequencer-64)))
-
+(lp-core/bind :up :arm  (fn [lp]
+                          (ctl bas-mix-s64 :mute 0)
+                          (beat/off lp sequencer-64)))
 
 (defonce synth-bus (audio-bus 2))
 (defonce riffs-bus (audio-bus 2))

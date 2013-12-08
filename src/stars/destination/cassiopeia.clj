@@ -3,8 +3,11 @@
         [stars.warm-up]
         [stars.samples]
         [overtone.synth.sampled-piano])
-  (:require [stars.engine.timing :as timing]))
-
+  (:require [stars.engine.timing :as timing]
+            [launchpad.sequencer :as lp-sequencer]
+            [launchpad.plugin.beat :as lp-beat]
+            [overtone.synths :as syn]
+            [overtone.inst.synth :as s]))
 
 (do
   (def satellite-data
@@ -54,7 +57,9 @@
 
   (def windy (sample (freesound-path 17553)))
   (def w  (windy :loop? true))
-  (ctl w :rate 1 :vol 1 :out-bus 0))
+  (ctl w :rate 0.1 :vol 1 :out-bus 0))
+
+(syn/fallout-wind)
 
 ;;Score
 
@@ -98,32 +103,53 @@
   (stop))
 
 (do
-  (reset! timing/current-beat 36)
 
-  ;; Beat sequences
-  ;; 1 0 0 0 1 0 0 0 - 1 0 0 0 1 0 0 0
-  ;; 0 0 1 0 0 0 1 0 - 0 0 1 0 0 0 0 0
-  ;; 0 1 0 0 0 0 0 0 - 0 1 0 0 0 0 0 0
-  ;; 0 0 0 0 0 0 0 0 - 0 0 0 0 0 0 1 0
-  ;; 0 1 0 0 0 0 0 0 - 0 0 0 0 1 0 0 0
+  (do
+    (reset! timing/current-beat 36)
+    (map-indexed
+     #(lp-sequencer/sequencer-write! sequencer-64 %1 %2)
+     [[1 0 0 0 1 0 0 0  1 0 0 0 1 0 0 0]
+      [0 0 1 0 0 0 1 0  0 0 1 0 0 0 0 0]
+      [0 1 0 0 0 0 0 0  0 1 0 0 0 0 0 0]
+      [0 0 0 0 0 0 0 0  0 0 0 0 0 0 1 0]
+      [0 1 0 0 0 0 0 0  0 0 0 0 1 0 0 0]
+      [1 0 0 0 0 0 0 0  1 0 0 0 0 0 0 0]])
+    (lp-beat/grid-pull lp sequencer-64))
 
   (def space-notes [8 16 32 16 8])
   (def space-tones [8 16 24])
-  (defsynth high-space-organ [out-bus 0 vol 1 size 200 r 8 noise 10 trig 0]
-    (let [notes (map #(midicps (duty:kr % (mod trig 8) (dseq space-notes INF))) [1 1/2 1/4 1/8])
+  (defsynth high-space-organ [out-bus 0 vol 1 size 200 r 8 noise 10 trig 0 t0 8 t1 16 t2 24 d0 1 d1 1/2 d2 1/4 d3 1/8]
+    (let [notes (map #(midicps (duty:kr % (mod trig 16) (dseq space-notes INF))) [d0 d1 d2 d3])
           tones (map (fn [note tone] (blip (* note tone)
-                                          (mul-add:kr (lf-noise1:kr noise) 3 4))) notes space-tones)]
+                                          (mul-add:kr (lf-noise1:kr noise) 3 4))) notes [t0 t1 t2])]
       (out out-bus (* vol (g-verb (sum tones) size r)))))
 
-  (def so (high-space-organ :vol 0.5 :trig timing/beat-cnt-bus))
-  (ctl so :vol 0.02)
+  (def so (high-space-organ :vol 0.5 :trig timing/beat-cnt-bus :noise 220 :t0 2 :t1 4 :t2 8))
+  (ctl so :noise 10)
+  (ctl so :vol 1)
 
-  (ctl so :r 200)
+  (ctl so :t0 8 :t1 12 :t2 16)
+  (ctl so :t0 8 :t1 16 :t2 24)
+  (ctl so :t0 2 :t1 4 :t2 8)
+
+  (ctl so :d0 1 :d1 1/2 :d2 1/4 :d3 1/8)
+
+  (ctl so :r 10)
   (ctl so :size 0)
-  (ctl so :size 900)
-  (ctl so :noise 200)
+  (ctl so :size 200)
 
-  (ctl so :vol 0.5)
+  (ctl so :vol 0.1)
+
+  (stop)
+(kill so)
+
+  (kill syn/sing)
+  (def v (syn/sing :freq 580))
+  (apply ctl v (syn/settings-for :soprano :A))
+  (apply ctl v (syn/settings-for :soprano :E))
+  (apply ctl v (syn/settings-for :soprano :I))
+  (apply ctl v (syn/settings-for :soprano :O))
+  (apply ctl v (syn/settings-for :soprano :U))
 
   (kill so)
   ;;  (stop)

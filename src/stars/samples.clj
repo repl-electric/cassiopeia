@@ -4,6 +4,8 @@
 
 (defonce tom-electro-s     (sample (freesound-path 108001)))
 (defonce high-hat-open-s   (sample (freesound-path 207914)))
+(defonce hat-s             (sample (freesound-path 178663)))
+
 (defonce heavy-bass-kick-s (sample (freesound-path 80509)))
 
 (defonce snare-s             (sample (freesound-path 100397)))
