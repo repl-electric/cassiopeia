@@ -51,12 +51,12 @@
 (nk2/start! banks cfg)
 
 (def lp (first lp-core/launchpad-kons))
-(def phrase-size 16)
+(def phrase-size 32)
 
 (defonce beat-rep-key (uuid))
 (metronome/start lp :mixer timing/count-trig-id beat-rep-key)
 
-(def samples-set-1 [kick-s snare-s high-hat-open-s heavy-bass-kick-s clap-s sizzling-high-hat-s hat-s boom-s bell-s godzilla-s])
+(def samples-set-1 [kick-s snare-s high-hat-open-s heavy-bass-kick-s clap-s sizzling-high-hat-s hat-s boom-s bell-s godzilla-s heavy-bass-kick-a-s])
 
 (defonce default-mixer-g (group :tail (foundation-safe-post-default-group)))
 (defonce drum-g (group))

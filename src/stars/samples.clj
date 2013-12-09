@@ -21,3 +21,5 @@
 (defonce choir-s    (sample (freesound-path 172323)))
 (defonce godzilla-s (sample (freesound-path 206078)))
 (defonce outiuty-s  (sample (freesound-path 55086)))
+
+(def heavy-bass-kick-a-s (load-sample "~/Workspace/music/samples/A80509__chiitown__heavy-bass-kick.wav"))
