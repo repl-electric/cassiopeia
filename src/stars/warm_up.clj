@@ -118,20 +118,28 @@
 
 (def seq-mixers  (doall (map #(mixers/add-nk-mixer (nk-bank :lp64) (str "lp64-seq-" %) seq-mixer-group lp64-b) (range 5))))
 
-(def phat        (lp-sequencer/phasor-skipping-sequencer [:tail seq-g] :buf (to-sc-id phat-s) :loop? true :bar-trg 0 :amp 0        :out-bus   (-> seq-mixers (nth 0) :in-bus)))
-(def groove      (lp-sequencer/phasor-skipping-sequencer [:tail seq-g] :buf (to-sc-id groove-s) :loop? true :bar-trg 0 :amp 0      :out-bus (-> seq-mixers (nth 1) :in-bus)))
-(def funky       (lp-sequencer/phasor-skipping-sequencer [:tail seq-g] :buf (to-sc-id funky-s) :loop? true :bar-trg 0 :amp 0       :out-bus (-> seq-mixers (nth 2) :in-bus) ))
-(def memory-moon (lp-sequencer/phasor-skipping-sequencer [:tail seq-g] :buf (to-sc-id memory-moon-s) :loop? true :bar-trg 0 :amp 0 :out-bus (-> seq-mixers (nth 3) :in-bus) ))
-(def retweak     (lp-sequencer/phasor-skipping-sequencer [:tail seq-g] :buf (to-sc-id retweak-s) :loop? true :bar-trg 0 :amp 0     :out-bus (-> seq-mixers (nth 4) :in-bus)))
+(def sample-rows [arp-s
+                  arp-chord-s
+                  voice-1-s
+                  voice-2-s
+                  strings-s
+                  drums-s
+                  chords-s])
 
-(def phat-row        {:row 0 :sample phat-s        :sequencer phat})
-(def groove-row      {:row 1 :sample groove-s      :sequencer groove})
-(def funky-row       {:row 2 :sample funky-s       :sequencer funky})
-(def memory-moon-row {:row 3 :sample memory-moon-s :sequencer memory-moon})
-(def retweak-row     {:row 4 :sample retweak-s     :sequencer retweak})
+(def all-row-samples
+  (doall (map-indexed
+          (fn [idx sample] {:row idx
+                           :sample sample
+                           :sequencer (lp-sequencer/phasor-skipping-sequencer [:tail seq-g]
+                                                                              :buf (to-sc-id sample)
+                                                                              :loop? true
+                                                                              :bar-trg 0
+                                                                              :amp 0
+                                                                              :out-bus 0)})
+          sample-rows)))
 
 (use 'launchpad.plugin.sample-rows :reload)
-(sample-rows lp :left [phat-row groove-row funky-row memory-moon-row retweak-row])
+(sample-rows lp :left all-row-samples)
 
 (defonce synth-bus (audio-bus 2))
 (defonce riffs-bus (audio-bus 2))
