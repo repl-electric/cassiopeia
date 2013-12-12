@@ -22,4 +22,10 @@
 (defonce godzilla-s (sample (freesound-path 206078)))
 (defonce outiuty-s  (sample (freesound-path 55086)))
 
+(def phat-s        (sample (freesound-path 198924)))
+(def groove-s      (sample (freesound-path 48488)))
+(def funky-s       (sample (freesound-path 172549)))
+(def memory-moon-s (sample (freesound-path 27567)))
+(def retweak-s     (sample (freesound-path 25921)))
+
 (def heavy-bass-kick-a-s (load-sample "~/Workspace/music/samples/A80509__chiitown__heavy-bass-kick.wav"))

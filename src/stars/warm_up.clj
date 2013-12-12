@@ -8,7 +8,10 @@
    [launchpad.core :as lp-core]
    [launchpad.plugin.metronome :as metronome]
    [launchpad.plugin.beat :as beat]
-     [launchpad.plugin.beat-scroll :as beat-scroll]
+   [launchpad.plugin.beat-scroll :as beat-scroll]
+
+   [launchpad.plugin.sample-rows :as sr]
+
    [launchpad.sequencer :as lp-sequencer]
    [nano-kontrol2.core :as nk2]
    [nano-kontrol2.buttons :as btn]
@@ -31,15 +34,25 @@
   {:synths {:s0 mixer-init-state :s1 mixer-init-state :s2 mixer-init-state :m0 mixer-init-state :m1 mixer-init-state :r0 mixer-init-state :r7 basic-mixer-init-state}
    :riffs  {:s0 mixer-init-state :s1 mixer-init-state :m0 mixer-init-state :m1 mixer-init-state :r7 basic-mixer-init-state}
    :master {:s7 mixer-init-state :m7 mixer-init-state :r7 mixer-init-state}
-   :lp64 {:s0 ["lp64-0" mixer-init-state]
+   :lp64 {
+          ;;Beats
+          :s0 ["lp64-0" mixer-init-state]
           :m0 ["lp64-1" mixer-init-state]
           :r0 ["lp64-2" mixer-init-state]
           :s1 ["lp64-3" mixer-init-state]
           :m1 ["lp64-4" mixer-init-state]
           :r1 ["lp64-5" mixer-init-state]
           :s2 ["lp64-6" mixer-init-state]
+
           :s3 ["lp64-triggers" mixer-init-state]
-          :r7 ["lp64-master" basic-mixer-init-state]}})
+          :r7 ["lp64-master" basic-mixer-init-state]
+
+          ;;Row mapped samples
+          :s4 ["lp64-seq-0" mixer-init-state]
+          :m4 ["lp64-seq-1" mixer-init-state]
+          :r4 ["lp64-seq-2" mixer-init-state]
+          :s5 ["lp64-seq-3" mixer-init-state]
+          :m5 ["lp64-seq-4" mixer-init-state]}})
 
 (def banks
   {:master btn/record
@@ -51,7 +64,7 @@
 (nk2/start! banks cfg)
 
 (def lp (first lp-core/launchpad-kons))
-(def phrase-size 32)
+(def phrase-size 16)
 
 (defonce beat-rep-key (uuid))
 (metronome/start lp :mixer timing/count-trig-id beat-rep-key)
@@ -93,6 +106,32 @@
 (lp-core/bind :up :arm  (fn [lp]
                           (ctl bas-mix-s64 :mute 0)
                           (beat/off lp sequencer-64)))
+
+
+(ctl bas-mix-s64 :mute 1)
+
+(defonce seq-g (group))
+(def seq-mixer-group (group "lp-mixers" :after seq-g))
+(defonce seq-trigger-mix-g (group :after seq-g))
+(defonce seq-basic-mixer-g (group :after default-mixer-g))
+(defonce seq-mix-s64  (mixers/basic-mixer [:head seq-basic-mixer-g] :in-bus lp64-b :mute 0))
+
+(def seq-mixers  (doall (map #(mixers/add-nk-mixer (nk-bank :lp64) (str "lp64-seq-" %) seq-mixer-group lp64-b) (range 5))))
+
+(def phat        (lp-sequencer/phasor-skipping-sequencer [:tail seq-g] :buf (to-sc-id phat-s) :loop? true :bar-trg 0 :amp 0        :out-bus   (-> seq-mixers (nth 0) :in-bus)))
+(def groove      (lp-sequencer/phasor-skipping-sequencer [:tail seq-g] :buf (to-sc-id groove-s) :loop? true :bar-trg 0 :amp 0      :out-bus (-> seq-mixers (nth 1) :in-bus)))
+(def funky       (lp-sequencer/phasor-skipping-sequencer [:tail seq-g] :buf (to-sc-id funky-s) :loop? true :bar-trg 0 :amp 0       :out-bus (-> seq-mixers (nth 2) :in-bus) ))
+(def memory-moon (lp-sequencer/phasor-skipping-sequencer [:tail seq-g] :buf (to-sc-id memory-moon-s) :loop? true :bar-trg 0 :amp 0 :out-bus (-> seq-mixers (nth 3) :in-bus) ))
+(def retweak     (lp-sequencer/phasor-skipping-sequencer [:tail seq-g] :buf (to-sc-id retweak-s) :loop? true :bar-trg 0 :amp 0     :out-bus (-> seq-mixers (nth 4) :in-bus)))
+
+(def phat-row        {:row 0 :sample phat-s        :sequencer phat})
+(def groove-row      {:row 1 :sample groove-s      :sequencer groove})
+(def funky-row       {:row 2 :sample funky-s       :sequencer funky})
+(def memory-moon-row {:row 3 :sample memory-moon-s :sequencer memory-moon})
+(def retweak-row     {:row 4 :sample retweak-s     :sequencer retweak})
+
+(use 'launchpad.plugin.sample-rows :reload)
+(sample-rows lp :left [phat-row groove-row funky-row memory-moon-row retweak-row])
 
 (defonce synth-bus (audio-bus 2))
 (defonce riffs-bus (audio-bus 2))

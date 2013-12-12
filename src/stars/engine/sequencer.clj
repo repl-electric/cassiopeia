@@ -29,25 +29,20 @@
         vol      (set-reset-ff bar-trg)]
     (out out-bus (* vol (pan2 (scaled-play-buf 1 buf rate bar-trg) pan)))))
 
-(defsynth skipping-sequencer
-  "Supports looping and jumping position"
-  [buf 0 rate 1 out-bus 0 start-point 0 bar-trg [0 :tr] loop? 0 vol 1.0 pan 0]
-  (let [p (scaled-play-buf 1 buf rate bar-trg start-point loop?)]
-    (out [0 1] (* vol p))))
-
 (defn- start-synths [samples patterns mixers num-steps tgt-group beat-cnt-bus beat-trg-bus out-bus]
   (let [out-busses (if mixers
                      (map :in-bus mixers)
                      (repeat out-bus))]
+    (println :busses-> out-busses)
     (doall (mapcat (fn [sample pattern out-bus]
                      (map (fn [step-idx]
-                            (orig-mono-sequencer [:tail tgt-group]
-                                                 :buf (to-sc-id sample)
-                                                 :beat-num step-idx
-                                                 :pattern (:pattern-buf pattern)
-                                                 :beat-cnt-bus beat-cnt-bus
-                                                 :beat-trg-bus beat-trg-bus
-                                                 :out-bus out-bus))
+                            (mono-sequencer [:tail tgt-group]
+                                            :buf (to-sc-id sample)
+                                            :beat-num step-idx
+                                            :pattern (:pattern-buf pattern)
+                                            :beat-cnt-bus beat-cnt-bus
+                                            :beat-trg-bus beat-trg-bus
+                                            :out-bus out-bus))
                           (range num-steps)))
                    samples
                    patterns
