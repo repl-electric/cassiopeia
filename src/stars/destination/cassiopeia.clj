@@ -1,4 +1,10 @@
 (ns stars.cassiopeia
+  "                     /                /
+ ___  ___  ___  ___    ___  ___  ___    ___
+|    |   )|___ |___ | |   )|   )|___)| |   )
+|__  |__/| __/  __/ | |__/ |__/ |__  | |__/|
+                           |
+Cassiopeia is a constellation in the northern sky, named after the vain queen Cassiopeia in Greek mythology, who boasted about her unrivalled beauty"
   (:use [overtone.live]
         [stars.warm-up]
         [stars.samples]
@@ -59,8 +65,6 @@
   (def w  (windy :loop? true))
   (ctl w :rate 0.1 :vol 1 :out-bus 0))
 
-(syn/fallout-wind)
-
 ;;Score
 
 (do
@@ -103,23 +107,27 @@
   (stop))
 
 (do
+  (def fallout-wind (syn/fallout-wind))
+  (syn/alien-wail)
+  (def phase (syn/soft-phasing))
+  (ctl phase :amp 0.2)
 
   (do
-    (reset! timing/current-beat 36)
+;;    (reset! timing/current-beat 36)
     (map-indexed
      #(lp-sequencer/sequencer-write! sequencer-64 %1 %2)
-     [[1 0 0 0 1 0 0 0  1 0 0 0 1 0 0 0  1 0 0 0 1 0 0 0  1 0 0 0 1 0 0 0]
-      [0 0 1 0 0 0 1 0  0 0 1 0 0 0 0 0  0 0 1 0 0 0 1 0  0 0 1 0 0 0 0 0]
-      [0 1 0 0 0 0 0 0  0 1 0 0 0 0 0 0  0 1 0 0 0 0 0 0  0 1 0 0 0 0 0 0]
-      [0 0 0 0 0 0 0 0  0 0 0 0 0 0 1 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0]
-      [0 1 0 0 0 0 0 0  0 0 0 0 1 0 0 0  0 1 0 0 0 0 0 0  0 0 0 0 1 0 0 0]
-      [1 0 0 0 0 0 0 0  1 0 0 0 0 0 0 0  1 0 0 0 0 0 0 0  1 0 0 0 0 0 0 0]
-      [0 1 0 0 0 0 0 0  0 1 0 0 0 0 0 0  0 1 0 0 0 0 0 0  0 1 0 0 0 0 0 0]
-      [0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0]
+     [[1 0 0 0 1 0 0 0  1 0 0 0 1 0 0 0 0 0]
+      [0 0 1 0 0 0 1 0  0 0 1 0 0 0 0 0 0 0]
+      [0 1 0 0 0 0 0 0  0 1 0 0 0 0 0 0 0 0]
+      [0 0 0 0 0 0 0 0  0 0 0 0 0 0 1 0 0 0]
+      [0 1 0 0 0 0 0 0  0 0 0 0 1 0 0 0 0 0]
+      [1 0 0 0 0 0 0 0  1 0 0 0 0 0 0 0 0 0]
+      [0 1 0 0 0 0 0 0  0 1 0 0 0 0 0 0 0 0]
+      [0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0]
 
-      [0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0]
-      [0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0]
-      [0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 1 0]])
+      [0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0]
+      [0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0]
+      [0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 ]])
     (lp-beat/grid-pull lp sequencer-64))
 
   (def space-notes [8 16 32 16 8])
