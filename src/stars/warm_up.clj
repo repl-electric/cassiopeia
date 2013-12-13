@@ -52,7 +52,10 @@
           :m4 ["lp64-seq-1" mixer-init-state]
           :r4 ["lp64-seq-2" mixer-init-state]
           :s5 ["lp64-seq-3" mixer-init-state]
-          :m5 ["lp64-seq-4" mixer-init-state]}})
+          :m5 ["lp64-seq-4" mixer-init-state]
+          :r5 ["lp64-seq-5" mixer-init-state]
+          :s6 ["lp64-seq-6" mixer-init-state]
+          :m6 ["lp64-seq-7" mixer-init-state]}})
 
 (def banks
   {:master btn/record
@@ -69,7 +72,8 @@
 (defonce beat-rep-key (uuid))
 (metronome/start lp :mixer timing/count-trig-id beat-rep-key)
 
-(def samples-set-1 [kick-s snare-s high-hat-open-s heavy-bass-kick-s clap-s sizzling-high-hat-s hat-s boom-s bell-s godzilla-s heavy-bass-kick-a-s])
+;;(def samples-set-1 [kick-s snare-s shaker-s hat-s])
+(def samples-set-1 [custom-kick-s custom-long-shake-s custom-shake-s custom-tom-shake-s custom-fast-shake-s])
 
 (defonce default-mixer-g (group :tail (foundation-safe-post-default-group)))
 (defonce drum-g (group))
@@ -116,15 +120,28 @@
 (defonce seq-basic-mixer-g (group :after default-mixer-g))
 (defonce seq-mix-s64  (mixers/basic-mixer [:head seq-basic-mixer-g] :in-bus lp64-b :mute 0))
 
-(def seq-mixers  (doall (map #(mixers/add-nk-mixer (nk-bank :lp64) (str "lp64-seq-" %) seq-mixer-group lp64-b) (range 5))))
+(def sample-selection [arp-s
+                       arp-chord-s
+                       voice-1-s
+                       voice-2-s
+                       strings-s
+                       drums-s
+                       chords-s
+                       dub-s
 
-(def sample-rows [arp-s
-                  arp-chord-s
-                  voice-1-s
-                  voice-2-s
-                  strings-s
-                  drums-s
-                  chords-s])
+                       bass-1-s
+                       bass-2-s
+                       bass-3-s
+                       hard-1-s
+                       hard-2-s
+                       hard-3-s
+                       gtr-1-s
+
+                       gtr-2-s
+                       gtr-3-s
+                       gtr-str-s])
+
+(def seq-mixers  (doall (map-indexed (fn [idx _] (mixers/add-nk-mixer (nk-bank :lp64) (str "lp64-seq-" idx) seq-mixer-group lp64-b)) sample-selection)))
 
 (def all-row-samples
   (doall (map-indexed
@@ -135,8 +152,8 @@
                                                                               :loop? true
                                                                               :bar-trg 0
                                                                               :amp 0
-                                                                              :out-bus 0)})
-          sample-rows)))
+                                                                              :out-bus (:in-bus (get-in seq-mixers [idx] {:in-bus 0})))})
+          sample-selection)))
 
 (use 'launchpad.plugin.sample-rows :reload)
 (sample-rows lp :left all-row-samples)
