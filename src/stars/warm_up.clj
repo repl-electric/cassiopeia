@@ -94,7 +94,7 @@
    phrase-size
    drum-g
    timing/beat-cnt-bus
-   timing/beat-trg-bus
+   timing/beat-bus
    lp64-b))
 
 (defonce refresh-beat-key (uuid))
@@ -103,8 +103,8 @@
 (beat/setup-side-controls :up sequencer-64)
 
 ;;Adjust bpm
-(lp-core/bind :up :7x6 (fn [] (ctl timing/b-trg :div (swap! timing/current-beat inc))))
-(lp-core/bind :up :7x5 (fn [] (ctl timing/b-trg :div (swap! timing/current-beat dec))))
+(lp-core/bind :up :7x6 (fn [] (ctl timing/divider-s :div (swap! timing/current-beat inc))))
+(lp-core/bind :up :7x5 (fn [] (ctl timing/divider-s :div (swap! timing/current-beat dec))))
 
 ;;Shutdown
 (lp-core/bind :up :arm  (fn [lp]
