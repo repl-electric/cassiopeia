@@ -93,8 +93,8 @@
    samples-set-1
    phrase-size
    drum-g
-   timing/beat-cnt-bus
-   timing/beat-bus
+   timing/beat-count-b
+   timing/beat-b
    lp64-b))
 
 (defonce refresh-beat-key (uuid))
