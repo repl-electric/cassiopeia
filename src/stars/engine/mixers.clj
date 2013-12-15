@@ -173,7 +173,7 @@
 
    ]
 
-  (let [clk (in:kr timing/pi-x-bus)]
+  (let [clk (in:kr timing/pi-x-b)]
     (out:kr out-bus [(* amp-0 (mul-add:kr (/ (+ 1 (sin  (mul-add clk freq-mul-0 phase-shift-0))) 2) mul-0 add-0))
                      (* amp-1 (mul-add:kr (/ (+ 1 (sin  (mul-add clk freq-mul-1 phase-shift-1))) 2) mul-1 add-1))
                      (* amp-2 (mul-add:kr (/ (+ 1 (sin  (mul-add clk freq-mul-2 phase-shift-2))) 2) mul-2 add-2))
