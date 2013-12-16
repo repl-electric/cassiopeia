@@ -33,7 +33,6 @@
   (let [out-busses (if mixers
                      (map :in-bus mixers)
                      (repeat out-bus))]
-    (println :busses-> out-busses)
     (doall (mapcat (fn [sample pattern out-bus]
                      (map (fn [step-idx]
                             (mono-sequencer [:tail tgt-group]
