@@ -25,17 +25,11 @@
     (out:kr inv-saw-bus (* -1 saw))
     (out:kr saw-bus saw)))
 
-(defsynth saw-counter [in-bus 0 out-bus 0]
-  (out:kr out-bus (pulse-count:kr (in:kr in-bus))))
+(defsynth saw-counter [in-bus 0 out-bus 0] (out:kr out-bus (pulse-count:kr (in:kr in-bus))))
+(defsynth pi-counter  [counter-bus 0 out-bus 0] (out:kr out-bus (* (* Math/PI 2) (in:kr counter-bus))))
 
-(defsynth pi-counter [counter-bus 0 out-bus 0]
-  (out:kr out-bus (* (* Math/PI 2) (in:kr counter-bus))))
-
-(defsynth offset [root-bus 0 out-bus 0]
-  (out:kr out-bus (/ (+ 1 (in:kr root-bus)) 2)))
-
-(defsynth pi-offset [root-bus 0 out-bus 0]
-  (out:kr out-bus (* (+ 1 (in:kr root-bus)) Math/PI)))
+(defsynth offset    [root-bus 0 out-bus 0] (out:kr out-bus (/ (+ 1 (in:kr root-bus)) 2)))
+(defsynth pi-offset [root-bus 0 out-bus 0] (out:kr out-bus (* (+ 1 (in:kr root-bus)) Math/PI)))
 
 (defsynth get-beat [] (send-trig (in:kr beat-b) count-trig-id (+ (in:kr beat-count-b) 1)))
 
@@ -65,9 +59,9 @@
   (let [x (in:kr x-bus)]
     (out:kr out-bus (* x mul))))
 
-(def current-beat (atom 1))
+(def current-beat (atom 30))
 
-(defonce root-s (root-saw [:head timing-g] :saw-bus root-b :inv-saw-bus inv-root-b :rate 2))
+(defonce root-s (root-saw [:head timing-g] :saw-bus root-b :inv-saw-bus inv-root-b :rate 100))
 (defonce count-s (saw-counter [:after root-s] :out-bus count-b :in-bus inv-root-b))
 (defonce pi-count-s (pi-counter [:after root-s] :out-bus pi-count-b :counter-bus count-b))
 (defonce offset-s (offset [:after count-s] :root-bus root-b :out-bus offset-b))
@@ -76,6 +70,6 @@
 (defonce pi-x-s (pi-x [:after offset-s] :pi-count-bus pi-count-b :pi-offset-bus pi-offset-b :out-bus pi-x-b))
 (defonce sin-x-s (sin-x [:after pi-x-s] :pi-x-bus pi-x-b :mul 1 :out-bus sin-b))
 (defonce x-mul-s (x-mul  [:after x-s] :x-bus x-b :mul 0.1 :out-bus x-mul-b))
-(defonce divider-s (timing/divider [:after root-s] :div 1 :in-bus inv-root-b :out-bus beat-b))
+(defonce divider-s (timing/divider [:after root-s] :div @current-beat :in-bus inv-root-b :out-bus beat-b))
 (defonce counter-s (timing/counter [:after divider-s] :in-bus beat-b :out-bus beat-count-b))
 (defonce get-beat-s (get-beat [:after divider-s]))

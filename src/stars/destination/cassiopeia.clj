@@ -4,7 +4,14 @@
 |    |   )|___ |___ | |   )|   )|___)| |   )
 |__  |__/| __/  __/ | |__/ |__/ |__  | |__/|
                            |
-Cassiopeia is a constellation in the northern sky, named after the vain queen Cassiopeia in Greek mythology, who boasted about her unrivalled beauty"
+Cassiopeia is a constellation in the northern sky, named after the vain queen Cassiopeia
+in Greek mythology, who boasted about her unrivalled beauty
+
+Bordered by:
+* Andromeda to the south
+* Perseus to the southeast
+* Cepheus to the north.
+"
   (:use [overtone.live]
         [stars.warm-up]
         [stars.samples]
@@ -43,7 +50,7 @@ Cassiopeia is a constellation in the northern sky, named after the vain queen Ca
                      [tone])]
       (out out-bus (* amp (g-verb (sum tones) 200 8) (line 1 0 duration FREE))))))
 
-  ;;SCORE
+;;SCORE
 
 (def sun (sample-player star-into-the-sun :rate 0.99 :amp 10 :out-bus (m/nkmx :s0)))
 
@@ -58,45 +65,62 @@ Cassiopeia is a constellation in the northern sky, named after the vain queen Ca
 ;;(space-organ :tone 24)
 
 ;;Rythem
-(defonce rhythm-g (group "Rhythm" :after timing/timing-g))
+(defonce rhythm-g (group "Rhythem" :after timing/timing-g))
 (defonce saw-bf1 (buffer 256))
 (defonce saw-bf2 (buffer 256))
 
-(defonce saw-x-b1 (control-bus 1 "TIM Saw"))
-(defonce saw-x-b2 (control-bus 1 "TIM Saw2"))
+(defonce saw-x-b1 (control-bus 1 "Timing Saw 1"))
+(defonce saw-x-b2 (control-bus 1 "Timing Saw 2"))
+(defonce saw-x-b3 (control-bus 1 "Timing Saw 2"))
 
-(defonce phasor-b1 (control-bus 1 "TIM Saw Phsr"))
-(defonce phasor-b2 (control-bus 1 "TIM Saw Phsr 2"))
+(defonce phasor-b1 (control-bus 1 "Timing Saw Phasor 1"))
+(defonce phasor-b2 (control-bus 1 "Timing Saw Phasor 2"))
 
 (defonce saw-s1 (timing/saw-x [:head rhythm-g] :out-bus saw-x-b1))
 (defonce saw-s2 (timing/saw-x [:head rhythm-g] :out-bus saw-x-b2))
+(defonce saw-s3 (timing/saw-x [:head rhythm-g] :out-bus saw-x-b3))
 
-(defonce phasor-s1 (timing/buf-phasor [:after saw-s1] saw-x-b1 :out-bus phasor-b1 :buf saw-bf1 :loop? true))
-(defonce phasor-s2 (timing/buf-phasor [:after saw-s2] saw-x-b2 :out-bus phasor-b2 :buf saw-bf2 :loop? true))
+(defonce phasor-s1 (timing/buf-phasor [:after saw-s1] saw-x-b1 :out-bus phasor-b1 :buf saw-bf1))
+(defonce phasor-s2 (timing/buf-phasor [:after saw-s2] saw-x-b2 :out-bus phasor-b2 :buf saw-bf2))
 
 (defsynth buffered-plain-space-organ [out-bus 0 duration 4 amp 1]
   (let [tone (in:kr phasor-b2)
         tones (map #(blip (* % 2) (mul-add:kr 1/8 1 4)) [tone])]
     (out out-bus (pan2 (* amp (g-verb (sum tones) 200 8))))))
 
-(buffer-write! saw-bf2 (repeat 256 24))
-(buffer-write! saw-bf1 (repeat 256 1))
+;;(def score [[:F5 1/2] [:G5 2] [:BB5 1] [:D#5 1/2]])
+(def score   [:F5 :G5 :G5 :G5 :G5 :BB5 :BB5 :D#5])
 
-(buffer-write! saw-bf2 (map (fn [note] (+ 0 note))
-                            (map note (flatten
-                                       (concat (repeat 64 [:A4])
-                                               (repeat 64 [:B5])
-                                               (repeat 64 [:C6])
-                                               (repeat 64 [:C2]))))))
+(buffer-write! saw-bf2 (repeat 256 (midi->hz (note :A3))))
 
-(ctl timing/divider-s :div 1)
+(buffer-write! saw-bf2 (map midi->hz
+                            (map (fn [midi-note] (+ -10 midi-note))
+                                 (map note (take 256 (cycle score))))))
 
-(ctl timing/root-s :rate 2)
+(buffer-write! saw-bf2 (map midi->hz
+                            (map (fn [midi-note] (+ -5 midi-note))
+                                 (map note (take 256 (cycle score))))))
+
+(buffer-write! saw-bf2 (map midi->hz
+                            (map (fn [midi-note] (+ 0 midi-note))
+                                 (map note (take 256 (cycle score))))))
+
+(defsynth ratatat [out-bus 0 amp 1]
+  (let [freq (in:kr phasor-b2)
+        sin1 (sin-osc (* 1.01 freq))
+        sin2 (sin-osc (* 1 freq))
+        sin3 (sin-osc (* 0.99 freq))
+        src (mix [sin1 sin2 sin3])
+        src (lpf src (mouse-y 100 20000))
+        src (g-verb src :spread 10)]
+    (out out-bus (pan2 (* amp src)))))
+
+(ratatat :amp 1)
+(ctl saw-s2 :freq-mul 1/3000)
+(kill ratatat)
+
 (buffered-plain-space-organ :amp 1)
 (kill buffered-plain-space-organ)
-
-(ctl saw-s2 :freq-mul 1 :add 1 :mul 1 :rate 1)
-
 
 ;;Jaming
 
@@ -110,7 +134,7 @@ Cassiopeia is a constellation in the northern sky, named after the vain queen Ca
   (plain-space-organ :tone 22 :duration 1)
   (plain-space-organ :tone 20 :duration 3))
 
-(def so (high-space-organ :amp 0.5 :trig timing/beat-cnt-bus :noise 220 :t0 2 :t1 4 :t2 8 :out-bus (m/nkmx :s0)))
+(def so (high-space-organ :amp 0.5 :trig timing/beat-count-b :noise 220 :t0 2 :t1 4 :t2 8 :out-bus (m/nkmx :s0)))
 
 (kill so)
 
