@@ -12,41 +12,46 @@
         snd (lpf:ar (white-noise:ar) freq)]
     (out out-bus (pan2:ar (* snd amp level) pan))))
 
-(def notes-b    (buffer 32))
+(tick)
+(ding :dur 0.5)
+
+(def note-offset-b (buffer 32))
 (def duration-b (buffer 32))
 
-(def score [:F4 :F4 :F4 :F4 :F4 :F4 :F4
-            :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4
-            :BB4 :BB4 :BB4 :BB4 :BB4 :BB4
-            :D#4 :D#4 :D#4])
+(def note-offsets [:F4 :F4 :F4 :F4 :F4 :F4 :F4
+                   :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4
+                   :BB4 :BB4 :BB4 :BB4 :BB4 :BB4
+                   :D#4 :D#4 :D#4])
 
-(def duration [1/7])
+(def duration     [1/7])
 
 (buffer-write! note-offset-b (take 32 (cycle
                                        (map (fn [n] (+ 0 n))
-                                            (map note score)))))
-
+                                            (map note note-offsets)))))
 (buffer-write! duration-b (take 32 (cycle duration)))
 
 (ctl timing/root-s :rate 100)
 
-(defsynth bouncing-beep [duration-bus 0 beat-count-bus 0 notes-bus 0 amp 1 out-bus 0]
-  (let [cnt    (in:kr beat-count-bus)
-        offset (buf-rd:kr 1 notes-bus cnt)
-        durs   (buf-rd:kr 1 duration-bus cnt)
-        trig (t-duty:kr (dseq durs INFINITE))
-        freq (demand:kr trig 0 (drand offset INFINITE))
-        freq (midicps freq)
-        env (env-gen:ar (env-asr :release 0.25 :sustain 0.8) trig)
-        tri (* 0.5 (lf-tri:ar freq))
-        sin (sin-osc:ar freq)
-        src (mix [sin tri])
-        src (free-verb src)]
-    (out:ar out-bus (* amp env (pan2 src)))))
+(do
+  (defsynth bouncing-beep [duration-bus 0 beat-count-bus 0 offset-bus 0 amp 1 out-bus 0]
+    (let [cnt    (in:kr beat-count-bus)
+          offset (buf-rd:kr 1 offset-bus cnt)
+          durs   (buf-rd:kr 1 duration-bus cnt)
+          trig (t-duty:kr (dseq durs INFINITE))
+          freq (demand:kr trig 0 (drand offset INFINITE))
+          freq (midicps freq)
+          env (env-gen:ar (env-asr :release 0.25 :sustain 0.8) trig)
+          tri (* 0.5 (lf-tri:ar freq))
+          sin (sin-osc:ar (* 1 freq))
+          sin2 (sin-osc:ar (* 1.01 freq))
+          src (mix [sin sin2 tri])
+          src (free-verb src)]
+      (out:ar out-bus (* amp env (pan2 src)))))
 
-(kill seq-synth)
+    (kill bouncing-beep)
 
-(bouncing-beep :duration-bus duration-b
-               :beat-count-bus timing/beat-count-b
-               :offset-bus notes-b
-               :amp 1)
+    (bouncing-beep :duration-bus duration-b :beat-count-bus timing/beat-count-b :offset-bus note-offset-b
+               :amp 1))
+
+
+(f)
