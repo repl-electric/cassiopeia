@@ -7,7 +7,6 @@
         snd (* (sin-osc:ar freq ) amp level)]
     (out out-bus (pan2:ar snd pan))))
 
-
 (defsynth tick [freq 880 dur 0.1 level 0.25 pan 0.0 out-bus 0]
   (let [amp (env-gen (env-perc) :action FREE :time-scale dur)
         snd (lpf:ar (white-noise:ar) freq)]
@@ -16,31 +15,43 @@
 (tick)
 (ding :dur 0.5)
 
-(defonce note-offset-b (buffer 8))
-(defonce duration-b (buffer 8))
+(def note-offset-b (buffer 32))
+(def duration-b (buffer 32))
 
-(def note-offsets [0 0 7 0 7 10 7 2])
-(def duration [0.4 0.4 0.2 0.2 0.15 0.5 0.1 0.3])
+(def note-offsets [:F4 :F4 :F4 :F4 :F4 :F4 :F4
+                   :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4
+                   :BB4 :BB4 :BB4 :BB4 :BB4 :BB4
+                   :D#4 :D#4 :D#4])
 
-(buffer-write! note-offset-b note-offsets)
-(buffer-write! duration-b duration)
+(def duration     [1/7])
 
-(defsynth timed-playback [beat-count-bus 0
-                          out-bus 0
-                          offset-bus 0
-                          duration-bus 0
-                          amp 1]
-  (let [cnt (in:kr beat-count-bus)
-        freq (buf-rd:kr 1 offset-bus cnt)
-        freq (midicps (+ 60 freq))
-        dur (buf-rd:kr 1 duration-bus cnt)
+(buffer-write! note-offset-b (take 32 (cycle
+                                       (map (fn [n] (+ 0 n))
+                                            (map note note-offsets)))))
+(buffer-write! duration-b (take 32 (cycle [1/7])))
 
-        env  (env-gen:ar (env-perc) :time-scale dur)
-        snd (* (sin-osc:ar freq) amp 1)]
-    (out out-bus snd)))
+(use 'overtone.inst.sampled-piano )
+(sampled-piano :note (note :BB4))
 
-(timed-playback :beat-count-bus timing/beat-count-b
-                :offset-bus note-offset-b
-                :duration-bus duration-b)
+(ctl timing/root-s :rate 100)
 
-(kill timed-playback)
+(do
+  (defsynth bouncing-beep [duration-bus 0 beat-count-bus 0 offset-bus 0 amp 1 out-bus 0]
+    (let [cnt    (in:kr beat-count-bus)
+          offset (buf-rd:kr 1 offset-bus cnt)
+          durs   (buf-rd:kr 1 duration-bus cnt)
+          trig (t-duty:kr (dseq durs INFINITE))
+          freq (demand:kr trig 0 (drand offset INFINITE))
+          freq (midicps freq)
+          env (env-gen:ar (env-asr :release 0.25 :sustain 0.8) trig)
+          tri (* 0.5 (lf-tri:ar freq))
+          sin (sin-osc:ar freq)
+          src (mix [sin tri])
+          src (free-verb src)]
+      (out:ar out-bus (* amp env (pan2 src)))))
+
+    (kill seq-synth)
+
+    (seq-synth :duration-bus duration-b :beat-count-bus timing/beat-count-b :offset-bus note-offset-b
+               :amp 1)
+)
