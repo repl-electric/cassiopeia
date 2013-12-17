@@ -22,3 +22,6 @@
   [0 0 0 0 0 0 0 0]
   [0 0 0 0 0 0 0 0]])
 (lp-beat/grid-pull lp sequencer-64)
+
+(ctl rater-s :rate 0)
+(ctl rater-s :rate 1/2)

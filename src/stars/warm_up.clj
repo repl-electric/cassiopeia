@@ -142,17 +142,21 @@
                        gtr-str-s])
 
 (def seq-mixers  (doall (map-indexed (fn [idx _] (mixers/add-nk-mixer (nk-bank :lp64) (str "lp64-seq-" idx) seq-mixer-group lp64-b)) sample-selection)))
+(defonce rate-b  (control-bus 1 "Rate"))
+(defonce rater-s (rater :out-bus rate-b))
 
 (def all-row-samples
   (doall (map-indexed
           (fn [idx sample] {:row idx
                            :sample sample
-                           :sequencer (lp-sequencer/phasor-skipping-sequencer [:tail seq-g]
-                                                                              :buf (to-sc-id sample)
-                                                                              :loop? true
-                                                                              :bar-trg 0
-                                                                              :amp 0
-                                                                              :out-bus (:in-bus (get-in seq-mixers [idx] {:in-bus 0})))})
+                           :sequencer (sequencer/phasor-skipping-sequencer [:tail seq-g]
+                                                                           :buf (to-sc-id sample)
+                                                                           :loop? true
+                                                                           :bar-trg 0
+                                                                           :amp 0
+                                                                           :beat-b timing/beat-b
+                                                                           :rate-b rate-b
+                                                                           :out-bus (:in-bus (get-in seq-mixers [idx] {:in-bus 0})))})
           sample-selection)))
 
 (use 'launchpad.plugin.sample-rows :reload)
