@@ -84,12 +84,26 @@ Bordered by:
 (defonce phasor-s2 (timing/buf-phasor [:after saw-s2] saw-x-b2 :out-bus phasor-b2 :buf saw-bf2))
 
 (defsynth buffered-plain-space-organ [out-bus 0 duration 4 amp 1]
-  (let [tone (in:kr phasor-b2)
+  (let [tone (/ (in:kr phasor-b2) 2)
         tones (map #(blip (* % 2) (mul-add:kr 1/8 1 4)) [tone])]
     (out out-bus (pan2 (* amp (g-verb (sum tones) 200 8))))))
 
+(defsynth ratatat [out-bus 0 amp 1]
+  (let [freq (in:kr phasor-b2)
+        sin1 (sin-osc (* 1.01 freq))
+        sin2 (sin-osc (* 1 freq))
+        sin3 (sin-osc (* 0.99 freq))
+        src (mix [sin1 sin2 sin3])
+        src (g-verb src :spread 10)]
+    (out out-bus (pan2 (* amp src)))))
+
+(defn transpose [updown notes]
+  (map #(+ updown %1) notes))
+
+(def score   (map note [:F5 :G5 :G5 :G5 :G5 :BB5 :BB5 :D#5]))
+
 ;;(def score [[:F5 1/2] [:G5 2] [:BB5 1] [:D#5 1/2]])
-(def score   [:F5 :G5 :G5 :G5 :G5 :BB5 :BB5 :D#5])
+
 
 (buffer-write! saw-bf2 (repeat 256 (midi->hz (note :A3))))
 
@@ -104,16 +118,6 @@ Bordered by:
 (buffer-write! saw-bf2 (map midi->hz
                             (map (fn [midi-note] (+ 0 midi-note))
                                  (map note (take 256 (cycle score))))))
-
-(defsynth ratatat [out-bus 0 amp 1]
-  (let [freq (in:kr phasor-b2)
-        sin1 (sin-osc (* 1.01 freq))
-        sin2 (sin-osc (* 1 freq))
-        sin3 (sin-osc (* 0.99 freq))
-        src (mix [sin1 sin2 sin3])
-        src (lpf src (mouse-y 100 20000))
-        src (g-verb src :spread 10)]
-    (out out-bus (pan2 (* amp src)))))
 
 (ratatat :amp 1)
 (ctl saw-s2 :freq-mul 1/3000)
