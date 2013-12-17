@@ -137,13 +137,16 @@
                        hard-3-s
                        gtr-1-s
 
-                       gtr-2-s
-                       gtr-3-s
-                       gtr-str-s])
+                     ;;  gtr-2-s
+                     ;;  gtr-3-s
+                     ;;  gtr-str-s
+                       ])
 
-(def seq-mixers  (doall (map-indexed (fn [idx _] (mixers/add-nk-mixer (nk-bank :lp64) (str "lp64-seq-" idx) seq-mixer-group lp64-b)) sample-selection)))
+;;(def seq-mixers  (doall (map-indexed (fn [idx _] (mixers/add-nk-mixer (nk-bank :lp64) (str "lp64-seq-" idx) seq-mixer-group lp64-b)) sample-selection)))
+(def seq-mixers [])
+
 (defonce rate-b  (control-bus 1 "Rate"))
-(defonce rater-s (rater :out-bus rate-b))
+(defonce rater-s (sequencer/rater :out-bus rate-b))
 
 (def all-row-samples
   (doall (map-indexed
