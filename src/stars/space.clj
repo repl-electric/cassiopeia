@@ -28,30 +28,30 @@
 (buffer-write! note-offset-b (take 32 (cycle
                                        (map (fn [n] (+ 0 n))
                                             (map note note-offsets)))))
+
 (buffer-write! duration-b (take 32 (cycle duration)))
 
 (ctl timing/root-s :rate 100)
 
 (do
-  (defsynth bouncing-beep [duration-bus 0 beat-count-bus 0 offset-bus 0 amp 1 out-bus 0]
+
+  (defsynth woody-beep [duration-bus 0 beat-count-bus 0 offset-bus 0 amp 1 out-bus 0]
     (let [cnt    (in:kr beat-count-bus)
           offset (buf-rd:kr 1 offset-bus cnt)
           durs   (buf-rd:kr 1 duration-bus cnt)
           trig (t-duty:kr (dseq durs INFINITE))
           freq (demand:kr trig 0 (drand offset INFINITE))
           freq (midicps freq)
+
           env (env-gen:ar (env-asr :release 0.25 :sustain 0.8) trig)
           tri (* 0.5 (lf-tri:ar freq))
           sin (sin-osc:ar (* 1 freq))
           sin2 (sin-osc:ar (* 1.01 freq))
-          src (mix [sin sin2 tri])
+          wood (bpf:ar (* (white-noise:ar) (line:kr 5 0 0.02)) freq 0.02)
+          src (mix [sin sin2 tri wood])
           src (free-verb src)]
       (out:ar out-bus (* amp env (pan2 src)))))
 
-    (kill bouncing-beep)
+    (kill woody-beep)
 
-    (bouncing-beep :duration-bus duration-b :beat-count-bus timing/beat-count-b :offset-bus note-offset-b
-               :amp 1))
-
-
-(f)
+    (def w  (woody-beep :duration-bus duration-b :beat-count-bus timing/beat-count-b :offset-bus note-offset-b :amp 1)))
