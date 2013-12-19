@@ -30,15 +30,11 @@
 (defonce memory-moon-s (sample (freesound-path 27567)))
 (defonce retweak-s     (sample (freesound-path 25921)))
 
-
-
 (defonce custom-kick-s (load-sample "~/Workspace/music/samples/kick.wav"))
 (defonce custom-long-shake-s (load-sample "~/Workspace/music/samples/long-shake.wav"))
-(defonce custom-shake-s (load-sample "~/Workspace/music/samples/shake.wav")
-  )
+(defonce custom-shake-s (load-sample "~/Workspace/music/samples/shake.wav"))
 (defonce custom-tom-shake-s (load-sample "~/Workspace/music/samples/tom-shake.wav"))
 (defonce custom-fast-shake-s (load-sample "~/Workspace/music/samples/three-fast-shake.wav"))
-
 
 ;;Samples by devism http://monome.org/community/discussion/736/x&page=1#Item_22
 (defonce arp-s (load-sample "~/Workspace/music/samples/P5mlr/ARP.wav"))
@@ -60,3 +56,10 @@
 (defonce gtr-2-s (load-sample "~/Workspace/music/samples/P5mlr/GTR2.WAV"))
 (defonce gtr-3-s (load-sample "~/Workspace/music/samples/P5mlr/GTR3.WAV"))
 (defonce gtr-str-s (load-sample "~/Workspace/music/samples/P5mlr/GTrSTr.wav"))
+
+(defonce d-kick-s (load-sample "~/Workspace/music/samples/test/b1.aif"))
+(defonce d-shake-s (load-sample "~/Workspace/music/samples/test/b2.aif"))
+(defonce d-tom-s (load-sample "~/Workspace/music/samples/test/b3.aif"))
+(defonce d-shake-2-s (load-sample "~/Workspace/music/samples/test/b4.aif"))
+(defonce d-shake-1-s (load-sample "~/Workspace/music/samples/test/b5.aif"))
+(defonce d-shake-2-deep-s (load-sample "~/Workspace/music/samples/test/b8.aif"))
