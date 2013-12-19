@@ -73,7 +73,7 @@
 (metronome/start lp :mixer timing/count-trig-id beat-rep-key)
 
 ;;(def samples-set-1 [kick-s snare-s shaker-s hat-s])
-(def samples-set-1 [custom-kick-s custom-long-shake-s custom-shake-s custom-tom-shake-s custom-fast-shake-s])
+(def samples-set-1 [d-kick-s d-shake-s d-tom-s d-shake-2-s d-shake-1-s d-shake-2-deep-s])
 
 (defonce default-mixer-g (group :tail (foundation-safe-post-default-group)))
 (defonce drum-g (group))
