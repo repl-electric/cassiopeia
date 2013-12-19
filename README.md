@@ -1,4 +1,4 @@
-#DefStars - Cassiopeia
+# Stars my destination - Cassiopeia
 
 A space for _Machines_ and _Humans_ to make music together.
 
