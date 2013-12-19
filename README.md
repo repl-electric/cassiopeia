@@ -1,8 +1,10 @@
-# Stars my destination - Cassiopeia
+# Stars my destination 
 
 A space for _Machines_ and _Humans_ to make music together.
 
-#Recorded Experiments
+## Cassiopeia
+
+### Recorded Experiments
 
 https://soundcloud.com/the-stars-my-destination
 
