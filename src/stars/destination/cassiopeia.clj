@@ -29,21 +29,84 @@ Bordered by:
 
   (def windy (sample (freesound-path 17553)))
 
+  (defonce rhythm-g (group "Rhythm" :after timing/timing-g))
+  (defonce saw-bf1 (buffer 256))
+  (defonce saw-bf2 (buffer 256))
+
+  (def space-notes-buf (buffer 5))
+  (def space-dur-buf (buffer 4))
+  (def space-tones-buf (buffer 3))
+
+  (defonce saw-x-b1 (control-bus 1 "Timing Saw 1"))
+  (defonce saw-x-b2 (control-bus 1 "Timing Saw 2"))
+  (defonce saw-x-b3 (control-bus 1 "Timing Saw 3"))
+
+  (defonce phasor-b1 (control-bus 1 "Timing Saw Phasor 1"))
+  (defonce phasor-b2 (control-bus 1 "Timing Saw Phasor 2"))
+
+  (defonce phasor-b3 (control-bus 1 "Timing Saw Phasor 3"))
+  (defonce phasor-b4 (control-bus 1 "Timing Saw Phasor 4"))
+  (defonce phasor-b5 (control-bus 1 "Timing Saw Phasor 5"))
+
+  (defonce saw-s1 (timing/saw-x [:head rhythm-g] :out-bus saw-x-b1))
+  (defonce saw-s2 (timing/saw-x [:head rhythm-g] :out-bus saw-x-b2))
+
+  (defonce saw-s3 (timing/saw-x [:head rhythm-g] :out-bus saw-x-b3))
+
+  (defonce phasor-s1 (timing/buf-phasor [:after saw-s1] saw-x-b1 :out-bus phasor-b1 :buf saw-bf1))
+  (defonce phasor-s2 (timing/buf-phasor [:after saw-s2] saw-x-b2 :out-bus phasor-b2 :buf saw-bf2))
+
+  (defonce phasor-s3 (timing/buf-phasor [:after saw-s3] saw-x-b3 :out-bus phasor-b3 :buf space-notes-buf))
+  (defonce phasor-s4 (timing/buf-phasor [:after saw-s3] saw-x-b3 :out-bus phasor-b4 :buf space-dur-buf))
+  (defonce phasor-s5 (timing/buf-phasor [:after saw-s3] saw-x-b3 :out-bus phasor-b5 :buf space-tones-buf))
+
+  (defsynth buffered-plain-space-organ [out-bus 0 duration 4 amp 1]
+    (let [tone (/ (in:kr phasor-b2) 2)
+          tones (map #(blip (* % 2) (mul-add:kr (lf-noise1:kr 1/8) 1 4)) [tone])]
+      (out out-bus (pan2 (* amp (g-verb (sum tones) 200 8))))))
+
+  (defsynth ratatat [out-bus 0 amp 1]
+    (let [freq (in:kr phasor-b2)
+          sin1 (sin-osc (* 1.01 freq))
+          sin2 (sin-osc (* 1 freq))
+          sin3 (sin-osc (* 0.99 freq))
+          src (mix [sin1 sin2 sin3])
+          src (g-verb src :spread 10)]
+      (out out-bus (* amp  (pan2  src)))))
+
+  (defn transpose [updown notes]
+    (map #(+ updown %1) notes))
+
   (def space-notes [8 16 32 16 8])
-  (def space-tones [8 16 24])
+  ;;  (def space-tones [8 16 24])
+
   (defsynth crystal-space-organ [out-bus 0 amp 1 size 200 r 8 numharm 0 trig 0 t0 8 t1 16 t2 24 d0 1 d1 1/2 d2 1/4 d3 1/8]
-    (let [notes (map #(midicps (duty:kr % (mod trig 16) (dseq space-notes INF))) [d0 d1 d2 d3])
+    (let [notes (map  #(midicps (duty:kr % (mod trig 16) (dseq space-notes INF))) [d0 d1 d2 d3])
           tones (map (fn [note tone] (blip (* note tone) numharm)) notes [t0 t1 t2])]
       (out out-bus (* amp (g-verb (sum tones) size r)))))
 
   (comment  (def csp  (crystal-space-organ :numharm 0 :amp 0.5)))
 
-  (defsynth high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 trig 0 t0 8 t1 16 t2 24 d0 1 d1 1/2 d2 1/4 d3 1/8]
-    (let [notes (map #(midicps (duty:kr % (mod trig 16) (dseq space-notes INF))) [d0 d1 d2 d3])
+  (defsynth high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 ]
+    (let [space-note (in:kr phasor-b3)
+          duration   (in:kr phasor-b4)
+          s-tone    (in:kr phasor-b5)
+          all-tones [s-tone (+ 8 s-tone) (+ 16 s-tone)]
+
+          notes (map #(midicps (duty:kr % 0 (dseq [space-note] INF))) [duration])
           tones (map (fn [note tone] (blip (* note tone)
-                                          (mul-add:kr (lf-noise1:kr noise) 3 4))) notes [t0 t1 t2])]
+                                          (mul-add:kr (lf-noise1:kr noise) 3 4))) notes all-tones)]
       (out out-bus (* amp (g-verb (sum tones) size r)))))
 
+  (ctl saw-s3 :freq-mul 1/64)
+
+  (buffer-write! space-notes-buf [8 16 32 16 8])
+  (buffer-write! space-tones-buf [8 8 8])
+  (buffer-write! space-dur-buf   [1 1/2 1/4 1/8])
+
+  (high-space-organ :noise 200)
+
+  (stop)
   (defsynth plain-space-organ [out-bus 0 tone 1 duration 3 amp 1]
     (let [tones (map #(blip (* % 2) (mul-add:kr 1/8 1 4)) [tone])]
       (out out-bus (* amp (g-verb (sum tones) 200 8) (line 1 0 duration FREE)))))
@@ -75,40 +138,6 @@ Bordered by:
 ;;(space-organ :tone 24)
 
 ;;Rythem
-(defonce rhythm-g (group "Rhythem" :after timing/timing-g))
-(defonce saw-bf1 (buffer 256))
-(defonce saw-bf2 (buffer 256))
-
-(defonce saw-x-b1 (control-bus 1 "Timing Saw 1"))
-(defonce saw-x-b2 (control-bus 1 "Timing Saw 2"))
-(defonce saw-x-b3 (control-bus 1 "Timing Saw 2"))
-
-(defonce phasor-b1 (control-bus 1 "Timing Saw Phasor 1"))
-(defonce phasor-b2 (control-bus 1 "Timing Saw Phasor 2"))
-
-(defonce saw-s1 (timing/saw-x [:head rhythm-g] :out-bus saw-x-b1))
-(defonce saw-s2 (timing/saw-x [:head rhythm-g] :out-bus saw-x-b2))
-(defonce saw-s3 (timing/saw-x [:head rhythm-g] :out-bus saw-x-b3))
-
-(defonce phasor-s1 (timing/buf-phasor [:after saw-s1] saw-x-b1 :out-bus phasor-b1 :buf saw-bf1))
-(defonce phasor-s2 (timing/buf-phasor [:after saw-s2] saw-x-b2 :out-bus phasor-b2 :buf saw-bf2))
-
-(defsynth buffered-plain-space-organ [out-bus 0 duration 4 amp 1]
-  (let [tone (/ (in:kr phasor-b2) 2)
-        tones (map #(blip (* % 2) (mul-add:kr (lf-noise1:kr 1/8) 1 4)) [tone])]
-    (out out-bus (pan2 (* amp (g-verb (sum tones) 200 8))))))
-
-(defsynth ratatat [out-bus 0 amp 1]
-  (let [freq (in:kr phasor-b2)
-        sin1 (sin-osc (* 1.01 freq))
-        sin2 (sin-osc (* 1 freq))
-        sin3 (sin-osc (* 0.99 freq))
-        src (mix [sin1 sin2 sin3])
-        src (g-verb src :spread 10)]
-    (out out-bus (* amp  (pan2  src)))))
-
-(defn transpose [updown notes]
-  (map #(+ updown %1) notes))
 
 (def score   (map note [:F5 :G5 :G5 :G5 :G5 :BB5 :BB5 :D#5]))
 
