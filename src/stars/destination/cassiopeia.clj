@@ -78,7 +78,7 @@ Bordered by:
     (map #(+ updown %1) notes))
 
   (def space-notes [8 16 32 16 8])
-  ;;  (def space-tones [8 16 24])
+  (def space-tones [8 16 24])
 
   (defsynth crystal-space-organ [out-bus 0 amp 1 size 200 r 8 numharm 0 trig 0 t0 8 t1 16 t2 24 d0 1 d1 1/2 d2 1/4 d3 1/8]
     (let [notes (map  #(midicps (duty:kr % (mod trig 16) (dseq space-notes INF))) [d0 d1 d2 d3])
@@ -87,26 +87,35 @@ Bordered by:
 
   (comment  (def csp  (crystal-space-organ :numharm 0 :amp 0.5)))
 
-  (defsynth high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 ]
-    (let [space-note (in:kr phasor-b3)
-          duration   (in:kr phasor-b4)
+
+  (defsynth high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 trig 0 t0 8 t1 16 t2 24 d0 1 d1 1/2 d2 1/4 d3 1/8]
+    (let [notes (map #(midicps (duty:kr % (mod trig 16) (dseq space-notes INF))) [d0 d1 d2 d3])
+          tones (map (fn [note tone] (blip (* note tone)
+                                          (mul-add:kr (lf-noise1:kr noise) 3 4))) notes [t0 t1 t2])]
+      (out out-bus (* amp (g-verb (sum tones) size r)))))
+
+
+  (defsynth timed-high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 ]
+    (let [space-notes [(in:kr phasor-b3) 16 32 16 8]
+          duration    (in:kr phasor-b4)
           s-tone    (in:kr phasor-b5)
           all-tones [s-tone (+ 8 s-tone) (+ 16 s-tone)]
 
-          notes (map #(midicps (duty:kr % 0 (dseq [space-note] INF))) [duration])
+          notes (map #(midicps (duty:kr % 0 (dseq space-notes INF))) [duration])
           tones (map (fn [note tone] (blip (* note tone)
                                           (mul-add:kr (lf-noise1:kr noise) 3 4))) notes all-tones)]
       (out out-bus (* amp (g-verb (sum tones) size r)))))
 
-  (ctl saw-s3 :freq-mul 1/64)
+  (comment
+    (ctl saw-s3 :freq-mul 1/1000)
+    (buffer-write! space-notes-buf [8 16 32 16 8])
+    (buffer-write! space-tones-buf [8 8 8])
+    (buffer-write! space-dur-buf   [1 1/2 1/4 1/8])
 
-  (buffer-write! space-notes-buf [8 16 32 16 8])
-  (buffer-write! space-tones-buf [8 8 8])
-  (buffer-write! space-dur-buf   [1 1/2 1/4 1/8])
+    (timed-high-space-organ :noise 100)
+    (stop)
+    )
 
-  (high-space-organ :noise 200)
-
-  (stop)
   (defsynth plain-space-organ [out-bus 0 tone 1 duration 3 amp 1]
     (let [tones (map #(blip (* % 2) (mul-add:kr 1/8 1 4)) [tone])]
       (out out-bus (* amp (g-verb (sum tones) 200 8) (line 1 0 duration FREE)))))
