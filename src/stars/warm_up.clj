@@ -129,13 +129,13 @@
                        chords-s
                        dub-s
 
-                       bass-1-s
-                       bass-2-s
-                       bass-3-s
-                       hard-1-s
-                       hard-2-s
-                       hard-3-s
-                       gtr-1-s
+ ;;                      bass-1-s
+ ;;                      bass-2-s
+ ;;                      bass-3-s
+ ;;                      hard-1-s
+ ;;                      hard-2-s
+;;                       hard-3-s
+;;                       gtr-1-s
 
                      ;;  gtr-2-s
                      ;;  gtr-3-s
