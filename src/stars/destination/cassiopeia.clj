@@ -31,6 +31,12 @@ Bordered by:
 
   (def space-notes [8 16 32 16 8])
   (def space-tones [8 16 24])
+  (defsynth crystal-space-organ [out-bus 0 amp 1 size 200 r 8 numharm 0 trig 0 t0 8 t1 16 t2 24 d0 1 d1 1/2 d2 1/4 d3 1/8]
+    (let [notes (map #(midicps (duty:kr % (mod trig 16) (dseq space-notes INF))) [d0 d1 d2 d3])
+          tones (map (fn [note tone] (blip (* note tone) numharm)) notes [t0 t1 t2])]
+      (out out-bus (* amp (g-verb (sum tones) size r)))))
+
+  (comment  (def csp  (crystal-space-organ :numharm 0 :amp 0.5)))
 
   (defsynth high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 trig 0 t0 8 t1 16 t2 24 d0 1 d1 1/2 d2 1/4 d3 1/8]
     (let [notes (map #(midicps (duty:kr % (mod trig 16) (dseq space-notes INF))) [d0 d1 d2 d3])
@@ -52,7 +58,7 @@ Bordered by:
 
 ;;SCORE
 
-(def sun (sample-player star-into-the-sun :rate 0.99 :amp 10 :out-bus (m/nkmx :s0)))
+(def sun (sample-player star-into-the-sun :rate 0.99 :amp 8 :out-bus (m/nkmx :s0)))
 
 (def space-and-time (sample-player space-and-time-sun :rate 0.8))
 (ctl space-and-time :rate 0.7)
@@ -60,8 +66,12 @@ Bordered by:
 
 (syn/fallout-wind)
 (syn/soft-phasing :amp 0.1)
+(def dark (syn/dark-sea-horns :amp 0.3))
+(ctl dark :amp 0)
 
+(kill dark)
 (kill syn/soft-phasing)
+(kill syn/fallout-wind)
 ;;(space-organ :tone 24)
 
 ;;Rythem
@@ -85,7 +95,7 @@ Bordered by:
 
 (defsynth buffered-plain-space-organ [out-bus 0 duration 4 amp 1]
   (let [tone (/ (in:kr phasor-b2) 2)
-        tones (map #(blip (* % 2) (mul-add:kr 1/8 1 4)) [tone])]
+        tones (map #(blip (* % 2) (mul-add:kr (lf-noise1:kr 1/8) 1 4)) [tone])]
     (out out-bus (pan2 (* amp (g-verb (sum tones) 200 8))))))
 
 (defsynth ratatat [out-bus 0 amp 1]
@@ -95,7 +105,7 @@ Bordered by:
         sin3 (sin-osc (* 0.99 freq))
         src (mix [sin1 sin2 sin3])
         src (g-verb src :spread 10)]
-    (out out-bus (pan2 (* amp src)))))
+    (out out-bus (* amp  (pan2  src)))))
 
 (defn transpose [updown notes]
   (map #(+ updown %1) notes))
@@ -119,11 +129,11 @@ Bordered by:
                             (map (fn [midi-note] (+ 0 midi-note))
                                  (map note (take 256 (cycle score))))))
 
-(ratatat :amp 1)
-(ctl saw-s2 :freq-mul 1/3000)
+(ratatat :amp 0.9)
+(ctl saw-s2 :freq-mul 1/4000)
 (kill ratatat)
 
-(buffered-plain-space-organ :amp 1)
+(buffered-plain-space-organ :amp 0.8)
 (kill buffered-plain-space-organ)
 
 ;;Jaming
@@ -138,7 +148,7 @@ Bordered by:
   (plain-space-organ :tone 22 :duration 1)
   (plain-space-organ :tone 20 :duration 3))
 
-(def so (high-space-organ :amp 0.5 :trig timing/beat-count-b :noise 220 :t0 2 :t1 4 :t2 8 :out-bus (m/nkmx :s0)))
+(def so (high-space-organ :amp 0.4 :trig timing/beat-count-b :noise 220 :t0 2 :t1 4 :t2 8 :out-bus (m/nkmx :s0)))
 
 (kill so)
 
