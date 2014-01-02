@@ -15,7 +15,6 @@
 (tick)
 (ding :dur 0.5)
 
-
 (def note-offset-b (buffer 128))
 (def duration-b (buffer 128))
 
@@ -27,11 +26,11 @@
 (def duration     [1/7])
 
 (def score (concat
-            (map #(+  0  (note %)) note-offsets)
             (map #(+ -5  (note %)) note-offsets)
-            (map #(+ -10   (note %)) note-offsets)
-            (map #(+ -5 (note %)) note-offsets)
-            (map #(+ -1   (note %)) note-offsets)))
+            (map #(+ -5  (note %)) note-offsets)
+            (map #(+ -10 (note %)) note-offsets)
+            (map #(+ -5  (note %)) note-offsets)
+            (map #(+ -1  (note %)) note-offsets)))
 
 (buffer-write! note-offset-b (take 128 score))
 
@@ -59,7 +58,7 @@
 
     (kill woody-beep)
 
-    (def w  (woody-beep :duration-bus duration-b :beat-count-bus timing/beat-count-b :offset-bus note-offset-b :amp 7)))
+    (def w  (woody-beep :duration-bus duration-b :beat-count-bus timing/beat-count-b :offset-bus note-offset-b :amp 4)))
 
 (defsynth deep-saw [freq 100 beat-count-bus 0 offset-bus 0 duration-bus 0 out-bus 0 amp 1 pan 0]
   (let [cnt    (in:kr beat-count-bus)
@@ -82,11 +81,10 @@
 (def bass-duration-b (buffer 32))
 (def bass-notes-b    (buffer 32))
 
-(buffer-write! bass-duration-b (take 32 (cycle [1/14])))
+(buffer-write! bass-duration-b (take 32 (cycle [(/ 1 3.5)])))
 (buffer-write! bass-notes-b (take 32 (cycle (map note [:F2 :F2 :G3 :G2 :G3 :BB2 :BB2 :G2 :G2]))))
-(buffer-write! bass-notes-b (take 32 (cycle (map note [:G4 :F#4 :E4 :D#4 :B3 :G3 :F3]))))
 
-(def ps (deep-saw 100 :duration-bus bass-duration-b :beat-count-bus timing/beat-count-b :offset-bus note-offset-b :amp 1))
+(def ps (deep-saw 100 :duration-bus bass-duration-b :beat-count-bus timing/beat-count-b :offset-bus bass-notes-b :amp 0.5))
 
 (ctl ps :freq 200)
 
