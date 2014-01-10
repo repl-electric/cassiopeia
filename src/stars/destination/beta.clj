@@ -78,18 +78,7 @@ Music for the journey"
 
 (def woody (woody-beep :duration-bus duration-b :beat-count-bus timing/beat-count-b :offset-bus score-b :amp 0))
 
-;;(kill woody-beep)
-;;(kill deep-saw)
-(ctl woody :damp 0)
-(ctl woody :room 0)
-
 (def deep (deep-saw 100 :duration-bus bass-duration-b :beat-count-bus timing/beat-count-b :offset-bus bass-notes-b :amp 0))
-
-(ctl deep :amp 1)
-(ctl deep :damp 0)
-(ctl deep :room 0)
-
-(kill ps)
 
 (def score [:F4 :F4 :F4 :F4 :F4 :F4 :F4
             :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4 :G4
@@ -105,9 +94,7 @@ Music for the journey"
                      (map #(+ -5 (note %)) score)
                      (map #(+ -10 (note %)) score)
                      (map #(+ -5 (note %)) score)
-                     (map #(+ -1 (note %)) score)
-                     )
-  )
+                     (map #(+ -1 (note %)) score)))
 
 (buffer-write! bass-duration-b (take 128 (cycle [(/ 1 3.5)])))
 (buffer-write! bass-notes-b
@@ -124,8 +111,17 @@ Music for the journey"
 (buffer-write! duration-b
                (take 128 (cycle [1/7])))
 
+
 (ctl woody :amp 6)
 (ctl deep :amp 0.8)
+
+(ctl woody :damp 0)
+(ctl woody :room 0)
+
+(ctl deep :damp 0)
+(ctl deep :room 0)
+
+(kill ps)
 
 (kill woody)
 (kill deep)
