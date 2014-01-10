@@ -94,12 +94,14 @@ Bordered by:
                                           (mul-add:kr (lf-noise1:kr noise) 3 4))) notes [t0 t1 t2])]
       (out out-bus (* amp (g-verb (sum tones) size r)))))
 
+  (high-space-organ)
+
 
   (defsynth timed-high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 ]
     (let [space-notes [(in:kr phasor-b3) 16 32 16 8]
           duration    (in:kr phasor-b4)
-          s-tone    (in:kr phasor-b5)
-          all-tones [s-tone (+ 8 s-tone) (+ 16 s-tone)]
+          s-tone      (in:kr phasor-b5)
+          all-tones   [s-tone (+ 8 s-tone) (+ 16 s-tone)]
 
           notes (map #(midicps (duty:kr % 0 (dseq space-notes INF))) [duration])
           tones (map (fn [note tone] (blip (* note tone)
@@ -107,7 +109,7 @@ Bordered by:
       (out out-bus (* amp (g-verb (sum tones) size r)))))
 
   (comment
-    (ctl saw-s3 :freq-mul 1/1000)
+    (ctl saw-s3 :freq-mul 1/256)
     (buffer-write! space-notes-buf [8 16 32 16 8])
     (buffer-write! space-tones-buf [8 8 8])
     (buffer-write! space-dur-buf   [1 1/2 1/4 1/8])

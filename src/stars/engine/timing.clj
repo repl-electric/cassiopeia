@@ -19,6 +19,7 @@
 (defonce beat-count-b (control-bus))
 
 (defonce count-trig-id (trig-id))
+(defonce broadcast-count-trig-id (trig-id))
 
 (defsynth root-saw [rate 10 saw-bus 0 inv-saw-bus 0]
   (let [saw (lf-saw:kr rate)]
@@ -59,6 +60,13 @@
   (let [x (in:kr x-bus)]
     (out:kr out-bus (* x mul))))
 
+(defsynth broadcast-beat-trigger
+  [in-bus 0  beat-bus 0 beat-count-bus 0 trig-id 0 rate 10]
+  (let [src  (in:kr in-bus)
+        beat (in:kr beat-bus)
+        cnt  (in:kr beat-count-bus)]
+    (send-reply (* -1 src) "/global/beat-trigger/" [beat cnt] trig-id)))
+
 (def current-beat (atom 30))
 
 (defonce root-s (root-saw [:head timing-g] :saw-bus root-b :inv-saw-bus inv-root-b :rate 100))
@@ -73,3 +81,9 @@
 (defonce divider-s (timing/divider [:after root-s] :div @current-beat :in-bus inv-root-b :out-bus beat-b))
 (defonce counter-s (timing/counter [:after divider-s] :in-bus beat-b :out-bus beat-count-b))
 (defonce get-beat-s (get-beat [:after divider-s]))
+
+(defonce b-trigger (broadcast-beat-trigger [:after (foundation-monitor-group)]
+                                           :in-bus root-b
+                                           :beat-bus beat-b
+                                           :beat-count-bus beat-count-b
+                                           :trig-id broadcast-count-trig-id))

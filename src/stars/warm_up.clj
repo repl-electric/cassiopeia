@@ -120,6 +120,8 @@
 (defonce seq-basic-mixer-g (group :after default-mixer-g))
 (defonce seq-mix-s64  (mixers/basic-mixer [:head seq-basic-mixer-g] :in-bus lp64-b :mute 0))
 
+(ctl seq-mix-s64 :mute 1)
+
 (def sample-selection [arp-s
                        arp-chord-s
                        voice-1-s
@@ -142,8 +144,10 @@
                      ;;  gtr-str-s
                        ])
 
-;;(def seq-mixers  (doall (map-indexed (fn [idx _] (mixers/add-nk-mixer (nk-bank :lp64) (str "lp64-seq-" idx) seq-mixer-group lp64-b)) sample-selection)))
-(def seq-mixers [])
+(defonce seq-mixers  (vec (doall (map-indexed (fn [idx _] (mixers/add-nk-mixer (nk-bank :lp64) (str "lp64-seq-" idx) seq-mixer-group lp64-b)) sample-selection))))
+;;(def seq-mixers [])
+
+(get-in seq-mixers [1])
 
 (defonce rate-b  (control-bus 1 "Rate"))
 (defonce rater-s (sequencer/rater :out-bus rate-b))
