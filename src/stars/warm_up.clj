@@ -43,8 +43,11 @@
           :m1 ["lp64-4" mixer-init-state]
           :r1 ["lp64-5" mixer-init-state]
           :s2 ["lp64-6" mixer-init-state]
+          :r2 ["lp64-7" mixer-init-state]
+          :m2 ["lp64-8" mixer-init-state]
+          :s3 ["lp64-9" mixer-init-state]
 
-          :s3 ["lp64-triggers" mixer-init-state]
+          :m3 ["lp64-triggers" mixer-init-state]
           :r7 ["lp64-master" basic-mixer-init-state]
 
           ;;Row mapped samples
@@ -63,86 +66,68 @@
    :riffs  btn/fast-forward
    :synths btn/rewind})
 
-(lp-core/boot!)
+(try
+  (lp-core/boot!)
+  (catch Exception e))
 (nk2/start! banks cfg)
 
 (def lp (first lp-core/launchpad-kons))
-(def phrase-size 16)
+(def phrase-size 8)
 
-(defonce beat-rep-key (uuid))
-(metronome/start lp :mixer timing/count-trig-id beat-rep-key)
+(when (seq lp)
+  (defonce beat-rep-key (uuid))
+  (metronome/start lp :mixer timing/count-trig-id beat-rep-key)
 
-;;(def samples-set-1 [kick-s snare-s shaker-s hat-s])
-(def samples-set-1 [d-kick-s d-shake-s d-tom-s d-shake-2-s d-shake-1-s d-shake-2-deep-s])
+  (def samples-set-1 (take 10 (cycle [tom-s])))
 
-(defonce default-mixer-g (group :tail (foundation-safe-post-default-group)))
-(defonce drum-g (group))
-(defonce drum-trigger-mix-g (group :after drum-g))
-(defonce drum-basic-mixer-g (group :after default-mixer-g))
+  (defonce default-mixer-g (group :tail (foundation-safe-post-default-group)))
+  (defonce drum-g (group))
+  (defonce drum-trigger-mix-g (group :after drum-g))
+  (defonce drum-basic-mixer-g (group :after default-mixer-g))
 
-(defonce lp64-b  (audio-bus 2 "lp64 basic-mixer"))
-(defonce bas-mix-s64  (mixers/basic-mixer [:head drum-basic-mixer-g] :in-bus lp64-b :mute 0))
-(defonce trig64-mixer (mixers/add-nk-mixer (nk-bank :lp64) "lp64-triggers" drum-trigger-mix-g lp64-b))
+  (defonce lp64-b  (audio-bus 2 "lp64 basic-mixer"))
+  (defonce bas-mix-s64  (mixers/basic-mixer [:head drum-basic-mixer-g] :in-bus lp64-b :mute 0))
+  (defonce trig64-mixer (mixers/add-nk-mixer (nk-bank :lp64) "lp64-triggers" drum-trigger-mix-g lp64-b))
 
-(ctl bas-mix-s64 :mute 1)
+  (ctl bas-mix-s64 :mute 1)
 
-(defonce sequencer-64
-  (sequencer/mk-sequencer
-   (nk-bank :lp64)
-   "lp64"
-   samples-set-1
-   phrase-size
-   drum-g
-   timing/beat-count-b
-   timing/beat-b
-   lp64-b))
+  (defonce sequencer-64
+    (sequencer/mk-sequencer
+     (nk-bank :lp64)
+     "lp64"
+     samples-set-1
+     phrase-size
+     drum-g
+     timing/beat-count-b
+     timing/beat-b
+     lp64-b))
 
-(defonce refresh-beat-key (uuid))
+  (defonce refresh-beat-key (uuid))
 
-(on-trigger timing/count-trig-id (beat-scroll/grid-refresh lp sequencer-64 phrase-size :up) refresh-beat-key)
-(beat/setup-side-controls :up sequencer-64)
+  (on-trigger timing/count-trig-id (beat-scroll/grid-refresh lp sequencer-64 phrase-size :up) refresh-beat-key)
+  (beat/setup-side-controls :up sequencer-64)
 
-;;Adjust bpm
-(lp-core/bind :up :7x6 (fn [] (ctl timing/divider-s :div (swap! timing/current-beat inc))))
-(lp-core/bind :up :7x5 (fn [] (ctl timing/divider-s :div (swap! timing/current-beat dec))))
+  ;;Adjust bpm
+  (lp-core/bind :up :7x6 (fn [] (ctl timing/divider-s :div (swap! timing/current-beat inc))))
+  (lp-core/bind :up :7x5 (fn [] (ctl timing/divider-s :div (swap! timing/current-beat dec))))
 
-;;Shutdown
-(lp-core/bind :up :arm  (fn [lp]
-                          (ctl bas-mix-s64 :mute 0)
-                          (beat/off lp sequencer-64)))
+  ;;Shutdown
+  (lp-core/bind :up :arm  (fn [lp]
+                            (ctl bas-mix-s64 :mute 0)
+                            (beat/off lp sequencer-64)))
 
 
-(ctl bas-mix-s64 :mute 1)
+  (ctl bas-mix-s64 :mute 1)
 
-(defonce seq-g (group))
-(def seq-mixer-group (group "lp-mixers" :after seq-g))
-(defonce seq-trigger-mix-g (group :after seq-g))
-(defonce seq-basic-mixer-g (group :after default-mixer-g))
-(defonce seq-mix-s64  (mixers/basic-mixer [:head seq-basic-mixer-g] :in-bus lp64-b :mute 0))
+  (defonce seq-g (group))
+  (def seq-mixer-group (group "lp-mixers" :after seq-g))
+  (defonce seq-trigger-mix-g (group :after seq-g))
+  (defonce seq-basic-mixer-g (group :after default-mixer-g))
+  (defonce seq-mix-s64  (mixers/basic-mixer [:head seq-basic-mixer-g] :in-bus lp64-b :mute 0))
 
-(ctl seq-mix-s64 :mute 1)
+  (ctl seq-mix-s64 :mute 1)
 
-(def sample-selection [arp-s
-                       arp-chord-s
-                       voice-1-s
-                       voice-2-s
-                       strings-s
-                       drums-s
-                       chords-s
-                       dub-s
-
- ;;                      bass-1-s
- ;;                      bass-2-s
- ;;                      bass-3-s
- ;;                      hard-1-s
- ;;                      hard-2-s
-;;                       hard-3-s
-;;                       gtr-1-s
-
-                     ;;  gtr-2-s
-                     ;;  gtr-3-s
-                     ;;  gtr-str-s
-                       ])
+(def sample-selection [])
 
 (defonce seq-mixers  (vec (doall (map-indexed (fn [idx _] (mixers/add-nk-mixer (nk-bank :lp64) (str "lp64-seq-" idx) seq-mixer-group lp64-b)) sample-selection))))
 ;;(def seq-mixers [])
@@ -166,8 +151,7 @@
                                                                            :out-bus (:in-bus (get-in seq-mixers [idx] {:in-bus 0})))})
           sample-selection)))
 
-(use 'launchpad.plugin.sample-rows :reload)
-(sample-rows lp :left all-row-samples)
+(sr/sample-rows lp :left all-row-samples))
 
 (defonce synth-bus (audio-bus 2))
 (defonce riffs-bus (audio-bus 2))
