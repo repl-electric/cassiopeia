@@ -5,7 +5,7 @@
 |__  |__/| __/  __/ | |__/ |__/ |__  | |__/|
                            |
 Cassiopeia is a constellation in the northern sky, named after the vain queen Cassiopeia
-in Greek mythology, who boasted about her unrivalled beauty
+in Greek mythology, who boasted about her unrivaled beauty
 
 Bordered by:
 * Andromeda to the south
