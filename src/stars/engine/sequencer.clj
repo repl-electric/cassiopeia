@@ -35,14 +35,14 @@
 
 (defsynth mono-sequencer
   "Plays a single channel audio buffer."
-  [buf 0 rate 1 out-bus 0 beat-num 0 pattern 0  num-steps 8 beat-cnt-bus 0 beat-trg-bus 0 rq-bus 0 pan 0]
-                  (let [cnt      (in:kr beat-cnt-bus)
+  [buf 0 rate 1 out-bus 0 beat-num 0 pattern 0  num-steps 8 beat-cnt-bus 0 beat-trg-bus 0 rq-bus 0 pan 0 amp 0.7]
+  (let [cnt      (in:kr beat-cnt-bus)
         beat-trg (in:kr beat-trg-bus)
         bar-trg  (and (buf-rd:kr 1 pattern cnt)
                       (= beat-num (mod cnt num-steps))
                       beat-trg)
         vol      (set-reset-ff bar-trg)]
-    (out out-bus (* vol (pan2 (scaled-play-buf 1 buf rate bar-trg) pan)))))
+    (out out-bus (* vol amp (scaled-play-buf 1 buf rate bar-trg)))))
 
 (defn- start-synths [samples patterns mixers num-steps tgt-group beat-cnt-bus beat-trg-bus out-bus]
   (let [out-busses (if mixers
