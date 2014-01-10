@@ -1,9 +1,10 @@
 (ns stars.destination.beta
   "
- __
- )_)  _  _)_ _
-/__) )_) (_ (_(
-    (_
+.--.      .
+|   )    _|_
+|--:  .-. |  .-.
+|   )(.-' | (   )
+'--'  `--'`-'`-'`-
 
 Music for the journey"
   (:use [overtone.live]
