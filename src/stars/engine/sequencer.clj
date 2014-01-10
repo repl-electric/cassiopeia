@@ -84,8 +84,26 @@
                 :num-samples (count samples)
                 :synths (agent synths)
 
+                :beat-cnt-bus beat-cnt-bus
+                :beat-trg-bus beat-trg-bus
+                :out out-bus
+
                 :seq-group seq-group
                 :mixer-group mixer-group
                 :mixer-handles mixer-handles
                 :mixers mixers}
       {:type ::sequencer})))
+
+(defn swap-samples! [sequencer samples]
+  (send (:synths sequencer)
+        (fn [synths]
+          (kill (:seq-group sequencer))
+          (start-synths (take (:num-samples sequencer) samples)
+                        (:patterns sequencer)
+                        (:mixers sequencer)
+                        (:num-steps sequencer)
+                        (:seq-group sequencer)
+                        (:beat-cnt-bus sequencer)
+                        (:beat-trg-bus sequencer)
+                        (:out-bus sequencer)
+                        ))))
