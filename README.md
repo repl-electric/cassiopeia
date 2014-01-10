@@ -6,7 +6,7 @@ A space for _Machines_ and _Humans_ to make music together.
 
 ### Recorded Experiments
 
-https://soundcloud.com/the-stars-my-destination
+https://soundcloud.com/stars-my-destination
 
 #Influences
 
