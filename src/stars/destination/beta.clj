@@ -1,5 +1,11 @@
 (ns stars.destination.beta
-  "Music for the journey"
+  "
+ __
+ )_)  _  _)_ _
+/__) )_) (_ (_(
+    (_
+
+Music for the journey"
   (:use [overtone.live]
         [stars.warm-up]
         [stars.samples]
