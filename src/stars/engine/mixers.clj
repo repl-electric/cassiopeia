@@ -249,7 +249,7 @@
                            (println :msg msg)
                            (if-let [f (get nano2-fns id)]
                              (do
-                               (println "-->" id ctl-bus)
+                               ;;(println "-->" id ctl-bus)
                                (f val sin-ctl)
                                )
 ;;                             (println "unbound: " note)
