@@ -94,8 +94,7 @@ Bordered by:
                                           (mul-add:kr (lf-noise1:kr noise) 3 4))) notes [t0 t1 t2])]
       (out out-bus (* amp (g-verb (sum tones) size r)))))
 
-  (high-space-organ)
-
+  (comment (high-space-organ))
 
   (defsynth timed-high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 ]
     (let [space-notes [(in:kr phasor-b3) 16 32 16 8]
