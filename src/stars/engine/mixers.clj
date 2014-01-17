@@ -1,5 +1,5 @@
-(ns stars.engine.mixers
-  (:require [stars.engine.timing :as timing])
+(ns cassiopeia.engine.mixers
+  (:require [cassiopeia.engine.timing :as timing])
   (:use [overtone.live]
         [overtone.helpers.lib :only [uuid]]))
 

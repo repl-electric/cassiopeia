@@ -1,25 +1,12 @@
-(ns stars.cassiopeia
-  "                     /                /
- ___  ___  ___  ___    ___  ___  ___    ___
-|    |   )|___ |___ | |   )|   )|___)| |   )
-|__  |__/| __/  __/ | |__/ |__/ |__  | |__/|
-                           |
-Cassiopeia is a constellation in the northern sky, named after the vain queen Cassiopeia
-in Greek mythology, who boasted about her unrivaled beauty
-
-Bordered by:
-* Andromeda to the south
-* Perseus to the southeast
-* Cepheus to the north.
-"
+(ns cassiopeia.alpha
   (:use [overtone.live]
-        [stars.warm-up]
-        [stars.samples]
+        [cassiopeia.warm-up]
+        [cassiopeia.samples]
         [overtone.synth.sampled-piano])
-  (:require [stars.engine.timing :as timing]
+  (:require [cassiopeia.engine.timing :as timing]
             [launchpad.sequencer :as lp-sequencer]
             [launchpad.plugin.beat :as lp-beat]
-            [stars.engine.mixers :as m]
+            [cassiopeia.engine.mixers :as m]
             [overtone.inst.synth :as s]
             [overtone.synths :as syn]))
 
@@ -87,7 +74,6 @@ Bordered by:
 
   (comment  (def csp  (crystal-space-organ :numharm 0 :amp 0.5)))
 
-
   (defsynth high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 trig 0 t0 8 t1 16 t2 24 d0 1 d1 1/2 d2 1/4 d3 1/8]
     (let [notes (map #(midicps (duty:kr % (mod trig 16) (dseq space-notes INF))) [d0 d1 d2 d3])
           tones (map (fn [note tone] (blip (* note tone)
@@ -97,10 +83,10 @@ Bordered by:
   (comment (high-space-organ))
 
   (defsynth timed-high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 ]
-    (let [space-notes [(in:kr phasor-b3) 16 32 16 8]
+    (let [space-notes [(in:kr phasor-b3)]
           duration    (in:kr phasor-b4)
           s-tone      (in:kr phasor-b5)
-          all-tones   [s-tone (+ 8 s-tone) (+ 16 s-tone)]
+          all-tones   [s-tone]
 
           notes (map #(midicps (duty:kr % 0 (dseq space-notes INF))) [duration])
           tones (map (fn [note tone] (blip (* note tone)
@@ -110,7 +96,7 @@ Bordered by:
   (comment
     (ctl saw-s3 :freq-mul 1/256)
     (buffer-write! space-notes-buf [8 16 32 16 8])
-    (buffer-write! space-tones-buf [8 8 8])
+    (buffer-write! space-tones-buf [8 16 24])
     (buffer-write! space-dur-buf   [1 1/2 1/4 1/8])
 
     (timed-high-space-organ :noise 100)
@@ -131,14 +117,14 @@ Bordered by:
 
 ;;SCORE
 
-(def sun (sample-player star-into-the-sun :rate 0.99 :amp 8 :out-bus (m/nkmx :s0)))
+(def sun (sample-player star-into-the-sun :rate 0.99 :amp 8 :out-bus 0))
 
 (def space-and-time (sample-player space-and-time-sun :rate 0.8))
 (ctl space-and-time :rate 0.7)
 (ctl space-and-time :rate 0.8)
 
 (syn/fallout-wind)
-(syn/soft-phasing :amp 0.1)
+(syn/soft-phasing :amp 0.0)
 (def dark (syn/dark-sea-horns :amp 0.3))
 (ctl dark :amp 0)
 
@@ -187,7 +173,7 @@ Bordered by:
   (plain-space-organ :tone 22 :duration 1)
   (plain-space-organ :tone 20 :duration 3))
 
-(def so (high-space-organ :amp 0.4 :trig timing/beat-count-b :noise 220 :t0 2 :t1 4 :t2 8 :out-bus (m/nkmx :s0)))
+(def so (high-space-organ :amp 0.4 :trig timing/beat-count-b :noise 220 :t0 2 :t1 4 :t2 8 :out-bus 0))
 
 (kill so)
 

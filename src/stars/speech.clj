@@ -1,4 +1,4 @@
-(ns stars.speech
+(ns cassiopeia.speech
   (:use [overtone.live]))
 
 (def m1 ((speech-buffer "have you ever transcended space and time?" :voice :victoria) :rate 1 :loop? true :out-bus 0))

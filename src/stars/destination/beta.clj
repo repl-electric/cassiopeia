@@ -1,4 +1,4 @@
-(ns stars.destination.beta
+(ns cassiopeia.destination.beta
   "
 .--.      .
 |   )    _|_
@@ -8,15 +8,15 @@
 
 Music for the journey"
   (:use [overtone.live]
-        [stars.warm-up]
-        [stars.samples]
+        [cassiopeia.warm-up]
+        [cassiopeia.samples]
         [overtone.synth.sampled-piano])
-  (:require [stars.engine.timing :as timing]
+  (:require [cassiopeia.engine.timing :as timing]
             [launchpad.sequencer :as lp-s]
             [launchpad.plugin.beat :as lp-beat]
             [overtone.synths :as syn]
             [overtone.inst.synth :as s]
-            [stars.engine.sequencer :as sequencer]))
+            [cassiopeia.engine.sequencer :as sequencer]))
 
 (def beats-g (group "beats"))
 

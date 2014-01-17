@@ -1,5 +1,5 @@
-(ns stars.space
-  (:require [stars.engine.timing :as timing])
+(ns cassiopeia.space
+  (:require [cassiopeia.engine.timing :as timing])
   (:use overtone.live))
 
 (defsynth ding [freq 880 dur 0.2 level 0.25 pan 0.0 out-bus 0]

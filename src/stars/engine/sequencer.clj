@@ -1,6 +1,6 @@
-(ns stars.engine.sequencer
+(ns cassiopeia.engine.sequencer
   (:use overtone.live)
-  (:require [stars.engine.mixers :as mixers]))
+  (:require [cassiopeia.engine.mixers :as mixers]))
 
 (defsynth phasor-skipping-sequencer
   "Supports looping and jumping position"

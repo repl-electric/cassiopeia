@@ -1,9 +1,9 @@
-(ns stars.warm-up
+(ns cassiopeia.warm-up
   (:use
    [overtone.live]
    [overtone.helpers.lib :only [uuid]]
    [nano-kontrol2.config :only [mixer-init-state basic-mixer-init-state]]
-   [stars.samples])
+   [cassiopeia.samples])
   (:require
    [launchpad.core :as lp-core]
    [launchpad.plugin.metronome :as metronome]
@@ -16,9 +16,9 @@
    [nano-kontrol2.core :as nk2]
    [nano-kontrol2.buttons :as btn]
 
-   [stars.engine.timing :as timing]
-   [stars.engine.sequencer :as sequencer]
-   [stars.engine.mixers :as mixers]))
+   [cassiopeia.engine.timing :as timing]
+   [cassiopeia.engine.sequencer :as sequencer]
+   [cassiopeia.engine.mixers :as mixers]))
 
 (defn nk-bank
   "Returns the nk bank number for the specified bank key"

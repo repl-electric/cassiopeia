@@ -1,4 +1,4 @@
-(ns stars.samples
+(ns cassiopeia.samples
   (:use
    [overtone.live]))
 
