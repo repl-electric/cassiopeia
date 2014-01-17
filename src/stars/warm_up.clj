@@ -26,9 +26,9 @@
   (case bank-k
     :master btn/record
     :lp64   btn/play
-    ;;      btn/stop    ; stop
-    :riffs  btn/fast-forward ; fast-forward
-    :synths btn/rewind)) ; rewind
+    ;;      btn/stop
+    :riffs  btn/fast-forward
+    :synths btn/rewind))
 
 (def cfg
   {:synths {:s0 mixer-init-state :s1 mixer-init-state :s2 mixer-init-state :m0 mixer-init-state :m1 mixer-init-state :r0 mixer-init-state :r7 basic-mixer-init-state}
@@ -128,31 +128,31 @@
 
   (ctl seq-mix-s64 :mute 1)
 
-(def sample-selection [])
+  (def sample-selection [])
 
-(defonce seq-mixers  (vec (doall (map-indexed (fn [idx _] (mixers/add-nk-mixer (nk-bank :lp64) (str "lp64-seq-" idx) seq-mixer-group lp64-b)) sample-selection))))
-;;(def seq-mixers [])
+  (defonce seq-mixers  (vec (doall (map-indexed (fn [idx _] (mixers/add-nk-mixer (nk-bank :lp64) (str "lp64-seq-" idx) seq-mixer-group lp64-b)) sample-selection))))
+  ;;(def seq-mixers [])
 
-(get-in seq-mixers [1])
+  (get-in seq-mixers [1])
 
-(defonce rate-b  (control-bus 1 "Rate"))
-(defonce rater-s (sequencer/rater :out-bus rate-b))
+  (defonce rate-b  (control-bus 1 "Rate"))
+  (defonce rater-s (sequencer/rater :out-bus rate-b))
 
-(def all-row-samples
-  (doall (map-indexed
-          (fn [idx sample] {:row idx
-                           :sample sample
-                           :sequencer (sequencer/phasor-skipping-sequencer [:tail seq-g]
-                                                                           :buf (to-sc-id sample)
-                                                                           :loop? true
-                                                                           :bar-trg 0
-                                                                           :amp 0
-                                                                           :beat-b timing/beat-b
-                                                                           :rate-b rate-b
-                                                                           :out-bus (:in-bus (get-in seq-mixers [idx] {:in-bus 0})))})
-          sample-selection)))
+  (def all-row-samples
+    (doall (map-indexed
+            (fn [idx sample] {:row idx
+                             :sample sample
+                             :sequencer (sequencer/phasor-skipping-sequencer [:tail seq-g]
+                                                                             :buf (to-sc-id sample)
+                                                                             :loop? true
+                                                                             :bar-trg 0
+                                                                             :amp 0
+                                                                             :beat-b timing/beat-b
+                                                                             :rate-b rate-b
+                                                                             :out-bus (:in-bus (get-in seq-mixers [idx] {:in-bus 0})))})
+            sample-selection)))
 
-(sr/sample-rows lp :left all-row-samples))
+  (sr/sample-rows lp :left all-row-samples))
 
 (defonce synth-bus (audio-bus 2))
 (defonce riffs-bus (audio-bus 2))
