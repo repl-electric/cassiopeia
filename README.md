@@ -14,6 +14,8 @@ Bordered by:
 * Perseus to the southeast
 * Cepheus to the north.
 
+![Map](http://s2.postimg.org/q410hpla1/map.png)
+
 ### Recorded Experiments
 
 https://soundcloud.com/repl-electric
