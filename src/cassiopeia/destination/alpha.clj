@@ -39,9 +39,10 @@
   (defonce phasor-s1 (timing/buf-phasor [:after saw-s1] saw-x-b1 :out-bus phasor-b1 :buf saw-bf1))
   (defonce phasor-s2 (timing/buf-phasor [:after saw-s2] saw-x-b2 :out-bus phasor-b2 :buf saw-bf2))
 
+  (def space-notes-buf (buffer 5))
+  (def space-tones-buf (buffer 3))
+
   (defonce phasor-s3 (timing/buf-phasor [:after saw-s3] saw-x-b3 :out-bus phasor-b3 :buf space-notes-buf))
-  (defonce phasor-s4 (timing/buf-phasor [:after saw-s3] saw-x-b3 :out-bus phasor-b4 :buf space-dur-buf))
-  (defonce phasor-s5 (timing/buf-phasor [:after saw-s3] saw-x-b3 :out-bus phasor-b5 :buf space-tones-buf))
 
   (defsynth buffered-plain-space-organ [out-bus 0 duration 4 amp 1]
     (let [tone (/ (in:kr phasor-b2) 2)
@@ -78,12 +79,12 @@
 
   (comment (high-space-organ))
 
-  (def space-notes-buf (buffer 3))
-  (def space-tones-buf   (buffer 3))
 
   (defsynth timed-high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 ]
-    (let [cnt  (in:kr timing/beat-count-b)
-          note (buf-rd:kr 1 space-notes-buf cnt)
+    (let [note (in:kr phasor-b3)
+          tone1 (buf-rd:kr 1 space-tones-buf 0)
+          tone2 (buf-rd:kr 1 space-tones-buf 1)
+          tone3 (buf-rd:kr 1 space-tones-buf 2)
 
           trig1 (t-duty:kr (dseq [1] INFINITE))
           trig2 (t-duty:kr (dseq [1/2] INFINITE))
@@ -93,22 +94,17 @@
           note2 (midicps (demand:kr trig2 0 (drand note INFINITE)))
           note3 (midicps (demand:kr trig3 0 (drand note INFINITE)))
 
-          s-tone (buf-rd:kr 1 space-tones-buf cnt)
-
-          all-tones [s-tone s-tone s-tone]
+          all-tones [tone1 tone2 tone3]
           all-notes [note1 note2 note3]
 
-          ;;notes (map #(midicps (duty:kr % 0 (dseq space-notes INF))) [duration])
           tones (map (fn [note tone] (blip (* note tone)
                                           (mul-add:kr (lf-noise1:kr noise) 3 4))) all-notes all-tones)]
       (out out-bus (* amp (g-verb (sum tones) size r)))))
 
   (comment
     (show-graphviz-synth timed-high-space-organ)
-
-    (ctl saw-s3 :freq-mul 1/256)
-    (ctl timing/root-s :rate 80)
-    (buffer-write! space-notes-buf [8 16 32])
+    (ctl saw-s3 :freq-mul 1/32)
+    (buffer-write! space-notes-buf [8 16 32 16 8])
 
     (buffer-write! space-tones-buf [2 4 8])
     (buffer-write! space-tones-buf [8 12 16])
