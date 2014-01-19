@@ -1,4 +1,12 @@
 (ns cassiopeia.alpha
+"
+
+      .'.       |        |`````````, |         |       .'.
+    .''```.     |        |'''''''''  |_________|     .''```.
+  .'       `.   |        |           |         |   .'       `.
+.'           `. |_______ |           |         | .'           `.
+
+"
   (:use [overtone.live]
         [cassiopeia.warm-up]
         [cassiopeia.samples]
