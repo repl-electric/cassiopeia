@@ -20,10 +20,6 @@
   (defonce saw-bf1 (buffer 256))
   (defonce saw-bf2 (buffer 256))
 
-  (def space-notes-buf (buffer 5))
-  (def space-dur-buf (buffer 4))
-  (def space-tones-buf (buffer 3))
-
   (defonce saw-x-b1 (control-bus 1 "Timing Saw 1"))
   (defonce saw-x-b2 (control-bus 1 "Timing Saw 2"))
   (defonce saw-x-b3 (control-bus 1 "Timing Saw 3"))
@@ -74,13 +70,16 @@
 
   (comment  (def csp  (crystal-space-organ :numharm 0 :amp 0.5)))
 
-  (defsynth high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 trig 0 t0 8 t1 16 t2 24 d0 1 d1 1/2 d2 1/4 d3 1/8]
-    (let [notes (map #(midicps (duty:kr % (mod trig 16) (dseq space-notes INF))) [d0 d1 d2 d3])
+  (defsynth high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 trig 0 t0 8 t1 16 t2 24 d0 1 d1 1/2 d2 1/4]
+    (let [notes (map #(midicps (duty:kr % (mod trig 16) (dseq space-notes INF))) [d0 d1 d2])
           tones (map (fn [note tone] (blip (* note tone)
                                           (mul-add:kr (lf-noise1:kr noise) 3 4))) notes [t0 t1 t2])]
       (out out-bus (* amp (g-verb (sum tones) size r)))))
 
   (comment (high-space-organ))
+
+  (def space-notes-buf (buffer 3))
+  (def space-tones-buf   (buffer 3))
 
   (defsynth timed-high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 ]
     (let [space-notes [(in:kr phasor-b3)]
@@ -131,14 +130,10 @@
 (kill dark)
 (kill syn/soft-phasing)
 (kill syn/fallout-wind)
-;;(space-organ :tone 24)
 
-;;Rythem
+;;Rythm
 
 (def score   (map note [:F5 :G5 :G5 :G5 :G5 :BB5 :BB5 :D#5]))
-
-;;(def score [[:F5 1/2] [:G5 2] [:BB5 1] [:D#5 1/2]])
-
 
 (buffer-write! saw-bf2 (repeat 256 (midi->hz (note :A3))))
 
@@ -183,8 +178,6 @@
 (ctl so :t0 2 :t1 4 :t2 8)
 (ctl so :t0 8 :t1 12 :t2 16)
 (ctl so :t0 8 :t1 16 :t2 24)
-
-(ctl so :d0 1 :d1 1/2 :d2 1/4 :d3 1/8)
 
 (ctl so :r 10)
 (ctl so :size 0)
