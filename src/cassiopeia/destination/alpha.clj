@@ -82,25 +82,49 @@
   (def space-tones-buf   (buffer 3))
 
   (defsynth timed-high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 ]
-    (let [space-notes [(in:kr phasor-b3)]
-          duration    (in:kr phasor-b4)
-          s-tone      (in:kr phasor-b5)
-          all-tones   [s-tone]
+    (let [cnt  (in:kr timing/beat-count-b)
+          note (buf-rd:kr 1 space-notes-buf cnt)
 
-          notes (map #(midicps (duty:kr % 0 (dseq space-notes INF))) [duration])
+          trig1 (t-duty:kr (dseq [1] INFINITE))
+          trig2 (t-duty:kr (dseq [1/2] INFINITE))
+          trig3 (t-duty:kr (dseq [1/4] INFINITE))
+
+          note1 (midicps (demand:kr trig1 0 (drand note INFINITE)))
+          note2 (midicps (demand:kr trig2 0 (drand note INFINITE)))
+          note3 (midicps (demand:kr trig3 0 (drand note INFINITE)))
+
+          s-tone (buf-rd:kr 1 space-tones-buf cnt)
+
+          all-tones [s-tone s-tone s-tone]
+          all-notes [note1 note2 note3]
+
+          ;;notes (map #(midicps (duty:kr % 0 (dseq space-notes INF))) [duration])
           tones (map (fn [note tone] (blip (* note tone)
-                                          (mul-add:kr (lf-noise1:kr noise) 3 4))) notes all-tones)]
+                                          (mul-add:kr (lf-noise1:kr noise) 3 4))) all-notes all-tones)]
       (out out-bus (* amp (g-verb (sum tones) size r)))))
 
   (comment
-    (ctl saw-s3 :freq-mul 1/256)
-    (buffer-write! space-notes-buf [8 16 32 16 8])
-    (buffer-write! space-tones-buf [8 16 24])
-    (buffer-write! space-dur-buf   [1 1/2 1/4 1/8])
+    (show-graphviz-synth timed-high-space-organ)
 
-    (timed-high-space-organ :noise 100)
-    (stop)
-    )
+    (ctl saw-s3 :freq-mul 1/256)
+    (ctl timing/root-s :rate 80)
+    (buffer-write! space-notes-buf [8 16 32])
+
+    (buffer-write! space-tones-buf [2 4 8])
+    (buffer-write! space-tones-buf [8 12 16])
+    (buffer-write! space-tones-buf [8 16 24])
+
+    (def thso (timed-high-space-organ :noise 220 :amp 0.4))
+
+    (ctl thso :noise 10)
+    (ctl thso :size 0)
+    (ctl thso :size 200)
+
+    (def so (high-space-organ :amp 0.4 :trig timing/beat-count-b :noise 220 :t0 2 :t1 4 :t2 8 :out-bus 0))
+
+    (show-graphviz-synth high-space-organ)
+
+    (stop))
 
   (defsynth plain-space-organ [out-bus 0 tone 1 duration 3 amp 1]
     (let [tones (map #(blip (* % 2) (mul-add:kr 1/8 1 4)) [tone])]
