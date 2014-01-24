@@ -18,7 +18,9 @@
 
    [cassiopeia.engine.timing :as timing]
    [cassiopeia.engine.sequencer :as sequencer]
-   [cassiopeia.engine.mixers :as mixers]))
+   [cassiopeia.engine.mixers :as mixers]
+
+   [cassiopeia.engine.monomes :as mon]))
 
 (defn nk-bank
   "Returns the nk bank number for the specified bank key"
@@ -204,3 +206,5 @@
                  (fn [{:keys [val]}]
                    (ctl basic-riffs-mix :amp val))
                  ::riffs-master-amp)
+
+(def m128 (mon/find-monome "/dev/tty.usbserial-m0000965"))
