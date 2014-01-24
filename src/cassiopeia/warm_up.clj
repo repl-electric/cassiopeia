@@ -68,23 +68,44 @@
 
 (try
   (lp-core/boot!)
-  (catch Exception e))
-(nk2/start! banks cfg)
+  (catch Exception e
+    (println "LP not connected")))
 
-(def lp (first lp-core/launchpad-kons))
+(try
+  (nk2/start! banks cfg)
+  (def lp (first lp-core/launchpad-kons))
+  (catch Exception e
+    (def lp [])
+    (println "NK2 not connected")))
+
 (def phrase-size 8)
 
 (defonce default-mixer-g (group :tail (foundation-safe-post-default-group)))
+(defonce drum-g (group))
+(defonce drum-trigger-mix-g (group :after drum-g))
+(defonce drum-basic-mixer-g (group :after default-mixer-g))
+(def samples-set-1 (take 10 (cycle [tom-s])))
+
+(when-not (seq lp)
+  (defonce seq-b  (audio-bus 2 "basic-mixer"))
+  (defonce bas-mix-seq    (mixers/basic-mixer [:head drum-basic-mixer-g] :in-bus seq-b :mute 0))
+  (defonce trig-seq-mixer (mixers/add-nk-mixer (nk-bank :lp64) "lp64-triggers" drum-trigger-mix-g seq-b))
+  (ctl bas-mix-seq :mute 1)
+
+  (defonce sequencer-64
+    (sequencer/mk-sequencer
+     (nk-bank :lp64)
+     "seq"
+     samples-set-1
+     phrase-size
+     drum-g
+     timing/beat-count-b
+     timing/beat-b
+     seq-b)))
 
 (when (seq lp)
   (defonce beat-rep-key (uuid))
   (metronome/start lp :mixer timing/count-trig-id beat-rep-key)
-
-  (def samples-set-1 (take 10 (cycle [tom-s])))
-
-  (defonce drum-g (group))
-  (defonce drum-trigger-mix-g (group :after drum-g))
-  (defonce drum-basic-mixer-g (group :after default-mixer-g))
 
   (defonce lp64-b  (audio-bus 2 "lp64 basic-mixer"))
   (defonce bas-mix-s64  (mixers/basic-mixer [:head drum-basic-mixer-g] :in-bus lp64-b :mute 0))
