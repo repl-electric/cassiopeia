@@ -25,7 +25,7 @@ Music for the journey"
 (sequencer/swap-samples! sequencer-64 dum-samples-set)
 
 (lp-s/sequencer-write! sequencer-64 0 [1 0 0 0 0 1 0 0])
-(lp-s/sequencer-write! sequencer-64 1 [0 0 1 0 0 0 1 0])
+
 (lp-s/sequencer-write! sequencer-64 2 [0 1 0 0 0 0 0 0])
 (lp-s/sequencer-write! sequencer-64 3 [0 0 0 1 0 0 0 0])
 (lp-s/sequencer-write! sequencer-64 4 [0 0 0 0 1 0 0 0])
@@ -33,8 +33,14 @@ Music for the journey"
 (lp-s/sequencer-write! sequencer-64 5 (take 8 (cycle [1])))
 (lp-s/sequencer-write! sequencer-64 5 [0 0 0 0 0 0 0 1])
 
-(lp-s/sequencer-write! sequencer-64 6 [1 0 0 0 0 0 0 0])
-(lp-s/sequencer-write! sequencer-64 7 [0 0 0 0 0 0 0 1])
+(do
+  (lp-s/sequencer-write! sequencer-64 1 [0 0 1 0 0 0 1 0])
+  (lp-s/sequencer-write! sequencer-64 5 [0 0 0 0 0 0 0 1]))
+
+(do
+  (lp-s/sequencer-write! sequencer-64 6 [1 0 0 0 0 0 0 0])
+  (lp-s/sequencer-write! sequencer-64 7 [0 0 0 0 0 0 0 1])
+  (lp-s/sequencer-write! sequencer-64 5 [0 0 0 0 0 0 0 1]))
 
 (defonce score-b         (buffer 128))
 (defonce duration-b      (buffer 128))
@@ -56,7 +62,7 @@ Music for the journey"
         wood (bpf:ar (* (white-noise:ar) (line:kr 5 0 0.02)) freq 0.02)
         src (mix [sin sin2 tri wood])
         src (free-verb src 0.33 room damp)]
-    (out:ar out-bus (* amp env (pan2 src)))))
+    (out:ar out-bus (* amp env (pan2 src (t-rand:kr -1 1 trig))))))
 
 (defsynth deep-saw [freq 100 beat-count-bus 0 offset-bus 0 duration-bus 0 out-bus 0 amp 1 pan 0 room 0.5 damp 0.5]
   (let [cnt    (in:kr beat-count-bus)
@@ -97,20 +103,15 @@ Music for the journey"
                      (map #(+ -1 (note %)) score)))
 
 (buffer-write! bass-duration-b (take 128 (cycle [(/ 1 3.5)])))
-(buffer-write! bass-notes-b
-               (take 128 (cycle (map note bass-score))))
-(buffer-write! bass-notes-b
-               (take 128 (cycle (map #(+ -12 (note %)) score))))
+(buffer-write! bass-notes-b  (take 128 (cycle (map note bass-score))))
+(buffer-write! bass-notes-b (take 128 (cycle (map #(+ -12 (note %)) score))))
 
-(buffer-write! score-b
-               (take 128 (cycle (map #(+ 0 ( note %)) n-score))))
+(buffer-write! bass-notes-b  (take 128 (cycle (map note [:F2 :G2 :F2]))))
 
-(buffer-write! score-b
-               (take 128 (cycle (map #(+ 0 ( note %)) score))))
+(buffer-write! score-b (take 128 (cycle (map #(+ 0 ( note %)) n-score))))
+(buffer-write! score-b (take 128 (cycle (map #(+ 0 ( note %)) score))))
 
-(buffer-write! duration-b
-               (take 128 (cycle [1/7])))
-
+(buffer-write! duration-b  (take 128 (cycle [1/7])))
 
 (ctl woody :amp 6)
 (ctl deep :amp 0.8)
@@ -125,3 +126,5 @@ Music for the journey"
 
 (kill woody)
 (kill deep)
+
+(stop)
