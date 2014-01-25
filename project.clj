@@ -8,6 +8,7 @@
                [korg-nano-kontrol2 "0.1.0-SNAPSHOT"]
                [launchpad "0.1.0-SNAPSHOT"]
 
+               [monome-serial "0.4-SNAPSHOT"]
                [polynome "0.3.0-SNAPSHOT"]
 
                [overtone.synths "0.1.0-SNAPSHOT"]

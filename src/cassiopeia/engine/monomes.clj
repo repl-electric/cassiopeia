@@ -50,7 +50,7 @@
   "returns an initialised monome or nil if unavailable. Also adds
    initialised monome to monomes* atom"
   [path width height]
-  (try  (let [m (monome-core/connect path)
+  (try  (let [m (monome-core/connect path :110626)
               m (decorate-monome m width height path)]
           (swap! monomes* conj m)
           m)
