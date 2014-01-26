@@ -86,7 +86,7 @@
     (local-out:ar s)
     (out out-bus (* amp (pan2 (free-verb s :room 1 :damp 1 :mix 1))))))
 
-(defsynth p [out-bus 0 amp 0.1 gate 1]
+(defsynth phasing-ping [out-bus 0 amp 0.1 gate 1]
   (let [cnt    (in:kr timing/beat-count-b)
         detune (buf-rd:kr 1 detune-buf cnt)
         note (buf-rd:kr 1 notes-buf cnt)
@@ -99,10 +99,26 @@
         snd (mix (sin-osc:ar (+ freqd [0 (* 0.2 detune)]) (* 2 Math/PI env)))]
     (out out-bus (pan2:ar (* snd env amp) (t-rand:kr -1 1 trig)))))
 
+(defonce p-g (group "Group for p2s"))
+(defsynth p2 [out-bus 0 group-size 5 idx 0 amp 1]
+  (let [b-trig (in:kr timing/beat-b)
+        cnt (in:kr timing/beat-count-b)
+        detune (buf-rd:kr 1 detune-buf cnt)
+        note (buf-rd:kr 1 notes-buf cnt)
+        freq (midicps note)
+
+        trg (and b-trig (= 0 (mod (+ (rand-int 5) idx cnt) group-size)))
+        freq (latch freq trg)
+
+        env (env-gen (env-perc (ranged-rand 0.001 0.01) 0.4 amp (ranged-rand -9 -1)) trg)
+        snd (* env (mix (sin-osc:ar (+ freq [0 (* 0.1 detune)]) (* 2 Math/PI env))))]
+
+    (out out-bus (pan2:ar (* amp snd) (t-rand:kr -1 1 trg) ))))
+
 (def drum-buf (buffer 4))
 (def factor-buf (buffer 3))
 
-(defsynth t [amp 1]
+(defsynth drum-beat [amp 1 out-bus]
   (let [cnt    (in:kr timing/beat-count-b)
         dur    (buf-rd:kr 1 drum-buf cnt)
         factor (buf-rd:kr 1 factor-buf cnt)
@@ -114,11 +130,11 @@
         snd (/ (sin-osc:ar (+ 99 (* 64 (saw:ar speed))) mod) 9)
         src (comb-n snd 1/4 (/ 1 4.125) (range-lin (sin-osc:kr 0.005 (* 1.5 Math/PI)) 0 6))
         ]
-    (out 0 (* amp src))))
+    (out out-bus (* amp src))))
 
 (def count-buf (buffer 8))
 
-(defsynth syn [out-bus 0 cnt 1 amp 1]
+(defsynth flow [out-bus 0 cnt 1 amp 1]
   (let [del (* 1 (delay-n:ar (in-feedback:ar 0 2) (in-feedback:ar 100 2) 1))
         src (/ (sin-osc:ar (+ (* cnt 99) [0 2]) (range-lin del 1 0)) 4)]
     (out out-bus (* amp (pan2 src) (line 1 0 16 FREE)))))
@@ -128,10 +144,16 @@
         src (bpf:ar snd (+ 100 (ranged-rand 0 2000) (lin-rand 0.25 1.75)))]
     (out 62 src)))
 
-(defsynth mmm [out-bus 0 amp 1]
+(defsynth pluckey-wrapping [out-bus 0 amp 1]
   (let [src (* (in-feedback:ar 62 2) (range-lin (sin-osc:kr 0.006) 0.25 1))]
     (out out-bus (* amp src))))
-)
+
+(defsynth noise-wind [out-bus 0 amp 1]
+  (let [lfos (lf-noise1:ar 0.5)
+        snd (crackle:ar (range-lin lfos 1.8 1.98))
+        src (formlet:ar snd (lag (t-exp-rand:ar 200 2000 lfos) 2) (range-lin lfos 5e-4 1e-3) 0.0012)]
+    (out out-bus (* amp src)))))
+
 ;;Score
 (def grainy (granulate :in-buf (buffer-mix-to-mono chaos-s) :amp 0.5))
 (kill grainy)
@@ -153,52 +175,48 @@
 
 (kill dark)
 
-(def drum-t (t :amp 0.5))
+(def drum-t (drum-beat :amp 0.6))
 (ctl drum-t :amp 0.02)
 
-
-(kill t)
+(kill drum-beat)
 
 (glitchift :amp 0.02)
 (kill glitchift)
 
 (do
   (pluckey)
-  (mmm :amp 0.11))
-(kill mmm)
+  (pluckey-wrapping :amp 0.11))
+(kill pluckey-wrapping)
 
-(buffer-write! detune-buf (take (count pitch-pattern) (cycle pattern)))
+(buffer-write! detune-buf (take (count pitch-pattern) (cycle [7])))
 (buffer-write! notes-buf pitch-pattern)
 
 (buffer-write! notes-buf (take (count pitch-pattern) (repeat (note :G4))))
 (buffer-write! notes-buf (take (count pitch-pattern) (repeat (nth (distinct pitch-pattern) (mod 0 (count (distinct pitch-pattern)))))))
 
+(dotimes [x 8] (p2 [:head p-g] 0 8 x))
+(kill p-g)
+
 (ctl timing/root-s :rate 100)
 
-(p :amp 0.4)
+(phasing-ping :amp 0.4)
 
-(kill p)
+(kill phasing-ping)
 
 (buffer-write! drum-buf [0 0 0 0])
 (buffer-write! factor-buf [0 0 0])
 
-(def s (syn :cnt 1 :amp 0.4))
-(def s (syn :cnt 2 :amp 0.4))
-(def s (syn :cnt 3 :amp 0.3))
-(def s (syn :cnt 4 :amp 0.2))
-(def s (syn :cnt 5 :amp 0.2))
-(def s (syn :cnt 6 :amp 0.2))
-(def s (syn :cnt 7 :amp 0.1))
+(def s (flow :cnt 1 :amp 0.4))
+(def s (flow :cnt 2 :amp 0.4))
+(def s (flow :cnt 3 :amp 0.3))
+(def s (flow :cnt 4 :amp 0.2))
+(def s (flow :cnt 5 :amp 0.2))
+(def s (flow :cnt 6 :amp 0.2))
+(def s (flow :cnt 7 :amp 0.1))
 
-(kill syn)
+(kill flow)
 
-(defsynth r [out-bus 0 amp 1]
-  (let [lfos (lf-noise1:ar 0.5)
-        snd (crackle:ar (range-lin lfos 1.8 1.98))
-        src (formlet:ar snd (lag (t-exp-rand:ar 200 2000 lfos) 2) (range-lin lfos 5e-4 1e-3) 0.0012)]
-    (out out-bus (* amp src))))
-
-(r :amp 0.1)
-(kill r)
+(noise-wind :amp 0.1)
+(kill noise-wind)
 
 (stop)
