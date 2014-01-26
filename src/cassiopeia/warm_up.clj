@@ -13,14 +13,15 @@
    [launchpad.plugin.sample-rows :as sr]
 
    [launchpad.sequencer :as lp-sequencer]
+
    [nano-kontrol2.core :as nk2]
    [nano-kontrol2.buttons :as btn]
 
+   [monome.core :as mon]
+
    [cassiopeia.engine.timing :as timing]
    [cassiopeia.engine.sequencer :as sequencer]
-   [cassiopeia.engine.mixers :as mixers]
-
-   [cassiopeia.engine.monomes :as mon]))
+   [cassiopeia.engine.mixers :as mixers]))
 
 (defn nk-bank
   "Returns the nk bank number for the specified bank key"

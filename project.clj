@@ -5,11 +5,10 @@
 
 :dependencies [[org.clojure/clojure "1.5.1"]
                [overtone "0.9.1"]
+
                [korg-nano-kontrol2 "0.1.0-SNAPSHOT"]
                [launchpad "0.1.0-SNAPSHOT"]
-
-               [monome-serial "0.4-SNAPSHOT"]
-               [polynome "0.3.0-SNAPSHOT"]
+               [monome "0.1.0-SNAPSHOT"]
 
                [overtone.synths "0.1.0-SNAPSHOT"]
                [overtone.orchestra "0.1.0-SNAPSHOT"]]
