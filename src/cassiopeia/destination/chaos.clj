@@ -1,5 +1,12 @@
-(ns cassiopeia.destination.void
-  "A space for play"
+(ns cassiopeia.destination.chaos
+"
+  ██████╗██╗  ██╗ █████╗  ██████╗ ███████╗
+ ██╔════╝██║  ██║██╔══██╗██╔═══██╗██╔════╝
+ ██║     ███████║███████║██║   ██║███████╗
+ ██║     ██╔══██║██╔══██║██║   ██║╚════██║
+ ╚██████╗██║  ██║██║  ██║╚██████╔╝███████║
+  ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
+"
   (:use [overtone.live]
         [cassiopeia.samples]
         [overtone.synth.sampled-piano]
