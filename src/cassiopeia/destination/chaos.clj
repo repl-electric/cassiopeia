@@ -127,18 +127,15 @@
   (def drum-buf (buffer 4))
   (def factor-buf (buffer 3))
 
-  (defsynth drum-beat [amp 1 out-bus]
+  (defsynth drum-beat [amp 1 out-bus 0 speed 2 pop-amp 3]
     (let [cnt    (in:kr timing/beat-count-b)
           dur    (buf-rd:kr 1 drum-buf cnt)
           factor (buf-rd:kr 1 factor-buf cnt)
-          speed 2
 
           trig (t-duty:ar 1 0 (* (dseq [dur]) [factor]))
-
-          mod (+ (duty:ar 1 0 (* (dseq [dur]) [factor])) (* (+ 128 (* 32 (saw:ar 1))) (saw:ar [3 4])))
+          mod (+ (duty:ar 1 0 (* (dseq [dur]) [factor])) (* (+ 128 (* 32 (saw:ar 1))) (saw:ar [pop-amp (+ 1 pop-amp)])))
           snd (/ (sin-osc:ar (+ 99 (* 64 (saw:ar speed))) mod) 9)
-          src (comb-n snd 1/4 (/ 1 4.125) (range-lin (sin-osc:kr 0.005 (* 1.5 Math/PI)) 0 6))
-          ]
+          src (comb-n snd 1/4 (/ 1 4.125) (range-lin (sin-osc:kr 0.005 (* 1.5 Math/PI)) 0 6))]
       (out out-bus (* amp src))))
 
   (def count-buf (buffer 8))
@@ -170,11 +167,9 @@
 (def grainy (granulate :in-buf (buffer-mix-to-mono chaos-s) :amp 0.5))
 (kill grainy)
 
-(sample-player chaos-s :amp 0.4)
-
 (def d (drone :amp 0.1))
-(ctl d :f1 0.5)
-(ctl d :f2 0.5)
+(ctl d :f1 0.5 :amp 0.07)
+(ctl d :f2 0.5 :amp 0.07)
 (ctl d :f1 1)
 (ctl d :f2 1)
 
@@ -187,8 +182,12 @@
 
 (kill dark)
 
-(def drum-t (drum-beat :amp 0.6))
+(def drum-t (drum-beat :amp 0.5))
 (ctl drum-t :amp 0.02)
+
+(ctl drum-t :speed 0.5)
+(ctl drum-t :speed 1)
+(ctl drum-t :speed 2)
 
 (kill drum-beat)
 
@@ -217,6 +216,12 @@
 
 (buffer-write! drum-buf [0 0 0 0])
 (buffer-write! factor-buf [0 0 0])
+(kill drum-beat)
+
+(buffer-write! drum-buf [1 2 4 8])
+(buffer-write! factor-buf [1 16 1])
+
+(sample-player chaos-s :amp 0.1)
 
 (def s (flow :cnt 1 :amp 0.4))
 (def s (flow :cnt 2 :amp 0.4))
