@@ -1,4 +1,11 @@
 (ns cassiopeia.destination.voices
+  "
+  _|      _|            _|
+  _|      _|    _|_|          _|_|_|    _|_|      _|_|_|
+  _|      _|  _|    _|  _|  _|        _|_|_|_|  _|_|
+    _|  _|    _|    _|  _|  _|        _|            _|_|
+      _|        _|_|    _|    _|_|_|    _|_|_|  _|_|_|
+  "
   (:use overtone.live))
 
 (defonce voice-g (group "the voices"))
