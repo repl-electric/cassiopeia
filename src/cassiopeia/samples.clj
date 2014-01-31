@@ -49,3 +49,6 @@
 (def star-into-the-sun-s (load-sample "~/Workspace/music/samples/star-into-the-sun.wav"))
 (def space-and-time-s (load-sample "~/Workspace/music/samples/space_and_time.wav"))
 (def chaos-s (load-sample "~/Workspace/music/samples/chaos.wav"))
+
+(defonce glitch1-s (freesound-sample 130301))
+(defonce glitch2-s (freesound-sample 130304))

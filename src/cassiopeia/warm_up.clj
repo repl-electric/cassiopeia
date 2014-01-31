@@ -215,8 +215,8 @@
   (require '[monome.polynome :as poly])
   (require '[monome.kit.sampler :as samp])
 
-  (def samples-g (group "samples"))
-  (defonce trigger-samples [star-into-the-sun-s space-and-time-s chaos-s])
+     (def samples-g (group "samples"))
+  (defonce trigger-samples [star-into-the-sun-s space-and-time-s chaos-s glitch1-s glitch2-s])
   (defonce trigger-sampler128  (samp/mk-sampler ::trigger-sampler128 trigger-samples samples-g 0 16))
   (defonce __dock_trigger__
     (poly/dock-fonome! m128
