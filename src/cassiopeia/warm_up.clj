@@ -209,3 +209,17 @@
                  ::riffs-master-amp)
 
 (def m128 (mon/find-monome "/dev/tty.usbserial-m0000965"))
+
+(when m128
+  (require '[monome.fonome :as fon])
+  (require '[monome.polynome :as poly])
+  (require '[monome.kit.sampler :as samp])
+
+  (def samples-g (group "samples"))
+  (defonce trigger-samples [(sample (freesound-path 86773)) (sample (freesound-path 77305))])
+  (defonce trigger-sampler128  (samp/mk-sampler ::trigger-sampler128 trigger-samples samples-g 0 16))
+  (defonce __dock_trigger__
+    (poly/dock-fonome! m128
+                       (:fonome trigger-sampler128)
+                       ::trigger-sampler128
+                       0 0)))
