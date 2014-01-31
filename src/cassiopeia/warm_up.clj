@@ -216,7 +216,7 @@
   (require '[monome.kit.sampler :as samp])
 
   (def samples-g (group "samples"))
-  (defonce trigger-samples [(sample (freesound-path 86773)) (sample (freesound-path 77305))])
+  (defonce trigger-samples [star-into-the-sun-s space-and-time-s chaos-s])
   (defonce trigger-sampler128  (samp/mk-sampler ::trigger-sampler128 trigger-samples samples-g 0 16))
   (defonce __dock_trigger__
     (poly/dock-fonome! m128
