@@ -6,6 +6,10 @@
   .'       `.   |        |           |         |   .'       `.
 .'           `. |_______ |           |         | .'           `.
 
+* Surface temperature: 4530 K
+* Mass: 8.95E30 kg
+* Radius: 29,280,000 km
+* Magnitude: 2.24
 "
   (:use [overtone.live]
         [cassiopeia.warm-up]
