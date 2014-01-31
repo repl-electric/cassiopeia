@@ -9,7 +9,8 @@
 Hearing Voices From Space.
 A space suit floats through the empty void and orbits our planet, its radio broadcasts signals to the Earth below. On the surface, amateur radio operators receive the transmission and hear a voice. Coming from the suit, as it floats alone, away from the international space station.
   "
-  (:use overtone.live))
+  (:use overtone.live)
+  (:require [cassiopeia.engine.timing :as tim]))
 
 (defonce voice-g (group "the voices"))
 
@@ -93,5 +94,137 @@ A space suit floats through the empty void and orbits our planet, its radio broa
 (ctl dark :room-size 70)
 
 (kill dark)
+
+(stop)
+
+(def sis-score [[72 69 64]  [70 64 62]  [67 60 70]  [65 60 69]  [64 60 67] [65 60 69]])
+
+(defsynth sistres [out-bus 0 amp 1]
+  (let [h (midicps (rand-nth [40 45 52]))
+        sins (take 16 (repeatedly #(* 0.2 (sin-osc:ar (exp-rand h (+ h (/ h 64))) 0))))
+        src (* sins (lf-gauss:ar 9 1/4 0 0 2))]
+    (out out-bus (* amp (splay:ar src)))))
+
+(defsynth sistres-2 [out-bus 0 amp 1 note 72]
+  (let [h (midicps note)
+        sins (take 16 (repeatedly #(* 0.2 (sin-osc:ar (exp-rand h (+ h (/ h 128))) 0))))
+        src (* sins (lf-gauss:ar 6 1/4 0 0 2))]
+    (out out-bus (* amp (splay:ar src)))))
+
+(sistres-2 :note (rand-nth (rand-nth sis-score)))
+(sistres)
+
+(def dur-size 3)
+(defonce perc-dur-buf  (buffer dur-size))
+(defonce perc-amp-buf  (buffer dur-size))
+(defonce post-frac-buf (buffer dur-size))
+
+(defonce perc-g (group "perc grouping"))
+
+(defsynth buf->perc-int [out-bus 0 buf [0 :ir] rate 1 inter 2 beat-num 0]
+  (let [cnt (in:kr tim/beat-count-b)
+        ;;beat-trg (in:kr tim/beat-b)
+        dur (buf-rd:kr 1 perc-dur-buf (mod cnt 3))
+        cutom-amp (buf-rd:kr 1 perc-amp-buf (mod cnt 3))
+        pos-frac (buf-rd:kr 1 post-frac-buf (mod cnt 3))
+
+        bar-trg  (= beat-num (mod cnt 3))
+        amp      (set-reset-ff bar-trg)
+
+        width-frac (* (/ dur (buf-dur:ir buf)) rate)
+        sig [(buf-rd:ar 1 buf (phasor:ar 0
+                                         (* rate (buf-rate-scale:kr buf))
+                                         (* pos-frac (buf-samples:kr buf))
+                                         (+ (* pos-frac (buf-samples:kr buf) )
+                                            (* width-frac (buf-samples:kr buf))))
+                        true
+                        inter)]
+        env (env-gen:kr (env-perc) bar-trg 1 0 dur)
+        ]
+    (out:ar out-bus (* env amp cutom-amp sig))))
+
+
+(defonce smooth-g (group "smooth grouping"))
+
+(defonce smooth-dur-buf  (buffer dur-size))
+(defonce smooth-amp-buf  (buffer dur-size))
+(defonce smooth-post-frac-buf  (buffer dur-size))
+
+(defsynth buf->smooth-int [out-bus 0 buf [0 :ir] rate 1 inter 2 beat-num 0]
+  (let [cnt (in:kr tim/beat-count-b)
+        ;;beat-trg (in:kr tim/beat-b)
+        dur (buf-rd:kr 1 smooth-dur-buf (mod cnt 3))
+        custom-amp (buf-rd:kr 1 smooth-amp-buf (mod cnt 3))
+        pos-frac (buf-rd:kr 1 post-frac-buf (mod cnt 3))
+        bar-trg  (= beat-num (mod cnt 3))
+        amp      (set-reset-ff bar-trg)
+
+        width-frac (* (/ dur 2 (buf-dur:ir buf)) rate)
+        forward (buf-rd:ar 1 buf (phasor:ar 0
+                                            (* (abs rate) (buf-rate-scale:kr buf))
+                                            (- (* width-frac (buf-samples:kr buf))
+                                               (* pos-frac (buf-samples:kr buf)))
+                                            (+ (* width-frac (buf-samples:kr buf))
+                                               (* pos-frac (buf-samples:kr buf))))
+                           1
+                           inter)
+
+        backward (buf-rd:ar 1 buf (phasor:ar 0
+                                             (* -1 (abs rate) (buf-rate-scale:kr buf))
+                                             (+ (* width-frac (buf-samples:kr buf))
+                                                (* pos-frac (buf-samples:kr buf)))
+                                             (- (* width-frac (buf-samples:kr buf))
+                                                (* pos-frac (buf-samples:kr buf))))
+                            1
+                            inter)
+
+        sound (bi-pan-b2:ar forward backward (f-sin-osc:kr dur))
+        env (env-gen:kr (env-sine) bar-trg 1 0 dur)]
+    (out out-bus (* env amp custom-amp sound))))
+
+(def space-and-time-sun (load-sample "~/Workspace/music/samples/space_and_time.wav"))
+(def example-s (load-sample "/Applications/SuperCollider/SuperCollider.app/Contents/Resources/sounds/a11wlk01.wav"))
+
+(defn make-perc [lib]
+  (doall
+   (map
+    (fn [n]
+      (buf->perc-int
+       [:head perc-g]
+       :buf (rand-nth lib)
+       :rate 3
+       :pos-frac (/ (rand 512) 512)
+       :beat-num n
+       :amp (rand-nth (range 1 3)))
+      perc-g)
+   (range 0 3))))
+
+(defn make-smooth [lib]
+  (doall
+   (map
+    (fn [n]
+      (buf->smooth-int
+       [:head smooth-g]
+       :buf (rand-nth lib)
+       :rate 1
+       :pos-frac (/ (rand 512) 512)
+       :beat-num n
+       :amp (rand-nth (range 1 3)))))
+    (range 0 3)))
+
+(buffer-write! perc-dur-buf [1/8 1/4 1/2])
+
+(buffer-write! perc-amp-buf [(ranged-rand 1 3) (ranged-rand 1 3) (ranged-rand 1 3)])
+(buffer-write! post-frac-buf [(/ (rand 512) 512) (/ (rand 512) 512) (/ (rand 512) 512)])
+
+(buffer-write! smooth-dur-buf [1/2 1/8 1/2])
+(buffer-write! smooth-amp-buf [(ranged-rand 1 3) (ranged-rand 1 3) (ranged-rand 1 3)])
+(buffer-write! smooth-post-frac-buf [(/ (rand 512) 512) (/ (rand 512) 512) (/ (rand 512) 512)])
+
+(def gs (make-perc [example-s]))
+(def ss (make-smooth [space-and-time-sun example-s]))
+
+(kill smooth-g)
+(kill perc-g)
 
 (stop)
