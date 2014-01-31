@@ -20,6 +20,26 @@
             [overtone.inst.synth :as s]
             [overtone.synths :as syn]))
 
+(defn fade
+  "Fade amplitude out over time"
+  [node start rate]
+  (loop [vol start]
+    (when (>= vol 0)
+      (println vol)
+      (Thread/sleep 200)
+      (ctl node :amp vol)
+      (recur (- vol rate)))))
+
+(defn over-time
+  "Over time change val of `field` to end"
+  [node field start end rate]
+  (loop [vol start]
+    (when (>= vol end)
+      (println vol)
+      (Thread/sleep 200)
+      (ctl node field vol)
+      (recur (- vol rate)))))
+
 ;;;;;;;;;;;;;;;
 ;;Instruments;;
 ;;;;;;;;;;;;;;;
@@ -166,6 +186,7 @@
     (flow :cnt 1 :jump (* 60))
     (kill flow)
     )
+
   (defsynth pluckey [out-bus 0 amp 1]
     (let [snd (pluck:ar (crackle:ar [1.9 1.8]) (mix (impulse:ar [(+ 1 (lin-rand 0 5)) (+ 1 (lin-rand 0 5))] -0.125)) 0.05 (lin-rand 0 0.05))
           src (bpf:ar snd (+ 100 (ranged-rand 0 2000) (lin-rand 0.25 1.75)))]
@@ -198,15 +219,18 @@
 (ctl d :f2 0.1)
 (kill drone)
 
+(fade d 0.2 0.01)
+
 (def dark (syn/dark-sea-horns :amp 0.04))
-(ctl dark :amp 0.004)
+(ctl dark :amp 0.01)
+(fade dark 0.04 0.01)
 
 (kill dark)
 
 (def drum-t (drum-beat :amp 0.5))
-(ctl drum-t :amp 0.02)
+(ctl drum-t :amp 0.0)
 
-(ctl drum-t :speed 0.5)
+(ctl drum-t :speed 0)
 (ctl drum-t :speed 1)
 (ctl drum-t :speed 2)
 
@@ -215,6 +239,7 @@
 (ctl drum-t :d 0 :m 0 :r 0)
 (ctl drum-t :d 1 :m 1 :r 0.5)
 (over-time drum-t :d 1 0.1 0)
+
 (kill drum-beat)
 
 (glitchift :amp 0.02)
@@ -237,7 +262,6 @@
 (ctl timing/root-s :rate 100)
 
 (phasing-ping :amp 0.4)
-
 (kill phasing-ping)
 
 (buffer-write! drum-buf [0 0 0 0])
@@ -248,14 +272,15 @@
 (buffer-write! factor-buf [1 16 1])
 
 (sample-player chaos-s :amp 0.5)
+(sample-player pinging)
 
-(def s (flow :cnt 1 :amp 0.4))
+(def s (flow :cnt 1 :amp 0.5))
 (def s (flow :cnt 2 :amp 0.4))
 (def s (flow :cnt 3 :amp 0.3))
 (def s (flow :cnt 4 :amp 0.2))
-(def s (flow :cnt 5 :amp 0.2))
-(def s (flow :cnt 6 :amp 0.2))
-(def s (flow :cnt 7 :amp 0.1))
+(def s (flow :cnt 5 :amp 0.5))
+(def s (flow :cnt 6 :amp 0.5))
+(def s (flow :cnt 7 :amp 0.5))
 
 (kill flow)
 
