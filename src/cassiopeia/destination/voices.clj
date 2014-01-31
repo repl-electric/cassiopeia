@@ -7,7 +7,9 @@
       _|        _|_|    _|    _|_|_|    _|_|_|  _|_|_|
 
 Hearing Voices From Space.
-A space suit floats through the empty void and orbits our planet, its radio broadcasts signals to the Earth below. On the surface, amateur radio operators receive the transmission and hear a voice. Coming from the suit, as it floats alone, away from the international space station.
+A space suit floats through the empty void and orbits our planet, its radio broadcasts signals to the Earth below. 
+On the surface, amateur radio operators receive the transmission and hear a voice. Coming from the suit,
+as it floats alone, away from the international space station.
   "
   (:use overtone.live)
   (:require [cassiopeia.engine.timing :as tim]))
