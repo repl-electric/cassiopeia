@@ -130,24 +130,42 @@
   (def drum-buf (buffer 4))
   (def factor-buf (buffer 3))
 
-  (defsynth drum-beat [amp 1 out-bus 0 speed 2 pop-amp 3]
+  (defsynth drum-beat [amp 1 out-bus 0 speed 2 pop-speed 1 m 0 r 0 d 0]
     (let [cnt    (in:kr timing/beat-count-b)
           dur    (buf-rd:kr 1 drum-buf cnt)
           factor (buf-rd:kr 1 factor-buf cnt)
 
           trig (t-duty:ar 1 0 (* (dseq [dur]) [factor]))
-          mod (+ (duty:ar 1 0 (* (dseq [dur]) [factor])) (* (+ 128 (* 32 (saw:ar 1))) (saw:ar [pop-amp (+ 1 pop-amp)])))
+          mod (* (+ 128 (* 32 (saw:ar 1))) (saw:ar [(* pop-speed 3) (* pop-speed 4)]))
           snd (/ (sin-osc:ar (+ 99 (* 64 (saw:ar speed))) mod) 9)
           src (comb-n snd 1/4 (/ 1 4.125) (range-lin (sin-osc:kr 0.005 (* 1.5 Math/PI)) 0 6))]
-      (out out-bus (* amp src))))
+      (out out-bus (* amp (free-verb src m r d)))))
+
+  (comment
+    (def d (drum-beat))
+
+    (ctl d :speed 0.1)
+    (ctl d :pop-speed 0)
+
+    (ctl d :d 0 :m 0 :r 0)
+    (ctl d :d 1 :m 1 :r 0.5)
+
+    (over-time d :d 1 0.1 0)
+
+    (kill drum-beat)
+    )
 
   (def count-buf (buffer 8))
 
-  (defsynth flow [out-bus 0 cnt 1 amp 1]
+  (defsynth flow [out-bus 0 cnt 1 amp 1 jump 99]
     (let [del (* 1 (delay-n:ar (in-feedback:ar 0 2) (in-feedback:ar 100 2) 1))
-          src (/ (sin-osc:ar (+ (* cnt 99) [0 2]) (range-lin del 1 0)) 4)]
+          src (/ (sin-osc:ar (+ (* cnt jump) [0 2]) (range-lin del 1 0)) 4)]
       (out out-bus (* amp (pan2 src) (line 1 0 16 FREE)))))
 
+  (comment
+    (flow :cnt 1 :jump (* 60))
+    (kill flow)
+    )
   (defsynth pluckey [out-bus 0 amp 1]
     (let [snd (pluck:ar (crackle:ar [1.9 1.8]) (mix (impulse:ar [(+ 1 (lin-rand 0 5)) (+ 1 (lin-rand 0 5))] -0.125)) 0.05 (lin-rand 0 0.05))
           src (bpf:ar snd (+ 100 (ranged-rand 0 2000) (lin-rand 0.25 1.75)))]
@@ -170,9 +188,9 @@
 (def grainy (granulate :in-buf (buffer-mix-to-mono chaos-s) :amp 0.5))
 (kill grainy)
 
-(def d (drone :amp 0.1))
-(ctl d :f1 0.5 :amp 0.07)
-(ctl d :f2 0.5 :amp 0.07)
+(def d (drone :amp 0.2))
+(ctl d :f1 0.5 :amp 0.2)
+(ctl d :f2 0.5 :amp 0.2)
 (ctl d :f1 1)
 (ctl d :f2 1)
 
@@ -192,6 +210,11 @@
 (ctl drum-t :speed 1)
 (ctl drum-t :speed 2)
 
+(ctl drum-t :pop-speed 1)
+
+(ctl drum-t :d 0 :m 0 :r 0)
+(ctl drum-t :d 1 :m 1 :r 0.5)
+(over-time drum-t :d 1 0.1 0)
 (kill drum-beat)
 
 (glitchift :amp 0.02)
@@ -224,7 +247,7 @@
 (buffer-write! drum-buf [1 2 4 8])
 (buffer-write! factor-buf [1 16 1])
 
-(sample-player chaos-s :amp 0.1)
+(sample-player chaos-s :amp 0.5)
 
 (def s (flow :cnt 1 :amp 0.4))
 (def s (flow :cnt 2 :amp 0.4))
