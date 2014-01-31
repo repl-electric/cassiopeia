@@ -6,7 +6,10 @@
  ██║     ██╔══██║██╔══██║██║   ██║╚════██║
  ╚██████╗██║  ██║██║  ██║╚██████╔╝███████║
   ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
-"
+
+* it must be sensitive to initial conditions
+* it must be topologically mixing
+* its periodic orbits must be dense."
   (:use [overtone.live]
         [cassiopeia.samples]
         [overtone.synth.sampled-piano]
