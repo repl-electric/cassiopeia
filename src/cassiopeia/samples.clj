@@ -44,3 +44,8 @@
 (defonce shake-s (load-sample (str sample-root "shaker.aif")))
 (defonce tom-s (load-sample (str sample-root "tom.aif")))
 (defonce kick-s (load-sample (str sample-root "kick.aif")))
+
+;;Custom samples
+(def star-into-the-sun-s (load-sample "~/Workspace/music/samples/star-into-the-sun.wav"))
+(def space-and-time-s (load-sample "~/Workspace/music/samples/space_and_time.wav"))
+(def chaos-s (load-sample "~/Workspace/music/samples/chaos.wav"))
