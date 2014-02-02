@@ -184,35 +184,43 @@ as it floats alone, away from the international space station.
         env (env-gen:kr (env-sine) bar-trg 1 0 dur)]
     (out out-bus (* env amp custom-amp sound))))
 
+(defn make-perc
+  ([lib] (make-perc lib 3))
+  ([lib voices]
+      (doall
+       (map
+        (fn [n]
+          (buf->perc-int
+           [:head perc-g]
+           :buf (rand-nth lib)
+           :rate 1
+           :pos-frac (/ (rand 512) 512)
+           :beat-num n
+           :amp (rand-nth (range 1 3)))
+          perc-g)
+        (range 0 voices)))))
+
+(defn make-smooth
+  ([lib] (make-smooth lib 3))
+  ([lib voices]
+      (doall
+       (map
+        (fn [n]
+          (buf->smooth-int
+           [:head smooth-g]
+           :buf (rand-nth lib)
+           :rate 1
+           :pos-frac (/ (rand 512) 512)
+           :beat-num n
+           :amp (rand-nth (range 1 3))))
+        (range 0 voices)))))
+
+
 (def space-and-time-sun (load-sample "~/Workspace/music/samples/space_and_time.wav"))
 (def example-s (load-sample "/Applications/SuperCollider/SuperCollider.app/Contents/Resources/sounds/a11wlk01.wav"))
 
-(defn make-perc [lib]
-  (doall
-   (map
-    (fn [n]
-      (buf->perc-int
-       [:head perc-g]
-       :buf (rand-nth lib)
-       :rate 3
-       :pos-frac (/ (rand 512) 512)
-       :beat-num n
-       :amp (rand-nth (range 1 3)))
-      perc-g)
-   (range 0 3))))
-
-(defn make-smooth [lib]
-  (doall
-   (map
-    (fn [n]
-      (buf->smooth-int
-       [:head smooth-g]
-       :buf (rand-nth lib)
-       :rate 1
-       :pos-frac (/ (rand 512) 512)
-       :beat-num n
-       :amp (rand-nth (range 1 3)))))
-    (range 0 3)))
+(def constant-blues-s (load-sample "/Users/josephwilk/Workspace/music/samples/constant-blues.wav"))
+(def chaos-s (load-sample "/Users/josephwilk/Workspace/music/samples/chaos.wav"))
 
 (buffer-write! perc-dur-buf [1/8 1/4 1/2])
 
@@ -223,8 +231,8 @@ as it floats alone, away from the international space station.
 (buffer-write! smooth-amp-buf [(ranged-rand 1 3) (ranged-rand 1 3) (ranged-rand 1 3)])
 (buffer-write! smooth-post-frac-buf [(/ (rand 512) 512) (/ (rand 512) 512) (/ (rand 512) 512)])
 
-(def gs (make-perc [example-s]))
-(def ss (make-smooth [space-and-time-sun example-s]))
+(def gs (make-perc [constant-blues-s]))
+(def ss (make-smooth [constant-blues-s chaos-s example-s]))
 
 (kill smooth-g)
 (kill perc-g)
