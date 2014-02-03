@@ -123,7 +123,7 @@ as it floats alone, away from the international space station.
 
 (defonce perc-g (group "perc grouping"))
 
-(defsynth buf->perc-int [out-bus 0 buf [0 :ir] rate 1 inter 2 beat-num 0]
+(defsynth buf->perc-inst [out-bus 0 buf [0 :ir] rate 1 inter 2 beat-num 0]
   (let [cnt (in:kr tim/beat-count-b)
         ;;beat-trg (in:kr tim/beat-b)
         dur (buf-rd:kr 1 perc-dur-buf (mod cnt 3))
@@ -152,12 +152,13 @@ as it floats alone, away from the international space station.
 (defonce smooth-amp-buf  (buffer dur-size))
 (defonce smooth-post-frac-buf  (buffer dur-size))
 
-(defsynth buf->smooth-int [out-bus 0 buf [0 :ir] rate 1 inter 2 beat-num 0]
+(defsynth buf->smooth-inst [out-bus 0 buf [0 :ir] rate 1 inter 2 beat-num 0
+                           pattern-buf 0 pattern-size 3]
   (let [cnt (in:kr tim/beat-count-b)
         ;;beat-trg (in:kr tim/beat-b)
         dur (buf-rd:kr 1 smooth-dur-buf (mod cnt 3))
         custom-amp (buf-rd:kr 1 smooth-amp-buf (mod cnt 3))
-        pos-frac (buf-rd:kr 1 post-frac-buf (mod cnt 3))
+        pos-frac (buf-rd:kr 1 pattern-buf (mod cnt pattern-size))
         bar-trg  (= beat-num (mod cnt 3))
         amp      (set-reset-ff bar-trg)
 
@@ -190,7 +191,7 @@ as it floats alone, away from the international space station.
       (doall
        (map
         (fn [n]
-          (buf->perc-int
+          (buf->perc-inst
            [:head perc-g]
            :buf (rand-nth lib)
            :rate 1
@@ -203,12 +204,14 @@ as it floats alone, away from the international space station.
   ([lib voices]
      (doall
       (map
-        ((fn [arg-list] ) [n]
-         (buf->smooth-int
+       (fn  [n]
+         (buf->smooth-inst
           [:head smooth-g]
           :buf (rand-nth lib)
           :rate 1
-          :beat-num n))
+          :beat-num n
+          :pattern-size (buffer-size smooth-post-frac-buf)
+          :pattern-buf smooth-post-frac-buf))
         (range 0 voices)))))
 
 
@@ -229,8 +232,20 @@ as it floats alone, away from the international space station.
 (buffer-write! smooth-amp-buf (take 3 (repeatedly #(ranged-rand 1 3))))
 (buffer-write! smooth-post-frac-buf (take 3 (repeatedly #(/ (rand 512) 512))))
 
-(def gs (make-perc   [death-s]))
-(def ss (make-smooth [death-s]))
+(def gs (make-perc   [death-s constant-blues-s chaos-s example-s space-and-time-sun]))
+(def ss (make-smooth [constant-blues-s death-s]))
+
+(defn resize-pattern [old-buf group new-size]
+  (let [size (buffer-size old-buf)
+        new-buf (buffer new-size)
+        old-vals (buffer-read old-buf)]
+    (buffer-write! new-buf (take new-size (cycle old-vals)))
+    (ctl group :pattern-buf new-buf :pattern-size new-size)
+    (buffer-free old-buf)
+    new-buf))
+
+(def smooth-post-frac-buf (resize-pattern smooth-post-frac-buf smooth-g 12))
+(buffer-write! smooth-post-frac-buf (take 12 (repeatedly #(/ (rand 512) 512))))
 
 (kill smooth-g)
 (kill perc-g)
