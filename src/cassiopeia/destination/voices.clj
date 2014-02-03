@@ -7,11 +7,12 @@
       _|        _|_|    _|    _|_|_|    _|_|_|  _|_|_|
 
 Hearing Voices From Space.
-A space suit floats through the empty void and orbits our planet, its radio broadcasts signals to the Earth below. 
+A space suit floats through the empty void and orbits our planet, its radio broadcasts signals to the Earth below.
 On the surface, amateur radio operators receive the transmission and hear a voice. Coming from the suit,
 as it floats alone, away from the international space station.
   "
   (:use overtone.live)
+  (:use cassiopeia.engine.samples)
   (:require [cassiopeia.engine.timing :as tim]))
 
 (defonce voice-g (group "the voices"))
@@ -75,7 +76,7 @@ as it floats alone, away from the international space station.
 
 (comment
   (noise-ocean)
-  (stop))
+  (kill noise-ocean))
 
 (defsynth dark-ambience [i 0 out-bus 0 amp 1 mul 0.2 room-size 70 rev-time 99]
   (let [a (hpf:ar (* (* 5e-3 (pink-noise)) (line:kr 0 1 9)) 10)
@@ -119,16 +120,18 @@ as it floats alone, away from the international space station.
 (def dur-size 3)
 (defonce perc-dur-buf  (buffer dur-size))
 (defonce perc-amp-buf  (buffer dur-size))
-(defonce post-frac-buf (buffer dur-size))
+(defonce perc-post-frac-buf (buffer dur-size))
 
 (defonce perc-g (group "perc grouping"))
 
-(defsynth buf->perc-inst [out-bus 0 buf [0 :ir] rate 1 inter 2 beat-num 0]
+(defsynth buf->perc-inst [out-bus 0 buf [0 :ir] rate 1 inter 2 beat-num 0
+                          pattern-buf 0 pattern-size 3
+                          amp-buf 0]
   (let [cnt (in:kr tim/beat-count-b)
         ;;beat-trg (in:kr tim/beat-b)
         dur (buf-rd:kr 1 perc-dur-buf (mod cnt 3))
-        cutom-amp (buf-rd:kr 1 perc-amp-buf (mod cnt 3))
-        pos-frac (buf-rd:kr 1 post-frac-buf (mod cnt 3))
+        cutom-amp (buf-rd:kr 1 amp-buf (mod cnt pattern-size))
+        pos-frac (buf-rd:kr 1 pattern-buf (mod cnt pattern-size))
 
         bar-trg  (= beat-num (mod cnt 3))
         amp      (set-reset-ff bar-trg)
@@ -153,11 +156,11 @@ as it floats alone, away from the international space station.
 (defonce smooth-post-frac-buf  (buffer dur-size))
 
 (defsynth buf->smooth-inst [out-bus 0 buf [0 :ir] rate 1 inter 2 beat-num 0
-                           pattern-buf 0 pattern-size 3]
+                            pattern-buf 0 pattern-size 3
+                            amp-buf 0]
   (let [cnt (in:kr tim/beat-count-b)
-        ;;beat-trg (in:kr tim/beat-b)
         dur (buf-rd:kr 1 smooth-dur-buf (mod cnt 3))
-        custom-amp (buf-rd:kr 1 smooth-amp-buf (mod cnt 3))
+        custom-amp (buf-rd:kr 1 amp-buf (mod cnt pattern-size))
         pos-frac (buf-rd:kr 1 pattern-buf (mod cnt pattern-size))
         bar-trg  (= beat-num (mod cnt 3))
         amp      (set-reset-ff bar-trg)
@@ -195,7 +198,10 @@ as it floats alone, away from the international space station.
            [:head perc-g]
            :buf (rand-nth lib)
            :rate 1
-           :beat-num n)
+           :beat-num n
+           :pattern-size (buffer-size perc-post-frac-buf)
+           :pattern-buf perc-post-frac-buf
+           :amp-buf perc-amp-buf)
           perc-g)
         (range 0 voices)))))
 
@@ -211,41 +217,46 @@ as it floats alone, away from the international space station.
           :rate 1
           :beat-num n
           :pattern-size (buffer-size smooth-post-frac-buf)
-          :pattern-buf smooth-post-frac-buf))
+          :pattern-buf smooth-post-frac-buf
+          :amp-buf smooth-amp-buf))
         (range 0 voices)))))
 
-
-(def space-and-time-sun (load-sample "~/Workspace/music/samples/space_and_time.wav"))
+(def space-and-time-sun (load-local-sample "space_and_time.wav"))
 (def example-s (load-sample "/Applications/SuperCollider/SuperCollider.app/Contents/Resources/sounds/a11wlk01.wav"))
+(def constant-blues-s (load-local-sample "constant-blues.wav"))
+(def chaos-s (load-local-sample "chaos.wav"))
+(def death-s (load-local-sample "oh-death.wav"))
 
-(def constant-blues-s (load-sample "/Users/josephwilk/Workspace/music/samples/constant-blues.wav"))
-(def chaos-s (load-sample "/Users/josephwilk/Workspace/music/samples/chaos.wav"))
-
-(def death-s (load-sample "/Users/josephwilk/Workspace/music/samples/oh-death.wav"))
-
-(buffer-write! perc-dur-buf [1/8 1/4 1/2])
-
-(buffer-write! perc-amp-buf (take 3 (repeatedly #(ranged-rand 1 3))))
-(buffer-write! post-frac-buf (take 3 (repeatedly #(/ (rand 512) 512))))
-
-(buffer-write! smooth-dur-buf [1 1 1])
-(buffer-write! smooth-amp-buf (take 3 (repeatedly #(ranged-rand 1 3))))
-(buffer-write! smooth-post-frac-buf (take 3 (repeatedly #(/ (rand 512) 512))))
-
-(def gs (make-perc   [death-s constant-blues-s chaos-s example-s space-and-time-sun]))
-(def ss (make-smooth [constant-blues-s death-s]))
-
-(defn resize-pattern [old-buf group new-size]
+(defn resize-pattern [old-buf group new-size synth-ctl]
   (let [size (buffer-size old-buf)
         new-buf (buffer new-size)
         old-vals (buffer-read old-buf)]
     (buffer-write! new-buf (take new-size (cycle old-vals)))
-    (ctl group :pattern-buf new-buf :pattern-size new-size)
+    (ctl group synth-ctl new-buf :pattern-size new-size)
     (buffer-free old-buf)
     new-buf))
 
-(def smooth-post-frac-buf (resize-pattern smooth-post-frac-buf smooth-g 12))
-(buffer-write! smooth-post-frac-buf (take 12 (repeatedly #(/ (rand 512) 512))))
+(def gs (make-perc [death-s constant-blues-s chaos-s example-s space-and-time-sun]))
+
+(def pattern-size (rand-int 16))
+
+(def perc-post-frac-buf (resize-pattern post-frac-buf perc-g pattern-size :pattern-buf))
+(def perc-amp-buf (resize-pattern perc-amp-buf perc-g pattern-size :amp-buf))
+
+(buffer-write! perc-dur-buf [1/8 1/4 1/2])
+(buffer-write! perc-amp-buf (take pattern-size (repeatedly #(ranged-rand 1 3))))
+(buffer-write! perc-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
+
+(def ss (make-smooth [constant-blues-s death-s]))
+
+(def pattern-size (rand-int 16))
+
+(def smooth-post-frac-buf (resize-pattern smooth-post-frac-buf smooth-g pattern-size :pattern-buf))
+(def smooth-amp-buf (resize-pattern smooth-amp-buf smooth-g pattern-size :amp-buf))
+
+(buffer-write! smooth-dur-buf [1 1 1])
+(buffer-write! smooth-amp-buf (take pattern-size (repeatedly #(ranged-rand 1 3))))
+(buffer-write! smooth-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
 
 (kill smooth-g)
 (kill perc-g)
