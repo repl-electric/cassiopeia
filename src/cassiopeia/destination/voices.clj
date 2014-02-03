@@ -126,14 +126,16 @@ as it floats alone, away from the international space station.
 
 (defsynth buf->perc-inst [out-bus 0 buf [0 :ir] rate 1 inter 2 beat-num 0
                           pattern-buf 0 pattern-size 3
-                          amp-buf 0]
+                          amp-buf 0
+                          duration-buf 0
+                          voices 3]
   (let [cnt (in:kr tim/beat-count-b)
         ;;beat-trg (in:kr tim/beat-b)
-        dur (buf-rd:kr 1 perc-dur-buf (mod cnt 3))
+        dur (buf-rd:kr 1 duration-buf (mod cnt voices))
         cutom-amp (buf-rd:kr 1 amp-buf (mod cnt pattern-size))
         pos-frac (buf-rd:kr 1 pattern-buf (mod cnt pattern-size))
 
-        bar-trg  (= beat-num (mod cnt 3))
+        bar-trg  (= beat-num (mod cnt voices))
         amp      (set-reset-ff bar-trg)
 
         width-frac (* (/ dur (buf-dur:ir buf)) rate)
@@ -157,12 +159,14 @@ as it floats alone, away from the international space station.
 
 (defsynth buf->smooth-inst [out-bus 0 buf [0 :ir] rate 1 inter 2 beat-num 0
                             pattern-buf 0 pattern-size 3
-                            amp-buf 0]
+                            amp-buf 0
+                            duration-buf 0
+                            voices 3]
   (let [cnt (in:kr tim/beat-count-b)
-        dur (buf-rd:kr 1 smooth-dur-buf (mod cnt 3))
+        dur (buf-rd:kr 1 duration-buf (mod cnt voices))
         custom-amp (buf-rd:kr 1 amp-buf (mod cnt pattern-size))
         pos-frac (buf-rd:kr 1 pattern-buf (mod cnt pattern-size))
-        bar-trg  (= beat-num (mod cnt 3))
+        bar-trg  (= beat-num (mod cnt voices))
         amp      (set-reset-ff bar-trg)
 
         width-frac (* (/ dur 2 (buf-dur:ir buf)) rate)
@@ -201,7 +205,9 @@ as it floats alone, away from the international space station.
            :beat-num n
            :pattern-size (buffer-size perc-post-frac-buf)
            :pattern-buf perc-post-frac-buf
-           :amp-buf perc-amp-buf)
+           :amp-buf perc-amp-buf
+           :duration-buf perc-dur-buf
+           :voices voices)
           perc-g)
         (range 0 voices)))))
 
@@ -218,7 +224,9 @@ as it floats alone, away from the international space station.
           :beat-num n
           :pattern-size (buffer-size smooth-post-frac-buf)
           :pattern-buf smooth-post-frac-buf
-          :amp-buf smooth-amp-buf))
+          :amp-buf smooth-amp-buf
+          :duration-buf smooth-dur-buf
+          :voices voices))
         (range 0 voices)))))
 
 (def space-and-time-sun (load-local-sample "space_and_time.wav"))
@@ -237,26 +245,28 @@ as it floats alone, away from the international space station.
     new-buf))
 
 (def pattern-sizes [1 2 4 8 16 32 64 128 256])
+(def voices 3)
 
 (def pattern-size (rand-nth pattern-sizes))
 
 (def smooth-post-frac-buf (resize-pattern smooth-post-frac-buf smooth-g pattern-size :pattern-buf))
 (def smooth-amp-buf (resize-pattern smooth-amp-buf smooth-g pattern-size :amp-buf))
 
-(buffer-write! smooth-dur-buf [1 1 1])
+(buffer-write! smooth-dur-buf (take voices (repeatedly #(do 1))))
 (buffer-write! smooth-amp-buf (take pattern-size (repeatedly #(ranged-rand 1 3))))
 (buffer-write! smooth-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
 
-(def ss (make-smooth [constant-blues-s death-s]))
+(def ss (make-smooth [constant-blues-s death-s] voices))
 
 (def perc-post-frac-buf (resize-pattern perc-post-frac-buf perc-g pattern-size :pattern-buf))
 (def perc-amp-buf (resize-pattern perc-amp-buf perc-g pattern-size :amp-buf))
 
-(buffer-write! perc-dur-buf [1/8 1/4 1/2])
+(buffer-write! perc-dur-buf (take voices (repeatedly #(rand-nth [1/8 1/4 1/2 1]))))
 (buffer-write! perc-amp-buf (take pattern-size (repeatedly #(ranged-rand 1 3))))
 (buffer-write! perc-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
 
-(def gs (make-perc [death-s constant-blues-s chaos-s example-s space-and-time-sun]))
+(def gs (make-perc [death-s constant-blues-s chaos-s example-s space-and-time-sun]
+                   voices))
 
 (kill smooth-g)
 (kill perc-g)
