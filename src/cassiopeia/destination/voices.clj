@@ -194,25 +194,21 @@ as it floats alone, away from the international space station.
            [:head perc-g]
            :buf (rand-nth lib)
            :rate 1
-           :pos-frac (/ (rand 512) 512)
-           :beat-num n
-           :amp (rand-nth (range 1 3)))
+           :beat-num n)
           perc-g)
         (range 0 voices)))))
 
 (defn make-smooth
   ([lib] (make-smooth lib 3))
   ([lib voices]
-      (doall
-       (map
-        (fn [n]
-          (buf->smooth-int
-           [:head smooth-g]
-           :buf (rand-nth lib)
-           :rate 1
-           :pos-frac (/ (rand 512) 512)
-           :beat-num n
-           :amp (rand-nth (range 1 3))))
+     (doall
+      (map
+        ((fn [arg-list] ) [n]
+         (buf->smooth-int
+          [:head smooth-g]
+          :buf (rand-nth lib)
+          :rate 1
+          :beat-num n))
         (range 0 voices)))))
 
 
@@ -222,17 +218,19 @@ as it floats alone, away from the international space station.
 (def constant-blues-s (load-sample "/Users/josephwilk/Workspace/music/samples/constant-blues.wav"))
 (def chaos-s (load-sample "/Users/josephwilk/Workspace/music/samples/chaos.wav"))
 
+(def death-s (load-sample "/Users/josephwilk/Workspace/music/samples/oh-death.wav"))
+
 (buffer-write! perc-dur-buf [1/8 1/4 1/2])
 
-(buffer-write! perc-amp-buf [(ranged-rand 1 3) (ranged-rand 1 3) (ranged-rand 1 3)])
-(buffer-write! post-frac-buf [(/ (rand 512) 512) (/ (rand 512) 512) (/ (rand 512) 512)])
+(buffer-write! perc-amp-buf (take 3 (repeatedly #(ranged-rand 1 3))))
+(buffer-write! post-frac-buf (take 3 (repeatedly #(/ (rand 512) 512))))
 
-(buffer-write! smooth-dur-buf [1/2 1/8 1/2])
-(buffer-write! smooth-amp-buf [(ranged-rand 1 3) (ranged-rand 1 3) (ranged-rand 1 3)])
-(buffer-write! smooth-post-frac-buf [(/ (rand 512) 512) (/ (rand 512) 512) (/ (rand 512) 512)])
+(buffer-write! smooth-dur-buf [1 1 1])
+(buffer-write! smooth-amp-buf (take 3 (repeatedly #(ranged-rand 1 3))))
+(buffer-write! smooth-post-frac-buf (take 3 (repeatedly #(/ (rand 512) 512))))
 
-(def gs (make-perc [constant-blues-s]))
-(def ss (make-smooth [constant-blues-s chaos-s example-s]))
+(def gs (make-perc   [death-s]))
+(def ss (make-smooth [death-s]))
 
 (kill smooth-g)
 (kill perc-g)
