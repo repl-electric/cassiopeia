@@ -236,20 +236,9 @@ as it floats alone, away from the international space station.
     (buffer-free old-buf)
     new-buf))
 
-(def gs (make-perc [death-s constant-blues-s chaos-s example-s space-and-time-sun]))
+(def pattern-sizes [1 2 4 8 16 32 64 128 256])
 
-(def pattern-size (rand-int 16))
-
-(def perc-post-frac-buf (resize-pattern post-frac-buf perc-g pattern-size :pattern-buf))
-(def perc-amp-buf (resize-pattern perc-amp-buf perc-g pattern-size :amp-buf))
-
-(buffer-write! perc-dur-buf [1/8 1/4 1/2])
-(buffer-write! perc-amp-buf (take pattern-size (repeatedly #(ranged-rand 1 3))))
-(buffer-write! perc-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
-
-(def ss (make-smooth [constant-blues-s death-s]))
-
-(def pattern-size (rand-int 16))
+(def pattern-size (rand-nth pattern-sizes))
 
 (def smooth-post-frac-buf (resize-pattern smooth-post-frac-buf smooth-g pattern-size :pattern-buf))
 (def smooth-amp-buf (resize-pattern smooth-amp-buf smooth-g pattern-size :amp-buf))
@@ -257,6 +246,17 @@ as it floats alone, away from the international space station.
 (buffer-write! smooth-dur-buf [1 1 1])
 (buffer-write! smooth-amp-buf (take pattern-size (repeatedly #(ranged-rand 1 3))))
 (buffer-write! smooth-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
+
+(def ss (make-smooth [constant-blues-s death-s]))
+
+(def perc-post-frac-buf (resize-pattern perc-post-frac-buf perc-g pattern-size :pattern-buf))
+(def perc-amp-buf (resize-pattern perc-amp-buf perc-g pattern-size :amp-buf))
+
+(buffer-write! perc-dur-buf [1/8 1/4 1/2])
+(buffer-write! perc-amp-buf (take pattern-size (repeatedly #(ranged-rand 1 3))))
+(buffer-write! perc-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
+
+(def gs (make-perc [death-s constant-blues-s chaos-s example-s space-and-time-sun]))
 
 (kill smooth-g)
 (kill perc-g)
