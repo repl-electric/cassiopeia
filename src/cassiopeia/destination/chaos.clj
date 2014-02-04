@@ -150,13 +150,16 @@
   (def drum-buf (buffer 4))
   (def factor-buf (buffer 3))
 
-  (defsynth drum-beat [amp 1 out-bus 0 speed 2 pop-speed 1 m 0 r 0 d 0]
-    (let [cnt    (in:kr timing/beat-count-b)
-          dur    (buf-rd:kr 1 drum-buf cnt)
-          factor (buf-rd:kr 1 factor-buf cnt)
+  (defsynth growing-drum-beat [amp 1 out-bus 0 speed 2 pop-speed 1 m 0 r 0 d 0]
+    (let [mod (+ (* (+ 128 (* 32 (saw:ar 1)))
+                    (saw:ar [(* pop-speed 3) (* pop-speed 4)]))
+                 (duty:ar 1 0 (map vector (* (dseq [0 8 1 5]) [1 4 8]))))
+          snd (/ (sin-osc:ar (+ 99 (* 64 (saw:ar speed))) mod) 9)
+          src (comb-n snd 1/4 (/ 1 4.125) (range-lin (sin-osc:kr 0.005 (* 1.5 Math/PI)) 0 6))]
+      (out out-bus (* amp (free-verb src m r d)))))
 
-          trig (t-duty:ar 1 0 (* (dseq [dur]) [factor]))
-          mod (* (+ 128 (* 32 (saw:ar 1))) (saw:ar [(* pop-speed 3) (* pop-speed 4)]))
+  (defsynth drum-beat [amp 1 out-bus 0 speed 2 pop-speed 1 m 0 r 0 d 0]
+    (let [mod (* (+ 128 (* 32 (saw:ar 1))) (saw:ar [(* pop-speed 3) (* pop-speed 4)]))
           snd (/ (sin-osc:ar (+ 99 (* 64 (saw:ar speed))) mod) 9)
           src (comb-n snd 1/4 (/ 1 4.125) (range-lin (sin-osc:kr 0.005 (* 1.5 Math/PI)) 0 6))]
       (out out-bus (* amp (free-verb src m r d)))))
@@ -264,12 +267,7 @@
 (phasing-ping :amp 0.4)
 (kill phasing-ping)
 
-(buffer-write! drum-buf [0 0 0 0])
-(buffer-write! factor-buf [0 0 0])
 (kill drum-beat)
-
-(buffer-write! drum-buf [1 2 4 8])
-(buffer-write! factor-buf [1 16 1])
 
 (sample-player chaos-s :amp 0.5)
 (sample-player pinging)
