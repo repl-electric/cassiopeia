@@ -117,8 +117,10 @@ as it floats alone, away from the international space station.
 (sistres-2 :note (rand-nth (rand-nth sis-score)))
 (sistres)
 
-(def dur-size 4)
+(def pattern-sizes [1 2 4 8 16 32 64 128 256])
+(def durations [1/8 1/4 1/2 1])
 (def voices 4)
+(def pattern-size (rand-nth pattern-sizes))
 
 (def perc-dur-buf  (buffer voices))
 (defonce perc-amp-buf  (buffer dur-size))
@@ -197,21 +199,21 @@ as it floats alone, away from the international space station.
 (defn make-perc
   ([lib] (make-perc lib 3))
   ([lib voices]
-      (doall
-       (map
-        (fn [n]
-          (buf->perc-inst
-           [:head perc-g]
-           :buf (rand-nth lib)
-           :rate 1
-           :beat-num n
-           :pattern-size (buffer-size perc-post-frac-buf)
-           :pattern-buf perc-post-frac-buf
-           :amp-buf perc-amp-buf
-           :duration-buf perc-dur-buf
-           :voices voices)
-          perc-g)
-        (range 0 voices)))))
+     (doall
+      (map
+       (fn [n]
+         (buf->perc-inst
+          [:head perc-g]
+          :buf (rand-nth lib)
+          :rate 1
+          :beat-num n
+          :pattern-size (buffer-size perc-post-frac-buf)
+          :pattern-buf perc-post-frac-buf
+          :amp-buf perc-amp-buf
+          :duration-buf perc-dur-buf
+          :voices voices)
+         perc-g)
+       (range 0 voices)))))
 
 (defn make-smooth
   ([lib] (make-smooth lib 3))
@@ -249,26 +251,22 @@ as it floats alone, away from the international space station.
 (defn spin-durations-for-voice [voice buf]
   (buffer-write! buf voice  [(rand-nth durations)]))
 
-(def pattern-sizes [1 2 4 8 16 32 64 128 256])
-(def durations [1/8 1/4 1/2 1])
-(def voices 4)
-
 (def pattern-size (rand-nth pattern-sizes))
 
 (def smooth-post-frac-buf (resize-pattern smooth-post-frac-buf smooth-g pattern-size :pattern-buf))
-(def smooth-amp-buf (resize-pattern smooth-amp-buf smooth-g pattern-size :amp-buf))
+(def smooth-amp-buf       (resize-pattern smooth-amp-buf smooth-g pattern-size :amp-buf))
 
-(buffer-write! smooth-dur-buf (take voices (repeatedly #(do 1))))
-(buffer-write! smooth-amp-buf (take pattern-size (repeatedly #(ranged-rand 1 3))))
+(buffer-write! smooth-dur-buf       (take voices (repeatedly #(do 1))))
+(buffer-write! smooth-amp-buf       (take pattern-size (repeatedly #(ranged-rand 1 3))))
 (buffer-write! smooth-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
 
 (def ss (make-smooth [constant-blues-s death-s] voices))
 
 (def perc-post-frac-buf (resize-pattern perc-post-frac-buf perc-g pattern-size :pattern-buf))
-(def perc-amp-buf (resize-pattern perc-amp-buf perc-g pattern-size :amp-buf))
+(def perc-amp-buf       (resize-pattern perc-amp-buf perc-g pattern-size :amp-buf))
 
-(buffer-write! perc-dur-buf (take voices (repeatedly #(rand-nth durations))))
-(buffer-write! perc-amp-buf (take pattern-size (repeatedly #(ranged-rand 1 3))))
+(buffer-write! perc-dur-buf       (take voices (repeatedly #(rand-nth durations))))
+(buffer-write! perc-amp-buf       (take pattern-size (repeatedly #(ranged-rand 1 3))))
 (buffer-write! perc-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
 
 (def gs (make-perc [death-s constant-blues-s chaos-s example-s space-and-time-sun]
