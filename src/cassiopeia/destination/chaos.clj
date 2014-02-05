@@ -158,16 +158,17 @@
           src (comb-n snd 1/4 (/ 1 4.125) (range-lin (sin-osc:kr 0.005 (* 1.5 Math/PI)) 0 6))]
       (out out-bus (* amp (free-verb src m r d)))))
 
-  (defsynth drum-beat [amp 1 out-bus 0 speed 2 pop-speed 1 m 0 r 0 d 0]
+  (defsynth drum-beat [amp 1 out-bus 0 speed 0.005 pop-speed 1 m 0 r 0 d 0]
     (let [mod (* (+ 128 (* 32 (saw:ar 1))) (saw:ar [(* pop-speed 3) (* pop-speed 4)]))
-          snd (/ (sin-osc:ar (+ 99 (* 64 (saw:ar speed))) mod) 9)
-          src (comb-n snd 1/4 (/ 1 4.125) (range-lin (sin-osc:kr 0.005 (* 1.5 Math/PI)) 0 6))]
+          snd (/ (sin-osc:ar (+ 99 (* 64 (saw:ar 2))) mod) 9)
+          src (comb-n snd 1/4 (/ 1 4.125) (range-lin (sin-osc:kr speed (* 1.5 Math/PI)) 0 6))]
       (out out-bus (* amp (free-verb src m r d)))))
 
   (comment
     (def d (drum-beat))
+    (def gd (growing-drum-beat))
 
-    (ctl d :speed 0.1)
+    (ctl d :speed 0.005)
     (ctl d :pop-speed 0)
 
     (ctl d :d 0 :m 0 :r 0)
