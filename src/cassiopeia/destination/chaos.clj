@@ -224,15 +224,13 @@
 
 (declare drum-t)
 
-(defonce pops-fon          (fon/mk-fonome ::pops 1 1))
-(defonce __dock_pops-fon__ (poly/dock-fonome! m128 pops-fon ::pop128 14 7))
-(monmapper/bind pops-fon {:on #(ctl drum-t :pop-speed 1)
-                          :off #(ctl drum-t :pop-speed 0)})
+(defonce pops-fon (monmapper/bind m128 ::pops 14 7
+                                  {:on #(ctl drum-t :pop-speed 1)
+                                   :off #(ctl drum-t :pop-speed 0)}))
 
-(defonce beaty-fon          (fon/mk-fonome ::beaty-fon 1 1))
-(defonce __dock_beaty-fon__ (poly/dock-fonome! m128 beaty-fon ::beaty-fon128 13 7))
-(monmapper/bind beaty-fon {:on #(ctl drum-t :speed 2)
-                           :off #(ctl drum-t :speed 0)}))
+(defonce beaty-fon (monmapper/bind m128 ::beaty 13 7
+                                   {:on #(ctl drum-t :speed 2)
+                                    :off #(ctl drum-t :speed 0)})))
 
 ;;;;;;;;;
 ;;Score;;
