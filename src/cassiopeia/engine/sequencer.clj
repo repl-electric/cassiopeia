@@ -46,6 +46,10 @@
                    patterns
                    out-busses))))
 
+(defn sequencer?
+  [o]
+  (isa? (type o) ::sequencer))
+
 (defn- mk-sequence-patterns
   "Setup our buffers"
   [samples num-steps]
@@ -55,8 +59,11 @@
                   {:type ::sequence-pattern}))
               samples)))
 
-(defn mk-sequencer [nk-group handle samples num-steps tgt-group beat-cnt-bus beat-trg-bus out-bus]
-  (let [patterns (mk-sequence-patterns samples num-steps)
+(defn mk-sequencer [nk-group handle samples num-steps tgt-group beat-bus-a out-bus]
+  (let [beat-bus        @beat-bus-a
+        beat-trg-bus    (:beat beat-bus)
+        beat-cnt-bus    (:count beat-bus)
+        patterns (mk-sequence-patterns samples num-steps)
         container-group (group handle :tail tgt-group)
         seq-group       (group "lp-sequencer" :head container-group)
         mixer-group     (group "lp-mixers" :after seq-group)
@@ -68,9 +75,8 @@
                 :num-samples (count samples)
                 :synths (agent synths)
 
-                :beat-cnt-bus beat-cnt-bus
-                :beat-trg-bus beat-trg-bus
-                :out out-bus
+                :beat-bus beat-bus-a
+                :out-bus out-bus
 
                 :seq-group seq-group
                 :mixer-group mixer-group
@@ -87,7 +93,28 @@
                         (:mixers sequencer)
                         (:num-steps sequencer)
                         (:seq-group sequencer)
-                        (:beat-cnt-bus sequencer)
-                        (:beat-trg-bus sequencer)
+                        (:beat-bus sequencer)
                         (:out-bus sequencer)
                         ))))
+
+(defn sequencer-pause
+  [s]
+  (assert (sequencer? s))
+  (node-pause (:group s)))
+
+(defn swap-beat-bus! [sequencer beat-bus]
+  (assert (sequencer? sequencer))
+  (reset! (:beat-bus sequencer) beat-bus))
+
+(defn sequencer-write!
+  [sequencer idx pattern]
+  (assert (sequencer? sequencer))
+  (let [buf (:pattern-buf (nth (:patterns sequencer) idx))]
+    (buffer-write! buf pattern)))
+
+(defn sequencer-kill
+  [s]
+  (assert (sequencer? s))
+  (group-free (:group s))
+  (doseq [mixer (:mixers s)]
+    (mixers/kill-mixer mixer)))

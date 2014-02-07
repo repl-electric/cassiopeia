@@ -18,6 +18,10 @@
    [nano-kontrol2.buttons :as btn]
 
    [monome.core :as mon]
+   [monome.fonome :as fon]
+   [monome.polynome :as poly]
+   [monome.kit.sampler :as samp]
+   [cassiopeia.engine.monome-sequencer :as monome-sequencer]
 
    [cassiopeia.engine.timing :as timing]
    [cassiopeia.engine.sequencer :as sequencer]
@@ -29,7 +33,7 @@
   (case bank-k
     :master btn/record
     :lp64   btn/play
-    ;;      btn/stop
+    :m128   btn/stop
     :riffs  btn/fast-forward
     :synths btn/rewind))
 
@@ -37,6 +41,18 @@
   {:synths {:s0 mixer-init-state :s1 mixer-init-state :s2 mixer-init-state :m0 mixer-init-state :m1 mixer-init-state :r0 mixer-init-state :r7 basic-mixer-init-state}
    :riffs  {:s0 mixer-init-state :s1 mixer-init-state :m0 mixer-init-state :m1 mixer-init-state :r7 basic-mixer-init-state}
    :master {:s7 mixer-init-state :m7 mixer-init-state :r7 mixer-init-state}
+   :m128 {
+          :s0 ["m128-0" mixer-init-state]
+          :m0 ["m128-1" mixer-init-state]
+          :r0 ["m128-2" mixer-init-state]
+          :s1 ["m128-3" mixer-init-state]
+          :m1 ["m128-4" mixer-init-state]
+          :r1 ["m128-5" mixer-init-state]
+          :s2 ["m128-6" mixer-init-state]
+          :r2 ["m128-7" mixer-init-state]
+          :m2 ["m128-8" mixer-init-state]
+          :s3 ["m128-9" mixer-init-state]
+          }
    :lp64 {
           ;;Beats
           :s0 ["lp64-0" mixer-init-state]
@@ -66,6 +82,7 @@
 (def banks
   {:master btn/record
    :lp64   btn/play
+   :m128   btn/stop
    :riffs  btn/fast-forward
    :synths btn/rewind})
 
@@ -93,7 +110,7 @@
   (defonce seq-b  (audio-bus 2 "basic-mixer"))
   (defonce bas-mix-seq    (mixers/basic-mixer [:head drum-basic-mixer-g] :in-bus seq-b :mute 0))
   (defonce trig-seq-mixer (mixers/add-nk-mixer (nk-bank :lp64) "lp64-triggers" drum-trigger-mix-g seq-b))
-  (ctl bas-mix-seq :mute 1)
+;; (ctl bas-mix-seq :mute 1)
 
   (defonce sequencer-64
     (sequencer/mk-sequencer
@@ -102,8 +119,7 @@
      samples-set-1
      phrase-size
      drum-g
-     timing/beat-count-b
-     timing/beat-b
+     (atom timing/main-beat)
      seq-b)))
 
 (when (seq lp)
@@ -114,7 +130,7 @@
   (defonce bas-mix-s64  (mixers/basic-mixer [:head drum-basic-mixer-g] :in-bus lp64-b :mute 0))
   (defonce trig64-mixer (mixers/add-nk-mixer (nk-bank :lp64) "lp64-triggers" drum-trigger-mix-g lp64-b))
 
-  (ctl bas-mix-s64 :mute 1)
+;;  (ctl bas-mix-s64 :mute 1)
 
   (defonce sequencer-64
     (sequencer/mk-sequencer
@@ -123,8 +139,7 @@
      samples-set-1
      phrase-size
      drum-g
-     timing/beat-count-b
-     timing/beat-b
+     (atom timing/main-beat)
      lp64-b))
 
   (defonce refresh-beat-key (uuid))
@@ -142,7 +157,7 @@
                             (beat/off lp sequencer-64)))
 
 
-  (ctl bas-mix-s64 :mute 1)
+;;  (ctl bas-mix-s64 :mute 1)
 
   (defonce seq-g (group))
   (def seq-mixer-group (group "lp-mixers" :after seq-g))
@@ -150,7 +165,7 @@
   (defonce seq-basic-mixer-g (group :after default-mixer-g))
   (defonce seq-mix-s64  (mixers/basic-mixer [:head seq-basic-mixer-g] :in-bus lp64-b :mute 0))
 
-  (ctl seq-mix-s64 :mute 1)
+;;  (ctl seq-mix-s64 :mute 1)
 
   (def sample-selection [])
 
@@ -211,15 +226,33 @@
 (def m128 (mon/find-monome "/dev/tty.usbserial-m0000965"))
 
 (when m128
-  (require '[monome.fonome :as fon])
-  (require '[monome.polynome :as poly])
-  (require '[monome.kit.sampler :as samp])
+  (defonce seq128-fon (fon/mk-fonome ::seq128 16 6))
+  (defonce insta-pause128-fon  (fon/mk-fonome ::pauser128 1 1))
+  (defonce insta-pause-all-fon (fon/mk-fonome ::pauser-all 1 1))
 
-     (def samples-g (group "samples"))
+  (defonce seq-b  (audio-bus 2 "basic-mixer"))
+  (defonce bas-mix-seq    (mixers/basic-mixer [:head drum-basic-mixer-g] :in-bus seq-b :mute 0))
+  (defonce trig-seq-mixer (mixers/add-nk-mixer (nk-bank :m128) "m128-triggers" drum-trigger-mix-g seq-b))
+  (defonce seq128 (monome-sequencer/mk-monome-sequencer (nk-bank :m128) "m128" [tom-s] seq128-fon seq-b drum-g))
+
+  (def samples-g (group "samples"))
   (defonce trigger-samples [star-into-the-sun-s space-and-time-s chaos-s glitch1-s glitch2-s])
   (defonce trigger-sampler128  (samp/mk-sampler ::trigger-sampler128 trigger-samples samples-g 0 16))
-  (defonce __dock_trigger__
-    (poly/dock-fonome! m128
-                       (:fonome trigger-sampler128)
-                       ::trigger-sampler128
-                       0 0)))
+
+  (defonce __dock_trigger__  (poly/dock-fonome! m128 (:fonome trigger-sampler128)
+                                                ::trigger-sampler128 0 6))
+  (defonce __dock128___ (poly/dock-fonome! m128 seq128-fon ::seq128 0 0))
+  (defonce __dock_pause128__ (poly/dock-fonome! m128 insta-pause128-fon ::pause128 15 7))
+
+  (on-event [:fonome :led-change (:id insta-pause128-fon)]
+            (fn [{:keys [x y new-leds]}]
+              (let [on? (get new-leds [x y])]
+                (if on?
+                  (ctl bas-mix-seq :mute 1)
+                  (ctl bas-mix-seq :mute 0))))
+            ::seq128)
+
+  (on-event [:fonome :press (:id insta-pause128-fon)]
+            (fn [{:keys [x y fonome]}]
+              (fon/toggle-led fonome x y))
+            ::seq128-press))

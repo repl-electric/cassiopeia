@@ -87,3 +87,5 @@
                                            :beat-bus beat-b
                                            :beat-count-bus beat-count-b
                                            :trig-id broadcast-count-trig-id))
+
+(def main-beat {:beat beat-b :count beat-count-b :trig-id count-trig-id})
