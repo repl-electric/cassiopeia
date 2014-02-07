@@ -123,8 +123,8 @@ as it floats alone, away from the international space station.
 (def pattern-size (rand-nth pattern-sizes))
 
 (def perc-dur-buf  (buffer voices))
-(defonce perc-amp-buf  (buffer dur-size))
-(defonce perc-post-frac-buf (buffer dur-size))
+(defonce perc-amp-buf  (buffer pattern-size))
+(defonce perc-post-frac-buf (buffer pattern-size))
 
 (defonce perc-g (group "perc grouping"))
 
@@ -152,14 +152,14 @@ as it floats alone, away from the international space station.
                         inter)]
         env (env-gen:kr (env-perc) bar-trg 1 0 dur)
         ]
-    (out:ar out-bus (* env amp cutom-amp sig))))
+    (out:ar out-bus (pan2 (* env amp cutom-amp sig)))))
 
 
 (defonce smooth-g (group "smooth grouping"))
 
 (def smooth-dur-buf  (buffer voices))
-(defonce smooth-amp-buf  (buffer dur-size))
-(defonce smooth-post-frac-buf  (buffer dur-size))
+(defonce smooth-amp-buf  (buffer pattern-size))
+(defonce smooth-post-frac-buf  (buffer pattern-size))
 
 (defsynth buf->smooth-inst [out-bus 0 buf [0 :ir] rate 1 inter 2 beat-num 0
                             pattern-buf 0 pattern-size 3
@@ -260,20 +260,28 @@ as it floats alone, away from the international space station.
 (buffer-write! smooth-amp-buf       (take pattern-size (repeatedly #(ranged-rand 1 3))))
 (buffer-write! smooth-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
 
-(def ss (make-smooth [constant-blues-s death-s] voices))
+(def ss (make-smooth [chaos-s] voices))
 
 (def perc-post-frac-buf (resize-pattern perc-post-frac-buf perc-g pattern-size :pattern-buf))
 (def perc-amp-buf       (resize-pattern perc-amp-buf perc-g pattern-size :amp-buf))
 
-(buffer-write! perc-dur-buf       (take voices (repeatedly #(rand-nth durations))))
+(buffer-write! perc-dur-buf       [1 1/2 1/4 1/8])
 (buffer-write! perc-amp-buf       (take pattern-size (repeatedly #(ranged-rand 1 3))))
 (buffer-write! perc-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
 
-(def gs (make-perc [death-s constant-blues-s chaos-s example-s space-and-time-sun]
-                   voices))
+(def gs (make-perc [chaos-s] voices))
 
 (spin-durations-for-voice (rand-int voices) perc-dur-buf)
 (spin-durations-for-voice (rand-int voices) smooth-dur-buf)
+
+(def perc-amp (buffer-read perc-amp-buf))
+(def smooth-amp (buffer-read smooth-amp-buf))
+
+(buffer-write! perc-amp-buf   (take pattern-size (cycle [0])))
+(buffer-write! smooth-amp-buf (take pattern-size (cycle [0])))
+
+(buffer-write! perc-amp-buf [0.2 0.5 0.2 0.5])
+(buffer-write! perc-amp-buf perc-amp)
 
 (kill smooth-g)
 (kill perc-g)

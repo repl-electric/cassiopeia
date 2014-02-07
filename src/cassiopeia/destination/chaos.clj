@@ -12,38 +12,45 @@
 * its periodic orbits must be dense."
   (:use [overtone.live]
         [cassiopeia.samples]
-        [overtone.synth.sampled-piano]
-        [cassiopeia.engine.buffers])
+        [cassiopeia.engine.buffers]
+        [cassiopeia.warm-up])
   (:require [cassiopeia.engine.timing :as timing]
             [launchpad.sequencer :as lp-sequencer]
             [cassiopeia.engine.mixers :as m]
             [overtone.inst.synth :as s]
-            [overtone.synths :as syn]))
+            [overtone.synths :as syn]
 
-(defn fade
-  "Fade amplitude out over time"
-  [node start rate]
-  (loop [vol start]
-    (when (>= vol 0)
-      (println vol)
-      (Thread/sleep 200)
-      (ctl node :amp vol)
-      (recur (- vol rate)))))
-
-(defn over-time
-  "Over time change val of `field` to end"
-  [node field start end rate]
-  (loop [vol start]
-    (when (>= vol end)
-      (println vol)
-      (Thread/sleep 200)
-      (ctl node field vol)
-      (recur (- vol rate)))))
+            [monome.core :as mon]
+            [monome.fonome :as fon]
+            [monome.polynome :as poly]
+            [monome.kit.sampler :as samp]
+            [cassiopeia.engine.monmapper :as monmapper]
+            [cassiopeia.engine.monome-sequencer :as monome-sequencer]))
 
 ;;;;;;;;;;;;;;;
 ;;Instruments;;
 ;;;;;;;;;;;;;;;
 (do
+  (defn fade
+    "Fade amplitude out over time"
+    [node start rate]
+    (loop [vol start]
+      (when (>= vol 0)
+        (println vol)
+        (Thread/sleep 200)
+        (ctl node :amp vol)
+        (recur (- vol rate)))))
+
+  (defn over-time
+    "Over time change val of `field` to end"
+    [node field start end rate]
+    (loop [vol start]
+      (when (>= vol end)
+        (println vol)
+        (Thread/sleep 200)
+        (ctl node field vol)
+      (recur (- vol rate)))))
+
   (defn sputter
     "returns a sequence of length maxlen with the items partly repeated (random choice of given probability)."
     ([list]          (sputter list 0.5 100 []))
@@ -56,16 +63,12 @@
            (recur tail prob max-length (conj result head)))
          result)))
 
-  (def pattern (sputter (range 0 8) 0.8))
-  (def degree-pattern (map #(nth (sort (keys DEGREE)) %) pattern))
-  (def pitch-pattern (map #(if (nil? %) (note :G4) %) (degrees->pitches degree-pattern :diatonic :G4)))
+  (def pitch-pattern (sputter [62 64 65 67 69 71 72 74 76]))
 
   (def detune-buf (buffer (count pitch-pattern)))
   (def notes-buf  (buffer (count pitch-pattern)))
 
   (def space-and-time-sun (load-sample "~/Workspace/music/samples/chaos.wav"))
-
-  (def chaos-s (load-sample "~/Workspace/music/samples/chaos.wav"))
 
   (def pinging (load-sample "~/Workspace/music/samples/pinging.wav"))
 
@@ -139,13 +142,26 @@
           note (buf-rd:kr 1 notes-buf cnt)
           freq (midicps note)
 
-          trg (and b-trig (= 0 (mod (+ (rand-int 5) idx cnt) group-size)))
+          lin-detune (lin-lin detune 62 76 1 9)
+
+          trg (and b-trig (= 0 (mod (+ (rand-int 2) idx cnt) group-size)))
           freq (latch freq trg)
 
-          env (env-gen (env-perc (ranged-rand 0.001 0.01) 0.4 amp (ranged-rand -9 -1)) trg)
-          snd (* env (mix (sin-osc:ar (+ freq [0 (* 0.1 detune)]) (* 2 Math/PI env))))]
+          env (env-gen (env-adsr :sustain (+ 1 (/ (lin-lin note 62 76 1 9) 1))
+                                 :attack (t-rand:kr 0.001 0.01 trg)
+                                 :release (t-rand:kr 0.2 0.4 trg) amp (t-rand:kr -9 -1 trg)) trg)
+          snd (mix (sin-osc:ar (+ freq [0 (* 0.1 lin-detune)]) (* 2 Math/PI env)))]
+      (out out-bus (pan2:ar (* amp env snd) (t-rand:kr -1 1 trg) ))))
 
-      (out out-bus (pan2:ar (* amp snd) (t-rand:kr -1 1 trg) ))))
+  (comment
+    (show-graphviz-synth p2)
+    (dotimes [x 16] (p2 [:head p-g] 0 16 x))
+
+    (ctl timing/root-s :rate 190)
+
+    (kill p-g)
+    (stop)
+    )
 
   (def drum-buf (buffer 4))
   (def factor-buf (buffer 3))
@@ -184,7 +200,7 @@
   (defsynth flow [out-bus 0 cnt 1 amp 1 jump 99]
     (let [del (* 1 (delay-n:ar (in-feedback:ar 0 2) (in-feedback:ar 100 2) 1))
           src (/ (sin-osc:ar (+ (* cnt jump) [0 2]) (range-lin del 1 0)) 4)]
-      (out out-bus (* amp (pan2 src) (line 1 0 16 FREE)))))
+      (out out-bus (* amp (pan2 src) (line 2 0 16 FREE)))))
 
   (comment
     (flow :cnt 1 :jump (* 60))
@@ -204,18 +220,32 @@
     (let [lfos (lf-noise1:ar 0.5)
           snd (crackle:ar (range-lin lfos 1.8 1.98))
           src (formlet:ar snd (lag (t-exp-rand:ar 200 2000 lfos) 2) (range-lin lfos 5e-4 1e-3) 0.0012)]
-      (out out-bus (* amp src)))))
+      (out out-bus (* amp src))))
+
+(declare drum-t)
+
+(defonce pops-fon          (fon/mk-fonome ::pops 1 1))
+(defonce __dock_pops-fon__ (poly/dock-fonome! m128 pops-fon ::pop128 14 7))
+(monmapper/bind pops-fon {:on #(ctl drum-t :pop-speed 1)
+                          :off #(ctl drum-t :pop-speed 0)})
+
+(defonce beaty-fon          (fon/mk-fonome ::beaty-fon 1 1))
+(defonce __dock_beaty-fon__ (poly/dock-fonome! m128 beaty-fon ::beaty-fon128 13 7))
+(monmapper/bind beaty-fon {:on #(ctl drum-t :speed 2)
+                           :off #(ctl drum-t :speed 0)}))
 
 ;;;;;;;;;
 ;;Score;;
 ;;;;;;;;;
 
-(def grainy (granulate :in-buf (buffer-mix-to-mono chaos-s) :amp 0.5))
-(kill grainy)
+(def grain-g (group "grains"))
+(def grainy (granulate [:head grain-g]  :in-buf (buffer-mix-to-mono chaos-s) :amp 0))
+(kill grain-g)
 
+(ctl grain-g :amp 0.4)
 (def d (drone :amp 0.2))
-(ctl d :f1 0.5 :amp 0.2)
-(ctl d :f2 0.5 :amp 0.2)
+(ctl d :f1 0.5 :f2 1 :amp 0.2)
+(ctl d :f2 0.5 :f1 1 :amp 0.2)
 (ctl d :f1 1)
 (ctl d :f2 1)
 
@@ -227,26 +257,25 @@
 
 (def dark (syn/dark-sea-horns :amp 0.04))
 (ctl dark :amp 0.01)
-(fade dark 0.04 0.01)
 
 (kill dark)
 
-(def drum-t (drum-beat :amp 0.5))
+(def drum-t (growing-drum-beat :amp 0.5))
 (ctl drum-t :amp 0.0)
 
 (ctl drum-t :speed 0)
 (ctl drum-t :speed 1)
 (ctl drum-t :speed 2)
 
-(ctl drum-t :pop-speed 1)
+(ctl drum-t :pop-speed 2)
+
+(ctl drum-t :speed 0)
 
 (ctl drum-t :d 0 :m 0 :r 0)
 (ctl drum-t :d 1 :m 1 :r 0.5)
 (over-time drum-t :d 1 0.1 0)
 
-(kill drum-beat)
-
-(glitchift :amp 0.02)
+(glitchift :amp 0.2)
 (kill glitchift)
 
 (do
@@ -254,7 +283,7 @@
   (pluckey-wrapping :amp 0.11))
 (kill pluckey-wrapping)
 
-(buffer-write! detune-buf (take (count pitch-pattern) (cycle [7])))
+(buffer-write! detune-buf pitch-pattern)
 (buffer-write! notes-buf pitch-pattern)
 
 (buffer-write! notes-buf (take (count pitch-pattern) (repeat (note :G4))))
@@ -268,15 +297,19 @@
 (phasing-ping :amp 0.4)
 (kill phasing-ping)
 
-(kill drum-beat)
+(kill drum-t)
+(fade dark 0.04 0.01)
 
-(sample-player chaos-s :amp 0.5)
+(sample-player chaos-s :amp 0.9 :rate 0.9)
 (sample-player pinging)
 
-(def s (flow :cnt 1 :amp 0.5))
-(def s (flow :cnt 2 :amp 0.4))
-(def s (flow :cnt 3 :amp 0.3))
-(def s (flow :cnt 4 :amp 0.2))
+(ctl grain-g :amp 0)
+(ctl grain-g :amp 0.4)
+
+(def s (flow :cnt 1 :amp 0.6))
+(def s (flow :cnt 2 :amp 0.6))
+(def s (flow :cnt 3 :amp 0.6))
+(def s (flow :cnt 4 :amp 0.5))
 (def s (flow :cnt 5 :amp 0.5))
 (def s (flow :cnt 6 :amp 0.5))
 (def s (flow :cnt 7 :amp 0.5))
