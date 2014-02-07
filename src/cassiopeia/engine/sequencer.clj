@@ -93,9 +93,9 @@
                         (:mixers sequencer)
                         (:num-steps sequencer)
                         (:seq-group sequencer)
-                        (:beat-bus sequencer)
-                        (:out-bus sequencer)
-                        ))))
+                        (-> sequencer :beat-bus deref :count)
+                        (-> sequencer :beat-bus deref :beat)
+                        (:out-bus sequencer)))))
 
 (defn sequencer-pause
   [s]

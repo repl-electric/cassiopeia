@@ -233,7 +233,7 @@
   (defonce seq-b  (audio-bus 2 "basic-mixer"))
   (defonce bas-mix-seq    (mixers/basic-mixer [:head drum-basic-mixer-g] :in-bus seq-b :mute 0))
   (defonce trig-seq-mixer (mixers/add-nk-mixer (nk-bank :m128) "m128-triggers" drum-trigger-mix-g seq-b))
-  (defonce seq128 (monome-sequencer/mk-monome-sequencer (nk-bank :m128) "m128" [tom-s] seq128-fon seq-b drum-g))
+  (defonce seq128 (monome-sequencer/mk-monome-sequencer (nk-bank :m128) "m128" samples-set-1 seq128-fon seq-b drum-g))
 
   (def samples-g (group "samples"))
   (defonce trigger-samples [star-into-the-sun-s space-and-time-s chaos-s glitch1-s glitch2-s])
