@@ -47,12 +47,15 @@
 (defonce kick-s    (load-local-sample "sliced-p5/kick.aif"))
 
 ;;Custom samples
-(def star-into-the-sun-s      (load-local-sample "star-into-the-sun.wav"))
-(def space-and-time-s         (load-local-sample "space_and_time.wav"))
-(def chaos-s                  (load-local-sample "chaos.wav"))
-(def dreamers-of-the-dreams-s (load-local-sample "dreamer-of-the-dreams.wav"))
-(def afraid-s                 (load-local-sample "afraid.wav"))
-(def one-moment-please-s      (load-local-sample "1moment.wav"))
+(defonce star-into-the-sun-s      (load-local-sample "star-into-the-sun.wav"))
+(defonce space-and-time-s         (load-local-sample "space_and_time.wav"))
+(defonce chaos-s                  (load-local-sample "chaos.wav"))
+(defonce dreamers-of-the-dreams-s (load-local-sample "dreamer-of-the-dreams.wav"))
+(defonce afraid-s                 (load-local-sample "afraid.wav"))
+(defonce one-moment-please-s      (load-local-sample "1moment.wav"))
+(defonce constant-blues-s         (load-local-sample "constant-blues.wav"))
+(defonce death-s                  (load-local-sample "oh-death.wav"))
+
 
 ;;Triggers
 (defonce glitch1-s (freesound-sample 130301))
