@@ -236,7 +236,7 @@
   (defonce seq128 (monome-sequencer/mk-monome-sequencer (nk-bank :m128) "m128" samples-set-1 seq128-fon seq-b drum-g))
 
   (def samples-g (group "samples"))
-  (defonce trigger-samples [star-into-the-sun-s space-and-time-s chaos-s glitch1-s glitch2-s])
+  (def trigger-samples [star-into-the-sun-s space-and-time-s chaos-s dreamers-of-the-dreams-s one-momment-s afraid-s glitch1-s glitch2-s pulse-s boom-s])
   (defonce trigger-sampler128  (samp/mk-sampler ::trigger-sampler128 trigger-samples samples-g 0 16))
 
   (defonce __dock_trigger__  (poly/dock-fonome! m128 (:fonome trigger-sampler128)
@@ -256,3 +256,7 @@
             (fn [{:keys [x y fonome]}]
               (fon/toggle-led fonome x y))
             ::seq128-press))
+
+(comment
+  (monome-sequencer/swap-samples! seq128 trigger-samples)
+  )
