@@ -13,6 +13,7 @@ as it floats alone, away from the international space station.
   "
   (:use overtone.live)
   (:use cassiopeia.engine.samples)
+  (:use cassiopeia.samples)
   (:require [cassiopeia.engine.timing :as tim]))
 
 (defonce voice-g (group "the voices"))
@@ -56,7 +57,7 @@ as it floats alone, away from the international space station.
         envs (take num-voices (repeatedly #(env-gen (env-lin (/ time 3.0) (/ time 3.0) (/ time 3.0) (rand 1.0)))))
 
         src (* [(reciprocal num-voices) (reciprocal num-voices)] (pink-noise:ar))
-        src (dyn-klank:ar [freqs envs rings] src)
+        src (klank:ar [freqs envs rings] src)
         src (* src (env-gen:kr (env-lin (rand time) (/ time 3) (rand time))))
         src (hpf:ar src 120)
 
@@ -66,7 +67,7 @@ as it floats alone, away from the international space station.
         src (delay-c:ar src 0.4 [(rand 0.4) (rand 0.4) 1/8 src])]
     (out out-bus (* amp src))))
 
-(ringing [:head ring-g] :amp 0.02)
+(ringing [:head ring-g] :amp 1)
 (kill ring-g)
 
 (defsynth noise-ocean [amp 1 out-bus 0]
@@ -75,7 +76,7 @@ as it floats alone, away from the international space station.
     (out out-bus (* amp src))))
 
 (comment
-  (noise-ocean)
+  (noise-ocean :amp 0.05)
   (kill noise-ocean))
 
 (defsynth dark-ambience [i 0 out-bus 0 amp 1 mul 0.2 room-size 70 rev-time 99]
@@ -90,7 +91,6 @@ as it floats alone, away from the international space station.
 
 (def dark (dark-ambience :mul 0.2 :amp 0.2))
 
-(ctl dark :mul 0.2 :room-size 70)
 (ctl dark :mul 0.2 :room-size 70)
 (ctl dark :mul 0.5 :rev-time 99)
 (ctl dark :amp 0.1)
@@ -108,14 +108,7 @@ as it floats alone, away from the international space station.
         src (* sins (lf-gauss:ar 9 1/4 0 0 2))]
     (out out-bus (* amp (splay:ar src)))))
 
-(defsynth sistres-2 [out-bus 0 amp 1 note 72]
-  (let [h (midicps note)
-        sins (take 16 (repeatedly #(* 0.2 (sin-osc:ar (exp-rand h (+ h (/ h 128))) 0))))
-        src (* sins (lf-gauss:ar 6 1/4 0 0 2))]
-    (out out-bus (* amp (splay:ar src)))))
-
-(sistres-2 :note (rand-nth (rand-nth sis-score)))
-(sistres)
+(sistres :amp 10)
 
 (def pattern-sizes [1 2 4 8 16 32 64 128 256])
 (def durations [1/8 1/4 1/2 1])
@@ -134,7 +127,6 @@ as it floats alone, away from the international space station.
                           duration-buf 0
                           voices 3]
   (let [cnt (in:kr tim/beat-count-b)
-        ;;beat-trg (in:kr tim/beat-b)
         dur (buf-rd:kr 1 duration-buf (mod cnt voices))
         cutom-amp (buf-rd:kr 1 amp-buf (mod cnt pattern-size))
         pos-frac (buf-rd:kr 1 pattern-buf (mod cnt pattern-size))
@@ -150,8 +142,7 @@ as it floats alone, away from the international space station.
                                             (* width-frac (buf-samples:kr buf))))
                         true
                         inter)]
-        env (env-gen:kr (env-perc) bar-trg 1 0 dur)
-        ]
+        env (env-gen:kr (env-perc) bar-trg 1 0 dur)]
     (out:ar out-bus (pan2 (* env amp cutom-amp sig)))))
 
 
@@ -233,12 +224,6 @@ as it floats alone, away from the international space station.
           :voices voices))
         (range 0 voices)))))
 
-(def space-and-time-sun (load-local-sample "space_and_time.wav"))
-(def example-s (load-sample "/Applications/SuperCollider/SuperCollider.app/Contents/Resources/sounds/a11wlk01.wav"))
-(def constant-blues-s (load-local-sample "constant-blues.wav"))
-(def chaos-s (load-local-sample "chaos.wav"))
-(def death-s (load-local-sample "oh-death.wav"))
-
 (defn resize-pattern [old-buf group new-size synth-ctl]
   (let [size (buffer-size old-buf)
         new-buf (buffer new-size)
@@ -260,30 +245,34 @@ as it floats alone, away from the international space station.
 (buffer-write! smooth-amp-buf       (take pattern-size (repeatedly #(ranged-rand 1 3))))
 (buffer-write! smooth-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
 
-(def ss (make-smooth [chaos-s] voices))
+(def ss (make-smooth [constant-blues-s death-s dreamers-of-the-dreams-s] 4))
 
 (def perc-post-frac-buf (resize-pattern perc-post-frac-buf perc-g pattern-size :pattern-buf))
 (def perc-amp-buf       (resize-pattern perc-amp-buf perc-g pattern-size :amp-buf))
 
-(buffer-write! perc-dur-buf       [1 1/2 1/4 1/8])
+(buffer-write! perc-dur-buf       (take voices (repeatedly #(rand-nth durations))))
 (buffer-write! perc-amp-buf       (take pattern-size (repeatedly #(ranged-rand 1 3))))
 (buffer-write! perc-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
 
-(def gs (make-perc [chaos-s] voices))
+(def gs (make-perc [constant-blues-s death-s dreamers-of-the-dreams-s afraid-s one-moment-please-s] voices))
 
 (spin-durations-for-voice (rand-int voices) perc-dur-buf)
 (spin-durations-for-voice (rand-int voices) smooth-dur-buf)
-
-(def perc-amp (buffer-read perc-amp-buf))
-(def smooth-amp (buffer-read smooth-amp-buf))
-
-(buffer-write! perc-amp-buf   (take pattern-size (cycle [0])))
-(buffer-write! smooth-amp-buf (take pattern-size (cycle [0])))
-
-(buffer-write! perc-amp-buf [0.2 0.5 0.2 0.5])
-(buffer-write! perc-amp-buf perc-amp)
 
 (kill smooth-g)
 (kill perc-g)
 
 (stop)
+
+(comment
+  ;;Part of chaos
+  (def perc-amp (buffer-read perc-amp-buf))
+  (def smooth-amp (buffer-read smooth-amp-buf))
+
+  (buffer-write! perc-amp-buf   (take pattern-size (cycle [0])))
+  (buffer-write! smooth-amp-buf (take pattern-size (cycle [0])))
+
+  (buffer-write! perc-amp-buf [0.2 0.5 0.2 0.5])
+
+  (buffer-write! perc-amp-buf perc-amp)
+  (buffer-write! smooth-amp-buf perc-amp))
