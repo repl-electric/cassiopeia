@@ -14,7 +14,9 @@ as it floats alone, away from the international space station.
   (:use overtone.live)
   (:use cassiopeia.engine.samples)
   (:use cassiopeia.samples)
-  (:require [cassiopeia.engine.timing :as tim]))
+  (:use cassiopeia.warm-up)
+  (:require [cassiopeia.engine.timing :as tim]
+            [cassiopeia.engine.monome-sequencer :as mon]))
 
 (defonce voice-g (group "the voices"))
 
@@ -79,18 +81,20 @@ as it floats alone, away from the international space station.
   (noise-ocean :amp 0.05)
   (kill noise-ocean))
 
-(defsynth dark-ambience [i 0 out-bus 0 amp 1 mul 0.2 room-size 70 rev-time 99]
-  (let [a (hpf:ar (* (* 5e-3 (pink-noise)) (line:kr 0 1 9)) 10)
-        src1 (ringz (* a (lf-noise1:kr (+ 0.05 0.1))) (+ 60 (* 55 0)) mul)
-        src2 (ringz (* a (lf-noise1:kr (+ 0.05 0.1))) (+ 60 (* 55 1)) mul)
-        src3 (ringz (* a (lf-noise1:kr (+ 0.05 0.1))) (+ 60 (* 55 2)) mul)
-        src4 (ringz (* a (lf-noise1:kr (+ 0.05 0.1))) (+ 60 (* 55 3)) mul)
-        src5 (ringz (* a (lf-noise1:kr (+ 0.05 0.1))) (+ 60 (* 55 4)) mul)
+(defsynth dark-ambience [out-bus 0 amp 1 mul 0.2 room-size 70 rev-time 99 ring-freq 60 ring-mul 55]
+  (let [pink (hpf:ar (* (* 0.005 (pink-noise)) (line:kr 0 1 9)) 5)
+        src1 (ringz (* pink (lf-noise1:kr 0.15)) (+ ring-freq (* ring-mul 0)) mul)
+        src2 (ringz (* pink (lf-noise1:kr 0.15)) (+ ring-freq (* ring-mul 1)) mul)
+        src3 (ringz (* pink (lf-noise1:kr 0.15)) (+ ring-freq (* ring-mul 2)) mul)
+        src4 (ringz (* pink (lf-noise1:kr 0.15)) (+ ring-freq (* ring-mul 3)) mul)
+        src5 (ringz (* pink (lf-noise1:kr 0.15)) (+ ring-freq (* ring-mul 4)) mul)
         src (tanh (g-verb (sum [src1 src2 src3 src4 src5]) room-size rev-time))]
     (out out-bus (* amp src))))
 
 (def dark (dark-ambience :mul 0.2 :amp 0.2))
 
+(ctl dark :ring-mul 55)
+(ctl dark :ring-freq 600)
 (ctl dark :mul 0.2 :room-size 70)
 (ctl dark :mul 0.5 :rev-time 99)
 (ctl dark :amp 0.1)
