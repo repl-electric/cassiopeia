@@ -94,7 +94,7 @@ as it floats alone, away from the international space station.
 (def dark (dark-ambience :mul 0.2 :amp 0.2))
 
 (ctl dark :ring-mul 55)
-(ctl dark :ring-freq 600)
+(ctl dark :ring-freq (midi->hz 40))
 (ctl dark :mul 0.2 :room-size 70)
 (ctl dark :mul 0.5 :rev-time 99)
 (ctl dark :amp 0.1)
