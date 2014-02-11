@@ -32,7 +32,7 @@
 (defsynth offset    [root-bus 0 out-bus 0] (out:kr out-bus (/ (+ 1 (in:kr root-bus)) 2)))
 (defsynth pi-offset [root-bus 0 out-bus 0] (out:kr out-bus (* (+ 1 (in:kr root-bus)) Math/PI)))
 
-(defsynth get-beat [] (send-trig (in:kr beat-b) count-trig-id (+ (in:kr beat-count-b) 1)))
+(defsynth get-beat [beat-b 0 beat-count-b 0 id 0] (send-trig (in:kr beat-b) id (in:kr beat-count-b)))
 
 (defsynth x [count-bus 0 offset-bus 0 out-bus 0 smoothness 0.005]
   (let [cnt (in:kr count-bus)
@@ -53,6 +53,10 @@
         phase   (* n-samps (in:kr saw-x-b))]
     (out:kr out-bus (buf-rd:kr 1 buf phase :loop loop? :interpolation 1))))
 
+(defsynth saw-x-pulser [out-bus 0 freq-mul 1 smoothness 0 x-bus (:id x-b)]
+  (let [s (+ 1 (* -2 (mod (* freq-mul (in:kr x-bus)) 1)))]
+    (out:kr out-bus (trig1 s 0.01))))
+
 (defsynth saw-x [out-bus 0 freq-mul 1 mul 1 add 0 x-bus (:id x-b)]
   (out:kr out-bus (lag (mul-add (mod (* freq-mul (in:kr x-bus)) 1) mul add))))
 
@@ -69,7 +73,7 @@
 
 (def current-beat (atom 30))
 
-(defonce root-s (root-saw [:head timing-g] :saw-bus root-b :inv-saw-bus inv-root-b :rate 100))
+(defonce root-s (root-saw [:head timing-g] :saw-bus root-b :inv-saw-bus inv-root-b :rate 2))
 (defonce count-s (saw-counter [:after root-s] :out-bus count-b :in-bus inv-root-b))
 (defonce pi-count-s (pi-counter [:after root-s] :out-bus pi-count-b :counter-bus count-b))
 (defonce offset-s (offset [:after count-s] :root-bus root-b :out-bus offset-b))
@@ -80,7 +84,7 @@
 (defonce x-mul-s (x-mul  [:after x-s] :x-bus x-b :mul 0.1 :out-bus x-mul-b))
 (defonce divider-s (timing/divider [:after root-s] :div @current-beat :in-bus inv-root-b :out-bus beat-b))
 (defonce counter-s (timing/counter [:after divider-s] :in-bus beat-b :out-bus beat-count-b))
-(defonce get-beat-s (get-beat [:after divider-s]))
+(defonce get-beat-s (get-beat [:after divider-s] beat-b beat-count-b count-trig-id))
 
 (defonce b-trigger (broadcast-beat-trigger [:after (foundation-monitor-group)]
                                            :in-bus root-b
@@ -88,4 +92,27 @@
                                            :beat-count-bus beat-count-b
                                            :trig-id broadcast-count-trig-id))
 
-(def main-beat {:beat beat-b :count beat-count-b :trig-id count-trig-id})
+(defn beat-bus [freq-mul]
+  (let [t-id (trig-id)
+        g    (group (str "Beat Bus " t-id " - x" freq-mul) :after x-s)
+        b    (control-bus  (str "beat-bus x" freq-mul))
+        c    (control-bus  (str "beat-cnt-bus x" freq-mul))
+        p    (saw-x-pulser [:head g] b freq-mul)
+        cs   (saw-counter  [:after p] b c)
+        gs   (get-beat     [:after cs] b c t-id)]
+    (with-meta {:beat b
+                :count c
+                :group g
+                :saw-x-pulser-s p
+                :saw-counter-s cs
+                :beat-trig-s gs
+                :trig-id t-id}
+            {:type ::beat-bus})))
+
+(defn beat-bus? [o] (isa? (type o) ::beat-bus))
+
+(defonce main-beat (beat-bus 1))
+(defonce beat-1th main-beat)
+(defonce beat-2th (beat-bus 1/2))
+(defonce beat-3th (beat-bus 1/3))
+(defonce beat-4th (beat-bus 1/4))
