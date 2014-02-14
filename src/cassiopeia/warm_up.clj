@@ -112,7 +112,7 @@
   (defonce trig-seq-mixer (mixers/add-nk-mixer (nk-bank :lp64) "lp64-triggers" drum-trigger-mix-g seq-b))
 ;; (ctl bas-mix-seq :mute 1)
 
-  (defonce sequencer-64
+  (def sequencer-64
     (sequencer/mk-sequencer
      (nk-bank :lp64)
      "seq"
