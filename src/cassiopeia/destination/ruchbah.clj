@@ -68,9 +68,6 @@
           durs (buf-rd:kr 1 dur-buf cnt)
           trig  (in:kr beat-trg-bus)
           note (buf-rd:kr 1 note-buf cnt)
-
-          ;; trig (t-duty:kr (dseq durs INFINITE))
-          ;; freq (demand:kr trg 0 (drand note INFINITE))
           freq (midicps note)
 
           env   (env-gen (perc attack release) trig)
@@ -385,6 +382,7 @@
 (buffer-write! melody-notes-b (take 128 (cycle (shuffle (map note [:A3 :A5 :B4 :C4 :D3 :D3 :B2 :D4 :D3 :B3 :A3 :B3 :C3 :D3 :E3 :F3 :G4])))))
 
 (buffer-write! melody-notes-b (map note data/high-pinging-record))
+
 (kill melody)
 (kill tb)
 (kill o)
