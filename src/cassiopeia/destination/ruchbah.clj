@@ -26,7 +26,7 @@
 (defonce melody-duration-b (buffer 128))
 (defonce melody-notes-b    (buffer 128))
 
-(defsynth melody [duration-bus 0 room 0.5 damp 0.5 beat-count-bus 0 offset-bus 0 amp 1 out-bus 0]
+(defsynth melody [duration-bus 0 room 0.5 damp 0.5 beat-count-bus 0 offset-bus 0 amp 1 out-bus 0 pitch-dis 0 time-dis 0]
   (let [cnt    (in:kr beat-count-bus)
         offset (buf-rd:kr 1 offset-bus cnt)
         durs   (buf-rd:kr 1 duration-bus cnt)
@@ -36,12 +36,20 @@
 
         env (env-gen:ar (env-asr :release 0.25 :sustain 0.8) trig)
         src (* 0.3 (lf-tri:ar freq))
-        src (pitch-shift  src 0.1 0.9 0 0)
-        ]
+        src (pitch-shift src 0.9 0.9 pitch-dis time-dis)]
     (out:ar out-bus (* amp env (pan2 src (t-rand:kr -1 1 trig))))))
 
 (comment
-  (melody))
+  (def m (melody :duration-bus melody-duration-b :offset-bus melody-notes-b
+               :beat-count-bus (:count timing/beat-1th) :amp 1))
+
+  (ctl m :pitch-dis 0.01 :time-dis 0.01 :amp 0)
+
+
+  (ctl m :amp 1.4)
+  (kill melody)
+
+  (stop))
 
 (def flow-buf (buffer 128))
 (def flow-f-buf (buffer 128))
@@ -221,6 +229,12 @@
 (stop)
 (kill moo)
 
+(ctl deep :amp 0.5)
+(s/cs80lead :freq 90 :amp 0.2)
+(kill s/cs80lead)
+
+(s/overpad :note 60 :release 16)
+
 ;;;;;;;;;;;
 ;; Score ;;
 ;;;;;;;;;;;
@@ -234,8 +248,8 @@
                :beat-count-bus (:count timing/beat-2th)
                :beat-trg-bus   (:beat timing/beat-2th)))
 
-(ctl tb :amp 1)
-(ctl tb :env-amount 10 :waves 3 :sustain 0 :release 1 :amp 1)
+(ctl tb :amp 0)
+(ctl tb :env-amount 10 :waves 3 :sustain 0 :release 1 :amp 0.1)
 (ctl tb :env-amount 0.01 :attack 5 :waves 3 :sustain 0.6 :release 16)
 
 (def o (overpad :release 16
@@ -247,9 +261,11 @@
 
 (ctl o :attack 0 :release 1 :amp 0.2)
 
-(ctl o :fizzing 3)
-(ctl o :bass-thrust 2)
+(ctl o :fizzing 10)
+(ctl o :bass-thrust 4)
 (ctl o :tonal 4)
+
+(ctl o :amp 0)
 
 (kill overpad)
 
@@ -271,12 +287,12 @@
 (buffer-write! bass-duration-b (take 128 (cycle           [1/4])))
 (buffer-write! bass-notes-b    (take 128 (cycle (map note [:E2 :D2 :B2]))))
 
-(def m (melody :duration-bus melody-duration-b :offset-bus melody-notes-b
-               :beat-count-bus (:count timing/beat-1th) :amp 0))
+;;(doall (map #(print (str (find-note-name (int (buffer-get flow-f-buf %)))) " ") (range 0 128)))
 
-(ctl m :amp 0.9)
+(comment
+  (stop)
 
-(comment (kill m))
+  (kill m))
 
 (buffer-write! melody-duration-b (take 128 (cycle [1/2 1/4 1/4 1/2])))
 (buffer-write! melody-notes-b (take 128 (cycle (map note [:A3 :A4 :B4 :C4]))))
@@ -286,29 +302,21 @@
 (buffer-write! melody-notes-b (take 128 (cycle (map #(+ 0 (note %)) [:A3 :A4 :B4 :C4
                                                                      :c4 :B4 :A4 :A3]))))
 
-(s/cs80lead :freq 90 :amp 0.2)
-(kill s/cs80lead)
-
-(s/overpad :note 60 :release 16)
-
 (s/rise-fall-pad :freq (midi->hz (note :A3)))
-(ctl deep :amp 0.5)
-
 (kill s/rise-fall-pad)
 
 (def beats-g (group "beats"))
 (def dum-samples-set [kick-s clap2-s snare-s hip-hop-kick-s sizzling-high-hat-s])
 (sequencer/swap-samples! sequencer-64 dum-samples-set)
 
-;;(sequencer/sequencer-write! sequencer-64 0 [1 0 1 0 1 1 0 0])
-;;(sequencer/sequencer-write! sequencer-64 0 [0 0 0 0 0 1 1 0])
-
+(sequencer/sequencer-write! sequencer-64 0 [1 0 1 0 1 1 0 0])
 (sequencer/sequencer-write! sequencer-64 1 [0 0 0 0 0 0 0 1])
 (sequencer/sequencer-write! sequencer-64 2 [0 1 0 0 0 0 1 0])
 (sequencer/sequencer-write! sequencer-64 3 [1 1 1 1 1 1 1 1])
 (sequencer/sequencer-write! sequencer-64 3 [0 0 0 0 0 0 0 0])
 (sequencer/sequencer-write! sequencer-64 4 [0 0 0 0 0 0 0 1])
 
+(sequencer/sequencer-write! sequencer-64 0 [0 0 0 0 0 0 0 0])
 (sequencer/sequencer-write! sequencer-64 1 [0 0 0 0 0 0 0 0])
 (sequencer/sequencer-write! sequencer-64 2 [0 0 0 0 0 0 0 0])
 (sequencer/sequencer-write! sequencer-64 3 [0 0 0 0 0 0 0 0])
@@ -328,6 +336,9 @@
 (buffer-write! bass-notes-buf  (take 8 (cycle (map note [:E2]))))
 (buffer-write! bass-notes-buf  (take 8 (cycle (map note [:D3]))))
 (buffer-write! phase-bass-buf  [1 0 1 0 1 0 1 0])
+
+(buffer-write! phase-bass-buf  [1 1 0 0 0 1 1 0])
+(buffer-write! phase-bass-buf  [0 1 1 0 1 1 0 0])
 
 (doseq [i (range 0 9)]
   (bazz :amp 0.4 :note-buf bass-notes-buf
