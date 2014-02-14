@@ -1,4 +1,6 @@
 (ns cassiopeia.engine.scheduled-sampler
+  "Stolen from the wonderful Meta-ex
+   http://www.github.com/meta-ex"
   (:use [overtone.live])
   (:use [cassiopeia.samples])
   (:require [cassiopeia.engine.timing :as tim]
