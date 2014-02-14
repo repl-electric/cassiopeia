@@ -1,15 +1,12 @@
 (ns cassiopeia.data.ruchbah)
 
-(def flow-f-buf-record
-  [:E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3 :E3 :C4 :A3 :A3 :D3 :E3 :C3 :D3])
-
-(def flow-f-buf-record1 [:A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3])
-
-(def flow-buf-record
-  [:C3 :E3 :E3 :C4 :C3 :D3 :D3 :E3 :A3 :D3 :D3 :A3 :A3 :E3 :C3 :A3 :C3 :E3 :E3 :C4 :C3 :D3 :D3 :E3 :A3 :D3 :D3 :A3 :A3 :E3 :C3 :A3 :C3 :E3 :E3 :C4 :C3 :D3 :D3 :E3 :A3 :D3 :D3 :A3 :A3 :E3 :C3 :A3 :C3 :E3 :E3 :C4 :C3 :D3 :D3 :E3 :A3 :D3 :D3 :A3 :A3 :E3 :C3 :A3 :C3 :E3 :E3 :C4 :C3 :D3 :D3 :E3 :A3 :D3 :D3 :A3 :A3 :E3 :C3 :A3 :C3 :E3 :E3 :C4 :C3 :D3 :D3 :E3 :A3 :D3 :D3 :A3 :A3 :E3 :C3 :A3 :C3 :E3 :E3 :C4 :C3 :D3 :D3 :E3 :A3 :D3 :D3 :A3 :A3 :E3 :C3 :A3 :C3 :E3 :E3 :C4 :C3 :D3 :D3 :E3 :A3 :D3 :D3 :A3 :A3 :E3 :C3 :A3])
-
-(def flow-buf-record1 [:A3 :C3 :C3 :C3 :E3 :D3 :E3 :D3 :A3 :A3 :E3 :E3 :D3 :C4 :D3 :A3 :A3 :C3 :C3 :C3 :E3 :D3 :E3 :D3 :A3 :A3 :E3 :E3 :D3 :C4 :D3 :A3 :A3 :C3 :C3 :C3 :E3 :D3 :E3 :D3 :A3 :A3 :E3 :E3 :D3 :C4 :D3 :A3 :A3 :C3 :C3 :C3 :E3 :D3 :E3 :D3 :A3 :A3 :E3 :E3 :D3 :C4 :D3 :A3 :A3 :C3 :C3 :C3 :E3 :D3 :E3 :D3 :A3 :A3 :E3 :E3 :D3 :C4 :D3 :A3 :A3 :C3 :C3 :C3 :E3 :D3 :E3 :D3 :A3 :A3 :E3 :E3 :D3 :C4 :D3 :A3 :A3 :C3 :C3 :C3 :E3 :D3 :E3 :D3 :A3 :A3 :E3 :E3 :D3 :C4 :D3 :A3 :A3 :C3 :C3 :C3 :E3 :D3 :E3 :D3 :A3 :A3 :E3 :E3 :D3 :C4 :D3 :A3])
-
-(def high-pinging-record [59 47 50 57 50 57 60 52 50 81 50 71 62 53 59 67 48 59 47 50 57 50 57 60 52 50 81 50 71 62 53 59 67 48 59 47 50 57 50 57 60 52 50 81 50 71 62 53 59 67 48 59 47 50 57 50 57 60 52 50 81 50 71 62 53 59 67 48 59 47 50 57 50 57 60 52 50 81 50 71 62 53 59 67 48 59 47 50 57 50 57 60 52 50 81 50 71 62 53 59 67 48 59 47 50 57 50 57 60 52 50 81 50 71 62 53 59 67 48 59 47 50 57 50 57 60 52 50])
-
-(def high-pinging-record1 [:E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4 :C3 :D4 :G4 :D3 :D3 :B3 :A3 :F3 :E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4 :C3 :D4 :G4 :D3 :D3 :B3 :A3 :F3 :E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4 :C3 :D4 :G4 :D3 :D3 :B3 :A3 :F3 :E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4 :C3 :D4 :G4 :D3 :D3 :B3 :A3 :F3 :E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4 :C3 :D4 :G4 :D3 :D3 :B3 :A3 :F3 :E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4 :C3 :D4 :G4 :D3 :D3 :B3 :A3 :F3 :E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4 :C3 :D4 :G4 :D3 :D3 :B3 :A3 :F3 :E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4])
+(def flow-f-buf-record (take 128 (cycle [:A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3])))
+(def flow-buf-record   (take 128 (cycle [:A3 :C3 :C3 :C3 :E3 :D3 :E3 :D3 :A3 :A3 :E3 :E3 :D3 :C4 :D3 :A3])))
+(def high-pinging-record  [:E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4 :C3 :D4 :G4 :D3 :D3 :B3 :A3 :F3
+                           :E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4 :C3 :D4 :G4 :D3 :D3 :B3 :A3 :F3
+                           :E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4 :C3 :D4 :G4 :D3 :D3 :B3 :A3 :F3
+                           :E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4 :C3 :D4 :G4 :D3 :D3 :B3 :A3 :F3
+                           :E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4 :C3 :D4 :G4 :D3 :D3 :B3 :A3 :F3
+                           :E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4 :C3 :D4 :G4 :D3 :D3 :B3 :A3 :F3
+                           :E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4 :C3 :D4 :G4 :D3 :D3 :B3 :A3 :F3
+                           :E3 :B2 :D3 :A3 :D3 :C4 :B3 :A5 :B4])
