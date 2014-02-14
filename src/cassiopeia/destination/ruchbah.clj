@@ -15,7 +15,9 @@
   (:use cassiopeia.warm-up)
   (:require [cassiopeia.engine.timing :as timing]
             [overtone.inst.synth :as s]
-            [cassiopeia.engine.sequencer :as sequencer]))
+            [cassiopeia.engine.sequencer :as sequencer]
+            [cassiopeia.data.ruchbah :as data]
+            [cassiopeia.engine.monome-sequencer :as mon-seq]))
 
 ;;;;;;;;;;;;;;;;;;;
 ;; Instruments   ;;
@@ -45,8 +47,9 @@
 
   (ctl m :pitch-dis 0.01 :time-dis 0.01 :amp 0)
 
+  (ctl m :pitch-dis 0.01 :time-dis 0.01 :amp 1.4)
 
-  (ctl m :amp 1.4)
+  (ctl m :amp 0)
   (kill melody)
 
   (stop))
@@ -78,23 +81,20 @@
           audio (* amp env sig)]
       (out out-bus (pan2 audio))))
 
+  (comment
+    (def o (overpad :release 16
+                    :note-buf flow-f-buf
+                    :beat-count-bus (:count timing/beat-2th)
+                    :beat-trig-bus (:beat timing/beat-2th)
+                    :amp 0.5
+                    :attack 5))
 
-  (kill overpad)
-
-  (def o (overpad :release 16
-                  :note-buf flow-f-buf
-                  :beat-count-bus (:count timing/beat-2th)
-                  :beat-trig-bus (:beat timing/beat-2th)
-                  :amp 0.5
-                  :attack 5))
-
-  (buffer-write! flow-f-buf
-                 (take 128
-                       (cycle
-                        (map note [:A3 :A3 :E3 :E3 :D3 :D3 :C4 :C4 :A3 :D3
-                                   :A3 :E3 :D3 :C3 :A3 :E3 :D3 :C3
-                                   ]))))
-  (comment))
+    (buffer-write! flow-f-buf
+                   (take 128
+                         (cycle
+                          (map note [:A3 :A3 :E3 :E3 :D3 :D3 :C4 :C4 :A3 :D3
+                                     :A3 :E3 :D3 :C3 :A3 :E3 :D3 :C3
+                                     ]))))))
 
 
 (definst tb303
@@ -223,17 +223,17 @@
 ;; Experiments ;;
 ;;;;;;;;;;;;;;;;;
 
-(def moo (s/mooger (note :A3)))
-(ctl moo :note (note :A2) :attack 16)
+(comment
+  (def moo (s/mooger (note :A3)))
+  (ctl moo :note (note :A2) :attack 16)
 
-(stop)
-(kill moo)
+  (stop)
+  (kill moo)
 
-(ctl deep :amp 0.5)
-(s/cs80lead :freq 90 :amp 0.2)
-(kill s/cs80lead)
+  (s/cs80lead :freq 90 :amp 0.2)
+  (kill s/cs80lead)
 
-(s/overpad :note 60 :release 16)
+  (s/overpad :note 60 :release 16))
 
 ;;;;;;;;;;;
 ;; Score ;;
@@ -249,7 +249,7 @@
                :beat-trg-bus   (:beat timing/beat-2th)))
 
 (ctl tb :amp 0)
-(ctl tb :env-amount 10 :waves 3 :sustain 0 :release 1 :amp 0.1)
+(ctl tb :env-amount 10 :waves 3 :sustain 0 :release 1 :amp 1)
 (ctl tb :env-amount 0.01 :attack 5 :waves 3 :sustain 0.6 :release 16)
 
 (def o (overpad :release 16
@@ -259,15 +259,13 @@
                 :amp 0
                 :attack 5))
 
-(ctl o :attack 0 :release 1 :amp 0.2)
+(ctl o :attack 0 :release 1 :amp 0.3)
 
 (ctl o :fizzing 10)
 (ctl o :bass-thrust 4)
 (ctl o :tonal 4)
 
 (ctl o :amp 0)
-
-(kill overpad)
 
 (buffer-write! flow-buf
                (take 128
@@ -281,11 +279,8 @@
                      (cycle
                       (map note (shuffle [:A3 :E3 :D3 :C4 :A3 :E3 :D3 :C3])))))
 
-(buffer-write! bass-duration-b (take 128 (cycle           [1 1 1 1])))
-(buffer-write! bass-notes-b    (take 128 (cycle (map note [:A3 :E3 :D3 :C4  :A3 :E3 :D3 :C3]))))
-
-(buffer-write! bass-duration-b (take 128 (cycle           [1/4])))
-(buffer-write! bass-notes-b    (take 128 (cycle (map note [:E2 :D2 :B2]))))
+(buffer-write! flow-buf (map note data/flow-buf-record))
+(buffer-write! flow-f-buf (map note data/flow-f-buf-record))
 
 ;;(doall (map #(print (str (find-note-name (int (buffer-get flow-f-buf %)))) " ") (range 0 128)))
 
@@ -305,23 +300,18 @@
 (s/rise-fall-pad :freq (midi->hz (note :A3)))
 (kill s/rise-fall-pad)
 
-(def beats-g (group "beats"))
-(def dum-samples-set [kick-s clap2-s snare-s hip-hop-kick-s sizzling-high-hat-s])
-(sequencer/swap-samples! sequencer-64 dum-samples-set)
+(def drum-samples-set [kick-s clap2-s snare-s hip-hop-kick-s])
+(mon-seq/swap-samples! seq128 drum-samples-set)
 
-(sequencer/sequencer-write! sequencer-64 0 [1 0 1 0 1 1 0 0])
-(sequencer/sequencer-write! sequencer-64 1 [0 0 0 0 0 0 0 1])
-(sequencer/sequencer-write! sequencer-64 2 [0 1 0 0 0 0 1 0])
-(sequencer/sequencer-write! sequencer-64 3 [1 1 1 1 1 1 1 1])
-(sequencer/sequencer-write! sequencer-64 3 [0 0 0 0 0 0 0 0])
-(sequencer/sequencer-write! sequencer-64 4 [0 0 0 0 0 0 0 1])
+(mon-seq/sequencer-write! seq128 0 [1 0 1 0 1 1 0 0])
+(mon-seq/sequencer-write! seq128 1 [0 0 0 0 0 0 0 1])
+(mon-seq/sequencer-write! seq128 2 [0 1 0 0 0 0 1 0])
+(mon-seq/sequencer-write! seq128 3 [1 1 1 1 1 1 1 1])
 
-(sequencer/sequencer-write! sequencer-64 0 [0 0 0 0 0 0 0 0])
-(sequencer/sequencer-write! sequencer-64 1 [0 0 0 0 0 0 0 0])
-(sequencer/sequencer-write! sequencer-64 2 [0 0 0 0 0 0 0 0])
-(sequencer/sequencer-write! sequencer-64 3 [0 0 0 0 0 0 0 0])
-(sequencer/sequencer-write! sequencer-64 3 [0 0 0 0 0 0 0 0])
-(sequencer/sequencer-write! sequencer-64 4 [0 0 0 0 0 0 0 0])
+(mon-seq/sequencer-write! seq128 0 [0 0 0 0 0 0 0 0])
+(mon-seq/sequencer-write! seq128 1 [0 0 0 0 0 0 0 0])
+(mon-seq/sequencer-write! seq128 2 [0 0 0 0 0 0 0 0])
+(mon-seq/sequencer-write! seq128 3 [0 0 0 0 0 0 0 0])
 
 (doseq [i (range 0 9)]
   (vintage-bass :amp 0.4 :note-buf bass-notes-buf
@@ -385,4 +375,7 @@
 
 (buffer-write! melody-notes-b (take 128 (cycle (shuffle (map note [:A3 :A5 :B4 :C4 :D3 :D3 :B2 :D4 :D3 :B3 :A3 :B3 :C3 :D3 :E3 :F3 :G4])))))
 
-(stop)
+(buffer-write! melody-notes-b (map note data/high-pinging-record))
+(kill melody)
+(kill tb)
+(kill o)

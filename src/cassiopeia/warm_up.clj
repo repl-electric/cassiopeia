@@ -110,7 +110,7 @@
   (defonce seq-b  (audio-bus 2 "basic-mixer"))
   (defonce bas-mix-seq    (mixers/basic-mixer [:head drum-basic-mixer-g] :in-bus seq-b :mute 0))
   (defonce trig-seq-mixer (mixers/add-nk-mixer (nk-bank :lp64) "lp64-triggers" drum-trigger-mix-g seq-b))
-;; (ctl bas-mix-seq :mute 1)
+  ;;(ctl bas-mix-seq :mute 1)
 
   (def sequencer-64
     (sequencer/mk-sequencer
@@ -233,10 +233,24 @@
   (defonce seq-b  (audio-bus 2 "basic-mixer"))
   (defonce bas-mix-seq    (mixers/basic-mixer [:head drum-basic-mixer-g] :in-bus seq-b :mute 0))
   (defonce trig-seq-mixer (mixers/add-nk-mixer (nk-bank :m128) "m128-triggers" drum-trigger-mix-g seq-b))
-  (defonce seq128 (monome-sequencer/mk-monome-sequencer (nk-bank :m128) "m128" samples-set-1 seq128-fon seq-b drum-g))
+  (defonce seq128 (monome-sequencer/mk-monome-sequencer (nk-bank :m128) "m128" (take 5 samples-set-1) seq128-fon seq-b drum-g))
 
   (def samples-g (group "samples"))
-  (def trigger-samples [star-into-the-sun-s space-and-time-s chaos-s dreamers-of-the-dreams-s one-moment-please-s afraid-s glitch1-s glitch2-s pulse-s boom-s])
+  (def trigger-samples [star-into-the-sun-s
+                        space-and-time-s
+                        chaos-s
+                        dreamers-of-the-dreams-s
+                        one-moment-please-s
+                        afraid-s
+                        glitch1-s
+                        glitch2-s
+                        pulse-s
+                        boom-s
+                        crunch-woosh-s
+                        collect-coin-s
+                        whisper-s
+                        mystical-aura-s])
+
   (defonce trigger-sampler128  (samp/mk-sampler ::trigger-sampler128 trigger-samples samples-g 0 16))
 
   (defonce __dock_trigger__  (poly/dock-fonome! m128 (:fonome trigger-sampler128)

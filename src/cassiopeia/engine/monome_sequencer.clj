@@ -133,3 +133,10 @@
 (defn swap-beat-bus! [m-seq beat-bus]
   (assert (monome-sequencer? m-seq))
   (seq/swap-beat-bus! @(:sequencer m-seq) beat-bus))
+
+(defn sequencer-write! [{fonome :fonome} y pattern]
+  (let [stretched-pattern (take (:width fonome) (cycle pattern))]
+    (dotimes [x (count stretched-pattern)]
+      (if (= 1 (nth stretched-pattern x))
+        (fon/led-on fonome x y)
+        (fon/led-off fonome x y)))))
