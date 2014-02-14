@@ -16,6 +16,7 @@
   (:require [cassiopeia.engine.timing :as timing]
             [overtone.inst.synth :as s]
             [cassiopeia.engine.sequencer :as sequencer]
+            [cassiopeia.engine.mixers :as mix]
             [cassiopeia.data.ruchbah :as data]
             [cassiopeia.engine.monome-sequencer :as mon-seq]))
 
@@ -134,8 +135,8 @@
 (def bass-notes-buf (buffer 8))
 (def phase-bass-buf (buffer 8))
 
-(definst vintage-bass
-  [velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 num-steps 8 beat-num 0]
+(defsynth vintage-bass
+  [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 num-steps 8 beat-num 0]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         note     (buf-rd:kr 1 note-buf cnt)
@@ -152,9 +153,10 @@
         mixed    (* 5 (+ sawz1 sawz2 sqz))
         env      (env-gen (adsr 0.1 3.3 0.4 0.8) :gate bar-trg)
         filt     (*  (moog-ff mixed (* velocity (+ freq 200)) 2.2 bar-trg))]
-        (* amp env filt)))
+    (out out-bus (* amp env filt))))
 
-(defsynth bazz [beat-bus 0 beat-trg-bus 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 0]
+(def bazz-g (group "bazz group"))
+(defsynth bazz [out-bus 0 beat-bus 0 beat-trg-bus 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 0]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         note     (buf-rd:kr 1 note-buf cnt)
@@ -164,8 +166,9 @@
 
         freq (t-rand 50 1300 bar-trg)
         c (pm-osc:ar freq (* freq (t-rand 0.25 2.0 bar-trg)) (t-rand 0.1 (* 2 Math/PI) bar-trg))
-        e (env-gen:kr (env-perc 0.001 0.1) bar-trg)]
-    (out [0 1] (/ (* c e 0.125 ) 2))))
+        e (env-gen:kr (env-perc 0.001 0.1) bar-trg)
+        src (/ (* c e 0.125) 2)]
+    (out out-bus [src src])))
 
 (defsynth flek []
   (let [freq 550
@@ -200,9 +203,7 @@
 
 (def v-bass-buf (buffer 128))
 
-(definst dub-kick
-  [freq 80
-   beat-bus 0 beat-trg-bus 0 note-buf 0 num-steps 8 seq-buf 0 beat-num 0 ]
+(defsynth dub-kick [out-bus 0 freq 80 beat-bus 0 beat-trg-bus 0 note-buf 0 num-steps 8 seq-buf 0 beat-num 0]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         note     (buf-rd:kr 1 note-buf cnt)
@@ -216,8 +217,7 @@
         noiz (lpf (white-noise) (+ (env-gen:kr cutoff-env :gate bar-trg) 20))
         snd  (lpf (sin-osc (+ (env-gen:kr osc-env :gate bar-trg) 20)) 200)
         mixed (* (+ noiz snd) (env-gen amp-env :gate bar-trg))]
-    mixed))
-)
+    (out out-bus [mixed mixed]))))
 
 ;;;;;;;;;;;;;;;;;
 ;; Experiments ;;
@@ -331,20 +331,28 @@
 (buffer-write! phase-bass-buf  [0 1 1 0 1 1 0 0])
 
 (doseq [i (range 0 9)]
-  (bazz :amp 0.4 :note-buf bass-notes-buf
-        :seq-buf phase-bass-buf
-        :beat-bus (:count timing/beat-1th)
-        :beat-trg-bus (:beat timing/beat-1th) :num-steps 8 :beat-num i))
+  (bazz
+   [:head bazz-g]
+   :amp 0.4 :note-buf bass-notes-buf
+   :seq-buf phase-bass-buf
+   :beat-bus (:count timing/beat-1th)
+   :beat-trg-bus (:beat timing/beat-1th) :num-steps 8 :beat-num i))
 
 (kill bazz)
 
-(doseq [i (range 0 18)]
-  (dub-kick :amp 0.4 :note-buf bass-notes-buf
-          :seq-buf v-bass-buf
-          :beat-bus (:count timing/beat-1th)
-          :beat-trg-bus (:beat timing/beat-1th) :num-steps 18 :beat-num i))
+(def dub-kick-g (group "dub kick group"))
+(def dubkicks (doall (map
+                      #(dub-kick
+                       [:head dub-kick-g]
+                       :amp 0.4
+                       :freq (ranged-rand 80 110)
+                       :note-buf bass-notes-buf
+                       :seq-buf v-bass-buf
+                       :freq (ranged-rand 80 100)
+                       :beat-bus (:count timing/beat-1th)
+                       :beat-trg-bus (:beat timing/beat-1th) :num-steps 18 :beat-num %) (range 0 18) ) ))
 
-(ctl timing/root-s :rate 2)
+(ctl dub-kick-g :freq 80)
 
 (kill dub-kick)
 
@@ -353,7 +361,8 @@
 (buffer-write! v-bass-buf  (take 128 (cycle [1 0 0 1 1 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1])))
 
 (def m (melody :duration-bus melody-duration-b :offset-bus melody-notes-b
-               :beat-count-bus (:count timing/beat-1th) :amp 0))
+               :beat-count-bus (:count timing/beat-1th) :amp 1
+               :out-bus (mix/nkmx :s0)))
 
 (ctl m :amp 1)
 
