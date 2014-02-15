@@ -116,3 +116,5 @@
 (defonce beat-2th (beat-bus 1/2))
 (defonce beat-3th (beat-bus 1/3))
 (defonce beat-4th (beat-bus 1/4))
+(defonce beat-5th (beat-bus 1/5))
+(defonce beat-6th (beat-bus 1/6))
