@@ -8,7 +8,8 @@
  #    #  #    # #    # #    # #    # #    # #    #
  #     #  ####   ####  #    # #####  #    # #    #
 
- An Algol-type eclipsing variable star. It appears to have a blue-white hue and it is 99 light-years from Earth.
+ An Algol-type eclipsing variable star.
+ It appears to have a blue-white hue and it is 99 light-years from Earth.
 "
   (:use overtone.live)
   (:use cassiopeia.samples)
@@ -17,6 +18,7 @@
             [overtone.inst.synth :as s]
             [cassiopeia.engine.sequencer :as sequencer]
             [cassiopeia.engine.mixers :as mix]
+            [cassiopeia.engine.scheduled-sampler :as scheduled-sampler]
             [cassiopeia.data.ruchbah :as data]
             [cassiopeia.engine.monome-sequencer :as mon-seq]))
 
@@ -95,7 +97,7 @@
                                      ]))))))
 
 
-(definst tb303
+(defsynth tb303
   [note-buf 0
    beat-count-bus 0
    beat-trg-bus 0
@@ -107,7 +109,8 @@
    release    {:default 0.01 :min 0.001 :max 4 :step 0.001}
    cutoff     {:default 100 :min 1 :max 20000 :step 1}
    env-amount {:default 0.01 :min 0.001 :max 4 :step 0.001}
-   amp        {:default 0.5 :min 0 :max 15 :step 0.01}]
+   amp        {:default 0.5 :min 0 :max 15 :step 0.01}
+   out-bus    0]
   (let [cnt (in:kr beat-count-bus)
         note (buf-rd:kr 1 note-buf cnt)
         trg  (in:kr beat-trg-bus)
@@ -122,8 +125,9 @@
                        (pulse freqs 0.5)
                        (lf-tri freqs)])
         selector   (select wave waves)
-        filt       (rlpf selector fil-cutoff r)]
-    (* amp 100 filt)))
+        filt       (rlpf selector fil-cutoff r)
+        src (* amp 100 filt)]
+    (out out-bus [src src])))
 
 (comment
   (kill tb))
@@ -243,10 +247,12 @@
                :decay 4
                :note-buf flow-buf
                :beat-count-bus (:count timing/beat-2th)
-               :beat-trg-bus   (:beat timing/beat-2th)))
+               :beat-trg-bus   (:beat timing/beat-2th)
+               :out-bus (mix/nkmx :m0)))
 
-(ctl tb :amp 0)
-(ctl tb :env-amount 10 :waves 3 :sustain 0 :release 1 :amp 1)
+(ctl tb :amp 1)
+(ctl tb :env-amount 10 :waves 3 :sustain 0 :release 1 :amp 0)
+(ctl tb :amp 1.5)
 (ctl tb :env-amount 0.01 :attack 5 :waves 3 :sustain 0.6 :release 16)
 
 (def o (overpad :release 16
@@ -254,13 +260,10 @@
                 :beat-count-bus (:count timing/beat-2th)
                 :beat-trig-bus (:beat timing/beat-2th)
                 :amp 0
-                :attack 5))
+                :attack 5
+                :out-bus (mix/nkmx :r0)))
 
-(ctl o :attack 0 :release 1 :amp 0.3)
-
-(ctl o :fizzing 10)
-(ctl o :bass-thrust 4)
-(ctl o :tonal 4)
+(ctl o :attack 0 :release 1 :amp 1)
 
 (ctl o :amp 0)
 
@@ -300,6 +303,8 @@
 (def drum-samples-set [kick-s clap2-s snare-s hip-hop-kick-s])
 (mon-seq/swap-samples! seq128 drum-samples-set)
 
+(scheduled-sampler/schedule-sample boom-s timing/main-beat :mod-size 16)
+
 (mon-seq/sequencer-write! seq128 0 [1 0 1 0 1 1 0 0])
 (mon-seq/sequencer-write! seq128 1 [0 0 0 0 0 0 0 1])
 (mon-seq/sequencer-write! seq128 2 [0 1 0 0 0 0 1 0])
@@ -315,8 +320,6 @@
                 :seq-buf phase-bass-buf
                 :beat-bus (:count timing/beat-1th)
                 :beat-trg-bus (:beat timing/beat-1th) :num-steps 8 :beat-num i))
-
-(ctl timing/root-s :rate 2)
 
 (kill vintage-bass)
 
@@ -349,7 +352,11 @@
                        :beat-bus (:count timing/beat-1th)
                        :beat-trg-bus (:beat timing/beat-1th) :num-steps 18 :beat-num %) (range 0 18) ) ))
 
-(ctl dub-kick-g :freq 80)
+(ctl o :fizzing 10)
+(ctl o :bass-thrust 4)
+(ctl o :tonal 4)
+
+;;(ctl dub-kick-g :freq 80)
 
 (kill dub-kick)
 
@@ -358,7 +365,7 @@
 (buffer-write! v-bass-buf  (take 128 (cycle [1 0 0 1 1 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1])))
 
 (def m (melody :duration-bus melody-duration-b :offset-bus melody-notes-b
-               :beat-count-bus (:count timing/beat-1th) :amp 1
+               :beat-count-bus (:count timing/beat-1th) :amp 0
                :out-bus (mix/nkmx :s0)))
 
 (ctl m :amp 1)
@@ -370,18 +377,21 @@
 (buffer-write! melody-notes-b (take 128 (cycle (map note [:A3 :A4 :B4 :C4]))))
 (buffer-write! melody-notes-b (take 128 (cycle (map note [:A3 :A4 :B4 :C4 :D3 :D2 :B2 :D4]))))
 
-
-(buffer-write! melody-duration-b (take 128 (cycle [1/2 1/4 1/4 1/4 1/2 1/2
-                                                   1/4 1/2 1/128 1/2 1/2])))
-
 (ctl timing/root-s :rate 2)
 
 (buffer-write! melody-duration-b (take 128 (cycle [1/4 1/8 1/8 1/8 1/4 1/4
-                                                   1/8 1/4 1/128 1/4 1/4])))
+                                                   1/8 1/4 1/128 1/4   1/4
+                                                   1/8 1/8 1/8 1/4 1/8 1/8])))
+
+(buffer-write! melody-duration-b (take 128 (cycle [1/8 1/8 1/8 1/4 1/8 1/8])))
 
 (buffer-write! melody-notes-b (take 128 (cycle (shuffle (map note [:A3 :A5 :B4 :C4 :D3 :D3 :B2 :D4 :D3 :B3 :A3 :B3 :C3 :D3 :E3 :F3 :G4])))))
 
 (buffer-write! melody-notes-b (map note data/high-pinging-record))
+
+
+(buffer-write! melody-notes-b (take 128 (cycle (shuffle (map note high-pinging-record)))))
+(buffer-write! melody-notes-b (take 128 (cycle (map note high-pinging-record))))
 
 (kill melody)
 (kill tb)
