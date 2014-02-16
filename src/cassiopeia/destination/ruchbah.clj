@@ -234,7 +234,16 @@
   (s/cs80lead :freq 90 :amp 0.2)
   (kill s/cs80lead)
 
-  (s/overpad :note 60 :release 16))
+  (s/overpad :note 60 :release 16)
+
+  (doseq [i (range 0 9)]
+    (vintage-bass :amp 0.4 :note-buf bass-notes-buf
+                  :seq-buf phase-bass-buf
+                  :beat-bus (:count timing/beat-1th)
+                  :beat-trg-bus (:beat timing/beat-1th) :num-steps 8 :beat-num i))
+
+  (kill vintage-bass)
+)
 
 ;;;;;;;;;;;
 ;; Score ;;
@@ -250,10 +259,12 @@
                :beat-trg-bus   (:beat timing/beat-2th)
                :out-bus (mix/nkmx :m0)))
 
-(ctl tb :amp 1)
-(ctl tb :env-amount 10 :waves 3 :sustain 0 :release 1 :amp 0)
-(ctl tb :amp 1.5)
-(ctl tb :env-amount 0.01 :attack 5 :waves 3 :sustain 0.6 :release 16)
+;;(ctl tb :amp 1)
+(ctl tb :env-amount 10 :waves 3 :sustain 0 :release 1 :amp 1)
+
+(comment
+  (ctl tb :amp 1.5)
+  (ctl tb :env-amount 0.01 :attack 5 :waves 3 :sustain 0.6 :release 16))
 
 (def o (overpad :release 16
                 :note-buf flow-f-buf
@@ -275,7 +286,7 @@
                                           ])))))
 
 (buffer-write! flow-f-buf
-               (take 128
+                (take 128
                      (cycle
                       (map note (shuffle [:A3 :E3 :D3 :C4 :A3 :E3 :D3 :C3])))))
 
@@ -310,18 +321,10 @@
 (mon-seq/sequencer-write! seq128 2 [0 1 0 0 0 0 1 0])
 (mon-seq/sequencer-write! seq128 3 [1 1 1 1 1 1 1 1])
 
-(mon-seq/sequencer-write! seq128 0 [0 0 0 0 0 0 0 0])
-(mon-seq/sequencer-write! seq128 1 [0 0 0 0 0 0 0 0])
-(mon-seq/sequencer-write! seq128 2 [0 0 0 0 0 0 0 0])
-(mon-seq/sequencer-write! seq128 3 [0 0 0 0 0 0 0 0])
-
-(doseq [i (range 0 9)]
-  (vintage-bass :amp 0.4 :note-buf bass-notes-buf
-                :seq-buf phase-bass-buf
-                :beat-bus (:count timing/beat-1th)
-                :beat-trg-bus (:beat timing/beat-1th) :num-steps 8 :beat-num i))
-
-(kill vintage-bass)
+;; (mon-seq/sequencer-write! seq128 0 [0 0 0 0 0 0 0 0])
+;; (mon-seq/sequencer-write! seq128 1 [0 0 0 0 0 0 0 0])
+;; (mon-seq/sequencer-write! seq128 2 [0 0 0 0 0 0 0 0])
+;; (mon-seq/sequencer-write! seq128 3 [0 0 0 0 0 0 0 0])
 
 (buffer-write! bass-notes-buf  (take 8 (cycle (map note [:E2]))))
 (buffer-write! bass-notes-buf  (take 8 (cycle (map note [:D3]))))
@@ -355,7 +358,7 @@
 (ctl o :fizzing 10)
 (ctl o :bass-thrust 4)
 (ctl o :tonal 4)
-
+(ctl o :amp 0)
 ;;(ctl dub-kick-g :freq 80)
 
 (kill dub-kick)
@@ -390,9 +393,11 @@
 (buffer-write! melody-notes-b (map note data/high-pinging-record))
 
 
-(buffer-write! melody-notes-b (take 128 (cycle (shuffle (map note high-pinging-record)))))
-(buffer-write! melody-notes-b (take 128 (cycle (map note high-pinging-record))))
+(buffer-write! melody-notes-b (take 128 (cycle (shuffle (map note data/high-pinging-record)))))
+(buffer-write! melody-notes-b (take 128 (cycle (map note data/high-pinging-record))))
 
-(kill melody)
-(kill tb)
-(kill o)
+(comment
+  (kill melody)
+  (kill tb)
+  (kill o)
+  (stop))
