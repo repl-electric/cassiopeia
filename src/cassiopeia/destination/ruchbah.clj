@@ -251,31 +251,32 @@
 
 (def tb (tb303 :attack 4
                :amp 0
-               :sustain 0.99
-               :release 4
+               :sustain 0
                :decay 4
                :note-buf flow-buf
+               :release 1
+               :waves 3
+               :env-amount 10
                :beat-count-bus (:count timing/beat-2th)
                :beat-trg-bus   (:beat timing/beat-2th)
                :out-bus (mix/nkmx :m0)))
 
-;;(ctl tb :amp 1)
-(ctl tb :env-amount 10 :waves 3 :sustain 0 :release 1 :amp 1)
+(ctl tb :amp 1)
+(ctl tb :amp 0)
 
 (comment
   (ctl tb :amp 1.5)
   (ctl tb :env-amount 0.01 :attack 5 :waves 3 :sustain 0.6 :release 16))
 
-(def o (overpad :release 16
-                :note-buf flow-f-buf
+(def o (overpad :note-buf flow-f-buf
                 :beat-count-bus (:count timing/beat-2th)
                 :beat-trig-bus (:beat timing/beat-2th)
                 :amp 0
-                :attack 5
-                :out-bus (mix/nkmx :r0)))
+                :out-bus (mix/nkmx :r0)
+                :release 1
+                :attack 0))
 
-(ctl o :attack 0 :release 1 :amp 1)
-
+(ctl o :amp 0.4)
 (ctl o :amp 0)
 
 (buffer-write! flow-buf
@@ -360,6 +361,14 @@
 (ctl o :tonal 4)
 (ctl o :amp 0)
 ;;(ctl dub-kick-g :freq 80)
+
+(ctl timing/root-s :rate 2)
+
+(ctl dub-kick-g :beat-bus (:beat timing/beat-1th) :beat-trg-bus (:count timing/beat-1th))
+(ctl bazz-g :beat-bus (:beat timing/beat-1th) :beat-trg-bus (:count timing/beat-1th))
+
+(ctl dub-kick-g :beat-bus (:beat timing/beat-1th) :beat-trg-bus (:count timing/beat-1th))
+(ctl bazz-g :beat-bus (:beat timing/beat-1th) :beat-trg-bus (:count timing/beat-1th))
 
 (kill dub-kick)
 
