@@ -291,8 +291,12 @@
                      (cycle
                       (map note (shuffle [:A3 :E3 :D3 :C4 :A3 :E3 :D3 :C3])))))
 
-(buffer-write! flow-buf (map note data/flow-buf-record))
-(buffer-write! flow-f-buf (map note data/flow-f-buf-record))
+(buffer-write! flow-buf   (take 128 (cycle (map note data/flow-buf-record))))
+(buffer-write! flow-f-buf (take 128 (cycle (map note data/flow-f-buf-record))))
+
+(buffer-write! flow-f-buf
+  (take 128 (map note (cycle (flatten (concat (repeat 3 [:A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3])
+                                              [:A2 :E2 :D2 :C2 :D2 :E2 :A2 :C2]))))))
 
 ;;(doall (map #(print (str (find-note-name (int (buffer-get flow-f-buf %)))) " ") (range 0 128)))
 
@@ -360,7 +364,7 @@
 (ctl o :bass-thrust 4)
 (ctl o :tonal 4)
 (ctl o :amp 0)
-;;(ctl dub-kick-g :freq 80)
+(ctl dub-kick-g :freq 200)
 
 (ctl timing/root-s :rate 2)
 
