@@ -10,6 +10,8 @@
                [launchpad "0.1.0-SNAPSHOT"]
                [monome "0.1.0-SNAPSHOT"]
 
+               [shadertone "0.2.3-SNAPSHOT"]
+
                [overtone.synths "0.1.0-SNAPSHOT"]
                [overtone.orchestra "0.1.0-SNAPSHOT"]]
 
