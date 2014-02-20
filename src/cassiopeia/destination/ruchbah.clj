@@ -471,15 +471,14 @@
 
 (ctl timing/root-s :rate 2)
 
-(buffer-write! melody-duration-b (take 128 (cycle [1/4 1/8 1/8 1/8 1/4 1/4
-                                                   1/8 1/4 1/128 1/4   1/4
-                                                   1/8 1/8 1/8 1/4 1/8 1/8])))
+(buffer-write! melody-duration-b (take 128 (cycle [ 1/8 1/4 1/128 1/4 1/4 1/8 1/8 1/8 1/4
+                                                    1/8 1/8   1/4 1/8 1/8 1/8 1/4 ])))
+
+(trans)
 
 (buffer-write! melody-duration-b (take 128 (cycle [1/8 1/8 1/8 1/4 1/8 1/8])))
 
 (buffer-write! melody-notes-b (take 128 (cycle (shuffle (map note [:A3 :A5 :B4 :C4 :D3 :D3 :B2 :D4 :D3 :B3 :A3 :B3 :C3 :D3 :E3 :F3 :G4])))))
-
-(buffer-write! melody-notes-b (map note data/high-pinging-record))
 
 
 (buffer-write! melody-notes-b (take 128 (cycle (shuffle (map note data/high-pinging-record)))))
