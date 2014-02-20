@@ -289,15 +289,17 @@
   (kill vintage-bass)
 )
 
-  (show-graphviz-synth)
+;;;;;;;;;;;
+;; Score ;;
+;;;;;;;;;;;
 
-  (def moo (moogey :note-buf moo-buf
-                   :beat-count-bus (:count timing/beat-2th)
-                   :beat-trig-bus (:beat timing/beat-2th)
-                   :amp 1
-                   :out-bus (mix/nkmx :r0)))
+(def moo (moogey :note-buf moo-buf
+                 :beat-count-bus (:count timing/beat-2th)
+                 :beat-trig-bus (:beat timing/beat-2th)
+                 :amp 1
+                 :out-bus (mix/nkmx :r0)))
 
-  (buffer-write! moo-amp-buf
+(buffer-write! moo-amp-buf
     (take 128 (cycle (flatten (concat
       (map note [0 0 0 0 0 0 0 0
                  0 0 0 0 0 0 0 0
@@ -317,10 +319,6 @@
 (ctl moo :amp 0)
 
 (kill moogey)
-
-;;;;;;;;;;;
-;; Score ;;
-;;;;;;;;;;;
 
 (def tb (tb303 :attack 4
                :amp 0
