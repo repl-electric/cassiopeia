@@ -219,7 +219,49 @@
         noiz (lpf (white-noise) (+ (env-gen:kr cutoff-env :gate bar-trg) 20))
         snd  (lpf (sin-osc (+ (env-gen:kr osc-env :gate bar-trg) 20)) 200)
         mixed (* (+ noiz snd) (env-gen amp-env :gate bar-trg))]
-    (out out-bus [mixed mixed]))))
+    (out out-bus [mixed mixed])))
+
+
+(def moo-buf (buffer 128))
+(def moo-amp-buf (buffer 128))
+
+(defsynth moogey
+  "Choose 0, 1, or 2 for saw, sin, or pulse"
+  [amp  {:default 0.3 :min 0 :max 1 :step 0.01}
+   osc1 {:default 0 :min 0 :max 2 :step 1}
+   osc2 {:default 1 :min 0 :max 2 :step 1}
+   osc1-level {:default 0.5 :min 0 :max 1 :step 0.01}
+   osc2-level {:default 0 :min 0 :max 1 :step 0.01}
+   cutoff {:default 500 :min 0 :max 20000 :step 1}
+   attack {:default 0.0001 :min 0.0001 :max 5 :step 0.001}
+   decay {:default 0.3 :min 0.0001 :max 5 :step 0.001}
+   sustain {:default 0.99 :min 0.0001 :max 1 :step 0.001}
+   release {:default 0.0001 :min 0.0001 :max 6 :step 0.001}
+   fattack {:default 0.0001 :min 0.0001 :max 6 :step 0.001}
+   fdecay {:default 0.3 :min 0.0001 :max 6 :step 0.001}
+   fsustain {:default 0.999 :min 0.0001 :max 1 :step 0.001}
+   frelease {:default 0.0001 :min 0.0001 :max 6 :step 0.001}
+   beat-count-bus 0
+   note-buf 0
+   beat-trg-bus 0
+   gate 1
+   pants 0]
+  (let [cnt (in:kr beat-count-bus)
+        note (buf-rd:kr 1 note-buf cnt)
+        trg  (in:kr beat-trg-bus)
+        vol (buf-rd:kr 1 moo-amp-buf cnt)
+        bar-trg  trg
+        freq (midicps note)
+        osc-bank-1 [(saw freq) (sin-osc freq) (pulse freq)]
+        osc-bank-2 [(saw freq) (sin-osc freq) (pulse freq)]
+        amp-env    (env-gen (adsr attack decay sustain release)     bar-trg)
+        f-env      (env-gen (adsr fattack fdecay fsustain frelease) bar-trg)
+        s1         (* osc1-level (select osc1 osc-bank-1))
+        s2         (* osc2-level (select osc2 osc-bank-2))
+        filt       (moog-ff (+ s1 s2) (* cutoff f-env) 3)]
+    (out 0  [(* vol amp filt) (* vol amp filt)])))
+
+)
 
 ;;;;;;;;;;;;;;;;;
 ;; Experiments ;;
@@ -247,46 +289,7 @@
   (kill vintage-bass)
 )
 
-  (defsynth moogey
-    "Choose 0, 1, or 2 for saw, sin, or pulse"
-    [amp  {:default 0.3 :min 0 :max 1 :step 0.01}
-     osc1 {:default 0 :min 0 :max 2 :step 1}
-     osc2 {:default 1 :min 0 :max 2 :step 1}
-     osc1-level {:default 0.5 :min 0 :max 1 :step 0.01}
-     osc2-level {:default 0 :min 0 :max 1 :step 0.01}
-     cutoff {:default 500 :min 0 :max 20000 :step 1}
-     attack {:default 0.0001 :min 0.0001 :max 5 :step 0.001}
-     decay {:default 0.3 :min 0.0001 :max 5 :step 0.001}
-     sustain {:default 0.99 :min 0.0001 :max 1 :step 0.001}
-     release {:default 0.0001 :min 0.0001 :max 6 :step 0.001}
-     fattack {:default 0.0001 :min 0.0001 :max 6 :step 0.001}
-     fdecay {:default 0.3 :min 0.0001 :max 6 :step 0.001}
-     fsustain {:default 0.999 :min 0.0001 :max 1 :step 0.001}
-     frelease {:default 0.0001 :min 0.0001 :max 6 :step 0.001}
-     beat-count-bus 0
-     note-buf 0
-     beat-trg-bus 0
-     gate 1
-     pants 0]
-    (let [cnt (in:kr beat-count-bus)
-          note (buf-rd:kr 1 note-buf cnt)
-          trg  (in:kr beat-trg-bus)
-          vol (buf-rd:kr 1 moo-amp-buf cnt)
-          bar-trg  trg
-          freq (midicps note)
-          osc-bank-1 [(saw freq) (sin-osc freq) (pulse freq)]
-          osc-bank-2 [(saw freq) (sin-osc freq) (pulse freq)]
-          amp-env    (env-gen (adsr attack decay sustain release)     bar-trg)
-          f-env      (env-gen (adsr fattack fdecay fsustain frelease) bar-trg)
-          s1         (* osc1-level (select osc1 osc-bank-1))
-          s2         (* osc2-level (select osc2 osc-bank-2))
-          filt       (moog-ff (+ s1 s2) (* cutoff f-env) 3)]
-      (out 0  [(* vol amp filt) (* vol amp filt)])))
-
   (show-graphviz-synth)
-
-  (def moo-buf (buffer 128))
-  (def moo-amp-buf (buffer 128))
 
   (def moo (moogey :note-buf moo-buf
                    :beat-count-bus (:count timing/beat-2th)
@@ -295,15 +298,22 @@
                    :out-bus (mix/nkmx :r0)))
 
   (buffer-write! moo-amp-buf
-                 (take 128 (cycle (flatten (concat
-                                            (map note [1 1 1 1 1 1 1 1
-                                                       1 1 1 1 1 1 1 1]))))))
+    (take 128 (cycle (flatten (concat
+      (map note [0 0 0 0 0 0 0 0
+                 0 0 0 0 0 0 0 0
+                 1 1 1 1 1 1 1 1]))))))
 
   (buffer-write! moo-buf
-                 (take 128 (cycle (flatten (concat
-                                            (map note [:A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3]))))))
+    (take 128 (cycle (flatten (concat
+                               (map note [:A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3]))))))
 
-  (ctl moo :fattack 1 :attack 1 :release 1 :decay 1 :sustain 1 :cutoff 400 :amp 3)
+(ctl moo
+     :fdecay 6
+     :fsustain 2
+     :frelease 1
+     :fattack 4 :attack 0.1 :release 0.1 :decay 0.1 :sustain 1 :cutoff 400 :amp 3)
+
+  (ctl moo :cutoff 3000)
   (ctl moo :amp 0)
 
   (kill moogey))
@@ -329,7 +339,7 @@
 
 (comment
   (ctl tb :amp 1.5)
-  (ctl tb :env-amount 0.01 :attack 5 :waves 3 :sustain 0.6 :release 16))
+  (ctl tb :env-amount 0.01 :attack 1 :waves 3 :sustain 0.6 :release 2))
 
 (def o (overpad :note-buf flow-f-buf
                 :beat-count-bus (:count timing/beat-2th)
@@ -444,6 +454,12 @@
 
 (kill dub-kick)
 
+
+(buffer-write! v-bass-buf  (take 128 (cycle [1 0 0 1 1 0 0 1 0 0 1 0 0])))
+(buffer-write! v-bass-buf  (take 128 (cycle [1 0 0 1 1 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0])))
+(buffer-write! v-bass-buf  (take 128 (cycle [1 0 0 1 1 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1])))
+
+
 (buffer-write! v-bass-buf  (take 128 (cycle [1 0 0 0 1 1 0 0
                                              1 0 0 0 1 0 0 0])))
 
@@ -471,10 +487,9 @@
 
 (ctl timing/root-s :rate 2)
 
-(buffer-write! melody-duration-b (take 128 (cycle [ 1/8 1/4 1/128 1/4 1/4 1/8 1/8 1/8 1/4
-                                                    1/8 1/8   1/4 1/8 1/8 1/8 1/4 ])))
-
-(trans)
+(buffer-write! melody-duration-b (take 128 (cycle [1/4 1/8 1/8 1/8 1/4 1/4
+                                                   1/8 1/4 1/128 1/4   1/4
+                                                   1/8 1/8 1/8 1/4 1/8 1/8])))
 
 (buffer-write! melody-duration-b (take 128 (cycle [1/8 1/8 1/8 1/4 1/8 1/8])))
 
