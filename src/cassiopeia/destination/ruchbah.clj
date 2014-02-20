@@ -313,10 +313,10 @@
      :frelease 1
      :fattack 4 :attack 0.1 :release 0.1 :decay 0.1 :sustain 1 :cutoff 400 :amp 3)
 
-  (ctl moo :cutoff 3000)
-  (ctl moo :amp 0)
+(ctl moo :cutoff 3000)
+(ctl moo :amp 0)
 
-  (kill moogey))
+(kill moogey)
 
 ;;;;;;;;;;;
 ;; Score ;;
