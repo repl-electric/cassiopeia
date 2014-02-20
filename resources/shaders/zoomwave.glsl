@@ -15,7 +15,7 @@ void main(void)
     // draw a colorful waveform
     vec2  uv     = gl_FragCoord.xy/iResolution.xy;
     float wave   = texture2D(iChannel0,vec2(uv.x,0.75)).x;
-    wave         = smoothbump(0.0,(6.0/iResolution.y), wave + uv.y - 0.5);
+    wave         = smoothbump(0.0,(6.0/iResolution.y), wave + uv.y - 0.1);
     vec3  wc     = wave*hsv2rgb(fract(iGlobalTime/2.0),0.9,0.9);
 
     // zoom into the previous frame
