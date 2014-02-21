@@ -51,8 +51,15 @@ as it floats alone, away from the international space station.
 
 (buffer-write! ring-score-buf ring-score)
 
-(defsynth ringing [amp 1 out-bus 0]
-  (let [time (rand 5)
+(def ring-buf (buffer 16))
+(defsynth ringing [amp 1 out-bus 0 num-steps 8 beat-num 0
+                   beat-bus 0 beat-trg-bus 0]
+  (let [cnt      (in:kr beat-bus)
+        beat-trg (in:kr beat-trg-bus)
+        bar-trg (and (buf-rd:kr 1 ring-buf cnt)
+                     (= beat-num (mod cnt num-steps))
+                     beat-trg)
+        time 5
         freqs ring-score
 
         rings (take num-voices (repeatedly #(rand 1.0)))
@@ -60,7 +67,7 @@ as it floats alone, away from the international space station.
 
         src (* [(reciprocal num-voices) (reciprocal num-voices)] (pink-noise:ar))
         src (klank:ar [freqs envs rings] src)
-        src (* src (env-gen:kr (env-lin (rand time) (/ time 3) (rand time))))
+        src (* src (env-gen:kr (env-lin (rand time) (/ time 3) (rand time)) :gate bar-trg))
         src (hpf:ar src 120)
 
         src (delay-c:ar src 0.4 [(rand 0.4) (rand 0.4) 1/8 src])
@@ -69,7 +76,15 @@ as it floats alone, away from the international space station.
         src (delay-c:ar src 0.4 [(rand 0.4) (rand 0.4) 1/8 src])]
     (out out-bus (* amp src))))
 
-(ringing [:head ring-g] :amp 1)
+(dotimes [i 16]
+  (ringing [:head ring-g] :amp 3
+           :beat-num i
+           :beat-bus (:count tim/beat-1th)
+           :beat-trg-bus (:beat tim/beat-1th)))
+
+(buffer-write! ring-buf (take 16 (cycle [1 0 0 0 0 0 0 0
+                                         0 0 0 0 0 0 0 0])))
+
 (kill ring-g)
 (kill ringing)
 
