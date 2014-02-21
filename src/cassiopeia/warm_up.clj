@@ -101,9 +101,9 @@
 (def phrase-size 8)
 
 (defonce default-mixer-g (group :tail (foundation-safe-post-default-group)))
-(defonce drum-g (group))
-(defonce drum-trigger-mix-g (group :after drum-g))
-(defonce drum-basic-mixer-g (group :after default-mixer-g))
+(def drum-g (group "Drums"))
+(defonce drum-trigger-mix-g (group "Drum triggers" :after drum-g))
+(defonce drum-basic-mixer-g (group "Drum basic mix" :after default-mixer-g))
 (def samples-set-1 (take 10 (cycle [tom-s])))
 
 (when-not (seq lp)

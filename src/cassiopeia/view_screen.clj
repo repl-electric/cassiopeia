@@ -4,10 +4,8 @@
 
 (demo (sin-osc))
 
-(t/start-fullscreen "resources/shaders/sine_dance.glsl"  :textures [ :overtone-audio])
-(t/start-fullscreen "resources/shaders/wave.glsl"         :textures [ :overtone-audio])
-(t/start-fullscreen "resources/shaders/spectrograph.glsl" :textures [:overtone-audio :previous-frame])
-(t/start-fullscreen "resources/shaders/zoomwave.glsl"     :textures [ :overtone-audio :previous-frame])
+(t/start-fullscreen "resources/shaders/zoomwave.glsl" :textures [ :overtone-audio :previous-frame])
+(t/start-fullscreen "resources/shaders/wave.glsl"     :textures [ :overtone-audio])
 
 (t/stop)
 (stop)

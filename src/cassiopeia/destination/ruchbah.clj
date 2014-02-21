@@ -298,9 +298,11 @@
 
 (buffer-write! moo-amp-buf
     (take 128 (cycle (flatten (concat
-      (map note [0 0 0 0 0 0 0 0
-                 0 0 0 0 0 0 0 0
-                 1 1 1 1 1 1 1 1]))))))
+                               (map note [0 0 0 0 0 0 0 0
+                                          0 0 0 0 0 0 0 0
+                                          0 0 0 0 0 0 0 0
+                                          1 1 1 1 1 1 1 1
+                                          1 1 1 1 1 1 1 1]))))))
 
 (buffer-write! moo-buf
   (take 128 (cycle (flatten (concat
@@ -329,7 +331,7 @@
                :beat-trg-bus   (:beat timing/beat-2th)
                :out-bus (mix/nkmx :m0)))
 
-(ctl tb :amp 1)
+(ctl tb :amp 0.6)
 (ctl tb :amp 0)
 
 (comment
@@ -475,8 +477,6 @@
 
 (buffer-write! melody-notes-b (take 128 (cycle (map note [:A3 :A4 :B4 :C4]))))
 (buffer-write! melody-notes-b (take 128 (cycle (map note [:A3 :A4 :B4 :C4 :D3 :D2 :B2 :D4]))))
-
-(ctl timing/root-s :rate 2)
 
 (buffer-write! melody-duration-b (take 128 (cycle [1/4 1/8 1/8 1/8 1/4 1/4
                                                    1/8 1/4 1/128 1/4   1/4

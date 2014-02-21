@@ -31,7 +31,6 @@
     (fon/led-on tgt-fonome  (mod (dec beat) range-x) beat-track-y)
     (fon/led-off tgt-fonome  (mod beat range-x) beat-track-y)))
 
-
 (defn mk-monome-sequencer
   ([nk-group handle samples tgt-fonome]
      (mk-monome-sequencer nk-group handle samples tgt-fonome 0))
