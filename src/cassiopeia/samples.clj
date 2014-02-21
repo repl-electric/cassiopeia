@@ -3,6 +3,17 @@
    [overtone.live]
    [cassiopeia.engine.samples]))
 
+;;Kicks
+(defonce fragmented-kick-s (freesound-sample 8098))
+(defonce wood-kick-s (freesound-sample 169190))
+(defonce virus-kick-s (freesound-sample 105677))
+(defonce acoustic-kick-s (freesound-sample 102785))
+(defonce analog-kick-s (freesound-sample 208430))
+(defonce soft-kick-s (freesound-sample 99522))
+(defonce glitchy-kick-s (freesound-sample 87262))
+(defonce kick-s               (freesound-sample 777))
+(defonce beatbox-kick-s (freesound-sample 70631))
+
 (defonce tom-electro-s   (freesound-sample 108001))
 (defonce high-hat-open-s (freesound-sample 207914))
 (defonce hat-s           (freesound-sample 178663))
@@ -10,7 +21,6 @@
 (defonce heavy-bass-kick-s  (freesound-sample 80509))
 
 (defonce snare-s              (freesound-sample 100397))
-(defonce kick-s               (freesound-sample 777))
 (defonce sizzling-high-hat-s  (freesound-sample 44859))
 (defonce hip-hop-kick-s       (freesound-sample 131336))
 (defonce clap-s               (freesound-sample 24786))
@@ -34,8 +44,6 @@
 (defonce funky-s        (freesound-sample 172549))
 (defonce memory-moon-s  (freesound-sample 27567))
 (defonce retweak-s      (freesound-sample 25921))
-
-(def beatbox-kick-s (freesound-sample 70631))
 
 (def sample-root "~/Workspace/music/samples/sliced-p5/")
 
