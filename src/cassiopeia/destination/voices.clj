@@ -131,8 +131,9 @@ as it floats alone, away from the international space station.
                           pattern-buf 0 pattern-size 3
                           amp-buf 0
                           duration-buf 0
-                          voices 3]
-  (let [cnt (in:kr tim/beat-count-b)
+                          voices 3
+                          beat-count-bus 0]
+  (let [cnt (in:kr beat-count-bus)
         dur (buf-rd:kr 1 duration-buf (mod cnt voices))
         cutom-amp (buf-rd:kr 1 amp-buf (mod cnt pattern-size))
         pos-frac (buf-rd:kr 1 pattern-buf (mod cnt pattern-size))
@@ -162,8 +163,9 @@ as it floats alone, away from the international space station.
                             pattern-buf 0 pattern-size 3
                             amp-buf 0
                             duration-buf 0
-                            voices 3]
-  (let [cnt (in:kr tim/beat-count-b)
+                            voices 3
+                            beat-ecount-bus 0]
+  (let [cnt (in:kr beat-count-bus)
         dur (buf-rd:kr 1 duration-buf (mod cnt voices))
         custom-amp (buf-rd:kr 1 amp-buf (mod cnt pattern-size))
         pos-frac (buf-rd:kr 1 pattern-buf (mod cnt pattern-size))
@@ -208,7 +210,8 @@ as it floats alone, away from the international space station.
           :pattern-buf perc-post-frac-buf
           :amp-buf perc-amp-buf
           :duration-buf perc-dur-buf
-          :voices voices)
+          :voices voices
+          :beat-count-bus (:count tim/main-beat))
          perc-g)
        (range 0 voices)))))
 
@@ -227,7 +230,8 @@ as it floats alone, away from the international space station.
           :pattern-buf smooth-post-frac-buf
           :amp-buf smooth-amp-buf
           :duration-buf smooth-dur-buf
-          :voices voices))
+          :voices voices
+          :beat-count-bus (:count tim/main-beat)))
         (range 0 voices)))))
 
 (defn resize-pattern [old-buf group new-size synth-ctl]
