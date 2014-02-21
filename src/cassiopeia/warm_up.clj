@@ -223,7 +223,7 @@
                    (ctl basic-riffs-mix :amp val))
                  ::riffs-master-amp)
 
-(def m128 (mon/find-monome "/dev/tty.usbserial-m0000965"))
+(defonce m128 (mon/find-monome "/dev/tty.usbserial-m0000965"))
 
 (when m128
   (defonce seq128-fon (fon/mk-fonome ::seq128 16 6))
@@ -235,7 +235,7 @@
   (defonce trig-seq-mixer (mixers/add-nk-mixer (nk-bank :m128) "m128-triggers" drum-trigger-mix-g seq-b))
   (defonce seq128 (monome-sequencer/mk-monome-sequencer (nk-bank :m128) "m128" (take 5 samples-set-1) seq128-fon seq-b drum-g))
 
-  (def samples-g (group "samples"))
+  (defonce samples-g (group "samples"))
   (def trigger-samples [star-into-the-sun-s
                         space-and-time-s
                         chaos-s
@@ -253,8 +253,7 @@
 
   (defonce trigger-sampler128  (samp/mk-sampler ::trigger-sampler128 trigger-samples samples-g 0 16))
 
-  (defonce __dock_trigger__  (poly/dock-fonome! m128 (:fonome trigger-sampler128)
-                                                ::trigger-sampler128 0 6))
+  (defonce __dock_trigger__  (poly/dock-fonome! m128 (:fonome trigger-sampler128) ::trigger-sampler128 0 6))
   (defonce __dock128___ (poly/dock-fonome! m128 seq128-fon ::seq128 0 0))
   (defonce __dock_pause128__ (poly/dock-fonome! m128 insta-pause128-fon ::pause128 15 7))
 
