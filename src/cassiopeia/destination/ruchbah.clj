@@ -492,8 +492,8 @@
 
 (comment
   (kill melody)
-  (kill tb)
-  (kill o)
+  (kill tb303)
+  (kill overpad)
   (kill moogey)
   (stop))
 (comment
