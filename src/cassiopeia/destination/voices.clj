@@ -20,7 +20,7 @@ as it floats alone, away from the international space station.
 
 (defonce voice-g (group "the voices"))
 
-(def score [24 28 29 48 36 40 41 52 53 60 64 65])
+(def score [:C1 :E1 :F1 :C3 :C2 :E2 :F2 :E3 :F3 :C4 :E4 :F4])
 
 (defsynth voice [out-bus 0 note 0 pan 0 attack 10 release 10 mix 0.33 amp 1]
   (let [freq (midicps note)
@@ -36,10 +36,10 @@ as it floats alone, away from the international space station.
 
 (doseq [n (range 0 10)]
   (voice [:head voice-g]
-         :note    (rand-nth score)
+         :note    (note (rand-nth score))
          :pan     (ranged-rand -0.5 0.5)
-         :attack  (ranged-rand 5 13)
-         :release (ranged-rand 8 14)))
+         :attack  5
+         :release 8))
 
 (kill voice-g)
 (stop)
@@ -71,6 +71,8 @@ as it floats alone, away from the international space station.
 
 (ringing [:head ring-g] :amp 1)
 (kill ring-g)
+(kill ringing)
+
 
 (defsynth noise-ocean [amp 1 out-bus 0]
   (let [src (one-pole:ar (+ (* 0.5 (dust:ar 100)) (* 0.1 (white-noise:ar))) 0.7)
@@ -249,7 +251,7 @@ as it floats alone, away from the international space station.
 (buffer-write! smooth-amp-buf       (take pattern-size (repeatedly #(ranged-rand 1 3))))
 (buffer-write! smooth-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
 
-(def ss (make-smooth [constant-blues-s death-s dreamers-of-the-dreams-s] 4))
+(def ss (make-smooth [constant-blues-s death-s dreamers-of-the-dreams-s] voices))
 
 (def perc-post-frac-buf (resize-pattern perc-post-frac-buf perc-g pattern-size :pattern-buf))
 (def perc-amp-buf       (resize-pattern perc-amp-buf perc-g pattern-size :amp-buf))
