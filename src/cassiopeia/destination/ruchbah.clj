@@ -97,7 +97,6 @@
                                      :A3 :E3 :D3 :C3 :A3 :E3 :D3 :C3
                                      ]))))))
 
-
 (defsynth tb303
   [note-buf 0
    beat-count-bus 0
@@ -132,7 +131,6 @@
 
 (comment
   (kill tb))
-
 
 (def bass-notes-buf (buffer 8))
 (def phase-bass-buf (buffer 8))
@@ -260,7 +258,6 @@
         s2         (* osc2-level (select osc2 osc-bank-2))
         filt       (moog-ff (+ s1 s2) (* cutoff f-env) 3)]
     (out 0  [(* vol amp filt) (* vol amp filt)])))
-
 )
 
 ;;;;;;;;;;;;;;;;;
@@ -296,7 +293,7 @@
 (def moo (moogey :note-buf moo-buf
                  :beat-count-bus (:count timing/beat-2th)
                  :beat-trig-bus (:beat timing/beat-2th)
-                 :amp 1
+                 :amp 0
                  :out-bus (mix/nkmx :r0)))
 
 (buffer-write! moo-amp-buf
@@ -305,9 +302,9 @@
                  0 0 0 0 0 0 0 0
                  1 1 1 1 1 1 1 1]))))))
 
-  (buffer-write! moo-buf
-    (take 128 (cycle (flatten (concat
-                               (map note [:A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3]))))))
+(buffer-write! moo-buf
+  (take 128 (cycle (flatten (concat
+    (map note [:A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3]))))))
 
 (ctl moo
      :fdecay 6
@@ -349,6 +346,8 @@
 
 (ctl o :amp 0.6)
 (ctl o :amp 0)
+(ctl o :release 1 :attack 0 :amp 0.2)
+
 
 (buffer-write! flow-buf
                (take 128
@@ -362,14 +361,14 @@
                      (cycle
                       (map note (shuffle [:A3 :E3 :D3 :C4 :A3 :E3 :D3 :C3])))))
 
-(buffer-write! flow-buf   (take 128 (cycle (map note data/flow-buf-record))))
-(buffer-write! flow-f-buf (take 128 (cycle (map note data/flow-f-buf-record))))
-(buffer-write! flow-buf   (take 128 (cycle (map note data/flow-f-buf-record))))
-
 (buffer-write! flow-f-buf
   (take 128 (map note (cycle (flatten (concat (repeat 3 [:A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3])
                                               [:A2 :E2 :D2 :C2 :D2 :E2 :A2 :C2]
                                               [:A2 :E2 :D2 :C2 :D2 :E2 :A2 :C2]))))))
+
+(buffer-write! flow-buf   (take 128 (cycle (map note data/flow-buf-record))))
+(buffer-write! flow-f-buf (take 128 (cycle (map note data/flow-f-buf-record))))
+(buffer-write! flow-buf   (take 128 (cycle (map note data/flow-f-buf-record))))
 
 ;;(doall (map #(print (str (find-note-name (int (buffer-get flow-f-buf %)))) " ") (range 0 128)))
 
@@ -399,17 +398,19 @@
 (mon-seq/sequencer-write! seq128 2 [0 1 0 0 0 0 1 0])
 (mon-seq/sequencer-write! seq128 3 [1 1 1 1 1 1 1 1])
 
-;; (mon-seq/sequencer-write! seq128 0 [0 0 0 0 0 0 0 0])
-;; (mon-seq/sequencer-write! seq128 1 [0 0 0 0 0 0 0 0])
-;; (mon-seq/sequencer-write! seq128 2 [0 0 0 0 0 0 0 0])
-;; (mon-seq/sequencer-write! seq128 3 [0 0 0 0 0 0 0 0])
+(comment
+  (mon-seq/sequencer-write! seq128 0 [0 0 0 0 0 0 0 0])
+  (mon-seq/sequencer-write! seq128 1 [0 0 0 0 0 0 0 0])
+  (mon-seq/sequencer-write! seq128 2 [0 0 0 0 0 0 0 0])
+  (mon-seq/sequencer-write! seq128 3 [0 0 0 0 0 0 0 0])
+)
 
 (buffer-write! bass-notes-buf  (take 8 (cycle (map note [:E2]))))
 (buffer-write! bass-notes-buf  (take 8 (cycle (map note [:D3 :E2]))))
-(buffer-write! phase-bass-buf  [1 0 1 0 1 0 1 0])
 
-(buffer-write! phase-bass-buf  [1 1 0 0 0 1 1 0])
 (buffer-write! phase-bass-buf  [1 1 0 0 1 1 0 0])
+(buffer-write! phase-bass-buf  [1 1 0 0 0 1 1 0])
+(buffer-write! phase-bass-buf  [1 0 1 0 1 0 1 0])
 
 (doseq [i (range 0 9)]
   (bazz
@@ -452,23 +453,17 @@
 
 (kill dub-kick)
 
-
-(buffer-write! v-bass-buf  (take 128 (cycle [1 0 0 1 1 0 0 1 0 0 1 0 0])))
-(buffer-write! v-bass-buf  (take 128 (cycle [1 0 0 1 1 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0])))
-(buffer-write! v-bass-buf  (take 128 (cycle [1 0 0 1 1 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1])))
-
-
-(buffer-write! v-bass-buf  (take 128 (cycle [1 0 0 0 1 1 0 0
-                                             1 0 0 0 1 0 0 0])))
+(buffer-write! v-bass-buf  (take 128 (cycle [1 1 0 1 1 0 1 1
+                                             0 0 1 1 0 0 1 1
+                                             0 0 1 1 0 0 1 1
+                                             0 0 1 1 0 0 1 1])))
 
 (buffer-write! v-bass-buf  (take 128 (cycle [1 0 0 1 1 0 1 0
                                              0 1 0 0 1 0 0 1
                                              0 0 1 0 0 1 0 0])))
 
-(buffer-write! v-bass-buf  (take 128 (cycle [1 1 0 1 1 0 1 1
-                                             0 0 1 1 0 0 1 1
-                                             0 0 1 1 0 0 1 1
-                                             0 0 1 1 0 0 1 1])))
+(buffer-write! v-bass-buf  (take 128 (cycle [1 0 0 0 1 1 0 0
+                                             1 0 0 0 1 0 0 0])))
 
 (def m (melody :duration-bus melody-duration-b :offset-bus melody-notes-b
                :beat-count-bus (:count timing/beat-1th) :amp 0
@@ -477,8 +472,6 @@
 (ctl m :amp 1)
 
 (buffer-write! melody-duration-b (take 128 (cycle [1/2 1/4 1/128 1/2])))
-
-;;(buffer-write! melody-duration-b (take 128 (cycle [1/2 1/2 1/2 1/2])))
 
 (buffer-write! melody-notes-b (take 128 (cycle (map note [:A3 :A4 :B4 :C4]))))
 (buffer-write! melody-notes-b (take 128 (cycle (map note [:A3 :A4 :B4 :C4 :D3 :D2 :B2 :D4]))))
@@ -491,8 +484,8 @@
 
 (buffer-write! melody-duration-b (take 128 (cycle [1/8 1/8 1/8 1/4 1/8 1/8])))
 
-(buffer-write! melody-notes-b (take 128 (cycle (shuffle (map note [:A3 :A5 :B4 :C4 :D3 :D3 :B2 :D4 :D3 :B3 :A3 :B3 :C3 :D3 :E3 :F3 :G4])))))
-
+(buffer-write! melody-notes-b
+  (take 128 (cycle (shuffle (map note [:A3 :A5 :B4 :C4 :D3 :D3 :B2 :D4 :D3 :B3 :A3 :B3 :C3 :D3 :E3 :F3 :G4])))))
 
 (buffer-write! melody-notes-b (take 128 (cycle (shuffle (map note data/high-pinging-record)))))
 (buffer-write! melody-notes-b (take 128 (cycle (map note data/high-pinging-record))))
@@ -501,6 +494,7 @@
   (kill melody)
   (kill tb)
   (kill o)
+  (kill moogey)
   (stop))
 (comment
   (fx/fx-distortion-tubescreamer 0)
