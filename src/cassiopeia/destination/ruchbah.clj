@@ -282,9 +282,9 @@
 
 (buffer-write! moo-amp-buf
   (take 128 (cycle (flatten (concat
-                             (map note [1 1 1 1 1 1 1 1
-                                        1 1 1 1 1 1 1 1
-                                        1 1 1 1 1 1 1 1
+                             (map note [0 0 0 0 0 0 0 0
+                                        0 0 0 0 0 0 0 0
+                                        0 0 0 0 0 0 0 0
                                         1 1 1 1 1 1 1 1
                                         1 1 1 1 1 1 1 1]))))))
 
@@ -489,6 +489,10 @@
   (kill mooger)
   (sequencer/sequencer-pause @(:sequencer seq128))
   (sequencer/sequencer-play @(:sequencer seq128))
+  (sequencer/sequencer-kill @(:sequencer seq128))
+
+  ;;Emergency sequencer
+  (def seq128n (mon-seq/mk-monome-sequencer (nk-bank :m128) "m128n" drum-samples-set seq128-fon seq-b drum-g))
 
   ;;Emergency exit
   ;;(stop)
