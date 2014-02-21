@@ -63,25 +63,25 @@
   (let [beat-bus        @beat-bus-a
         beat-trg-bus    (:beat beat-bus)
         beat-cnt-bus    (:count beat-bus)
-        patterns (mk-sequence-patterns samples num-steps)
+        patterns        (mk-sequence-patterns samples num-steps)
         container-group (group handle :tail tgt-group)
-        seq-group       (group "lp-sequencer" :head container-group)
-        mixer-group     (group "lp-mixers" :after seq-group)
+        seq-group       (group "electric-sequencer" :head container-group)
+        mixer-group     (group "electric-mixers" :after seq-group)
         mixer-handles   (map #(str handle "-" %) (range (count samples)))
         mixers          (doall (map #(mixers/add-nk-mixer nk-group % mixer-group out-bus) mixer-handles))
         synths   (start-synths samples patterns mixers num-steps seq-group beat-cnt-bus beat-trg-bus out-bus)]
-    (with-meta {:patterns patterns
-                :num-steps num-steps
-                :num-samples (count samples)
-                :synths (agent synths)
-
-                :beat-bus beat-bus-a
-                :out-bus out-bus
-
-                :seq-group seq-group
-                :mixer-group mixer-group
+    (with-meta {:patterns      patterns
+                :num-steps     num-steps
+                :num-samples   (count samples)
+                :synths        (agent synths)
+                :beat-bus      beat-bus-a
+                :out-bus       out-bus
+                :group         container-group
+                :seq-group     seq-group
+                :tgt-group     tgt-group
+                :mixer-group   mixer-group
                 :mixer-handles mixer-handles
-                :mixers mixers}
+                :mixers        mixers}
       {:type ::sequencer})))
 
 (defn swap-samples! [sequencer samples]
@@ -101,6 +101,11 @@
   [s]
   (assert (sequencer? s))
   (node-pause (:group s)))
+
+(defn sequencer-play
+  [s]
+  (assert (sequencer? s))
+    (node-start (:group s)))
 
 (defn swap-beat-bus! [sequencer beat-bus]
   (assert (sequencer? sequencer))

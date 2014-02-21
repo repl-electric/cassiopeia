@@ -52,10 +52,9 @@
 (defonce chaos-s                  (load-local-sample "chaos.wav"))
 (defonce dreamers-of-the-dreams-s (load-local-sample "dreamer-of-the-dreams.wav"))
 (defonce afraid-s                 (load-local-sample "afraid.wav"))
-(defonce one-moment-please-s      (load-local-sample "1moment.wav"))
+(defonce one-moment-please-s      (load-local-sample "1moment-clean.wav"))
 (defonce constant-blues-s         (load-local-sample "constant-blues.wav"))
 (defonce death-s                  (load-local-sample "oh-death.wav"))
-
 
 ;;Triggers
 (defonce glitch1-s (freesound-sample 130301))

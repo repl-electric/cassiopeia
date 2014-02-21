@@ -223,7 +223,7 @@
 (def moo-buf (buffer 128))
 (def moo-amp-buf (buffer 128))
 
-(defsynth moogey
+(defsynth mooger
   "Choose 0, 1, or 2 for saw, sin, or pulse"
   [amp  {:default 0.3 :min 0 :max 1 :step 0.01}
    osc1 {:default 0 :min 0 :max 2 :step 1}
@@ -243,7 +243,7 @@
    note-buf 0
    beat-trg-bus 0
    gate 1
-   pants 0]
+   out-bus 0]
   (let [cnt (in:kr beat-count-bus)
         note (buf-rd:kr 1 note-buf cnt)
         trg  (in:kr beat-trg-bus)
@@ -257,7 +257,7 @@
         s1         (* osc1-level (select osc1 osc-bank-1))
         s2         (* osc2-level (select osc2 osc-bank-2))
         filt       (moog-ff (+ s1 s2) (* cutoff f-env) 3)]
-    (out 0  [(* vol amp filt) (* vol amp filt)])))
+    (out out-bus [(* vol amp filt) (* vol amp filt)])))
 )
 
 ;;;;;;;;;;;;;;;;;
@@ -265,18 +265,6 @@
 ;;;;;;;;;;;;;;;;;
 
 (comment
-  (def moo (s/mooger (note :A3)))
-  (ctl moo :note (note :A2) :attack 16)
-
-  (stop)
-  (kill moo)
-
-  (s/cs80lead :freq 90 :amp 0.2)
-  (kill s/cs80lead)
-
-  (s/overpad :note 60 :release 16)
-  (kill s/overpad)
-
   (doseq [i (range 0 9)]
     (vintage-bass :amp 0.4 :note-buf bass-notes-buf
                   :seq-buf phase-bass-buf
@@ -290,66 +278,43 @@
 ;; Score ;;
 ;;;;;;;;;;;
 
-(def moo (moogey :note-buf moo-buf
-                 :beat-count-bus (:count timing/beat-2th)
-                 :beat-trig-bus (:beat timing/beat-2th)
-                 :amp 0
-                 :out-bus (mix/nkmx :r0)))
+(def moo (mooger :note-buf moo-buf :beat-count-bus (:count timing/beat-2th) :beat-trig-bus (:beat timing/beat-2th) :amp 0 :out-bus (mix/nkmx :s1) :fdecay 6 :fsustain 2 :frelease 1 :fattack 4 :attack 0.1 :release 0.1 :decay 0.1 :sustain 1 :cutoff 400 :amp 3))
 
 (buffer-write! moo-amp-buf
-    (take 128 (cycle (flatten (concat
-                               (map note [0 0 0 0 0 0 0 0
-                                          0 0 0 0 0 0 0 0
-                                          0 0 0 0 0 0 0 0
-                                          1 1 1 1 1 1 1 1
-                                          1 1 1 1 1 1 1 1]))))))
+  (take 128 (cycle (flatten (concat
+                             (map note [1 1 1 1 1 1 1 1
+                                        1 1 1 1 1 1 1 1
+                                        1 1 1 1 1 1 1 1
+                                        1 1 1 1 1 1 1 1
+                                        1 1 1 1 1 1 1 1]))))))
 
 (buffer-write! moo-buf
   (take 128 (cycle (flatten (concat
     (map note [:A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3 :A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3]))))))
 
-(ctl moo
-     :fdecay 6
-     :fsustain 2
-     :frelease 1
-     :fattack 4 :attack 0.1 :release 0.1 :decay 0.1 :sustain 1 :cutoff 400 :amp 3)
+(ctl moo :cutoff 4000)
 
-(ctl moo :cutoff 3000)
 (ctl moo :amp 0)
 
-(kill moogey)
+(kill mooger)
 
-(def tb (tb303 :attack 4
-               :amp 0
-               :sustain 0
-               :decay 4
-               :note-buf flow-buf
-               :release 1
-               :waves 3
-               :env-amount 10
-               :beat-count-bus (:count timing/beat-2th)
-               :beat-trg-bus   (:beat timing/beat-2th)
-               :out-bus (mix/nkmx :m0)))
+(def tb (tb303 :attack 4 :amp 0 :sustain 0 :decay 4 :note-buf flow-buf :release 1 :waves 3 :env-amount 10 :beat-count-bus (:count timing/beat-2th) :beat-trg-bus   (:beat timing/beat-2th) :out-bus (mix/nkmx :m0)))
 
 (ctl tb :amp 0.6)
 (ctl tb :amp 0)
 
 (comment
   (ctl tb :amp 1.5)
-  (ctl tb :env-amount 0.01 :attack 1 :waves 3 :sustain 0.6 :release 2))
+  (ctl tb :env-amount 0.01 :attack 1 :waves 3 :sustain 0.6 :release 2)
+  (kill tb)
+  )
 
-(def o (overpad :note-buf flow-f-buf
-                :beat-count-bus (:count timing/beat-2th)
-                :beat-trig-bus (:beat timing/beat-2th)
-                :amp 0
-                :out-bus (mix/nkmx :r0)
-                :release 1
-                :attack 0))
+(def o (overpad :note-buf flow-f-buf :beat-count-bus (:count timing/beat-2th) :beat-trig-bus (:beat timing/beat-2th) :amp 0 :out-bus (mix/nkmx :r0) :release 1 :attack 0))
 
 (ctl o :amp 0.6)
 (ctl o :amp 0)
-(ctl o :release 1 :attack 0 :amp 0.2)
-
+;;(ctl o :release 6 :attack 0 :amp 0.4)
+;;(ctl o :release 1 :attack 0 :amp 0.4)
 
 (buffer-write! flow-buf
                (take 128
@@ -358,15 +323,26 @@
                                           :A3 :E3 :D3 :C3 :A3 :E3 :D3 :C3
                                           ])))))
 
+;; [:A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3]
+
 (buffer-write! flow-f-buf
-                (take 128
+               (take 128
                      (cycle
-                      (map note (shuffle [:A3 :E3 :D3 :C4 :A3 :E3 :D3 :C3])))))
+                      (map note [:A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3
+                                 :A3 :E3 :D3 :C4 :A3 :E3 :D3 :C3
+                                 :A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3
+                                 :C2 :C3 :C2 :C3 :E3 :D3 :A3 :E3
+                                 ]))))
+
+
+(buffer-write! flow-f-buf (take 128 (cycle (map note data/flow-f-buf-record))))
+
 
 (buffer-write! flow-f-buf
   (take 128 (map note (cycle (flatten (concat (repeat 3 [:A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3])
                                               [:A2 :E2 :D2 :C2 :D2 :E2 :A2 :C2]
                                               [:A2 :E2 :D2 :C2 :D2 :E2 :A2 :C2]))))))
+
 
 (buffer-write! flow-buf   (take 128 (cycle (map note data/flow-buf-record))))
 (buffer-write! flow-f-buf (take 128 (cycle (map note data/flow-f-buf-record))))
@@ -387,7 +363,7 @@
 (buffer-write! melody-notes-b (take 128 (cycle (map #(+ 0 (note %)) [:A3 :A4 :B4 :C4
                                                                      :c4 :B4 :A4 :A3]))))
 
-(s/rise-fall-pad :freq (midi->hz (note :A3)))
+(s/rise-fall-pad :freq (midi->hz (note :C3)))
 (kill s/rise-fall-pad)
 
 (def drum-samples-set [kick-s clap2-s snare-s hip-hop-kick-s])
@@ -397,7 +373,7 @@
 
 (mon-seq/sequencer-write! seq128 0 [1 0 1 0 1 1 0 0])
 (mon-seq/sequencer-write! seq128 1 [0 0 0 0 0 0 0 1])
-(mon-seq/sequencer-write! seq128 2 [0 1 0 0 0 0 1 0])
+(mon-seq/sequencer-write! seq128 2 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0])
 (mon-seq/sequencer-write! seq128 3 [1 1 1 1 1 1 1 1])
 
 (comment
@@ -436,9 +412,9 @@
                        :beat-bus (:count timing/beat-1th)
                        :beat-trg-bus (:beat timing/beat-1th) :num-steps 18 :beat-num %) (range 0 18) ) ))
 
-(ctl o :fizzing 10)
-(ctl o :bass-thrust 4)
-(ctl o :tonal 4)
+(ctl o :fizzing 30)
+(ctl o :bass-thrust 2)
+(ctl o :tonal 5)
 (ctl o :bass-thrust 10)
 (ctl o :amp 0)
 (ctl dub-kick-g :freq 200)
@@ -490,16 +466,30 @@
 (buffer-write! melody-notes-b (take 128 (cycle (shuffle (map note data/high-pinging-record)))))
 (buffer-write! melody-notes-b (take 128 (cycle (map note data/high-pinging-record))))
 
+;;;;;;;;;;;;;
+;; Effects ;;
+;;;;;;;;;;;;;
+(comment
+  (def fx1 (fx/fx-distortion-tubescreamer (mix/nkmx :s1)))
+  (def fx2 (fx/fx-chorus (mix/nkmx :s1)))
+  (def fx3 (fx/fx-freeverb (mix/nkmx :s1)))
+  (def fx4 (fx/fx-reverb (mix/nkmx :s1)))
+  (def fx5 (fx/fx-echo  (mix/nkmx :s1)))
+
+  (ctl fx1 :delay-t 0 :noise-rate 0 :boost 0 :decay 0)
+  (ctl fx2 :rate 0 :depth 0)
+
+;;  (fx/fx-feedback 0)
+  )
+
 (comment
   (kill melody)
   (kill tb303)
   (kill overpad)
-  (kill moogey)
-  (stop))
-(comment
-  (fx/fx-distortion-tubescreamer 0)
-  (fx/fx-chorus 0)
-  (fx/fx-freeverb 0)
-  (fx/fx-reverb 0)
-  (fx/fx-echo 0)
-  (fx/fx-feedback 0))
+  (kill mooger)
+  (sequencer/sequencer-pause @(:sequencer seq128))
+  (sequencer/sequencer-play @(:sequencer seq128))
+
+  ;;Emergency exit
+  ;;(stop)
+)
