@@ -36,7 +36,7 @@
   (let [cnt    (in:kr beat-count-bus)
         offset (buf-rd:kr 1 offset-bus cnt)
         durs   (buf-rd:kr 1 duration-bus cnt)
-        trig (t-duty:kr (dseq durs INFINITE))
+        trig (and (not= durs 0) (t-duty:kr (dseq durs INFINITE)))
         freq (demand:kr trig 0 (drand offset INFINITE))
         freq (midicps freq)
 
