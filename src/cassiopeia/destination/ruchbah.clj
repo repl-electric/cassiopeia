@@ -156,17 +156,20 @@
     (out out-bus (* amp env filt))))
 
 (def bazz-g (group "bazz group"))
-(defsynth bazz [out-bus 0 beat-bus 0 beat-trg-bus 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 0]
+(defsynth bazz [out-bus 0 beat-bus 0 beat-trg-bus 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 0
+                attack 0.001 release 0.1]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         note     (buf-rd:kr 1 note-buf cnt)
         bar-trg (and (buf-rd:kr 1 seq-buf cnt)
                      (= beat-num (mod cnt num-steps))
+                     (not= note 0)
                      beat-trg)
 
-        freq (t-rand 50 1300 bar-trg)
+        ;; (t-rand 50 1300 bar-trg)
+        freq (midicps note)
         c (pm-osc:ar freq (* freq (t-rand 0.25 2.0 bar-trg)) (t-rand 0.1 (* 2 Math/PI) bar-trg))
-        e (env-gen:kr (env-perc 0.001 0.1) bar-trg)
+        e (env-gen:kr (env-perc attack release) bar-trg)
         src (/ (* c e 0.125) 2)]
     (out out-bus [src src])))
 
@@ -383,34 +386,38 @@
   (mon-seq/sequencer-write! seq128 3 [0 0 0 0 0 0 0 0])
 )
 
-(buffer-write! bass-notes-buf  (take 8 (cycle (map note [:E2]))))
-(buffer-write! bass-notes-buf  (take 8 (cycle (map note [:D3 :E2]))))
+(buffer-write! bass-notes-buf  (take 8 (cycle (map note [:A1]))))
+(buffer-write! bass-notes-buf  (take 8 (cycle (map note [:A1 :B2 :C3 :D4 :E4 :F5 :G6]))))
 
 (buffer-write! phase-bass-buf  [1 1 0 0 1 1 0 0])
+(buffer-write! phase-bass-buf  (cycle [0]))
+(buffer-write! phase-bass-buf  (cycle [1]))
+
 (buffer-write! phase-bass-buf  [1 1 0 0 0 1 1 0])
 (buffer-write! phase-bass-buf  [1 0 1 0 1 0 1 0])
 
 (doseq [i (range 0 9)]
   (bazz
    [:head bazz-g]
+   :attack 0.001
+   :release 0.1
    :amp 0.4 :note-buf bass-notes-buf
    :seq-buf phase-bass-buf
-   :beat-bus (:count timing/beat-1th)
+   :beat-bus     (:count timing/beat-1th)
    :beat-trg-bus (:beat timing/beat-1th) :num-steps 8 :beat-num i))
 
 (kill bazz)
 
 (def dub-kick-g (group "dub kick group"))
-(def dubkicks (doall (map
+(def dubkicks (doall (map-indexed
                       #(dub-kick
                        [:head dub-kick-g]
                        :amp 0.4
-                       :freq (ranged-rand 80 110)
                        :note-buf bass-notes-buf
                        :seq-buf v-bass-buf
-                       :freq (ranged-rand 80 100)
+                       :freq (+ 90 (mod %1 8))
                        :beat-bus (:count timing/beat-1th)
-                       :beat-trg-bus (:beat timing/beat-1th) :num-steps 18 :beat-num %) (range 0 18) ) ))
+                       :beat-trg-bus (:beat timing/beat-1th) :num-steps 18 :beat-num %2) (range 0 18) ) ))
 
 (ctl o :fizzing 30)
 (ctl o :bass-thrust 2)
@@ -430,6 +437,9 @@
 (ctl bazz-g :beat-bus (:beat timing/beat-1th) :beat-trg-bus (:count timing/beat-1th))
 
 (kill dub-kick)
+
+(buffer-write! v-bass-buf (take 128 (cycle [0])))
+(buffer-write! v-bass-buf (take 128 (cycle [1])))
 
 (buffer-write! v-bass-buf  (take 128 (cycle [1 1 0 1 1 0 1 1
                                              0 0 1 1 0 0 1 1
