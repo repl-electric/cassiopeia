@@ -90,3 +90,85 @@
 
 (stop)
 (kill deep-saw)
+
+(def melody-part2-buf (buffer 128))
+(require '[overtone.orchestra.cello :as cello-src])
+
+(cello :length 3 :note (note :A3))
+(defsynth cello
+  "length options:
+   0 -> 0.25
+   1 -> 0.5
+   2 -> 1
+   3 -> 1.5"
+  [level 1 rate 1 loop? 0 attack 0 decay 0.5 sustain 1 release 0.1 curve -4 gate 1 beat-count-bus 0
+   offset-bus 0 duration-bus 0 beat-trg-bus 0]
+  (let [cnt    (in:kr beat-count-bus)
+        note   (buf-rd:kr 1 offset-bus cnt)
+        length (buf-rd:kr 1 duration-bus cnt)
+        trig  (in:kr beat-trg-bus)
+
+        l-buf (index:kr (:id cello-src/length-buffer) length)
+        buf (index:kr l-buf note)
+        env (env-gen (adsr attack decay sustain release level curve))]
+    (out 0 (pan2 (* env (scaled-play-buf 1 buf :trigger trig :loop 1 :start-pos 0))))))
+
+
+(defonce cello-buf (buffer 128))
+(defonce cello-dur (buffer 128))
+
+(zello :beat-count-bus (:count timing/beat-2th) :offset-bus zello-buf :duration-bus zello-dur :beat-trg-bus (:beat timing/beat-2th))
+
+(buffer-write! cello-buf (take 128 (cycle
+                                    (map note
+                                         [0 0 0 0 0 0 0 0
+                                          0 0 0 0 0 0 0 0
+                                          0 0 0 0 0 0 0 0
+                                          :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3]))))
+
+(buffer-write! cello-dur (take 128 (cycle [0 0 0 0 0 0 0 0
+                                           0 0 0 0 0 0 0 0
+                                           0 0 0 0 0 0 0 0
+                                           2 2 2 2 2 2 2 1])))
+
+(kill cello)
+
+(require '[overtone.orchestra.oboe :as oboe-src])
+(defsynth oboe
+  "length options:
+   0 -> 0.25
+   1 -> 0.5
+   2 -> 1
+   3 -> 1.5"
+  [level 1 rate 1 loop? 0 attack 0 decay 0.5 sustain 1 release 0.1 curve -4 gate 1 beat-count-bus 0 beat-trg-bus 0 offset-bus 0
+   duration-bus 0]
+  (let [cnt    (in:kr beat-count-bus)
+        note   (buf-rd:kr 1 offset-bus cnt)
+        length (buf-rd:kr 1 duration-bus cnt)
+        trig  (in:kr beat-trg-bus)
+
+        l-buf (index:kr (:id oboe-src/length-buffer) length)
+        buf (index:kr l-buf note)
+        env (env-gen (adsr attack decay sustain release level curve)
+                     :gate gate)]
+    (out 0 (pan2 (* env (scaled-play-buf 1 buf :level level :loop 1 :trigger trig :start-pos 0))))))
+
+(oboe :beat-count-bus (:count timing/beat-1th) :offset-bus zello-buf :duration-bus zello-dur :beat-trg-bus (:beat timing/beat-1th))
+
+(defonce zello-buf (buffer 128))
+(defonce zello-dur (buffer 128))
+
+(buffer-write! zello-buf (take 128 (cycle
+                                    (map note
+                                         [:A3 :C4 :C5 :C4 :G4 :E4 :A4 :C4]))))
+
+(buffer-write! zello-buf (take 128 (cycle
+                                    (map note
+                                         [:A4 :C4 :C5 :C4 :G4 :E4 :A4 :C4]))))
+
+(buffer-write! zello-dur (take 128 (cycle [3 3 3 3 3 3 3 3 3])))
+
+(ctl timing/root-s :rate 4)
+
+(kill oboe)
+(stop)
