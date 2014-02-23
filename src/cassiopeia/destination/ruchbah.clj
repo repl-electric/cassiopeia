@@ -412,6 +412,10 @@
    :beat-bus     (:count timing/beat-1th)
    :beat-trg-bus (:beat timing/beat-1th) :num-steps 8 :beat-num i))
 
+(ctl bazz-g :beat-bus (:count timing/beat-1th) :beat-trg-bus (:beat timing/beat-1th))
+(ctl bazz-g :beat-bus (:count timing/beat-2x)  :beat-trg-bus (:beat timing/beat-2x))
+(ctl bazz-g :beat-bus (:count timing/beat-4x)  :beat-trg-bus (:beat timing/beat-4x))
+
 (kill bazz)
 
 (def dub-kick-g (group "dub kick group"))
