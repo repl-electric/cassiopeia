@@ -58,9 +58,9 @@
 
   (stop))
 
-(def flow-buf (buffer 128))
-(def flow-f-buf (buffer 128))
-(def flow-dur-buf (buffer 128))
+(defonce flow-buf (buffer 128))
+(defonce flow-f-buf (buffer 128))
+(defonce flow-dur-buf (buffer 128))
 
 (do
   (defsynth overpad
@@ -132,8 +132,8 @@
 (comment
   (kill tb))
 
-(def bass-notes-buf (buffer 8))
-(def phase-bass-buf (buffer 8))
+(defonce bass-notes-buf (buffer 8))
+(defonce phase-bass-buf (buffer 8))
 
 (defsynth vintage-bass
   [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 num-steps 8 beat-num 0]
@@ -155,7 +155,7 @@
         filt     (*  (moog-ff mixed (* velocity (+ freq 200)) 2.2 bar-trg))]
     (out out-bus (* amp env filt))))
 
-(def bazz-g (group "bazz group"))
+(defonce bazz-g (group "bazz group"))
 (defsynth bazz [out-bus 0 beat-bus 0 beat-trg-bus 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 0
                 attack 0.001 release 0.1]
   (let [cnt      (in:kr beat-bus)
@@ -204,7 +204,7 @@
         filt     (*  (moog-ff mixed (* velocity (+ freq 200)) 2.2 bar-trg))]
         (* amp env filt)))
 
-(def v-bass-buf (buffer 128))
+(defonce v-bass-buf (buffer 128))
 
 (defsynth dub-kick [out-bus 0 freq 80 beat-bus 0 beat-trg-bus 0 note-buf 0 num-steps 8 seq-buf 0 beat-num 0]
   (let [cnt      (in:kr beat-bus)
@@ -223,8 +223,8 @@
     (out out-bus [mixed mixed])))
 
 
-(def moo-buf (buffer 128))
-(def moo-amp-buf (buffer 128))
+(defonce moo-buf (buffer 128))
+(defonce moo-amp-buf (buffer 128))
 
 (defsynth mooger
   "Choose 0, 1, or 2 for saw, sin, or pulse"
