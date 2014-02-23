@@ -68,9 +68,9 @@
      dur-buf 0
      tonal 0.99 bass-thrust 0.7 fizzing 3]
     (let [cnt  (in:kr beat-count-bus)
-          durs (buf-rd:kr 1 dur-buf cnt)
-          trig  (in:kr beat-trg-bus)
+;;          durs (buf-rd:kr 1 dur-buf cnt)
           note (buf-rd:kr 1 note-buf cnt)
+          trig (in:kr beat-trg-bus)
           freq (midicps note)
 
           env   (env-gen (perc attack release) trig)
@@ -350,6 +350,12 @@
 (buffer-write! flow-buf   (take 128 (cycle (map note data/flow-buf-record))))
 (buffer-write! flow-f-buf (take 128 (cycle (map note data/flow-f-buf-record))))
 (buffer-write! flow-buf   (take 128 (cycle (map note data/flow-f-buf-record))))
+
+(buffer-write! flow-f-buf (take 128 (cycle (map note
+ [:A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3
+  :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3
+  :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3
+  0    0    0  0   0   0   0   0]))))
 
 ;;(doall (map #(print (str (find-note-name (int (buffer-get flow-f-buf %)))) " ") (range 0 128)))
 
