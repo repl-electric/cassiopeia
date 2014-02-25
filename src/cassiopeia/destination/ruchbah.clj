@@ -181,13 +181,11 @@
      :amp 0.4
      :mix (nth (take 32 (cycle [0.1 0.1  0.08 0.08 0.05 0.05 0 0])) i)
      :room 2
-     :damp 0.6
+;;     :damp 0.6
      :note-buf bass-notes-buf
-     :seq-buf phase-bass-buf
+     :seq-buf  phase-bass-buf
      :beat-bus     (:count timing/beat-1th)
      :beat-trg-bus (:beat timing/beat-1th) :num-steps 32 :beat-num i))
-
-  (ctl bazz-g :damp 0.6)
 
   (buffer-write! bass-notes-buf
                  (take 32 (cycle (map note [:A5 :A5 :A2 :A2 :A7 :A7]))))
@@ -368,8 +366,6 @@
                                           :A3 :E3 :D3 :C3 :A3 :E3 :D3 :C3
                                           ])))))
 
-;; [:A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3]
-
 (buffer-write! flow-f-buf
                (take 128
                      (cycle
@@ -379,25 +375,22 @@
                                  :C2 :C3 :C2 :C3 :E3 :D3 :A3 :E3
                                  ]))))
 
-
 (buffer-write! flow-f-buf (take 128 (cycle (map note data/flow-f-buf-record))))
-
 
 (buffer-write! flow-f-buf
   (take 128 (map note (cycle (flatten (concat (repeat 3 [:A3 :E3 :D3 :C3 :D3 :E3 :A3 :C3])
                                               [:A2 :E2 :D2 :C2 :D2 :E2 :A2 :C2]
                                               [:A2 :E2 :D2 :C2 :D2 :E2 :A2 :C2]))))))
 
-
-(buffer-write! flow-buf   (take 128 (cycle (map note data/flow-buf-record))))
-(buffer-write! flow-f-buf (take 128 (cycle (map note data/flow-f-buf-record))))
-(buffer-write! flow-buf   (take 128 (cycle (map note data/flow-f-buf-record))))
-
 (buffer-write! flow-f-buf (take 128 (cycle (map note
  [:A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3
   :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3
   :A3 :E3 :D3 :C4 :D3 :E3 :A3 :C3
-  0    0    0  0   0   0   0   0]))))
+  0   0   0   0    0  0   0   0]))))
+
+(buffer-write! flow-buf   (take 128 (cycle (map note data/flow-buf-record))))
+(buffer-write! flow-f-buf (take 128 (cycle (map note data/flow-f-buf-record))))
+(buffer-write! flow-buf   (take 128 (cycle (map note data/flow-f-buf-record))))
 
 ;;(doall (map #(print (str (find-note-name (int (buffer-get flow-f-buf %)))) " ") (range 0 128)))
 
@@ -451,11 +444,13 @@
    :amp 0.4
    :mix (nth (take 32 (cycle [0.1 0.1  0.08 0.08 0.05 0.05 0 0])) i)
    :room 2
-   :damp 0.6
+;;   :damp 0.6
    :note-buf bass-notes-buf
    :seq-buf phase-bass-buf
    :beat-bus     (:count timing/beat-1th)
    :beat-trg-bus (:beat timing/beat-1th) :num-steps 32 :beat-num i))
+
+  (ctl bazz-g :damp 0.6)
 
 (do
   (ctl dub-kick-g :amp 0.9)
