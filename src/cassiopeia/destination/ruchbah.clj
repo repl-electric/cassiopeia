@@ -63,14 +63,14 @@
 (defonce flow-dur-buf (buffer 128))
 
 (do
-  (defsynth overpad
+  (defsynth zoverpad
     [out-bus 0 amp 0.7 attack 0.001 release 2 note-buf 0 beat-count-bus 0 beat-trg-bus 0
      dur-buf 0
-     tonal 0.99 bass-thrust 0.7 fizzing 3]
+     tonal 0.99 bass-thrust 0.7 fizzing 3 modz 2]
     (let [cnt  (in:kr beat-count-bus)
-;;          durs (buf-rd:kr 1 dur-buf cnt)
           note (buf-rd:kr 1 note-buf cnt)
           trig (in:kr beat-trg-bus)
+
           freq (midicps note)
 
           env   (env-gen (perc attack release) trig)
@@ -82,20 +82,55 @@
           audio (* amp env sig)]
       (out out-bus (pan2 audio))))
 
+
+  (defsynth overpad
+    [out-bus 0 amp 0.7 attack 0.001 release 2 note-buf 0 beat-count-bus 0 beat-trg-bus 0
+     dur-buf 0
+     tonal 0.99 bass-thrust 0.7 fizzing 3 modz 2]
+    (let [cnt  (in:kr beat-count-bus)
+;;          durs (buf-rd:kr 1 dur-buf cnt)
+          note (buf-rd:kr 1 note-buf cnt)
+          trig (in:kr beat-trg-bus)
+          strig (= (mod cnt modz) 0)
+
+          freq (midicps note)
+
+          env   (env-gen (perc attack release) trig)
+          f-env (+ freq (* fizzing freq (env-gen (perc 0.012 (- release 0.1)) strig)))
+          bfreq (/ freq 2)
+          sig   (apply +
+                       (concat (* bass-thrust (sin-osc [bfreq (* tonal bfreq)]))
+                               (lpf (saw [freq (* freq 1.01)]) f-env)))
+          audio (* amp env sig)]
+      (out out-bus (pan2 audio))))
+
   (comment
-    (def o (overpad :release 16
-                    :note-buf flow-f-buf
-                    :beat-count-bus (:count timing/beat-2th)
-                    :beat-trig-bus (:beat timing/beat-2th)
-                    :amp 0.5
-                    :attack 5))
+    (show-graphviz-synth overpad)
+    (kill overpad)
+
+    (def o (overpad :note-buf flow-f-buf :beat-count-bus (:count timing/beat-2x) :beat-trig-bus (:beat timing/beat-2x) :amp 1 :out-bus (mix/nkmx :r0) :release 1 :attack 0))
+
+    (ctl o :release 3)
+
+    (def zo (zoverpad :note-buf flow-f-buf :beat-count-bus (:count timing/beat-2th) :beat-trig-bus (:beat timing/beat-2th) :amp 1 :out-bus (mix/nkmx :r0) :release 1 :attack 0))
+
+;;    (ctl o :modz 4)
+
+;;f-env (+ freq (* fizzing freq (env-gen (perc 0.012 (- release 0.1)) strig)))
 
     (buffer-write! flow-f-buf
                    (take 128
                          (cycle
-                          (map note [:A3 :A3 :E3 :E3 :D3 :D3 :C4 :C4 :A3 :D3
-                                     :A3 :E3 :D3 :C3 :A3 :E3 :D3 :C3
-                                     ]))))))
+                          (map note data/flow-f-buf-record))))
+
+
+    (buffer-write! flow-f-buf
+                   (take 128
+                         (cycle
+                          (map note [:A3 :A3 :E3 :E3 :D3 :D3 :C4 :C4 :D3 :D3 :E3 :E3  :A3 :A3 :C3 :C3]
+                               ))))
+
+    ))
 
 (defsynth tb303
   [note-buf 0
@@ -341,9 +376,9 @@
 
 (kill mooger)
 
-(def tb (tb303 :attack 4 :amp 0 :sustain 0 :decay 4 :note-buf flow-buf :release 1 :waves 3 :env-amount 10 :beat-count-bus (:count timing/beat-2th) :beat-trg-bus   (:beat timing/beat-2th) :out-bus (mix/nkmx :m0)))
+(def tb (tb303 :attack 4 :amp 0 :sustain 0 :decay 4 :note-buf flow-buf :release 1 :waves 3 :env-amount 10 :beat-count-bus (:count timing/beat-1th) :beat-trg-bus   (:beat timing/beat-1th) :out-bus (mix/nkmx :m0)))
 
-(ctl tb :amp 0.6)
+(ctl tb :amp 0.3)
 (ctl tb :amp 0)
 
 (comment
@@ -436,7 +471,9 @@
 (buffer-write! phase-bass-buf  (take 8 (cycle [0 1])))
 
 (buffer-write! phase-bass-buf  [1 1 0 0 0 1 1 0])
-(buffer-write! phase-bass-buf  (take 32 (cycle [1 0 1 0 1 0 1 0])))
+(buffer-write! phase-bass-buf  (take 32 (cycle[0 0 0 0 0 0 1 1])))
+
+
 
 (doseq [i (range 0 32)]
   (bazz
@@ -473,10 +510,10 @@
                        :beat-bus (:count timing/beat-1th)
                        :beat-trg-bus (:beat timing/beat-1th) :num-steps 18 :beat-num %2) (range 0 18) ) ))
 
-(ctl o :fizzing 20)
+(ctl o :fizzing 25)
 (ctl o :bass-thrust 2)
 (ctl o :tonal 5)
-(ctl o :bass-thrust 10)
+(ctl o :bass-thrust 1)
 (ctl o :amp 0)
 (ctl dub-kick-g :freq 200)
 (ctl dub-kick-g :freq 160)
@@ -487,8 +524,10 @@
 (ctl dub-kick-g :beat-bus (:beat timing/beat-1th) :beat-trg-bus (:count timing/beat-1th))
 (ctl bazz-g :beat-bus (:beat timing/beat-1th) :beat-trg-bus (:count timing/beat-1th))
 
-(ctl dub-kick-g :beat-bus (:beat timing/beat-1th) :beat-trg-bus (:count timing/beat-1th))
-(ctl bazz-g :beat-bus (:beat timing/beat-1th) :beat-trg-bus (:count timing/beat-1th))
+
+(ctl dub-kick-g :beat-bus (:beat timing/beat-4x) :beat-trg-bus (:count timing/beat-4x))
+
+(ctl bazz-g :beat-bus (:beat timing/beat-4x) :beat-trg-bus (:count timing/beat-4x))
 
 (kill dub-kick)
 
@@ -506,6 +545,10 @@
 
 (buffer-write! v-bass-buf  (take 128 (cycle [1 0 0 0 1 1 0 0
                                              1 0 0 0 1 0 0 0])))
+
+(buffer-write! v-bass-buf  (take 128 (cycle [1 1 0 0 1 1 0 0
+                                             1 1 0 0 1 1 0 0])))
+
 
 (def m (melody :duration-bus melody-duration-b :offset-bus melody-notes-b
                :beat-count-bus (:count timing/beat-1th) :amp 0
@@ -535,14 +578,16 @@
 ;;;;;;;;;;;;;
 (comment
   (def fx1 (fx/fx-distortion-tubescreamer (mix/nkmx :s1)))
-  (def fx2 (fx/fx-chorus (mix/nkmx :s1)))
+  (def fx2 (fx/fx-chorus 0))
   (def fx3 (fx/fx-freeverb (mix/nkmx :s1)))
   (def fx4 (fx/fx-reverb (mix/nkmx :s1)))
-  (def fx5 (fx/fx-echo  (mix/nkmx :s1)))
+  (def fx5 (fx/fx-echo 0))
 
   (ctl fx1 :delay-t 0 :noise-rate 0 :boost 0 :decay 0)
   (ctl fx2 :rate 0 :depth 0)
-;;  (fx/fx-feedback 0)
+  ;;  (fx/fx-feedback 0)
+
+  (kill fx1 fx2)
   )
 
 (comment
