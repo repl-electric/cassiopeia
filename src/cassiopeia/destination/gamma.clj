@@ -45,34 +45,37 @@
 (quick-kick)
 (stop)
 
+(defonce melody-pan-buf (buffer 128))
 (defsynth melody [duration-bus 0 room 0.5 damp 0.5 beat-count-bus 0 offset-bus 0 amp 1 out-bus 0 pitch-dis 0 time-dis 0 cut 2000]
   (let [cnt    (in:kr beat-count-bus)
         offset (buf-rd:kr 1 offset-bus cnt)
         durs   (buf-rd:kr 1 duration-bus cnt)
+        pan-level (buf-rd:kr 1 melody-pan-buf cnt)
+
         trig (and (not= durs 0) (t-duty:kr (dseq durs INFINITE)))
         freq (demand:kr trig 0 (drand offset INFINITE))
         freq (midicps freq)
 
-        p1  (pulse freq (* 0.1 (/ (+ 1.2 (sin-osc:kr 1)))))
+        p1 (pulse freq (* 0.1 (/ (+ 1.2 (sin-osc:kr 1)))))
         p2 (pulse freq (* 0.8 (/ (+ 1.2 (sin-osc:kr 1) 0.7) 2)))
 
         snd (mix [p1 p2])
         snd (normalizer snd)
 
-        env (env-gen:ar (env-asr :release 0.6 :sustain 0.8) trig)
+        env (env-gen:ar (env-asr :release 1 :sustain 1 :attack 0) trig)
         src (* 0.3 (lf-tri:ar freq))
-        src (rlpf (mix [src snd (saw (* 0.4 freq))]))
-        ;;src (pitch-shift src 0.9 0.9 pitch-dis time-dis)
+        src
+        (rlpf (mix [src snd (saw (* 0.6 freq))
+                    (saw (* 0.4 freq))
+                    (saw (* 0.8 freq))]))
         ]
-    (out:ar out-bus (* amp env (pan2 src)))))
+    (out out-bus (pan2 (* amp env src) pan-level))))
 
 (comment
   (do
     (kill melody)
     (def m (melody :duration-bus melody-duration-b :offset-bus melody-notes-b
-                   :beat-count-bus (:count time/beat-1th) :amp 5
-                   :out-bus (mix/nkmx :s0))))
-
+                   :beat-count-bus (:count time/beat-1th) :amp 10)))
 
   (stop)
 
@@ -198,7 +201,6 @@
                      (not= note 0)
                      beat-trg)
 
-        ;; (t-rand 50 1300 bar-trg)
         freq (midicps note)
         c (pm-osc:ar freq (* freq (t-rand 0.25 2.0 bar-trg)) (t-rand 0.1 (* 2 Math/PI) bar-trg))
         e (env-gen:kr (env-perc attack release) bar-trg)
@@ -336,7 +338,7 @@
                       :note-buf shrill-buf))
 
 (def g (growl
-        :amp 2.5
+        :amp 1.2
         :beat-trg-bus (:beat time/beat-4th)
         :beat-bus (:count time/beat-4th)
                     :note-buf growl-buf))
@@ -365,8 +367,7 @@
 (kill growl)
 
 (def m (melody :duration-bus melody-duration-b :offset-bus melody-notes-b
-               :beat-count-bus (:count time/beat-1th) :amp 10
-               :out-bus (mix/nkmx :s0)))
+               :beat-count-bus (:count time/beat-1th) :amp 10))
 
 (kill melody)
 
@@ -384,15 +385,18 @@
 
 (buffer-write! melody-duration-b (take 128 (cycle [1/4 1/2 1/2 1/4 1/4 1/4])))
 
-(buffer-write! melody-duration-b (take 128 (cycle [1/2 1/2 1/8 1/8])))
+
+(buffer-write! melody-notes-b
+               (take 128 (cycle (shuffle (map note [:E3 :E4 :E4])))))
+
+(buffer-cycle! melody-pan-buf  [1 0.9 0.9 -1 -0.9 -0.9])
+;;(buffer-cycle! melody-duration-b [1  1/32 1/32 0])
 
 (buffer-write! melody-notes-b
                (take 128 (cycle (shuffle (map note [:A3 :E4 :E4 :E5 :E5 :E6])))))
 
 (buffer-write! melody-notes-b
                (take 128 (cycle (shuffle (map note [:C2 :D2 :E2 :E2 :E2 :E4 ])))))
-
-
 
 (buffer-write! melody-duration-b (take 128 (cycle [1/8 1/4 1/4 1/8 1/8 1/8])))
 
