@@ -73,7 +73,7 @@
         snd (mix [p1 p2])
         snd (normalizer snd)
 
-        env (env-gen:ar (env-asr :release 1 :sustain 1 :attack 0) trig)
+        env (env-gen:ar (env-asr :release 1 :sustain 1 :attack 0.01) trig)
         src (* 0.3 (lf-tri:ar freq))
         src
         (rlpf (mix [src snd (saw (* 0.6 freq))
