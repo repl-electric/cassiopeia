@@ -205,9 +205,11 @@
 
 (kill bazz)
 
+(defonce high-kick-g (group "high kicks"))
+
 (def high-kicks (doall (map-indexed
                       #(vintage-bass
-                        [:head dub-kick-g]
+                        [:head high-kick-g]
                         :amp 1
                         :note-buf bass-notes-buf
                         :seq-buf v-bass-buf
@@ -217,13 +219,13 @@
 
 (def high2-kicks (doall (map-indexed
                       #(vintage-bass
-                        [:head dub-kick-g]
+                        [:head high-kick-g]
                         :amp 1
                         :note-buf bass-notes-buf
                         :seq-buf v-bass-buf
                         :freq (+ 90 (mod %1 8))
                         :beat-bus (:count time/beat-1th)
-                        :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num (+ 8 %2)) (range 0 18))))
+                        :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num (+ 4 %2)) (range 0 18))))
 
 (kill vintage-bass)
 
@@ -293,6 +295,8 @@
 
 (buffer-cycle! kick-seq-buf [0 0 1 0 0 1 0 0 1 1])
 
+(defonce phase-bass-buf (buffer 32))
+
 (doseq [i (range 0 32)]
   (bazz
    [:head bazz-g]
@@ -304,6 +308,7 @@
    :seq-buf phase-bass-buf
    :beat-bus     (:count time/beat-1th)
    :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num i))
+
 (ctl bazz-g :damp 0.6)
 
 (ctl bazz-g :amp 0)
@@ -345,6 +350,8 @@
 
 (buffer-cycle! growl-amp-buf       [1   1   0  1   1])
 (buffer-cycle! growl-buf (map note [:D3 :D3 0 :E3 :E3]))
+
+(ctl growl :amp 1.5)
 
 (s/rise-fall-pad :freq (midi->hz (note :A3)))
 
