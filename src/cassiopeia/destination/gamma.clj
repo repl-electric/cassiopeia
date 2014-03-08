@@ -171,6 +171,9 @@
           freq (midicps note)
           e (env-gen (perc :attack 10 :sustain 2 :release 2) :gate gate-trig)
           src (lpf (mix [(saw (* 0.25 freq))
+                         (sin-osc (* 1.01 freq))]))
+          src (pitch-shift src 0.4 1 0 0.01)
+          ]
       (out 0 (pan2:ar (* famp  amp e src)))))
 
   (kill growl)
