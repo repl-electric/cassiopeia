@@ -39,7 +39,7 @@
         src (* env wave)
         dist (clip2 (tanh (* 0.5 (distort (* 1.5 src)))) 0.7)
         eq (b-peak-eq dist 50.41 1 44)]
-    (out out-bus (* amp eq))))
+    (out out-bus (* amp env eq))))
 
 (comment
   (do
@@ -57,11 +57,10 @@
 (defonce melody-duration-b (buffer 128))
 (defonce melody-notes-b    (buffer 128))
 (defonce melody-pan-buf (buffer 128))
-(defsynth melody [duration-bus 0 room 0.5 damp 0.5 beat-count-bus 0 offset-bus 0 amp 1 out-bus 0 pitch-dis 0 time-dis 0 cut 2000]
+(defsynth melody [duration-bus 0 room 0.5 damp 0.5 beat-count-bus 0 offset-bus 0 amp 1 out-bus 0 pitch-dis 0 time-dis 0 cut 2000 pan-level 0]
   (let [cnt    (in:kr beat-count-bus)
         offset (buf-rd:kr 1 offset-bus cnt)
         durs   (buf-rd:kr 1 duration-bus cnt)
-        pan-level (buf-rd:kr 1 melody-pan-buf cnt)
 
         trig (and (not= durs 0) (t-duty:kr (dseq durs INFINITE)))
         freq (demand:kr trig 0 (drand offset INFINITE))
@@ -221,7 +220,7 @@
 (defonce phase-bass-buf (buffer 32))
 (defonce bazz-g (group "bazz group"))
 (defsynth bazz [out-bus 0 beat-bus 0 beat-trg-bus 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 0
-                attack 0.001 release 0.1 mix 0 room 0 damp 0]
+                attack 0.001 release 0.1 mix 0 room 0 damp 0 amp 1]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         note     (buf-rd:kr 1 note-buf cnt)
@@ -235,7 +234,7 @@
         e (env-gen:kr (env-perc attack release) bar-trg)
         src (/ (* c e 0.125) 2)
         src (free-verb src :mix mix :room room :damp damp)]
-    (out out-bus [src src])))
+    (out out-bus [(* amp src) (* amp src)])))
 
 (defonce white-seq-buf (buffer 32))
 (defonce white-notes-buf (buffer 32))
@@ -280,18 +279,6 @@
 (kill glass-ping)
 (kill bazz)
 
-(def power-kick (doall (map-indexed
-                        #(quick-kick
-                          [:head power-kick-g]
-                          :amp 0.5
-                          :note-buf bass-notes-buf
-                          :seq-buf power-kick-seq
-                          :beat-bus (:count time/beat-1th)
-                          :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :beat-num %2) (range 0 16))))
-
-(buffer-cycle! power-kick-seq [1 0 0 0 0 0 0 0])
-(kill power-kick)
-
 (doseq [i (range 0 32)]
   (whitenoise-hat
    [:head white-g]
@@ -308,6 +295,16 @@
 (defonce kick-seq-buf (buffer 32))
 
 (do
+  (def power-kick (doall (map-indexed
+                          #(quick-kick
+                            [:head power-kick-g]
+                            :amp 0.5
+                            :note-buf bass-notes-buf
+                            :seq-buf power-kick-seq
+                            :beat-bus (:count time/beat-1th)
+                            :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :beat-num %2) (range 0 16))))
+  (buffer-cycle! power-kick-seq [1 0 0 0 0 0 0 0])
+
   (doseq [i (range 0 32)]
     (kick2
      [:head kick2-g]
@@ -322,6 +319,8 @@
   (buffer-cycle! kick-seq-buf [1 0 0 0])
   (buffer-cycle! white-seq-buf [0]))
 
+(kill power-kick)
+(kill kick2)
 (ctl time/root-s :rate 0)
 
 (do (buffer-cycle! white-seq-buf [1]))
@@ -334,7 +333,7 @@
 (doseq [i (range 0 32)]
   (bazz
    [:head bazz-g]
-   :amp 0.2
+   :amp 0.7
    :mix (nth (take 32 (cycle [0.1 0.1  0.08 0.08 0.05 0.05 0 0])) i)
    :room 2
    ;;   :damp 0.6
@@ -343,6 +342,8 @@
    :beat-bus     (:count time/beat-1th)
    :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num i))
 (ctl bazz-g :damp 0.6)
+
+(kill bazz)
 
 (ctl bazz-g :amp 0)
 
@@ -383,7 +384,7 @@
 (buffer-cycle! growl-buf (map note [:D3 :D3 0 :E3 :E3]))
 (buffer-cycle! growl-buf (map note [:D3 :D3 0 :D3 :D3]))
 
-(ctl g :amp 1.5)
+(ctl g :amp 2.3)
 
 (s/rise-fall-pad :freq (midi->hz (note :A3)))
 
