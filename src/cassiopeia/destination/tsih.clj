@@ -1,4 +1,4 @@
-(ns cassiopeia.destination.gamma
+(ns cassiopeia.destination.tsih
   (:require [cassiopeia.engine.timing :as time]
             [overtone.studio.fx :as fx]
             [cassiopeia.engine.mixers :as mix]
@@ -68,17 +68,15 @@
 
         p1 (pulse freq (* 0.1 (/ (+ 1.2 (sin-osc:kr 1)))))
         p2 (pulse freq (* 0.8 (/ (+ 1.2 (sin-osc:kr 1) 0.7) 2)))
-
-        snd (mix [p1 p2])
-        snd (normalizer snd)
+        p3 (pulse (* 2 freq)  (mul-add:kr (lf-noise1:kr 10) 1 4))
+        tri (* 0.3 (lf-tri:ar freq))
 
         env (env-gen:ar (env-asr :release 1 :sustain 1 :attack 0.01) trig)
-        src (* 0.3 (lf-tri:ar freq))
-        src
-        (rlpf (mix [src snd (saw (* 0.6 freq))
-                    (saw (* 0.4 freq))
-                    (saw (* 0.8 freq))]))
-        ]
+        src (rlpf (mix [p1 p2 p3
+                        tri
+                        (saw (* 0.6 freq))
+                        (saw (* 0.4 freq))
+                        (saw (* 0.8 freq))]))]
     (out out-bus (pan2 (* amp env src) pan-level))))
 
 (comment
@@ -215,7 +213,7 @@
     (out out-bus (* amp src))))
 
 (defonce bass-notes-buf (buffer 32))
-(defonce v-bass-buf (buffer 32))
+(defonce ping-bass-seq-buf (buffer 32))
 
 (defonce phase-bass-buf (buffer 32))
 (defonce bazz-g (group "bazz group"))
@@ -253,29 +251,49 @@
 ;; Score ;;
 ;;;;;;;;;;;
 
-(def high-kicks (doall (map-indexed
+(def high-pings (doall (map-indexed
                       #(glass-ping
                         [:head high-kick-g]
                         :amp 1
                         :note-buf bass-notes-buf
-                        :seq-buf v-bass-buf
-                        :freq (+ 100 (mod %1 8))
+                        :seq-buf  ping-bass-seq-buf
                         :beat-bus (:count time/beat-1th)
                         :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num %2) (range 0 18))))
 
-(ctl high-kick-g :beat-bus (:count time/beat-2x) :beat-trg-bus (:beat time/beat-2x))
+(ctl high-kick-g :beat-bus (:count time/beat-2th) :beat-trg-bus (:beat time/beat-2th))
 (ctl high-kick-g :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th))
 
-(def high2-kicks (doall (map-indexed
-                      #(glass-ping
-                        [:head high-kick-g]
-                        :amp 1
-                        :note-buf bass-notes-buf
-                        :seq-buf v-bass-buf
-                        :freq (+ 90 (mod %1 8))
-                        :beat-bus (:count time/beat-1th)
-                        :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num (+ 4 %2)) (range 0 18))))
+(def high-pings-echo (doall (map-indexed
+                        #(glass-ping
+                          [:head high-kick-g]
+                          :amp 1
+                          :note-buf bass-notes-buf
+                          :seq-buf ping-bass-seq-buf
+                          :beat-bus (:count time/beat-1th)
+                          :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num (+ 4 %2)) (range 0 18))))
 
+(def high-pings-echo (doall (map-indexed
+                             #(glass-ping
+                               [:head high-kick-g]
+                               :amp 1
+                               :note-buf bass-notes-buf
+                               :seq-buf ping-bass-seq-buf
+                               :beat-bus (:count time/beat-1th)
+                               :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num %2) (range 0 18))))
+
+(defonce mid-ping-notes-buf (buffer 128))
+(defonce mid-ping-seq-buf  (buffer 128))
+(def mid-pings (doall (map-indexed
+                       #(glass-ping
+                         [:head high-kick-g]
+                         :amp 1
+                         :note-buf mid-ping-notes-buf
+                         :seq-buf mid-ping-seq-buf
+                         :freq  (mod %1 8)
+                         :beat-bus (:count time/beat-1th)
+                         :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num %2) (range 0 18))))
+
+(kill mid-pings)
 (kill glass-ping)
 (kill bazz)
 
@@ -295,6 +313,19 @@
 (defonce kick-seq-buf (buffer 32))
 
 (do
+  (doseq [i (range 0 32)]
+    (bazz
+     [:head bazz-g]
+     :amp 0.7
+     :mix (nth (take 32 (cycle [0.1 0.05])) i)
+     :room 2
+     ;;   :damp 0.6
+     :note-buf bass-notes-buf
+     :seq-buf phase-bass-buf
+     :beat-bus     (:count time/beat-1th)
+     :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num i))
+  (ctl bazz-g :damp 0.6)
+
   (def power-kick (doall (map-indexed
                           #(quick-kick
                             [:head power-kick-g]
@@ -323,40 +354,36 @@
 (kill kick2)
 (ctl time/root-s :rate 0)
 
-(do (buffer-cycle! white-seq-buf [1]))
+(do (buffer-cycle! white-seq-buf [1 0 0 0 1 0 0 0 1 0 0 1 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]))
 
 (kill whitenoise-hat)
 (kill kick2-g)
+(kill bazz)
 
 (buffer-cycle! kick-seq-buf [0 0 1 0 0 1 0 0 1 1])
 
-(doseq [i (range 0 32)]
-  (bazz
-   [:head bazz-g]
-   :amp 0.7
-   :mix (nth (take 32 (cycle [0.1 0.1  0.08 0.08 0.05 0.05 0 0])) i)
-   :room 2
-   ;;   :damp 0.6
-   :note-buf bass-notes-buf
-   :seq-buf phase-bass-buf
-   :beat-bus     (:count time/beat-1th)
-   :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num i))
-(ctl bazz-g :damp 0.6)
+;;(ctl bazz-g :amp 0)
 
-(kill bazz)
+(buffer-cycle! bass-notes-buf (map note [:A1 :A1 :A1 :A1 :A1 :A1]))
+(buffer-cycle! bass-notes-buf (map note [:A5 :A6 :A2 :A2 :A6 :A5]))
+(buffer-cycle! bass-notes-buf (map note [:D5 :D6 :D2 :D2 :D6 :D5]))
+(buffer-cycle! bass-notes-buf (map note [:E5 :E6 :E2 :E2 :E6 :E5]))
 
-(ctl bazz-g :amp 0)
+(buffer-write! bass-notes-buf (take 32 (cycle (map note [:A4 :E4 :E2 :E2 :D6 :D5
+                                                         :E4 :E4 :A2 :A2 :D6 :D5
+                                                         :D4 :D4 :A2 :E2 :D6 :D5]))))
 
-(def dark (dark-ambience :mul 0.4
-                         :amp 0.5
-                         :ring-freq (midi->hz (note :A3))))
-
-(buffer-write! bass-notes-buf (take 32 (cycle (map note [:A1 :A1 :A1 :A1 :A1 :A1]))))
-(buffer-write! bass-notes-buf (take 32 (cycle (map note [:A5 :A6 :A2 :A2 :A6 :A5]))))
-(buffer-write! bass-notes-buf (take 32 (cycle (map note [:D5 :D6 :D2 :D2 :D6 :D5]))))
+(buffer-cycle! mid-ping-seq-buf [0 1])
+(buffer-cycle! mid-ping-notes-buf (map note [:A4 :A4 :D4 :D4 :D4 :E4]))
+(buffer-cycle! mid-ping-notes-buf (map note [:A4 :A4 :D4 :D4 :D4 :E4
+                                             0 0 0 0 0 0
+                                             :A4 :A4 :D4 :D4 :D4 :F#4
+                                             0 0 0 0 0 0
+                                             :A4 :A4 :D4 :D4 :D4 :F#4
+                                             0 0 0 0 0 0]))
 
 (buffer-write! phase-bass-buf  (take 32 (cycle [0 1])))
-(buffer-write! phase-bass-buf  (take 32 (cycle [0 0 1 1 0 0 1 1])))
+(buffer-write! phase-bass-buf  (take 32 (cycle [1 1 0 0 0 0 0 0])))
 
 (buffer-cycle!  kick-seq-buf [1 0 0 0])
 
@@ -370,11 +397,10 @@
                       :beat-bus (:count time/beat-1th)
                       :note-buf shrill-buf))
 
-(def g (growl
-        :amp 1.2
-        :beat-trg-bus (:beat time/beat-4th)
-        :beat-bus (:count time/beat-4th)
-                    :note-buf growl-buf))
+(def g (growl :amp 1.2
+              :beat-trg-bus (:beat time/beat-4th)
+              :beat-bus (:count time/beat-4th)
+              :note-buf growl-buf))
 
 (buffer-cycle! growl-amp-buf       [1   1   0  1   1  0  1   1  0  1   1  0  1   1])
 (buffer-cycle! growl-buf (map note [:D3 :D3 0 :E3 :E3 0 :A4 :A4 0 :D4 :D4 0 :F#4 :F#4]))
@@ -384,25 +410,32 @@
 (buffer-cycle! growl-buf (map note [:D3 :D3 0 :E3 :E3]))
 (buffer-cycle! growl-buf (map note [:D3 :D3 0 :D3 :D3]))
 
-(ctl g :amp 2.3)
+(ctl g :amp 1.5)
 
 (s/rise-fall-pad :freq (midi->hz (note :A3)))
 
-(buffer-cycle! notes-buf (map note  [0 :A3 0 :D3]))
-(buffer-cycle! shrill-buf (map note [:E3 0 :E3 0]))
+(def dark (dark-ambience :mul 0.4
+                         :amp 0.5
+                         :ring-freq (midi->hz (note :A3))))
 
-(buffer-write! notes-buf (take 128 (cycle [0])))
-(buffer-write! shrill-buf (take 128 (cycle [0])))
+(ctl dark :ring-freq (midi->hz (note :A3)))
+
+(buffer-cycle! notes-buf (map note  [:F#3 0 :F#3]))
+(buffer-cycle! notes-buf (map note  [:D3 0 :D3]))
+(buffer-cycle! shrill-buf (map note [0 :E3 0 :E3 0]))
+
+(buffer-cycle! notes-buf (cycle [0]))
+(buffer-cycle! shrill-buf (cycle [0]))
 
 (buffer-cycle! bass-notes-buf (map note [:A2]))
-(buffer-cycle! v-bass-buf [1 0 1 0])
+(buffer-cycle! ping-bass-seq-buf [1 0 1 0])
 
 (kill shrill-pulsar)
 (kill pulsar)
 (kill growl)
 
 (def m (melody :duration-bus melody-duration-b :offset-bus melody-notes-b
-               :beat-count-bus (:count time/beat-1th) :amp 10))
+               :beat-count-bus (:count time/beat-2th) :amp 2))
 
 (kill melody)
 
@@ -421,10 +454,10 @@
 (buffer-write! melody-duration-b (take 128 (cycle [1/4 1/2 1/2 1/4 1/4 1/4])))
 
 (buffer-write! melody-notes-b
-               (take 128 (cycle (shuffle (map note [:E3 :E4 :E4])))))
+               (take 128 (cycle (shuffle (map note [:E3 :E4 :E4 :E4])))))
 
 (buffer-cycle! melody-pan-buf  [0.9 0.8 0.8 -0.9 -0.8 -0.8])
-;;(buffer-cycle! melody-duration-b [1  1/32 1/32 0])
+;;(buffer-cycle! melody-duration-b [1/2 1/8 1/8 0])
 
 (buffer-write! melody-notes-b
                (take 128 (cycle (shuffle (map note [:A3 :E4 :E4 :E5 :E5 :E6])))))
@@ -439,6 +472,15 @@
   (def fx3 (fx/fx-echo 0))
 
   (kill fx2)
-  )
+  (kill melody)
+  (kill whitenoise-hat)
+  (kill kick2-g)
+  (kill bazz)
+  (kill power-kick)
+  (kill kick2)
+  (kill mid-pings)
+  (kill glass-ping)
+  (kill bazz)
 
-(stop)
+  (stop)
+)
