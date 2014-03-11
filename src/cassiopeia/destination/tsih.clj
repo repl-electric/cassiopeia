@@ -270,7 +270,7 @@
                           :note-buf bass-notes-buf
                           :seq-buf ping-bass-seq-buf
                           :beat-bus (:count time/beat-1th)
-                          :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num (+ 4 %2)) (range 0 18))))
+                          :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num %2) (range 0 18))))
 
 (def high-pings-echo (doall (map-indexed
                              #(glass-ping
@@ -279,7 +279,7 @@
                                :note-buf bass-notes-buf
                                :seq-buf ping-bass-seq-buf
                                :beat-bus (:count time/beat-1th)
-                               :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num %2) (range 0 18))))
+                               :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num (+ 2 %2)) (range 0 18))))
 
 (defonce mid-ping-notes-buf (buffer 128))
 (defonce mid-ping-seq-buf  (buffer 128))
@@ -354,7 +354,8 @@
 (kill kick2)
 (ctl time/root-s :rate 0)
 
-(do (buffer-cycle! white-seq-buf [1 0 0 0 1 0 0 0 1 0 0 1 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]))
+(buffer-cycle! white-seq-buf [1 0 0 0 1 0 0 0 1 0 0 1 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1])
+(buffer-cycle! white-seq-buf [0 0 0 0 0 1 1])
 
 (kill whitenoise-hat)
 (kill kick2-g)
@@ -373,7 +374,7 @@
                                                          :E4 :E4 :A2 :A2 :D6 :D5
                                                          :D4 :D4 :A2 :E2 :D6 :D5]))))
 
-(buffer-cycle! mid-ping-seq-buf [0 1])
+(buffer-cycle! mid-ping-seq-buf [1])
 (buffer-cycle! mid-ping-notes-buf (map note [:A4 :A4 :D4 :D4 :D4 :E4]))
 (buffer-cycle! mid-ping-notes-buf (map note [:A4 :A4 :D4 :D4 :D4 :E4
                                              0 0 0 0 0 0
@@ -405,12 +406,11 @@
 (buffer-cycle! growl-amp-buf       [1   1   0  1   1  0  1   1  0  1   1  0  1   1])
 (buffer-cycle! growl-buf (map note [:D3 :D3 0 :E3 :E3 0 :A4 :A4 0 :D4 :D4 0 :F#4 :F#4]))
 
-
 (buffer-cycle! growl-amp-buf       [1   1   0  1   1])
 (buffer-cycle! growl-buf (map note [:D3 :D3 0 :E3 :E3]))
 (buffer-cycle! growl-buf (map note [:D3 :D3 0 :D3 :D3]))
 
-(ctl g :amp 1.5)
+(ctl g :amp 2.2)
 
 (s/rise-fall-pad :freq (midi->hz (note :A3)))
 
@@ -422,6 +422,9 @@
 
 (buffer-cycle! notes-buf (map note  [:F#3 0 :F#3]))
 (buffer-cycle! notes-buf (map note  [:D3 0 :D3]))
+(buffer-cycle! notes-buf (map note  [ :E3 0 :E3]))
+;;(buffer-cycle! notes-buf (map note  [:D3 :D3 0 0]))
+
 (buffer-cycle! shrill-buf (map note [0 :E3 0 :E3 0]))
 
 (buffer-cycle! notes-buf (cycle [0]))
@@ -479,8 +482,11 @@
   (kill power-kick)
   (kill kick2)
   (kill mid-pings)
+  (kill shrill-pulsar)
+  (kill pulsar)
   (kill glass-ping)
   (kill bazz)
+  (kill growl)
 
   (stop)
 )
