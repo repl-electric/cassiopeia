@@ -10,6 +10,49 @@
 (defn buffer-cycle! [buf list]
    (buffer-write! buf (take (buffer-size buf) (cycle list))))
 
+(defsynth rise-fall-pad
+  [freq 440 t 4 amt 0.3 amp 0.8 out-bus 0 note-buf 0 seq-buf 0 beat-bus 0 beat-trg-bus 0 num-steps 16 beat-num 0]
+  (let [cnt      (in:kr beat-bus)
+        beat-trg (in:kr beat-trg-bus)
+        note     (buf-rd:kr 1 note-buf cnt)
+        bar-trg (and (buf-rd:kr 1 seq-buf cnt)
+                     (= beat-num (mod cnt num-steps))
+                     beat-trg)
+        freq (midicps note)
+
+        f-env      (env-gen (perc t t) 1 1 0 1)
+        src        (saw [freq (* freq 1.01)])
+        signal     (rlpf (* 0.3 src)
+                         (+ (* 0.6 freq) (* f-env 2 freq)) 0.2)
+        k          (/ (* 2 amt) (- 1 amt))
+        distort    (/ (* (+ 4 k) signal) (+ 1 (* k (abs signal))))
+        gate       (pulse (* 2 (+ 1 (sin-osc:kr 0.05))))
+        compressor (compander distort gate 0.01 1 0.5 0.01 0.01)
+        dampener   (+ 0.1 (* 2 (sin-osc:kr 0.5)))
+        reverb     (free-verb compressor 0.5 0.5 dampener)
+        echo       (comb-n reverb 0.4 0.3 0.9)]
+    (out out-bus (pan2 (* amp echo)))))
+
+(comment
+  (do
+    (stop)
+    (rise-fall-pad :freq 300 :note-buf bass-notes-buf)
+    (kill rise-fall)
+    (def rise-fall (doall (map-indexed
+                           #(rise-fall-pad
+                             :amp 0.5
+                             :note-buf bass-notes-buf
+                             :seq-buf power-kick-seq
+                             :beat-bus (:count time/beat-1th)
+                             :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :beat-num %2) (range 0 16))))
+
+    (buffer-cycle! bass-notes-buf (map note [:A3]))
+    (buffer-cycle! power-kick-seq [1 0 0 0
+                                   0 0 0 0
+                                   1 0 0 0]))
+
+  )
+
 (defonce power-kick-g (group))
 (defonce power-kick-seq (buffer 16))
 (defsynth quick-kick
@@ -130,22 +173,23 @@
 (defonce notes-buf (buffer 128))
 (defonce shrill-buf (buffer 128))
 
-(defsynth shrill-pulsar [note-buf 0 beat-bus 0 beat-trg-bus 0 size 1 r 0]
+(defsynth shrill-pulsar [note-buf 0 beat-bus 0 beat-trg-bus 0 size 1 r 0 amp 1]
   (let [cnt (in:kr beat-bus)
         note (buf-rd:kr 1 note-buf cnt)
         trg (in:kr beat-trg-bus)
         gate-trig (and (not= 0 note) trg)
         freq (midicps note)
         src (+ [(lpf (saw freq) 500)] [(sin-osc (* 1.01 freq))] )
-;;        src (free-verb src size r)
+        src (rlpf src 1200 0.3)
         e (env-gen (adsr :release 1) :gate gate-trig)]
-    (out 0 (pan2:ar (* e  src)))))
+    (out 0 (pan2:ar (* amp e src)))))
 
 (comment
   (do
     (kill shrill-pulsar)
 
-    (buffer-cycle! shrill-buf (map note [:C4]))
+    (stop)
+    (buffer-cycle! shrill-buf (map note [:A3 0  :A3 0 :A3 0  :A3 0  :D3 0  :D3 ]))
 
     (def q (shrill-pulsar :beat-trg-bus (:beat time/beat-1th)
                           :beat-bus (:count time/beat-1th)
@@ -317,7 +361,7 @@
     (bazz
      [:head bazz-g]
      :amp 0.7
-     :mix (nth (take 32 (cycle [0.1 0.05])) i)
+     :mix (nth (take 32 (cycle [0.02 0.2])) i)
      :room 2
      ;;   :damp 0.6
      :note-buf bass-notes-buf
@@ -350,12 +394,17 @@
   (buffer-cycle! kick-seq-buf [1 0 0 0])
   (buffer-cycle! white-seq-buf [0]))
 
+(kill bazz)
 (kill power-kick)
 (kill kick2)
 (ctl time/root-s :rate 0)
 
-(buffer-cycle! white-seq-buf [1 0 0 0 1 0 0 0 1 0 0 1 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1])
-(buffer-cycle! white-seq-buf [0 0 0 0 0 1 1])
+(buffer-cycle! white-seq-buf [1 0])
+(buffer-cycle! white-seq-buf [1])
+(buffer-cycle! white-seq-buf [0 0 0 1 1 0
+                              0 0 0 0 0 0
+                              0 0 0 0 0 0
+                              0 0 0 0 0 0])
 
 (kill whitenoise-hat)
 (kill kick2-g)
@@ -367,14 +416,18 @@
 
 (buffer-cycle! bass-notes-buf (map note [:A1 :A1 :A1 :A1 :A1 :A1]))
 (buffer-cycle! bass-notes-buf (map note [:A5 :A6 :A2 :A2 :A6 :A5]))
-(buffer-cycle! bass-notes-buf (map note [:D5 :D6 :D2 :D2 :D6 :D5]))
 (buffer-cycle! bass-notes-buf (map note [:E5 :E6 :E2 :E2 :E6 :E5]))
+(buffer-cycle! bass-notes-buf (map note [:D5 :D6 :D2 :D2 :D6 :D5]))
 
 (buffer-write! bass-notes-buf (take 32 (cycle (map note [:A4 :E4 :E2 :E2 :D6 :D5
                                                          :E4 :E4 :A2 :A2 :D6 :D5
                                                          :D4 :D4 :A2 :E2 :D6 :D5]))))
 
+(buffer-cycle! growl-buf (map note [:D4 :D4 0 :A4 :A4]))
+
 (buffer-cycle! mid-ping-seq-buf [1])
+(buffer-cycle! mid-ping-seq-buf [0])
+
 (buffer-cycle! mid-ping-notes-buf (map note [:A4 :A4 :D4 :D4 :D4 :E4]))
 (buffer-cycle! mid-ping-notes-buf (map note [:A4 :A4 :D4 :D4 :D4 :E4
                                              0 0 0 0 0 0
@@ -385,6 +438,11 @@
 
 (buffer-write! phase-bass-buf  (take 32 (cycle [0 1])))
 (buffer-write! phase-bass-buf  (take 32 (cycle [1 1 0 0 0 0 0 0])))
+
+(buffer-write! phase-bass-buf  (take 32 (cycle [1 1 0 0 0 0 0 0
+                                                1 1 0 0 0 0 0 0
+                                                1 1 0 0 0 0 0 0
+                                                1 0 1 0 0 0 0])))
 
 (buffer-cycle!  kick-seq-buf [1 0 0 0])
 
@@ -398,7 +456,7 @@
                       :beat-bus (:count time/beat-1th)
                       :note-buf shrill-buf))
 
-(def g (growl :amp 1.2
+(def g (growl :amp 1.5
               :beat-trg-bus (:beat time/beat-4th)
               :beat-bus (:count time/beat-4th)
               :note-buf growl-buf))
@@ -408,6 +466,7 @@
 
 (buffer-cycle! growl-amp-buf       [1   1   0  1   1])
 (buffer-cycle! growl-buf (map note [:D3 :D3 0 :E3 :E3]))
+(buffer-cycle! growl-buf (map note [:D4 :D4 0 :A4 :A4]))
 (buffer-cycle! growl-buf (map note [:D3 :D3 0 :D3 :D3]))
 
 (ctl g :amp 2.2)
@@ -422,10 +481,18 @@
 
 (buffer-cycle! notes-buf (map note  [:F#3 0 :F#3]))
 (buffer-cycle! notes-buf (map note  [:D3 0 :D3]))
-(buffer-cycle! notes-buf (map note  [ :E3 0 :E3]))
+(buffer-cycle! notes-buf (map note  [:E3 0 :E3]))
+
+(buffer-cycle! notes-buf (map note  [:D3 0 :D3
+                                     :D3 0 :D3
+                                     :D3 0 :D3
+                                     :F#3 0 :F#3
+                                     :F#3 :F#3]))
+
 ;;(buffer-cycle! notes-buf (map note  [:D3 :D3 0 0]))
 
-(buffer-cycle! shrill-buf (map note [0 :E3 0 :E3 0]))
+(buffer-cycle! shrill-buf (map note [0 :D3 0 :D3 0]))
+(buffer-cycle! shrill-buf (map note [0 :A3 0 :A3 0]))
 
 (buffer-cycle! notes-buf (cycle [0]))
 (buffer-cycle! shrill-buf (cycle [0]))
@@ -475,6 +542,7 @@
   (def fx3 (fx/fx-echo 0))
 
   (kill fx2)
+  (kill fx3)
   (kill melody)
   (kill whitenoise-hat)
   (kill kick2-g)
