@@ -8,7 +8,8 @@
   (:use overtone.live))
 
 (defn buffer-cycle! [buf list]
-   (buffer-write! buf (take (buffer-size buf) (cycle list))))
+  (buffer-write! buf (take (buffer-size buf) (cycle (map #(if (keyword? %) (note %) %) list)))))
+
 
 (defsynth rise-fall-pad
   [freq 440 t 4 amt 0.3 amp 0.8 out-bus 0 note-buf 0 seq-buf 0 beat-bus 0 beat-trg-bus 0 num-steps 16 beat-num 0]
