@@ -296,19 +296,10 @@
 ;; Score ;;
 ;;;;;;;;;;;
 
-(def high-pings (doall (map-indexed
-                      #(glass-ping
-                        [:head high-kick-g]
-                        :amp 1
-                        :note-buf bass-notes-buf
-                        :seq-buf  ping-bass-seq-buf
-                        :beat-bus (:count time/beat-1th)
-                        :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num %2) (range 0 18))))
-
 (ctl high-kick-g :beat-bus (:count time/beat-2th) :beat-trg-bus (:beat time/beat-2th))
 (ctl high-kick-g :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th))
 
-(def high-pings-echo (doall (map-indexed
+(def high-pings (doall (map-indexed
                         #(glass-ping
                           [:head high-kick-g]
                           :amp 1
