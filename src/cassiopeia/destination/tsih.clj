@@ -498,7 +498,7 @@
 (buffer-cycle! notes-buf (cycle [0]))
 (buffer-cycle! shrill-buf (cycle [0]))
 
-(buffer-cycle! bass-notes-buf (map note [:A2]))
+;;(buffer-cycle! bass-notes-buf (map note [:A2]))
 (buffer-cycle! ping-bass-seq-buf [1 0 1 0])
 
 (kill shrill-pulsar)
