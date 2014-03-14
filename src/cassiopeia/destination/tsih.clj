@@ -32,6 +32,7 @@
   (defonce growl-amp-buf (buffer 128))
 
   (defonce glass-g (group "glass"))
+  (defonce mid-glass-g (group "A little more classey glass"))
 
   (defonce mid-ping-notes-buf (buffer 32))
   (defonce mid-ping-seq-buf (buffer 32))
@@ -54,19 +55,16 @@
 (defonce mid-ping-seq-buf  (buffer 18))
 
 (do
-  (def mid-pings (doall (map-indexed #(glass-ping [:head glass-g] :amp 1 :note-buf mid-ping-notes-buf :seq-buf mid-ping-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num %2) (range 0 18))))
+  (def mid-pings (doall (map-indexed #(glass-ping [:head mid-glass-g] :amp 1 :note-buf mid-ping-notes-buf :seq-buf mid-ping-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num %2) (range 0 18))))
 
   (ctl p :amp 0)
-  (ctl q :amp 0))
+  (ctl q :amp 0)
+  (kill glass-g))
 
 (kill high-pings)
 (kill high-pings-echo)
 (kill mid-pings)
 (kill bazz)
-
-(def kick2-g (group "kick2"))
-
-(defonce kick-seq-buf (buffer 32))
 
 (do
   (kill bazz-g)
