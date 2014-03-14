@@ -63,6 +63,7 @@
 (defonce one-moment-please-s      (load-local-sample "1moment-clean.wav"))
 (defonce constant-blues-s         (load-local-sample "constant-blues.wav"))
 (defonce death-s                  (load-local-sample "oh-death.wav"))
+(defonce moore-s                  (load-local-sample "patrick-moore.wav"))
 
 ;;Triggers
 (defonce glitch1-s (freesound-sample 130301))
