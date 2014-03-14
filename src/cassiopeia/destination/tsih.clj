@@ -10,7 +10,6 @@
 (defn buffer-cycle! [buf list]
   (buffer-write! buf (take (buffer-size buf) (cycle (map #(if (keyword? %) (note %) %) list)))))
 
-
 (defsynth rise-fall-pad
   [freq 440 t 4 amt 0.3 amp 0.8 out-bus 0 note-buf 0 seq-buf 0 beat-bus 0 beat-trg-bus 0 num-steps 16 beat-num 0]
   (let [cnt      (in:kr beat-bus)
@@ -221,7 +220,7 @@
   (kill growl)
 
 
-  (def g (growl
+  (def growl-synth (growl
           :amp 2
           :beat-trg-bus (:beat time/beat-8th)
           :beat-bus (:count time/beat-8th)
@@ -329,8 +328,9 @@
                          :beat-bus (:count time/beat-1th)
                          :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num %2) (range 0 18))))
 
+(kill high-pings)
+(kill high-pings-echo)
 (kill mid-pings)
-(kill glass-ping)
 (kill bazz)
 
 (doseq [i (range 0 32)]
@@ -407,13 +407,13 @@
 ;;(ctl bazz-g :amp 0)
 
 (buffer-cycle! bass-notes-buf (map note [:A1 :A1 :A1 :A1 :A1 :A1]))
-(buffer-cycle! bass-notes-buf (map note [:A5 :A6 :A2 :A2 :A6 :A5]))
-(buffer-cycle! bass-notes-buf (map note [:E5 :E6 :E2 :E2 :E6 :E5]))
-(buffer-cycle! bass-notes-buf (map note [:D5 :D6 :D2 :D2 :D6 :D5]))
+(buffer-cycle! bass-notes-buf (map note [:A4 :A5 :A2 :A2 :A5 :A4]))
+(buffer-cycle! bass-notes-buf (map note [:E4 :E5 :E2 :E2 :E5 :E4]))
+(buffer-cycle! bass-notes-buf (map note [:D4 :D5 :D2 :D2 :D5 :D4]))
 
-(buffer-write! bass-notes-buf (take 32 (cycle (map note [:A4 :E4 :E2 :E2 :D6 :D5
-                                                         :E4 :E4 :A2 :A2 :D6 :D5
-                                                         :D4 :D4 :A2 :E2 :D6 :D5]))))
+(buffer-write! bass-notes-buf (take 32 (cycle (map note [:A4 :E4 :E2 :E2 :D5 :D4
+                                                         :E4 :E4 :A2 :A2 :D5 :D4
+                                                         :D4 :D4 :A2 :E2 :D5 :D4]))))
 
 (buffer-cycle! growl-buf (map note [:D4 :D4 0 :A4 :A4]))
 
@@ -448,7 +448,7 @@
                       :beat-bus (:count time/beat-1th)
                       :note-buf shrill-buf))
 
-(def g (growl :amp 1.5
+(def growl-synth (growl :amp 1.5
               :beat-trg-bus (:beat time/beat-4th)
               :beat-bus (:count time/beat-4th)
               :note-buf growl-buf))
@@ -470,6 +470,8 @@
                          :ring-freq (midi->hz (note :A3))))
 
 (ctl dark :ring-freq (midi->hz (note :A3)))
+
+;(kill dark-ambience)
 
 (buffer-cycle! notes-buf (map note  [:F#3 0 :F#3]))
 (buffer-cycle! notes-buf (map note  [:D3 0 :D3]))
@@ -496,42 +498,9 @@
 (kill pulsar)
 (kill growl)
 
-(def m (melody :duration-bus melody-duration-b :offset-bus melody-notes-b
-               :beat-count-bus (:count time/beat-2th) :amp 2))
-
-(kill melody)
-
-(buffer-write! melody-notes-b
-               (take 128 (cycle (shuffle (map note [:A3 :A4 :A4 :A5 :A5 :A6
-                                                    :A3 :A4 :A4 :A5 :A5 :A6
-                                                    :A3 :A4 :A4 :A5 :A5 :A6
-                                                    :D3 :D4 :D4 :D5 :D5 :D6
-                                                    :E3 :E4 :E4 :E5 :E5 :E6
-                                                    :E3 :E4 :E4 :E5 :E5 :E6
-                                                    ])))))
-
-(buffer-write! melody-notes-b
-               (take 128 (cycle (shuffle (map note [:A4 :A4 :D4 :D4 :C4 :C4])))))
-
-(buffer-write! melody-duration-b (take 128 (cycle [1/4 1/2 1/2 1/4 1/4 1/4])))
-
-(buffer-write! melody-notes-b
-               (take 128 (cycle (shuffle (map note [:E3 :E4 :E4 :E4])))))
-
-(buffer-cycle! melody-pan-buf  [0.9 0.8 0.8 -0.9 -0.8 -0.8])
-;;(buffer-cycle! melody-duration-b [1/2 1/8 1/8 0])
-
-(buffer-write! melody-notes-b
-               (take 128 (cycle (shuffle (map note [:A3 :E4 :E4 :E5 :E5 :E6])))))
-
-(buffer-write! melody-notes-b
-               (take 128 (cycle (shuffle (map note [:C2 :D2 :E2 :E2 :E2 :E4 ])))))
-
-(buffer-write! melody-duration-b (take 128 (cycle [1/8 1/4 1/4 1/8 1/8 1/8])))
-
 ;;PART 2
 
-(defsynth growler [note-buf 0 beat-bus 0 beat-trg-bus 0 amp 1]
+(defsynth growler [note-buf 0 beat-bus 0 beat-trg-bus 0 amp 1 attack 10 sustain 2 release 2]
   (let [cnt (in:kr beat-bus)
         note (buf-rd:kr 1 note-buf cnt)
         trg (in:kr beat-trg-bus)
@@ -539,7 +508,7 @@
         gate-trig (and (not= 0 note) trg)
 
         freq (midicps note)
-        e (env-gen (perc :attack 10 :sustain 2 :release 2) :gate gate-trig)
+        e (env-gen (perc attack release sustain) :gate gate-trig)
         src (mix [(sin-osc (* 1.01 freq))
                   (sin-osc freq)
                   (lpf (saw (* 0.99 freq)))])
@@ -547,69 +516,58 @@
         src (free-verb src :room 10)]
     (out 0 (pan2:ar (* famp  amp e src)))))
 
-(do
-  (defsynth fizzy-pulsar [note-buf 0 beat-bus 0 beat-trg-bus 0 size 1 r 0 amp 1 duration-bus 0]
-    (let [cnt (in:kr beat-bus)
-          note (buf-rd:kr 1 note-buf cnt)
-          trg (in:kr beat-trg-bus)
-          gate-trig (and (not= 0 note) trg)
-;;          freq (midicps note)
+(def shrill-seq-buf (buffer 18))
+(defonce shrill-dur-buf (buffer 18))
+(defsynth shrill-pong
+  [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 num-steps 8 beat-num 0 duration-bus 0]
+  (let [cnt      (in:kr beat-bus)
+        beat-trg (in:kr beat-trg-bus)
+        note     (buf-rd:kr 1 note-buf cnt)
+        duration (buf-rd:kr 1 duration-bus cnt)
+        bar-trg (and (buf-rd:kr 1 seq-buf cnt)
+                     (= beat-num (mod cnt num-steps))
+                     beat-trg)
+        freq (midicps note)
 
-          durs   (buf-rd:kr 1 duration-bus cnt)
+        src (+ [(sin-osc (* 1.01 freq))
+                (rlpf (saw freq))
+                (rlpf (pulse freq) 1200)])
+        src (free-verb src :room 10)
+        e (env-gen (adsr :release 4 :sustain 4 :attack 0.5 :curve -3) :gate bar-trg :time-scale duration)]
+    (out out-bus (* amp e src))))
 
-          trig (and (not= durs 0) (t-duty:kr (dseq durs INFINITE)))
-          freq (demand:kr trig 0 (drand note INFINITE))
-          freq (midicps freq)
+(defonce fizzy-duration (buffer 128))
+(defsynth fizzy-pulsar [note-buf 0 beat-bus 0 beat-trg-bus 0 size 1 r 0 amp 1 duration-bus 0]
+  (let [cnt (in:kr beat-bus)
+        note (buf-rd:kr 1 note-buf cnt)
+        trg (in:kr beat-trg-bus)
+        gate-trig (and (not= 0 note) trg)
+        durs   (buf-rd:kr 1 duration-bus cnt)
+        trig (and (not= durs 0) (t-duty:kr (dseq durs INFINITE)))
+        freq (demand:kr trig 0 (drand note INFINITE))
+        freq (midicps freq)
 
-;;          gate       (pulse (* 2 (+ 1 (sin-osc:kr 0.05))))
-          src (+ [(sin-osc freq)
-                  (lpf (saw freq) 1200)
-                  (lpf (pulse freq) 1200)])
-          ;; src (compander src gate 0 1)
-          ;; reverb     (free-verb compressor 0.5 0.5 dampener)
-          ;; echo       (comb-n src 0.4 0.3 0.9)
+        src (+ [(sin-osc freq)
+                (lpf (saw freq) 1200)
+                (lpf (pulse freq) 1200)])
+        src (lag src 0.005)
+        e (env-gen (adsr :release 2 :sustain 2 :attack 0.5) :gate trg :time-scale durs)]
+    (out 0 (pan2:ar (* e amp src)))))
 
-          src (lag src 0.005)
-          e (env-gen (adsr :release 2 :sustain 2 :attack 0.5) :gate trg :time-scale durs)]
-      (out 0 (pan2:ar (* e amp src)))))
-
-  (kill fizzy-pulsar)
-  (def p (fizzy-pulsar :beat-trg-bus (:beat time/beat-1th)
-                       :beat-bus (:count time/beat-1th)
-                       :note-buf notes-buf
-                       :duration-bus dura
-                       )))
-
-(def q (pulsar :beat-trg-bus (:beat time/beat-1th)
+(def p (fizzy-pulsar :beat-trg-bus (:beat time/beat-1th)
                      :beat-bus (:count time/beat-1th)
-                     :note-buf notes-buf))
+                     :note-buf notes-buf
+                     :duration-bus dura))
 
-
-(def p (pulsar :beat-trg-bus (:beat time/beat-1th)
-               :beat-bus (:count time/beat-1th)
-               :note-buf notes-buf))
-
-(def g (growler :amp 1
+(ctl growl-synth :amp 0)
+(buffer-cycle! growl-amp-buf [1])
+(def g (growler :amp 1.2
                 :beat-trg-bus (:beat time/beat-1th)
                 :beat-bus (:count time/beat-1th)
                 :note-buf growl-buf))
 
-(def q (shrill-pulsar :beat-trg-bus (:beat time/beat-1th)
-                      :beat-bus (:count time/beat-1th)
-                      :note-buf shrill-buf))
-
-(ctl time/root-s :rate 4)
-(kill growler)
-(kill pulsar)
-(kill shrill-pulsar)
-
-(ctl time/root-s :rate 4)
-
-(defonce dura (buffer 128))
-
 (buffer-cycle! dura [1/2 1/8 1/8])
 
-(buffer-cycle! growl-amp-buf [1])
 (buffer-cycle! growl-buf  [:E3 :E3 :E3     :E3 :E3 :E3
                            :E3 :E3 :E3     :E3 :E3 :E3
                            :E3 :E3 :E3     :E3 :E3 :E3
@@ -640,8 +598,9 @@
                            :A4 :E4 :G#4  :A4 :E4 :G#4
                            :A4 :E4 :G#4  :A4 :E4 :G#4])
 
+
 (doseq [i (range 0 32)]
-  (kick2
+    (kick2
    [:head kick2-g]
    :note-buf bass-notes-buf
    :seq-buf  kick-seq-buf
@@ -656,43 +615,25 @@
                              1 0 0 1 0 0
                              0 1 0 1 0 0])
 
-(kill pulsar)
+(kill growler)
 
 (ctl time/root-s :rate 4)
-(def shrill-seq-buf (buffer 18))
+
+(ctl high-kick-g :amp 0)
 (buffer-cycle! shrill-seq-buf [1])
 
 (def rise-fall (doall (map-indexed
                        #(shrill-pong
-                         :amp 0.5
+                         :amp 1
                          :note-buf shrill-buf
-                         :duration (nth (take 18 (cycle [1/2 1/4 1/4 1/2 1/4 1/4])) %2)
+                         :duration-bus shrill-dur-buf
                          :seq-buf shrill-seq-buf
                          :beat-bus (:count time/beat-1th)
                          :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :beat-num %2) (range 0 18))))
 
-(def p (shrill-pong :beat-trg-bus (:beat time/beat-1th)
-                    :beat-bus (:count time/beat-1th)
-                    :note-buf shrill-buf
-                    :duration-bus dura))
-
-(defsynth shrill-pong
-  [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 num-steps 8 beat-num 0 duration 0]
-  (let [cnt      (in:kr beat-bus)
-        beat-trg (in:kr beat-trg-bus)
-        note     (buf-rd:kr 1 note-buf cnt)
-        bar-trg (and (buf-rd:kr 1 seq-buf cnt)
-                     (= beat-num (mod cnt num-steps))
-                     beat-trg)
-        freq (midicps note)
-
-        src (+ [(sin-osc (* 1.01 freq))
-                (rlpf (saw freq))
-                (rlpf (pulse freq) 1200)])
-        src (free-verb src :room 10)
-        e (env-gen (adsr :release 4 :sustain 4 :attack 0.5 :curve -3) :gate bar-trg :time-scale duration)]
-    (out out-bus (* amp e src))))
-
+(buffer-cycle! shrill-dur-buf [1/8 1/16 1/16 1/8 1/16 1/16])
+(buffer-cycle! shrill-dur-buf [1/4 1/8 1/8 1/4 1/8 1/8])
+(buffer-cycle! shrill-dur-buf [1/2 1/4 1/4 1/2 1/4 1/4])
 
 (kill shrill-pong)
 (stop)
