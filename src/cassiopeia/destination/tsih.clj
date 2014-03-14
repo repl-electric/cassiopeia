@@ -314,7 +314,7 @@
                                :note-buf bass-notes-buf
                                :seq-buf ping-bass-seq-buf
                                :beat-bus (:count time/beat-1th)
-                               :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num (+ 2 %2)) (range 0 18))))
+                               :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num (+ 4 %2)) (range 0 18))))
 
 (defonce mid-ping-notes-buf (buffer 128))
 (defonce mid-ping-seq-buf  (buffer 128))
@@ -332,17 +332,6 @@
 (kill high-pings-echo)
 (kill mid-pings)
 (kill bazz)
-
-(doseq [i (range 0 32)]
-  (whitenoise-hat
-   [:head white-g]
-   :note-buf white-notes-buf
-   :amp (+ 0.1 (/  i 16))
-   :seq-buf  white-seq-buf
-   :beat-bus     (:count time/beat-1th)
-   :beat-trg-bus (:beat time/beat-1th)
-   :num-steps 32
-   :beat-num i))
 
 (def kick2-g (group "kick2"))
 
@@ -370,6 +359,7 @@
                             :seq-buf power-kick-seq
                             :beat-bus (:count time/beat-1th)
                             :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :beat-num %2) (range 0 16))))
+
   (buffer-cycle! power-kick-seq [1 0 0 0 0 0 0 0])
 
   (doseq [i (range 0 32)]
@@ -382,6 +372,9 @@
      :num-steps 32
      :beat-num i))
 
+  (buffer-cycle! growl-amp-buf       [1   1   0  1   1  0  1   1  0  1   1  0  1   1])
+  (buffer-cycle! growl-buf (map note [:D3 :D3 0 :E3 :E3 0 :A4 :A4 0 :D4 :D4 0 :F#4 :F#4]))
+
   (ctl time/root-s :rate 4)
   (buffer-cycle! kick-seq-buf [1 0 0 0])
   (buffer-cycle! white-seq-buf [0]))
@@ -390,6 +383,17 @@
 (kill power-kick)
 (kill kick2)
 (ctl time/root-s :rate 0)
+
+(doseq [i (range 0 32)]
+  (whitenoise-hat
+   [:head white-g]
+   :note-buf white-notes-buf
+   :amp (+ 0.1 (/  i 16))
+   :seq-buf  white-seq-buf
+   :beat-bus     (:count time/beat-1th)
+   :beat-trg-bus (:beat time/beat-1th)
+   :num-steps 32
+   :beat-num i))
 
 (buffer-cycle! white-seq-buf [1 0])
 (buffer-cycle! white-seq-buf [1])
@@ -419,6 +423,9 @@
 
 (buffer-cycle! mid-ping-seq-buf [1])
 (buffer-cycle! mid-ping-seq-buf [0])
+
+(ctl shrill-pulsar :amp 0)
+(ctl pulsar :amp 0)
 
 (buffer-cycle! mid-ping-notes-buf (map note [:A4 :A4 :D4 :D4 :D4 :E4]))
 (buffer-cycle! mid-ping-notes-buf (map note [:A4 :A4 :D4 :D4 :D4 :E4
@@ -453,12 +460,9 @@
               :beat-bus (:count time/beat-4th)
               :note-buf growl-buf))
 
-(buffer-cycle! growl-amp-buf       [1   1   0  1   1  0  1   1  0  1   1  0  1   1])
-(buffer-cycle! growl-buf (map note [:D3 :D3 0 :E3 :E3 0 :A4 :A4 0 :D4 :D4 0 :F#4 :F#4]))
-
 (buffer-cycle! growl-amp-buf       [1   1   0  1   1])
+(buffer-cycle! growl-buf (map note [:D4 :D4 0 :A4 :A4 0]))
 (buffer-cycle! growl-buf (map note [:D3 :D3 0 :E3 :E3]))
-(buffer-cycle! growl-buf (map note [:D4 :D4 0 :A4 :A4]))
 (buffer-cycle! growl-buf (map note [:D3 :D3 0 :D3 :D3]))
 
 (ctl g :amp 2.2)
@@ -481,12 +485,12 @@
                                      :D3 0 :D3
                                      :D3 0 :D3
                                      :F#3 0 :F#3
-                                     :F#3 :F#3]))
+                                     :F#3  :F#3]))
 
 ;;(buffer-cycle! notes-buf (map note  [:D3 :D3 0 0]))
 
 (buffer-cycle! shrill-buf (map note [0 :D3 0 :D3 0]))
-(buffer-cycle! shrill-buf (map note [0 :A3 0 :A3 0]))
+(buffer-cycle! shrill-buf (map note [0 :F#3 0 :F#3 0]))
 
 (buffer-cycle! notes-buf (cycle [0]))
 (buffer-cycle! shrill-buf (cycle [0]))
@@ -516,7 +520,7 @@
         src (free-verb src :room 10)]
     (out 0 (pan2:ar (* famp  amp e src)))))
 
-(def shrill-seq-buf (buffer 18))
+(defonce shrill-seq-buf (buffer 18))
 (defonce shrill-dur-buf (buffer 18))
 (defsynth shrill-pong
   [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 num-steps 8 beat-num 0 duration-bus 0]
@@ -588,16 +592,15 @@
                            0  0   :E3 0 0 :E3
                           :E3 :E3 :E3 0 0 :E3])
 
-(buffer-cycle! shrill-buf [:G#3 :E3 :D3  :G#3 :E3 :D3
-                           :G#3 :E3 :D3  :G#3 :E3 :A4
-                           :G#3 :E3 :D3 ])
-
 (buffer-cycle! shrill-buf [:G#4 :E4 :D4  :G#4 :E4 :D4
                            :G#4 :E4 :D4  :G#4 :E4 :A4
 
                            :A4 :E4 :G#4  :A4 :E4 :G#4
                            :A4 :E4 :G#4  :A4 :E4 :G#4])
 
+(buffer-cycle! shrill-buf [:G#3 :E3 :D3  :G#3 :E3 :D3
+                           :G#3 :E3 :D3  :G#3 :E3 :A4
+                           :G#3 :E3 :D3])
 
 (doseq [i (range 0 32)]
     (kick2
@@ -616,8 +619,6 @@
                              0 1 0 1 0 0])
 
 (kill growler)
-
-(ctl time/root-s :rate 4)
 
 (ctl high-kick-g :amp 0)
 (buffer-cycle! shrill-seq-buf [1])
