@@ -220,7 +220,15 @@
 (buffer-cycle! growl-amp-buf       [1   1   0  1   1])
 (buffer-cycle! growl-buf (map note [:D4 :D4 0 :A4 :A4 0]))
 (buffer-cycle! growl-buf (map note [:D3 :D3 0 :E3 :E3]))
-(buffer-cycle! growl-buf (map note [:D3 :D3 0 :D3 :D3]))
+
+(buffer-cycle! growl-buf (map note [:G3 :G3 0 :G3 :G3 0
+                                    :E3 :E3 0 :E3 :G3 0]))
+
+(buffer-cycle! growl-buf (map note [:E3 :E3 0 :E3 :E3 0
+                                    :A3 :A3 0 :A3 :A3 0]))
+
+(buffer-cycle! growl-buf (map note [:E3 :E3 0 :D3 :D3 0
+                                    :F3 :F3 0 :A3 :A3 0]))
 
 (ctl growl-synth :amp 1.8)
 
@@ -260,8 +268,8 @@
 
 ;;PART 2
 
-(defonce shrill-seq-buf (buffer 18))
-(defonce shrill-dur-buf (buffer 18))
+(def shrill-seq-buf (buffer 32))
+(def shrill-dur-buf (buffer 32))
 
 (defonce fizzy-duration (buffer 128))
 
@@ -320,7 +328,21 @@
 
                              :A5 :E5 :G#5  :A5 :E5 :G#5
                              :A5 :E5 :G#5  :A5 :E5 :G#5
+
+                             :G#4 :E4 :D4  :G#4 :E4 :D4
+                             :G#4 :E4 :D4  :G#4 :E4 :A4
+
+                             :A4 :E4 :G#4  :A4 :E4 :G#4
+                             :A4 :E4 :G#4  :A4 :E4 :G#4
+                             :A4 :E4 :G#4  :A4 :E4 :G#4
+                             :A4 :E4 :G#4  :A4 :E4 :G#4
+
+                             :B5 :E5 :G#5  :A5 :E5 :G#5
+                             :B5 :E5 :G#5  :A5 :E5 :G#5
                              ])
+
+(buffer-cycle! growl-buf [:G#2 :G#2 :G#2  :G#2  :G#2  :G#2
+                          :A3 :A3  :A3  :A3  :A3  :A3   ])
 
 (buffer-cycle! f-shrill-buf [:G#3 :E3 :D3  :G#3 :E3 :D3
                              :G#3 :E3 :D3  :G#3 :E3 :A4
@@ -355,8 +377,7 @@
           :duration-bus shrill-dur-buf
           :seq-buf shrill-seq-buf
           :beat-bus (:count time/beat-1th)
-          :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :beat-num %2) (range 0 18)))
-
+          :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num %2) (range 0 32)))
 
 (ctl shrill-pong-g :note-buf f-shrill-buf)
 
