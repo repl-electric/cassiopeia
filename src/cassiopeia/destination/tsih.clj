@@ -45,7 +45,15 @@
 
   (defonce white-seq-buf (buffer 32))
   (defonce white-notes-buf (buffer 32))
-  (defonce white-g (group "whitenoise-hat")))
+  (defonce white-g (group "whitenoise-hat"))
+
+  (def shrill-seq-buf (buffer 32))
+  (def shrill-dur-buf (buffer 32))
+
+  (defonce fizzy-duration (buffer 128))
+
+  (defonce shrill-pong-g (group "Shrill and flowey pong"))
+  (defonce f-shrill-buf (buffer 128)))
 
 (doall (map-indexed #(glass-ping [:head glass-g] :amp 1 :note-buf bass-notes-buf :seq-buf ping-bass-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num %2) (range 0 18)))
 
@@ -190,7 +198,6 @@
 
 (buffer-cycle!  kick-seq-buf [1 0 0 0])
 
-
 (defonce growl-amp-buf (buffer 128))
 (defonce growl-buf (buffer 128))
 
@@ -210,12 +217,9 @@
                         :note-buf growl-buf
                         :growl-amp-buf growl-amp-buf))
 
-(kill q p)
-
 (buffer-cycle! growl-amp-buf       [1   1   1   1   1   1   1   1   1   1])
 (buffer-cycle! growl-buf (map note [:D3 :D3 :D3  :E3 :E3 :E3  :A4 :A4 :A4
                                     :D4 :D4 :D4  :F#4 :F#4 :F#4]))
-
 
 (buffer-cycle! growl-amp-buf       [1   1   0  1   1])
 (buffer-cycle! growl-buf (map note [:D4 :D4 0 :A4 :A4 0]))
@@ -229,6 +233,8 @@
 
 (buffer-cycle! growl-buf (map note [:E3 :E3 0 :D3 :D3 0
                                     :F3 :F3 0 :A3 :A3 0]))
+
+(buffer-cycle! growl-buf (map note [:D3 :D3 0 :D3 :D3]))
 
 (ctl growl-synth :amp 1.8)
 
@@ -246,16 +252,14 @@
 (buffer-cycle! notes-buf (map note  [:D3 0 :D3]))
 (buffer-cycle! notes-buf (map note  [:E3 0 :E3]))
 
-(buffer-cycle! notes-buf (map note  [:D3 0 :D3
-                                     :D3 0 :D3
-                                     :D3 0 :D3
-                                     :F#3 0 :F#3
+(buffer-cycle! notes-buf (map note  [:D3 0 :D3 :D3 0 :D3
+                                     :D3 0 :D3 :F#3 0 :F#3
                                      :F#3 0 :F#3]))
 
 ;;(buffer-cycle! notes-buf (map note  [:D3 :D3 0 0]))
 
 (buffer-cycle! shrill-buf (map note [0 :D3 0 :D3 0]))
-(buffer-cycle! shrill-buf (map note [0 :A3 0 :A3 0]))
+(buffer-cycle! shrill-buf (map note [0 :C3 0 :C3 0]))
 
 (buffer-cycle! notes-buf (cycle [0]))
 (buffer-cycle! shrill-buf (cycle [0]))
@@ -268,15 +272,6 @@
 
 ;;PART 2
 
-(def shrill-seq-buf (buffer 32))
-(def shrill-dur-buf (buffer 32))
-
-(defonce fizzy-duration (buffer 128))
-
-(defonce shrill-pong-g (group "Shrill and flowey pong"))
-(defonce f-shrill-buf (buffer 128))
-
-
 (def p (fizzy-pulsar :beat-trg-bus (:beat time/beat-1th)
                      :beat-bus (:count time/beat-1th)
                      :note-buf notes-buf
@@ -285,8 +280,8 @@
 (ctl growl-synth :amp 0)
 (buffer-cycle! growl-amp-buf [1])
 (def g (growler :amp 1.2
-                :beat-trg-bus (:beat time/beat-1th)
-                :beat-bus (:count time/beat-1th)
+                :beat-trg-bus (:beat time/beat-4th)
+                :beat-bus (:count time/beat-4th)
                 :note-buf growl-buf
                 :growl-amp-buf growl-amp-buf))
 
@@ -348,26 +343,20 @@
                              :G#3 :E3 :D3  :G#3 :E3 :A4
                              :G#3 :E3 :D3])
 
-(doseq [i (range 0 32)]
-    (kick2
-   [:head kick2-g]
-   :note-buf bass-notes-buf
-   :seq-buf  kick-seq-buf
-   :beat-bus     (:count time/beat-1th)
-   :beat-trg-bus (:beat time/beat-1th)
-   :num-steps 32
-   :beat-num i))
 
 (ctl time/root-s :rate 4)
 (buffer-cycle! kick-seq-buf [1 0 0 1 0 0
                              1 0 0 1 0 0
                              1 0 0 1 0 0
-                             0 1 0 1 0 0])
+                             1 1 0 1 0 1])
 
 (kill bazz-g)
 (kill growler)
 
 (ctl glass-g :amp 0)
+(ctl mid-glass-g :amp 0)
+(kill glass-g)
+(kill mid-glass-g)
 
 (doall (map-indexed
         #(shrill-pong
