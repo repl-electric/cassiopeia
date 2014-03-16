@@ -11,15 +11,11 @@
 (do
   (ctl time/root-s :rate 4)
 
-  (defn buffer-cycle! [buf list]
+  (defn buf-cycle! [buf list]
     (buffer-write! buf (take (buffer-size buf) (cycle (map #(if (keyword? %) (note %) %) list)))))
 
   (defonce power-kick-g (group "Powerish kick"))
   (defonce power-kick-seq (buffer 16))
-
-  (defonce melody-duration-b (buffer 128))
-  (defonce melody-notes-b    (buffer 128))
-  (defonce melody-pan-buf (buffer 128))
 
   (defonce kick-buf (buffer 16))
   (defonce kick-seq-buf (buffer 16))
@@ -53,7 +49,17 @@
   (defonce fizzy-duration (buffer 128))
 
   (defonce shrill-pong-g (group "Shrill and flowey pong"))
-  (defonce f-shrill-buf (buffer 128)))
+  (defonce f-shrill-buf (buffer 128))
+
+  (defsynth echoey-buf
+    "Play an existing buffer with a heavy echo"
+    [b 0 frames [256 :ir] out-bus 0 thresh 0.07]
+    (let [in (play-buf 1 b (* (buf-rate-scale:kr b) 1.1))
+          chain (fft (local-buf frames) in)
+          chain (pv-mag-freeze chain -0.1)
+          output (* (ifft chain) 0.9)
+          output (+ output (comb-c:ar output 1 0.3 6))]
+      (out out-bus output))))
 
 (doall (map-indexed #(glass-ping [:head glass-g] :amp 1 :note-buf bass-notes-buf :seq-buf ping-bass-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num %2) (range 0 18)))
 
@@ -100,7 +106,7 @@
             :beat-bus (:count time/beat-1th)
             :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :beat-num %2) (range 0 16)))
 
-  (buffer-cycle! power-kick-seq [1 0 0 0 0 0 0 0])
+  (buf-cycle! power-kick-seq [1 0 0 0 0 0 0 0])
 
   (doseq [i (range 0 32)]
     (kick2
@@ -113,8 +119,8 @@
      :beat-num i))
 
   (ctl time/root-s :rate 4)
-  (buffer-cycle! kick-seq-buf [1 0 0 0])
-  (buffer-cycle! white-seq-buf [0]))
+  (buf-cycle! kick-seq-buf [1 0 0 0])
+  (buf-cycle! white-seq-buf [0]))
 
 (kill bazz)
 (kill power-kick-g)
@@ -122,15 +128,6 @@
 (ctl time/root-s :rate 0)
 
 (mono-player moore-s :amp 1 :rate 0.95)
-
-(defsynth echoey-buf [b 0 frames [256 :ir] out-bus 0 thresh 0.07]
-  (let [in (play-buf 1 b (* (buf-rate-scale:kr b) 1.1))
-        chain (fft (local-buf frames) in)
-        chain (pv-mag-freeze chain -0.1)
-        output (* (ifft chain) 0.9)
-        output (+ output (comb-c:ar output 1 0.3 6))]
-     (out out-bus output)))
-
 (echoey-buf :b moore-s)
 
 (kill white-g)
@@ -145,58 +142,56 @@
    :num-steps 32
    :beat-num i))
 
-(buffer-cycle! white-seq-buf [1 0])
-(buffer-cycle! white-seq-buf [1])
-(buffer-cycle! white-seq-buf [0 0 0 1 1 0
-                              0 0 0 0 0 0
-                              0 0 0 0 0 0
-                              0 0 0 0 0 0])
+(buf-cycle! white-seq-buf [1 0])
+(buf-cycle! white-seq-buf [1])
+(buf-cycle! white-seq-buf [0 0 0 1 1 0
+                           0 0 0 0 0 0
+                           0 0 0 0 0 0
+                           0 0 0 0 0 0])
 
 (kill whitenoise-hat)
 (kill kick2-g)
 (kill bazz)
 
-(buffer-cycle! kick-seq-buf [0 0 1 0 0 1 0 0 1 1])
+(buf-cycle! kick-seq-buf [0 0 1 0 0 1 0 0 1 1])
 
 ;;(ctl bazz-g :amp 0)
 
-(buffer-cycle! ping-bass-seq-buf [1 0 1 0])
-(buffer-cycle! bass-notes-buf (map note [:A1 :A1 :A1 :A1 :A1 :A1]))
-(buffer-cycle! bass-notes-buf (map note [:A4 :A5 :A2 :A2 :A6 :A5]))
-(buffer-cycle! bass-notes-buf (map note [:E4 :E5 :E2 :E2 :E5 :E4]))
-(buffer-cycle! bass-notes-buf (map note [:D5 :D6 :D2 :D2 :D6 :D5]))
+(buf-cycle! ping-bass-seq-buf [1 0 1 0])
 
-(buffer-write! bass-notes-buf (take 32 (cycle (map note [:A4 :E4 :E2 :E2 :D5 :D4
-                                                         :E4 :E4 :A2 :A2 :D5 :D4
-                                                         :D5 :D6 :A2 :E2 :D6 :D5]))))
+(buf-cycle! bass-notes-buf [:A1 :A1 :A1 :A1 :A1 :A1])
+(buf-cycle! bass-notes-buf [:A4 :A5 :A2 :A2 :A6 :A5])
+(buf-cycle! bass-notes-buf [:E4 :E5 :E2 :E2 :E5 :E4])
+(buf-cycle! bass-notes-buf [:D5 :D6 :D2 :D2 :D6 :D5])
+
+(buf-cycle! bass-notes-buf [:A4 :E4 :E2 :E2 :D5 :D4
+                            :E4 :E4 :A2 :A2 :D5 :D4
+                            :D5 :D6 :A2 :E2 :D6 :D5])
 
 (ctl growl-synth :amp 1)
-(buffer-cycle! growl-amp-buf [1 1 0 1 1 0])
-(buffer-cycle! growl-buf (map note [:D4 :D4 0 :A4 :A4 0]))
+(buf-cycle! growl-amp-buf [1 1 0 1 1 0])
+(buf-cycle! growl-buf [:D4 :D4 0 :A4 :A4 0])
 
-(buffer-cycle! mid-ping-seq-buf [1 1 0 0])
-(buffer-cycle! mid-ping-seq-buf [0])
+(buf-cycle! mid-ping-seq-buf [1 1 0 0])
+(buf-cycle! mid-ping-seq-buf [0])
 
-(ctl q :amp 0)
-(ctl p :amp 0)
+(buf-cycle! mid-ping-notes-buf [:A4 :A4 :D4 :D4 :D4 :E4])
+(buf-cycle! mid-ping-notes-buf [:A4 :A4 :D4 :D4 :D4 :E4
+                                0 0 0 0 0 0
+                                :A4 :A4 :D4 :D4 :D4 :F#4
+                                0 0 0 0 0 0
+                                :A4 :A4 :D4 :D4 :D4 :F#4
+                                0 0 0 0 0 0])
 
-(buffer-cycle! mid-ping-notes-buf (map note [:A4 :A4 :D4 :D4 :D4 :E4]))
-(buffer-cycle! mid-ping-notes-buf (map note [:A4 :A4 :D4 :D4 :D4 :E4
-                                             0 0 0 0 0 0
-                                             :A4 :A4 :D4 :D4 :D4 :F#4
-                                             0 0 0 0 0 0
-                                             :A4 :A4 :D4 :D4 :D4 :F#4
-                                             0 0 0 0 0 0]))
+(buf-cycle! phase-bass-buf [0 1])
+(buf-cycle! phase-bass-buf [1 1 0 0 0 0 0 0])
 
-(buffer-write! phase-bass-buf  (take 32 (cycle [0 1])))
-(buffer-write! phase-bass-buf  (take 32 (cycle [1 1 0 0 0 0 0 0])))
+(buf-cycle! phase-bass-buf [1 1 0 0 0 0 0 0
+                            1 1 0 0 0 0 0 0
+                            1 1 0 0 0 0 0 0
+                            1 0 1 0 0 0 0])
 
-(buffer-write! phase-bass-buf  (take 32 (cycle [1 1 0 0 0 0 0 0
-                                                1 1 0 0 0 0 0 0
-                                                1 1 0 0 0 0 0 0
-                                                1 0 1 0 0 0 0])))
-
-(buffer-cycle!  kick-seq-buf [1 0 0 0])
+(buf-cycle!  kick-seq-buf [1 0 0 0])
 
 (defonce growl-amp-buf (buffer 128))
 (defonce growl-buf (buffer 128))
@@ -217,54 +212,54 @@
                         :note-buf growl-buf
                         :growl-amp-buf growl-amp-buf))
 
-(buffer-cycle! growl-amp-buf       [1   1   1   1   1   1   1   1   1   1])
-(buffer-cycle! growl-buf (map note [:D3 :D3 :D3  :E3 :E3 :E3  :A4 :A4 :A4
-                                    :D4 :D4 :D4  :F#4 :F#4 :F#4]))
-
-(buffer-cycle! growl-amp-buf       [1   1   0  1   1])
-(buffer-cycle! growl-buf (map note [:D4 :D4 0 :A4 :A4 0]))
-(buffer-cycle! growl-buf (map note [:D3 :D3 0 :E3 :E3]))
-
-(buffer-cycle! growl-buf (map note [:G3 :G3 0 :G3 :G3 0
-                                    :E3 :E3 0 :E3 :G3 0]))
-
-(buffer-cycle! growl-buf (map note [:E3 :E3 0 :E3 :E3 0
-                                    :A3 :A3 0 :A3 :A3 0]))
-
-(buffer-cycle! growl-buf (map note [:E3 :E3 0 :D3 :D3 0
-                                    :F3 :F3 0 :A3 :A3 0]))
-
-(buffer-cycle! growl-buf (map note [:D3 :D3 0 :D3 :D3]))
-
-(ctl growl-synth :amp 1.8)
-
-(s/rise-fall-pad :freq (midi->hz (note :A3)))
-
 (def dark (dark-ambience :mul 0.4
                          :amp 0.4
                          :ring-freq (midi->hz (note :A3))))
 
+;;:A5 :E5 :G#5  :A5 :E5 :G#5
 (ctl dark :ring-freq (midi->hz (note :A3)))
+
+(s/rise-fall-pad :freq (midi->hz (note :A3)))
 
 ;(kill dark-ambience)
 
-(buffer-cycle! notes-buf (map note  [:F#3 0 :F#3]))
-(buffer-cycle! notes-buf (map note  [:D3 0 :D3]))
-(buffer-cycle! notes-buf (map note  [:E3 0 :E3]))
+(buf-cycle! growl-amp-buf  [1])
+(buf-cycle! growl-buf [:D3 :D3 :D3  :E3 :E3 :E3  :A4 :A4 :A4
+                       :D4 :D4 :D4  :F#4 :F#4 :F#4])
 
-(buffer-cycle! notes-buf (map note  [:D3 0 :D3 :D3 0 :D3
-                                     :D3 0 :D3 :F#3 0 :F#3
-                                     :F#3 0 :F#3]))
+(buf-cycle! growl-amp-buf [1  1 0 1 1])
+(buf-cycle! growl-buf [:D4 :D4 0 :A4 :A4 0])
+(buf-cycle! growl-buf [:D3 :D3 0 :E3 :E3])
 
-;;(buffer-cycle! notes-buf (map note  [:D3 :D3 0 0]))
+(buf-cycle! growl-buf [:G3 :G3 0 :G3 :G3 0
+                       :E3 :E3 0 :E3 :G3 0])
 
-(buffer-cycle! shrill-buf (map note [0 :D3 0 :D3 0]))
-(buffer-cycle! shrill-buf (map note [0 :C3 0 :C3 0]))
+(buf-cycle! growl-buf [:E3 :E3 0 :E3 :E3 0
+                       :A3 :A3 0 :A3 :A3 0])
 
-(buffer-cycle! notes-buf (cycle [0]))
-(buffer-cycle! shrill-buf (cycle [0]))
+(buf-cycle! growl-buf [:E3 :E3 0 :D3 :D3 0
+                       :F3 :F3 0 :A3 :A3 0])
+(buf-cycle! growl-buf [:D3 :D3 0 :D3 :D3])
 
-;;(buffer-cycle! bass-notes-buf (map note [:A2]))
+(ctl growl-synth :amp 1.8)
+
+(buf-cycle! notes-buf [:F#3 0 :F#3])
+(buf-cycle! notes-buf [:D3 0 :D3])
+(buf-cycle! notes-buf [:E3 0 :E3])
+
+(buf-cycle! notes-buf [:D3 0 :D3 :D3 0 :D3
+                       :D3 0 :D3 :F#3 0 :F#3
+                       :F#3 0 :F#3])
+
+;;(buf-cycle! notes-buf (map note  [:D3 :D3 0 0]))
+
+(buf-cycle! shrill-buf [0 :D3 0 :D3 0])
+(buf-cycle! shrill-buf [0 :A3 0 :A3 0])
+
+(buf-cycle! notes-buf [0])
+(buf-cycle! shrill-buf [0])
+
+;;(buf-cycle! bass-notes-buf (map note [:A2]))
 
 (kill shrill-pulsar)
 (kill pulsar)
@@ -278,7 +273,7 @@
                      :duration-bus fizzy-duration))
 
 (ctl growl-synth :amp 0)
-(buffer-cycle! growl-amp-buf [1])
+(buf-cycle! growl-amp-buf [1])
 (def g (growler :amp 1.2
                 :beat-trg-bus (:beat time/beat-4th)
                 :beat-bus (:count time/beat-4th)
@@ -293,62 +288,61 @@
 (ctl growl-synth :beat-bus (:count time/beat-1th)
                  :beat-trg-bus (:beat time/beat-1th))
 
-(buffer-cycle! fizzy-duration [1/2 1/8 1/8])
 
-(buffer-cycle! growl-buf  [:E3 :E3 :E3     :E3 :E3 :E3
-                           :E3 :E3 :E3     :E3 :E3 :E3
-                           :E3 :E3 :E3     :E3 :E3 :E3
-                           :E3 :E3 :E3     :E3 :E3 :E3
+(buf-cycle! fizzy-duration [1/2 1/8 1/8])
 
-                           :D3 :D3 :D3     :D3 :D3 :D3
-                           :D3 :D3 :D3     :D3 :D3 :D3
+(buf-cycle! growl-buf  [:E3 :E3 :E3     :E3 :E3 :E3
+                        :E3 :E3 :E3     :E3 :E3 :E3
+                        :E3 :E3 :E3     :E3 :E3 :E3
+                        :E3 :E3 :E3     :E3 :E3 :E3
 
-                           :F#3 :F#3 :F#3  :F#3 :F#3 :F#3
-                           :F#3 :F#3 :F#3  :F#3 :F#3 :F#3
+                        :D3 :D3 :D3     :D3 :D3 :D3
+                        :D3 :D3 :D3     :D3 :D3 :D3
 
-                           :A3 :A3 :A3  :A3 :A3 :A3
-                           :A3 :A3 :A3  :A3 :A3 :A3
+                        :F#3 :F#3 :F#3  :F#3 :F#3 :F#3
+                        :F#3 :F#3 :F#3  :F#3 :F#3 :F#3
+
+                        :A3 :A3 :A3  :A3 :A3 :A3
+                        :A3 :A3 :A3  :A3 :A3 :A3
                            ])
 
-(buffer-cycle! notes-buf  [0  0   :D3 0 0 :D3
+(buf-cycle! notes-buf  [0  0   :D3 0 0 :D3
                            0  0   :D3 0 0 :D3
                            0  0   :E3 0 0 :E3
                           :E3 :E3 :E3 0 0 :E3])
 
-(buffer-cycle! f-shrill-buf [:G#4 :E4 :D4  :G#4 :E4 :D4
-                             :G#4 :E4 :D4  :G#4 :E4 :A4
+(buf-cycle! f-shrill-buf [:G#4 :E4 :D4  :G#4 :E4 :D4
+                          :G#4 :E4 :D4  :G#4 :E4 :A4
 
-                             :A4 :E4 :G#4  :A4 :E4 :G#4
-                             :A4 :E4 :G#4  :A4 :E4 :G#4
+                          :A4 :E4 :G#4  :A4 :E4 :G#4
+                          :A4 :E4 :G#4  :A4 :E4 :G#4
 
-                             :A5 :E5 :G#5  :A5 :E5 :G#5
-                             :A5 :E5 :G#5  :A5 :E5 :G#5
+                          :A5 :E5 :G#5  :A5 :E5 :G#5
+                          :A5 :E5 :G#5  :A5 :E5 :G#5
 
-                             :G#4 :E4 :D4  :G#4 :E4 :D4
-                             :G#4 :E4 :D4  :G#4 :E4 :A4
+                          :G#4 :E4 :D4  :G#4 :E4 :D4
+                          :G#4 :E4 :D4  :G#4 :E4 :A4
 
-                             :A4 :E4 :G#4  :A4 :E4 :G#4
-                             :A4 :E4 :G#4  :A4 :E4 :G#4
-                             :A4 :E4 :G#4  :A4 :E4 :G#4
-                             :A4 :E4 :G#4  :A4 :E4 :G#4
+                          :A4 :E4 :G#4  :A4 :E4 :G#4
+                          :A4 :E4 :G#4  :A4 :E4 :G#4
+                          :A4 :E4 :G#4  :A4 :E4 :G#4
+                          :A4 :E4 :G#4  :A4 :E4 :G#4
 
-                             :B5 :E5 :G#5  :A5 :E5 :G#5
-                             :B5 :E5 :G#5  :A5 :E5 :G#5
-                             ])
+                          :B5 :E5 :G#5  :A5 :E5 :G#5
+                          :B5 :E5 :G#5  :A5 :E5 :G#5])
 
-(buffer-cycle! growl-buf [:G#2 :G#2 :G#2  :G#2  :G#2  :G#2
-                          :A3 :A3  :A3  :A3  :A3  :A3   ])
+(buf-cycle! growl-buf [:G#2 :G#2 :G#2 :G#2 :G#2 :G#2
+                       :A3  :A3  :A3  :A3  :A3  :A3])
 
-(buffer-cycle! f-shrill-buf [:G#3 :E3 :D3  :G#3 :E3 :D3
-                             :G#3 :E3 :D3  :G#3 :E3 :A4
-                             :G#3 :E3 :D3])
-
+(buf-cycle! f-shrill-buf [:G#3 :E3 :D3  :G#3 :E3 :D3
+                          :G#3 :E3 :D3  :G#3 :E3 :A4
+                          :G#3 :E3 :D3])
 
 (ctl time/root-s :rate 4)
-(buffer-cycle! kick-seq-buf [1 0 0 1 0 0
-                             1 0 0 1 0 0
-                             1 0 0 1 0 0
-                             1 1 0 1 0 1])
+(buf-cycle! kick-seq-buf [1 0 0 1 0 0
+                          1 0 0 1 0 0
+                          1 0 0 1 0 0
+                          1 1 0 1 0 1])
 
 (kill bazz-g)
 (kill growler)
@@ -370,12 +364,12 @@
 
 (ctl shrill-pong-g :note-buf f-shrill-buf)
 
-(buffer-cycle! shrill-seq-buf [1])
-(buffer-cycle! shrill-dur-buf [1/12])
+(buf-cycle! shrill-seq-buf [1])
+(buf-cycle! shrill-dur-buf [1/12])
 
-(buffer-cycle! shrill-dur-buf [1/8 1/16 1/16 1/8 1/16 1/16])
-(buffer-cycle! shrill-dur-buf [1/4 1/8 1/8 1/4 1/8 1/8])
-(buffer-cycle! shrill-dur-buf [1/2 1/4 1/4 1/2 1/4 1/4])
+(buf-cycle! shrill-dur-buf [1/8 1/16 1/16 1/8 1/16 1/16])
+(buf-cycle! shrill-dur-buf [1/4 1/8 1/8 1/4 1/8 1/8])
+(buf-cycle! shrill-dur-buf [1/2 1/4 1/4 1/2 1/4 1/4])
 
 (kill shrill-pong-g)
 (stop)
@@ -399,7 +393,7 @@
   (kill bazz)
   (kill growl)
   (kill growler)
-  (kill)
+  (kill dark-ambience)
 
   (stop)
 )
