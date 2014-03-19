@@ -96,11 +96,13 @@
      :num-steps 32
      :beat-num i))
 
+  (def s (shrill-pong [:head shrill-pong-g] :amp 1.1 :note-buf z-shrill-buf :duration-bus shrill-dur-buf :seq-buf shrill-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
+
   (ctl time/root-s :rate 4)
   (buf-cycle! kick-seq-buf [0 0 1 0 0 0
                             0 0 1 0 0 0
                             0 0 1 0 0 0
-                            0 0 1 1 0 0])
+                            0 1 1 1 0 0])
   (buf-cycle! white-seq-buf [0]))
 
 (ctl time/root-s :rate 0)
@@ -113,7 +115,7 @@
 (doseq [i (range 0 24)]
   (whitenoise-hat
    [:head white-g]
-   :amp (+ 0.1 (/  i 12))
+   :amp (+ 0.1 (/  i 10))
    :seq-buf  white-seq-buf
    :beat-bus     (:count time/beat-1th)
    :beat-trg-bus (:beat time/beat-1th)
@@ -142,13 +144,16 @@
 
   (when (node-live? p) (ctl p :amp 0))
   (when (node-live? q) (ctl q :amp 0))
+  ;;(when (node-live? q) (ctl s :amp 0))
+
+  (buf-cycle! mid-ping-seq-buf [0])
 
   (buf-cycle! growl-amp-buf  [1])
   (buf-cycle! growl-buf [:D3 :D3 :D3  :E3 :E3 :E3  :A4 :A4 :A4
                          :D4 :D4 :D4  :F#4 :F#4 :F#4])
   (kill glass-g))
 
-(buf-cycle! ping-bass-seq-buf [1 0 1 0])
+(buf-cycle! ping-bass-seq-buf [1 1 0 0])
 
 (buf-cycle! bass-notes-buf [:A2 :A2 :A4 :A5 :A2 :A6 :A5])
 (buf-cycle! bass-notes-buf [:E2 :E2 :E4 :E5 :E2 :E5 :E4])
@@ -164,8 +169,6 @@
 (buf-cycle! growl-buf [:D4 :D4 0 :A4 :A4 0])
 
 (buf-cycle! mid-ping-seq-buf [1 1 0 0])
-(buf-cycle! mid-ping-seq-buf [0])
-
 (buf-cycle! mid-ping-notes-buf [:A4 :A4 :D4 :D4 :D4 :E4])
 (buf-cycle! mid-ping-notes-buf [:A4 :A4 :D4 :D4 :D4 :E4
                                 0 0 0 0 0 0
@@ -195,9 +198,8 @@
 (buf-cycle! growl-buf [:D4 :D4 0 :A4 :A4 0])
 
 (buf-cycle! growl-amp-buf [1 1 0 1 1 0 1 1])
-
 (buf-cycle! growl-buf [:A3 :A3 0 :E3 :E3 0 :G#3 :G#3])
-(buf-cycle! growl-buf [:D3 :D3 0 :E3 :E3])
+(buf-cycle! growl-amp-buf [1 1 0 1 1])
 
 (buf-cycle! growl-buf [:G3 :G3 0 :G3 :G3 0
                        :E3 :E3 0 :E3 :G3 0])
@@ -205,25 +207,37 @@
 (buf-cycle! growl-buf [:E3 :E3 0 :E3 :E3 0
                        :A3 :A3 0 :A3 :A3 0])
 
-(buf-cycle! growl-amp-buf [1 1 0 1 1])
-(buf-cycle! growl-buf [:D3 :D3 0 :D3 :D3])
+(buf-cycle! growl-amp-buf [1 1 0 1 1 0 1 1])
+(buf-cycle! growl-buf     [:C#3 :C#3 0 :A3 :A3 0 :C#3 :C#3])
+(buf-cycle! growl-buf     [:B3 :B3 0 :D3 :D3 0 :F#3 :F#3])
+(buf-cycle! growl-buf     [:D3 :D3 0 :D3 :D3])
 
 (ctl growl-synth :amp 1.8)
 
+(buf-cycle! shrill-seq-buf [1])
+
 (buf-cycle! notes-buf [:A3 0 :A3])
 (buf-cycle! notes-buf [:E3 0 :E3])
-(buf-cycle! notes-buf [:D3 0 :D3])
 
-(buf-cycle! shrill-buf [0 :A3 0 :A3 0])
+(buf-cycle! notes-buf    [:C#3 0 :C#3])
+(buf-cycle! shrill-buf   [0 :A3 0 :A3 0])
+(buf-cycle! z-shrill-buf [0 0 :E3])
 
+(buf-cycle! notes-buf    [:D3 0 :D3])
+(buf-cycle! shrill-buf   [0 :F#3 0 :F#3 0])
+(buf-cycle! z-shrill-buf [0 0 :A3])
+
+(buf-cycle! shrill-seq-buf [0])
 (buf-cycle! notes-buf [0])
 (buf-cycle! shrill-buf [0])
 
-(def p (fizzy-pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf notes-buf :duration-bus fizzy-duration))
+(stop)
+
+(def fizzy-p (fizzy-pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf notes-buf :duration-bus fizzy-duration))
 
 (ctl growl-synth :amp 0)
 (buf-cycle! growl-amp-buf [1])
-(def g (growler :amp 1 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf :growl-amp-buf growl-amp-buf))
+(def g (growler :amp 0.8 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf :growl-amp-buf growl-amp-buf))
 
 (ctl time/root-s :rate 4)
 
@@ -274,6 +288,9 @@
 (buf-cycle! growl-buf [:G#2 :G#2 :G#2 :G#2 :G#2 :G#2
                        :A3  :A3  :A3  :A3  :A3  :A3])
 
+(buf-cycle! f-shrill-buf [:A4 :E4 :G#4  :A4 :E4 :G#4
+                          :A4 :E4 :G#4  :A4 :E4 :G#4])
+
 (buf-cycle! f-shrill-buf [:G#3 :E3 :D3  :G#3 :E3 :D3
                           :G#3 :E3 :D3  :G#3 :E3 :A4
                           :G#3 :E3 :D3])
@@ -288,8 +305,6 @@
 (kill glass-g)
 (kill mid-glass-g)
 
-(shrill-pong [:head shrill-pong-g] :amp 1 :note-buf shrill-buf :duration-bus shrill-dur-buf :seq-buf shrill-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th))
-
 ;;(kill bazz-g)
 
 (buf-cycle! white-seq-buf [0 0 0 1 1 0
@@ -299,9 +314,10 @@
 
 (ctl white-g :amp 0.4)
 
+(ctl time/root-s :rate 4)
+
 (ctl shrill-pong-g :note-buf f-shrill-buf)
 
-(buf-cycle! shrill-seq-buf [1])
 (buf-cycle! shrill-dur-buf [1/12])
 
 (buf-cycle! shrill-dur-buf [1/8 1/16 1/16 1/8 1/16 1/16])
@@ -326,6 +342,7 @@
   (kill kick2)
   (kill mid-pings)
   (kill shrill-pulsar)
+  (kill shrill-pong)
   (kill fizzy-pulsar)
   (kill pulsar)
   (kill glass-ping)
