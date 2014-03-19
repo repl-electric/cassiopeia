@@ -150,18 +150,19 @@
 
   (buf-cycle! growl-amp-buf  [1])
   (buf-cycle! growl-buf [:D3 :D3 :D3  :E3 :E3 :E3  :A4 :A4 :A4
-                         :D4 :D4 :D4  :F#4 :F#4 :F#4])
+                         :C#4 :C#4 :C#4  :F#4 :F#4 :F#4])
   (kill glass-g))
 
 (buf-cycle! ping-bass-seq-buf [1 1 0 0])
 
 (buf-cycle! bass-notes-buf [:A2 :A2 :A4 :A5 :A2 :A6 :A5])
 (buf-cycle! bass-notes-buf [:E2 :E2 :E4 :E5 :E2 :E5 :E4])
-(buf-cycle! bass-notes-buf [:D2 :D2 :D5 :D6 :D2 :D6 :D5])
+(buf-cycle! bass-notes-buf [:C#2 :C#2 :C#5 :C#6 :C#2 :C#6 :C#5])
+;;(buf-cycle! bass-notes-buf [:D2 :D2 :D5 :D6 :D2 :D6 :D5])
 
 (buf-cycle! bass-notes-buf [:A4 :E4 :E2 :E2 :D5 :D4
                             :E4 :E4 :A2 :A2 :D5 :D4
-                            :D5 :D6 :A2 :E2 :D6 :D5])
+                            :C#5 :C#6 :A2 :E2 :C#6 :C#5])
 
 (buf-cycle! bass-notes-buf [:A1 :A1 :A1 :A1 :A1 :A1])
 
@@ -225,7 +226,7 @@
 
 (buf-cycle! notes-buf    [:D3 0 :D3])
 (buf-cycle! shrill-buf   [0 :F#3 0 :F#3 0])
-(buf-cycle! z-shrill-buf [0 0 :A3])
+(buf-cycle! z-shrill-buf [0 0 :B3])
 
 (buf-cycle! shrill-seq-buf [0])
 (buf-cycle! notes-buf [0])
@@ -250,8 +251,8 @@
                         :E3 :E3 :E3     :E3 :E3 :E3
                         :E3 :E3 :E3     :E3 :E3 :E3
 
-                        :D3 :D3 :D3     :D3 :D3 :D3
-                        :D3 :D3 :D3     :D3 :D3 :D3
+                        :C#3 :C#3 :C#3     :C#3 :C#3 :C#3
+                        :C#3 :C#3 :C#3     :C#3 :C#3 :C#3
 
                         :F#3 :F#3 :F#3  :F#3 :F#3 :F#3
                         :F#3 :F#3 :F#3  :F#3 :F#3 :F#3
@@ -317,6 +318,7 @@
 (ctl time/root-s :rate 4)
 
 (ctl shrill-pong-g :note-buf f-shrill-buf)
+(ctl s :amp 1.2)
 
 (buf-cycle! shrill-dur-buf [1/12])
 
@@ -341,7 +343,6 @@
   (kill power-kick-g)
   (kill kick2)
   (kill mid-pings)
-  (kill shrill-pulsar)
   (kill shrill-pong)
   (kill fizzy-pulsar)
   (kill pulsar)
@@ -349,6 +350,8 @@
   (kill bazz)
   (kill growl)
   (kill growler)
+
+  (kill shrill-pulsar)
   (kill dark-ambience)
 
   (stop)
