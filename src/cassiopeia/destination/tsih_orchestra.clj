@@ -7,6 +7,24 @@
             ;;            [overtone.inst.drum :as drum]
             ))
 
+(defsynth spacy [buf 0 chain 0]
+  (let [in  (play-buf:ar 1 buf (buf-rate-scale:kr buf) :loop false)
+        b (local-buf 2048)
+        chain  (fft b in)
+        chain  (pv-rect-comb chain 8 0.6 0.6)
+        src (* 0.5  (ifft chain))]
+    (out 0 [src src])))
+
+(defsynth echoey-buf
+  "Play an existing buffer with a heavy echo"
+  [b 0 frames [256 :ir] out-bus 0 thresh 0.07]
+  (let [in (play-buf 1 b (* (buf-rate-scale:kr b) 1.1))
+        chain (fft (local-buf frames) in)
+        chain (pv-mag-freeze chain -0.1)
+        output (* (ifft chain) 0.9)
+        output (+ output (comb-c:ar output 1 0.3 6))]
+          (out out-bus output)))
+
 (defsynth rise-fall-pad
   [freq 440 t 4 amt 0.3 amp 0.8 out-bus 0 note-buf 0 seq-buf 0 beat-bus 0 beat-trg-bus 0 num-steps 16 beat-num 0]
   (let [cnt      (in:kr beat-bus)
@@ -82,10 +100,10 @@
         pitch-contour (line:kr (* 2 freq) freq 0.02)
         drum (lpf (sin-osc pitch-contour (sin-osc mod-freq (/ mod-index 1.3))) 1000)
         drum-env (env-gen (perc 0.005 sustain) :gate bar-trg)
-        hit (hpf (* noise (white-noise)) 500)
-        hit (lpf hit (line 6000 500 0.03))
-        hit-env (env-gen (perc))
-        src (* amp (+ (* drum drum-env) (* hit hit-env)))]
+        ;;hit (hpf (* noise (white-noise)) 500)
+        ;;hit (lpf hit (line 6000 500 0.03))
+        ;;hit-env (env-gen (perc))
+        src (* amp (+ (* drum drum-env)))]
     (out out-bus (pan2 src))))
 
 (defsynth shrill-pulsar [note-buf 0 beat-bus 0 beat-trg-bus 0 size 1 r 0 amp 1]
@@ -130,7 +148,7 @@
         sawz2    (* 0.75 (saw [(- freq 2) (+ 1 freq)]))
         sqz      (* 0.3 (pulse [sub-freq (- sub-freq 1)]))
         mixed    (* 5 (+ sawz1 sawz2 sqz))
-        env      (env-gen (adsr 0.1 3.3 0.4 0.8) :gate bar-trg)
+        env      (env-gen (adsr 0.1 3.3 0.6 1) :gate bar-trg)
         filt     (*  (moog-ff mixed (* velocity (+ freq 200)) 2.2 bar-trg))]
     (out out-bus (* amp env filt))))
 
@@ -204,15 +222,14 @@
         note     (buf-rd:kr 1 note-buf cnt)
         duration (buf-rd:kr 1 duration-bus cnt)
         bar-trg (and (buf-rd:kr 1 seq-buf cnt)
-                     (= beat-num (mod cnt num-steps))
-                     beat-trg)
+                       beat-trg)
         freq (midicps note)
 
         src (+ [(sin-osc (* 1.01 freq))
                 (rlpf (saw freq))
                 (rlpf (pulse freq) 1200)])
         src (free-verb src :room 10)
-        e (env-gen (adsr :release 4 :sustain 4 :attack 0.5 :curve -3) :gate bar-trg :time-scale duration)]
+        e (env-gen (adsr :release 4 :sustain 4 :attack 0.5 :curve -3) :gate beat-trg :time-scale duration)]
     (out out-bus (* amp e src))))
 
 (defsynth fizzy-pulsar [note-buf 0 beat-bus 0 beat-trg-bus 0 size 1 r 0 amp 1 duration-bus 0]
