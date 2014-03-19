@@ -187,8 +187,6 @@
 
 (def dark (dark-ambience :mul 0.4 :amp 0.4 :ring-freq (midi->hz (note :A3))))
 
-(stop)
-
 ;;:A5 :E5 :G#5
 (ctl dark :ring-freq (midi->hz (note :A3)))
 
