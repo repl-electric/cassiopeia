@@ -78,7 +78,7 @@
     (out out-bus (* amp env eq))))
 
 (defsynth kick2 [freq      {:default 80 :min 10 :max 20000 :step 1}
-                 amp       {:default 0.8 :min 0.001 :max 1.0 :step 0.001}
+                 amp       {:default 0.8 :min 0 :max 1.0 :step 0.001}
                  mod-freq  {:default 5 :min 0.001 :max 10.0 :step 0.01}
                  mod-index {:default 5 :min 0.001 :max 10.0 :step 0.01}
                  sustain   {:default 0.4 :min 0.001 :max 1.0 :step 0.001}
@@ -170,8 +170,8 @@
         e (env-gen (perc :attack 0 :release 1) :gate bar-trg)]
     (out out-bus (pan2 (* amp e w)))))
 
-(defsynth bazz [out-bus 0 beat-bus 0 beat-trg-bus 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 0
-                attack 0.001 release 0.1 mix 0 room 0 damp 0 amp 1]
+(defsynth high-hats [out-bus 0 beat-bus 0 beat-trg-bus 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 0
+                     attack 0.001 release 0.1 mix 0 room 0 damp 0 amp 1]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         note     (buf-rd:kr 1 note-buf cnt)
