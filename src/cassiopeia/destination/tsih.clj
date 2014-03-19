@@ -54,10 +54,10 @@
   (kill power-kick-g)
   (kill kick2-g)
 
-  (buf-cycle! phase-bass-buf [0 0 1 1 0 0 0
-                              0 0 1 1 0 0 0
-                              0 0 1 1 0 0 0
-                              0 0 1 0 1 0 0])
+  (buf-cycle! phase-bass-buf [0 0 1 1 0 0
+                              0 0 1 1 0 0
+                              0 0 1 1 0 0
+                              0 0 1 0 1 0 ])
 
   (doseq [i (range 0 32)]
     (bazz
@@ -113,7 +113,6 @@
 (doseq [i (range 0 24)]
   (whitenoise-hat
    [:head white-g]
-   :note-buf white-notes-buf
    :amp (+ 0.1 (/  i 12))
    :seq-buf  white-seq-buf
    :beat-bus     (:count time/beat-1th)
@@ -151,10 +150,9 @@
 
 (buf-cycle! ping-bass-seq-buf [1 0 1 0])
 
-(buf-cycle! bass-notes-buf [:A1 :A1 :A1 :A1 :A1 :A1])
-(buf-cycle! bass-notes-buf [:A4 :A5 :A2 :A2 :A6 :A5])
-(buf-cycle! bass-notes-buf [:E4 :E5 :E2 :E2 :E5 :E4])
-(buf-cycle! bass-notes-buf [:D5 :D6 :D2 :D2 :D6 :D5])
+(buf-cycle! bass-notes-buf [:A2 :A2 :A4 :A5 :A2 :A6 :A5])
+(buf-cycle! bass-notes-buf [:E2 :E2 :E4 :E5 :E2 :E5 :E4])
+(buf-cycle! bass-notes-buf [:D2 :D2 :D5 :D6 :D2 :D6 :D5])
 
 (buf-cycle! bass-notes-buf [:A4 :E4 :E2 :E2 :D5 :D4
                             :E4 :E4 :A2 :A2 :D5 :D4
