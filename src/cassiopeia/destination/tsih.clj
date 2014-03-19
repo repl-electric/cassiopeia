@@ -13,6 +13,7 @@
             [overtone.inst.synth :as s])
   (:use [overtone.live]
         [cassiopeia.samples]
+        [cassiopeia.view-screen]
         [cassiopeia.destination.tsih-orchestra]))
 
 (do
@@ -20,6 +21,8 @@
 
   (defn buf-cycle! [buf list]
     (buffer-write! buf (take (buffer-size buf) (cycle (map #(if (keyword? %) (note %) %) list)))))
+
+  (declare p q growl-synth)
 
   (defonce power-kick-g (group "Powerish kick"))
   (defonce power-kick-seq (buffer 16))
@@ -47,12 +50,16 @@
   (defonce shrill-dur-buf (buffer 32))
   (defonce fizzy-duration (buffer 128))
   (defonce shrill-pong-g (group "Shrill and flowery pong"))
+  (defonce z-shrill-buf (buffer 128))
   (defonce f-shrill-buf (buffer 128)))
 
 (do
   (kill bazz-g)
   (kill power-kick-g)
   (kill kick2-g)
+
+  (reset! color-l 0.9)
+  (reset! color-r 0.9)
 
   (buf-cycle! phase-bass-buf [0 0 1 1 0 0
                               0 0 1 1 0 0
@@ -158,6 +165,8 @@
 (buf-cycle! bass-notes-buf [:A2 :A2 :A4 :A5 :A2 :A6 :A5])
 (buf-cycle! bass-notes-buf [:E2 :E2 :E4 :E5 :E2 :E5 :E4])
 (buf-cycle! bass-notes-buf [:C#2 :C#2 :C#5 :C#6 :C#2 :C#6 :C#5])
+(buf-cycle! bass-notes-buf [:B2 :B2 :B5 :B6 :B2 :B6 :B5])
+
 ;;(buf-cycle! bass-notes-buf [:D2 :D2 :D5 :D6 :D2 :D6 :D5])
 
 (buf-cycle! bass-notes-buf [:A4 :E4 :E2 :E2 :D5 :D4
@@ -191,7 +200,6 @@
 
 (def dark (dark-ambience :mul 0.4 :amp 0.4 :ring-freq (midi->hz (note :A3))))
 
-;;:A5 :E5 :G#5
 (ctl dark :ring-freq (midi->hz (note :A3)))
 
 (s/rise-fall-pad :freq (midi->hz (note :A3)))
@@ -213,6 +221,9 @@
 (buf-cycle! growl-buf     [:B3 :B3 0 :D3 :D3 0 :F#3 :F#3])
 (buf-cycle! growl-buf     [:D3 :D3 0 :D3 :D3])
 
+(reset! color-l 0.1)
+(reset! color-r 0.1)
+
 (ctl growl-synth :amp 1.8)
 
 (buf-cycle! shrill-seq-buf [1])
@@ -231,8 +242,6 @@
 (buf-cycle! shrill-seq-buf [0])
 (buf-cycle! notes-buf [0])
 (buf-cycle! shrill-buf [0])
-
-(stop)
 
 (def fizzy-p (fizzy-pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf notes-buf :duration-bus fizzy-duration))
 
@@ -258,7 +267,12 @@
                         :F#3 :F#3 :F#3  :F#3 :F#3 :F#3
 
                         :A3 :A3 :A3  :A3 :A3 :A3
-                        :A3 :A3 :A3  :A3 :A3 :A3])
+                        :A3 :A3 :A3  :A3 :A3 :A3
+
+                        :B3 :B3 :B3  :B3 :B3 :B3
+                        :B3 :B3 :B3  :B3 :B3 :B3
+                        ])
+
 
 (buf-cycle! fizzy-duration [1 1/2 1/2])
 (buf-cycle! notes-buf  [0  0   :D4 0 0 :D4
@@ -329,6 +343,9 @@
 (kill shrill-pong-g)
 
 (buf-cycle! notes-buf [0])
+(buf-cycle! growl-amp-buf [1 1 0 1 1 0 1 1])
+(reset! color-l 0.0)
+(reset! color-r 0.0)
 
 (comment
   (def fx2 (fx/fx-chorus 0))
@@ -343,7 +360,6 @@
   (kill power-kick-g)
   (kill kick2)
   (kill mid-pings)
-  (kill shrill-pong)
   (kill fizzy-pulsar)
   (kill pulsar)
   (kill glass-ping)
@@ -351,6 +367,7 @@
   (kill growl)
   (kill growler)
 
+  (kill shrill-pong)
   (kill shrill-pulsar)
   (kill dark-ambience)
 

@@ -10,19 +10,19 @@ vec3 hsv2rgb(float h,float s,float v) {
   return mix(vec3(1.),clamp((abs(fract(h+vec3(3.,2.,1.)/3.)*6.-3.)-1.),0.,1.),s)*v;
 }
 
+uniform float iLColor;
+uniform float iRColor;
+
 void main(void)
 {
-    // draw a colorful waveform
     vec2  uv     = gl_FragCoord.xy/iResolution.xy;
     float wave   = texture2D(iChannel0,vec2(uv.x,0.75)).x;
-    wave         = smoothbump(0.0,(6.0/iResolution.y), wave + uv.y - 0.1);
-    vec3  wc     = wave*hsv2rgb(fract(iGlobalTime/2.0),0.9,0.9);
+    wave         = smoothbump(0.0,(6.0/iResolution.y), wave + uv.y - 0.5); //0.5
+    vec3  wc     = wave*hsv2rgb(fract(iGlobalTime/2.0),iLColor,iRColor); //0.1 0.1 0.9 0.9
 
-    // zoom into the previous frame
     float zf     = -0.05;
     vec2  uv2    = (1.0+zf)*uv-(zf/2.0,zf/2.0);
     vec3  pc     = 0.95*texture2D(iChannel1,uv2).rgb;
 
-    // mix the two
     gl_FragColor = vec4(vec3(wc+pc),1.0);
 }
