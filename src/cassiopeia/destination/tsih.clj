@@ -47,7 +47,7 @@
   (defonce shrill-dur-buf (buffer 32))
   (defonce fizzy-duration (buffer 128))
   (defonce shrill-pong-g (group "Shrill and flowery pong"))
-  (defonce f-shrill-buf (buffer 128))
+  (defonce f-shrill-buf (buffer 128)))
 
 (do
   (kill bazz-g)
