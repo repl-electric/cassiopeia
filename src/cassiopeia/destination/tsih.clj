@@ -296,9 +296,6 @@
              :B5 :E5 :G#5  :A5 :E5 :G#5
              :B5 :E5 :G#5  :A5 :E5 :G#5])
 
-(buf-cycle! growl-buf [:G#2 :G#2 :G#2 :G#2 :G#2 :G#2
-                       :A3  :A3  :A3  :A3  :A3  :A3])
-
 (buf-cycle! shrill-pong-final-buf
             [:A4 :E4 :G#4  :A4 :E4 :G#4
              :A4 :E4 :G#4  :A4 :E4 :G#4])
