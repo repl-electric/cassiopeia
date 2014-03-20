@@ -329,7 +329,7 @@
 
 (ctl time/root-s :rate 4)
 
-(ctl shrill-pong-g :note-buf shrill-pong-final-buf)
+(ctl voice-g :note-buf shrill-pong-final-buf)
 (ctl s :amp 1.2)
 
 (buf-cycle! shrill-dur-buf [1/12])
@@ -341,8 +341,6 @@
 ;;(mono-player moore-s :amp 1 :rate 1)
 ;;(echoey-buf :b moore-s)
 ;;(spacy moore-s)
-
-(kill shrill-pong-g)
 
 (buf-cycle! notes-buf [0])
 (buf-cycle! growl-amp-buf [1 1 0 1 1 0 1 1])
