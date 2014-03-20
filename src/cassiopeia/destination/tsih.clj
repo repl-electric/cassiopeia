@@ -10,7 +10,8 @@
   (:require [cassiopeia.engine.timing :as time]
             [overtone.studio.fx :as fx]
             [cassiopeia.engine.mixers :as mix]
-            [overtone.inst.synth :as s])
+            [overtone.inst.synth :as s]
+            [shadertone.tone :as t])
   (:use [overtone.live]
 ;;        [cassiopeia.samples]
         [cassiopeia.view-screen]
@@ -347,6 +348,11 @@
 (buf-cycle! growl-amp-buf [1 1 0 1 1 0 1 1])
 (reset! color-l 0.0)
 (reset! color-r 0.0)
+
+(t/start-fullscreen "resources/shaders/zoomwave.glsl"
+                    :textures [ :overtone-audio :previous-frame]
+                    :user-data {"iLColor" color-l "iRColor" color-r
+                                "iA" (atom {:synth s :tap "a"})})
 
 (comment
   (def fx2 (fx/fx-chorus 0))
