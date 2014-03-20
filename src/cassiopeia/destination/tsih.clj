@@ -14,7 +14,7 @@
   (:use [overtone.live]
 ;;        [cassiopeia.samples]
         [cassiopeia.view-screen]
-        [cassiopeia.destination.tsih-orchestra]))
+        [cassiopeia.engine.synths]))
 (stop)
 (do
   (ctl time/root-s :rate 4)

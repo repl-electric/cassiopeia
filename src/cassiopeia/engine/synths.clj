@@ -1,11 +1,9 @@
-(ns cassiopeia.destination.tsih-orchestra
+(ns cassiopeia.engine.synths
   (:use overtone.live)
   (:require [cassiopeia.engine.timing :as time]
             [overtone.studio.fx :as fx]
             [cassiopeia.engine.mixers :as mix]
-            [overtone.inst.synth :as s]
-            ;;            [overtone.inst.drum :as drum]
-            ))
+            [overtone.inst.synth :as s]))
 
 (defsynth spacy [buf 0 chain 0]
   (let [in  (play-buf:ar 1 buf (buf-rate-scale:kr buf) :loop false)
@@ -23,7 +21,7 @@
         chain (pv-mag-freeze chain -0.1)
         output (* (ifft chain) 0.9)
         output (+ output (comb-c:ar output 1 0.3 6))]
-          (out out-bus output)))
+    (out out-bus output)))
 
 (defsynth rise-fall-pad
   [freq 440 t 4 amt 0.3 amp 0.8 out-bus 0 note-buf 0 seq-buf 0 beat-bus 0 beat-trg-bus 0 num-steps 16 beat-num 0]
@@ -222,7 +220,7 @@
         note     (buf-rd:kr 1 note-buf cnt)
         duration (buf-rd:kr 1 duration-bus cnt)
         bar-trg (and (buf-rd:kr 1 seq-buf cnt)
-                       beat-trg)
+                     beat-trg)
         freq (midicps note)
 
         src (+ [(sin-osc (* 1.01 freq))
@@ -247,4 +245,4 @@
                 (lpf (pulse freq) 1200)])
         src (lag src 0.005)
         e (env-gen (adsr :release 2 :sustain 2 :attack 0.5) :gate trg :time-scale durs)]
-        (out 0 (pan2:ar (* e amp src)))))
+    (out 0 (pan2:ar (* e amp src)))))
