@@ -130,8 +130,7 @@
         src (pitch-shift src 0.4 1 0 0.01)]
     (out 0 (pan2:ar (* famp  amp e src)))))
 
-(defsynth glass-ping
-  [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 num-steps 8 beat-num 0]
+(defsynth glass-ping [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 num-steps 8 beat-num 0]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         note     (buf-rd:kr 1 note-buf cnt)
@@ -213,8 +212,7 @@
     (out 0 (pan2:ar (* famp  amp e src)))))
 
 
-(defsynth shrill-pong
-  [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 num-steps 8 beat-num 0 duration-bus 0]
+(defsynth shrill-pong [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 duration-bus 0]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         note     (buf-rd:kr 1 note-buf cnt)
