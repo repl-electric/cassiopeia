@@ -225,7 +225,7 @@
                 (rlpf (saw freq))
                 (rlpf (pulse freq) 1200)])
         src (free-verb src :room 10)
-        _ (tap "a" 60 src)
+        _ (tap "a" 60 (a2k src))
         e (env-gen (adsr :release 4 :sustain 4 :attack 0.5 :curve -3) :gate beat-trg :time-scale duration)]
     (out out-bus (* amp e src))))
 

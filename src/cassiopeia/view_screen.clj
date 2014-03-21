@@ -6,6 +6,8 @@
 
 (def color-l (atom 0.0))
 (def color-r (atom 0.0))
+(def res     (atom 0.75))
+(def space   (atom 0.1))
 
 (comment
   (t/start-fullscreen "resources/shaders/zoomwave.glsl"

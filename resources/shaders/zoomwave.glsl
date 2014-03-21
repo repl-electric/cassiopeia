@@ -12,17 +12,23 @@ vec3 hsv2rgb(float h,float s,float v) {
 
 uniform float iLColor;
 uniform float iRColor;
+uniform float iA;
+uniform float iRes;
+uniform float iSpace;
 
 void main(void)
 {
-    vec2  uv     = gl_FragCoord.xy/iResolution.xy;
-    float wave   = texture2D(iChannel0,vec2(uv.x,0.75)).x;
-    wave         = smoothbump(0.0,(6.0/iResolution.y), wave + uv.y - 0.5); //0.5
-    vec3  wc     = wave*hsv2rgb(fract(iGlobalTime/2.0),iLColor,iRColor); //0.1 0.1 0.9 0.9
+  float space = 0.1;
+  float res = 0.75;
+  vec2  uv     = gl_FragCoord.xy/iResolution.xy;
 
-    float zf     = -0.05;
-    vec2  uv2    = (1.0+zf)*uv-(zf/2.0,zf/2.0);
-    vec3  pc     = 0.95*texture2D(iChannel1,uv2).rgb;
+  float wave   = texture2D(iChannel0,vec2(uv.x,iRes)).x;
+  wave         = smoothbump(0.2,(6.0/iResolution.y), wave+uv.y-0.1); //0.5
+  vec3  wc     = wave*hsv2rgb(fract(iGlobalTime/2.0),iLColor,iRColor); //0.1 0.1 0.9 0.9
 
-    gl_FragColor = vec4(vec3(wc+pc),1.0);
+  float zf     = -0.05;
+  vec2  uv2    = (1.0+zf)*uv-(zf/2.0,zf/2.0);
+  vec3  pc     = iSpace*texture2D(iChannel1,uv2).rgb;
+
+  gl_FragColor = vec4(vec3(wc+pc),1.0);
 }

@@ -13,7 +13,7 @@
             [overtone.inst.synth :as s]
             [shadertone.tone :as t])
   (:use [overtone.live]
-;;        [cassiopeia.samples]
+        [cassiopeia.samples]
         [cassiopeia.view-screen]
         [cassiopeia.engine.synths]))
 (stop)
@@ -114,6 +114,7 @@
                             0 1 1 1 0 0])
   (buf-cycle! white-seq-buf [0]))
 
+(reset! res 0.9)
 (ctl time/root-s :rate 0)
 
 (kill whitenoise-hat)
@@ -127,7 +128,7 @@
                     :num-steps 24
                     :beat-num %1) (range 0 24))))
 
-(buf-cycle! white-seq-buf [1 0])
+
 (buf-cycle! white-seq-buf [1])
 (buf-cycle! white-seq-buf [0 0 0 1 1 0
                            0 0 0 0 0 0
@@ -196,6 +197,7 @@
 
 (def growl-synth (growl [:head bass-g] :amp 1.8 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf :growl-amp-buf growl-amp-buf))
 
+(reset! color-r 0.9)
 (def dark (dark-ambience :mul 0.4 :amp 0.4 :ring-freq (midi->hz (note :A3))))
 
 (ctl dark :ring-freq (midi->hz (note :A3)))
@@ -214,7 +216,7 @@
 (buf-cycle! growl-buf [:E3 :E3 0 :E3 :E3 0
                        :A3 :A3 0 :A3 :A3 0])
 
-(buf-cycle! growl-amp-buf [1 1 0 1 1 0 1 1])
+(buf-cycle! growl-amp-buf [1])
 (buf-cycle! growl-buf     [:C#3 :C#3 0 :A3 :A3 0 :C#3 :C#3])
 (buf-cycle! growl-buf     [:B3 :B3 0 :D3 :D3 0 :F#3 :F#3])
 (buf-cycle! growl-buf     [:D3 :D3 0 :D3 :D3])
@@ -326,6 +328,7 @@
 
 (ctl time/root-s :rate 4)
 
+(reset! space 0.9)
 (ctl voice-g :note-buf shrill-pong-final-buf)
 (ctl s :amp 1.2)
 
@@ -338,18 +341,26 @@
 ;;(mono-player moore-s :amp 1 :rate 1)
 ;;(echoey-buf :b moore-s)
 ;;(spacy moore-s)
+;;(echoey-buf signals-s)
+;;(spacy signals-s)
 
 (buf-cycle! notes-buf [0])
 (buf-cycle! growl-amp-buf [1 1 0 1 1 0 1 1])
+
 (reset! color-l 0.0)
 (reset! color-r 0.0)
+(reset! space 0.0)
+(reset! res 0.15)
 
 (t/start-fullscreen "resources/shaders/zoomwave.glsl"
                     :textures [ :overtone-audio :previous-frame]
                     :user-data {"iLColor" color-l "iRColor" color-r
+                                "iRes" res
+                                "iSpace" space
                                 "iA" (atom {:synth s :tap "a"})})
 
 (comment
+  (t/stop)
   (def fx2 (fx/fx-chorus 0))
   (def fx3 (fx/fx-echo 0))
 
