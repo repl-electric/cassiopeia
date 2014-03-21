@@ -4,7 +4,8 @@
     |    |______   |   |_____|
     |    ______| __|__ |     |
 
- An eruptive variable star, whose brightness changes irregularly between +2.15 mag and +3.40 mag
+ An eruptive variable star, whose brightness changes irregularly between
+ +2.15 mag and +3.40 mag
 "
 
   (:require [cassiopeia.engine.timing :as time]
@@ -50,7 +51,6 @@
   (defonce shrill-seq-buf (buffer 32))
   (defonce shrill-dur-buf (buffer 32))
   (defonce fizzy-duration (buffer 128))
-  (defonce shrill-pong-g (group "Shrill and flowery pong"))
   (defonce shrill-pong-buf (buffer 128))
   (defonce shrill-pong-final-buf (buffer 128)))
 
@@ -66,6 +66,8 @@
                               0 0 1 1 0 0
                               0 0 1 1 0 0
                               0 0 1 0 1 0])
+
+  (buf-cycle! bass-notes-buf [:A1])
 
   (def hats
     (doall (map #(high-hats
@@ -129,7 +131,7 @@
                     :beat-num %1) (range 0 24))))
 
 
-(buf-cycle! white-seq-buf [1])
+(buf-cycle! white-seq-buf [])
 (buf-cycle! white-seq-buf [0 0 0 1 1 0
                            0 0 0 0 0 0
                            0 0 0 0 0 0
@@ -177,6 +179,7 @@
 (buf-cycle! growl-amp-buf [1 1 0 1 1 0])
 (buf-cycle! growl-buf [:D4 :D4 0 :A4 :A4 0])
 
+(buf-cycle! kick-seq-buf [1 1 0 0])
 (buf-cycle! mid-ping-seq-buf [1 1 0 0])
 (buf-cycle! mid-ping-notes-buf [:A4 :A4 :D4 :D4 :D4 :E4])
 (buf-cycle! mid-ping-notes-buf [:A4 :A4 :D4 :D4 :D4 :E4
@@ -195,7 +198,7 @@
 
 (def q (shrill-pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf shrill-buf :amp 0.7))
 
-(def growl-synth (growl [:head bass-g] :amp 1.8 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf :growl-amp-buf growl-amp-buf))
+(def growl-synth (growl [:head bass-g] :amp 0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf :growl-amp-buf growl-amp-buf))
 
 (reset! color-r 0.9)
 (def dark (dark-ambience :mul 0.4 :amp 0.4 :ring-freq (midi->hz (note :A3))))
@@ -216,7 +219,7 @@
 (buf-cycle! growl-buf [:E3 :E3 0 :E3 :E3 0
                        :A3 :A3 0 :A3 :A3 0])
 
-(buf-cycle! growl-amp-buf [1])
+(buf-cycle! growl-amp-buf [1 1 0 0 1 1 0 1 1])
 (buf-cycle! growl-buf     [:C#3 :C#3 0 :A3 :A3 0 :C#3 :C#3])
 (buf-cycle! growl-buf     [:B3 :B3 0 :D3 :D3 0 :F#3 :F#3])
 (buf-cycle! growl-buf     [:D3 :D3 0 :D3 :D3])
@@ -238,6 +241,8 @@
 (buf-cycle! notes-buf    [:D3 0 :D3])
 (buf-cycle! shrill-buf   [0 :F#3 0 :F#3 0])
 (buf-cycle! shrill-pong-buf [0 0 :B3])
+
+(ctl bass-g :amp 1.8)
 
 (buf-cycle! shrill-seq-buf [0])
 (buf-cycle! notes-buf [0])
@@ -366,8 +371,6 @@
 
   (kill fx2)
   (kill fx3)
-  (kill drums-g)
-  (kill bass-g)
 
   (kill whitenoise-hat)
   (kill kick2)
@@ -379,6 +382,9 @@
   (kill glass-ping)
   (kill growl)
   (kill growler)
+
+  (kill drums-g)
+  (kill bass-g)
 
   (kill shrill-pong)
   (kill shrill-pulsar)
