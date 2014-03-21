@@ -131,7 +131,7 @@
                     :beat-num %1) (range 0 24))))
 
 
-(buf-cycle! white-seq-buf [])
+(buf-cycle! white-seq-buf [1 ])
 (buf-cycle! white-seq-buf [0 0 0 1 1 0
                            0 0 0 0 0 0
                            0 0 0 0 0 0
@@ -179,7 +179,7 @@
 (buf-cycle! growl-amp-buf [1 1 0 1 1 0])
 (buf-cycle! growl-buf [:D4 :D4 0 :A4 :A4 0])
 
-(buf-cycle! kick-seq-buf [1 1 0 0])
+(buf-cycle! kick-seq-buf     [1 1 0 0])
 (buf-cycle! mid-ping-seq-buf [1 1 0 0])
 (buf-cycle! mid-ping-notes-buf [:A4 :A4 :D4 :D4 :D4 :E4])
 (buf-cycle! mid-ping-notes-buf [:A4 :A4 :D4 :D4 :D4 :E4
@@ -197,8 +197,6 @@
 (def p (pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf notes-buf :amp 0.7))
 
 (def q (shrill-pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf shrill-buf :amp 0.7))
-
-(def growl-synth (growl [:head bass-g] :amp 0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf :growl-amp-buf growl-amp-buf))
 
 (reset! color-r 0.9)
 (def dark (dark-ambience :mul 0.4 :amp 0.4 :ring-freq (midi->hz (note :A3))))
@@ -227,8 +225,6 @@
 (reset! color-l 0.1)
 (reset! color-r 0.1)
 
-(ctl growl-synth :amp 1.8)
-
 (buf-cycle! shrill-seq-buf [1])
 
 (buf-cycle! notes-buf [:A3 0 :A3])
@@ -242,6 +238,7 @@
 (buf-cycle! shrill-buf   [0 :F#3 0 :F#3 0])
 (buf-cycle! shrill-pong-buf [0 0 :B3])
 
+(def growl-synth (growl [:head bass-g] :amp 1.8 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf :growl-amp-buf growl-amp-buf))
 (ctl bass-g :amp 1.8)
 
 (buf-cycle! shrill-seq-buf [0])
