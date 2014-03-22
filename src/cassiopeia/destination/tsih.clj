@@ -231,7 +231,7 @@
 (buf-cycle! notes-buf [:E3 0 :E3])
 
 (buf-cycle! notes-buf    [:C#3 0 :C#3])
-(buf-cycle! shrill-buf   [0 :A3 0 :A3 0])
+(buf-cycle! shrill-buf   [0 :A3])
 (buf-cycle! shrill-pong-buf [0 0 :E3])
 
 (buf-cycle! notes-buf    [:D3 0 :D3])
@@ -336,9 +336,9 @@
 
 (buf-cycle! shrill-dur-buf [1/12])
 
-(buf-cycle! shrill-dur-buf [1/8 1/16 1/16 1/8 1/16 1/16])
-(buf-cycle! shrill-dur-buf [1/4 1/8 1/8 1/4 1/8 1/8])
-(buf-cycle! shrill-dur-buf [1/2 1/4 1/4 1/2 1/4 1/4])
+(buf-cycle! shrill-dur-buf [1/8 1/16 1/16])
+(buf-cycle! shrill-dur-buf [1/4 1/8 1/8])
+(buf-cycle! shrill-dur-buf [1/2 1/4 1/4])
 
 ;;(mono-player moore-s :amp 1 :rate 1)
 ;;(echoey-buf :b moore-s)
