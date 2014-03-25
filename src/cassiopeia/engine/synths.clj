@@ -108,27 +108,27 @@
   (let [cnt (in:kr beat-bus)
         note (buf-rd:kr 1 note-buf cnt)
         trg (in:kr beat-trg-bus)
-        gate-trig (and (not= 0 note) trg)
+        gate-trig (and (> note 0) trg)
+        vol (set-reset-ff gate-trig)
+
         freq (midicps note)
         src (+ [(lpf (saw freq) 500)] [(sin-osc (* 1.01 freq))])
         src (rlpf src 1200 0.3)
         e (env-gen (adsr :release 1) :gate gate-trig)]
-    (out 0 (pan2:ar (* amp e src)))))
+    (out 0 (pan2:ar (* vol amp e src)))))
 
-(defsynth growl [note-buf 0 beat-bus 0 beat-trg-bus 0 amp 1
-                 growl-amp-buf 0]
+(defsynth growl [note-buf 0 beat-bus 0 beat-trg-bus 0 amp 1]
   (let [cnt (in:kr beat-bus)
-        note (buf-rd:kr 1 note-buf cnt)
         trg (in:kr beat-trg-bus)
-        famp (buf-rd:kr 1 growl-amp-buf cnt)
-        gate-trig (and (not= 0 note) trg)
-
+        note (buf-rd:kr 1 note-buf cnt)
         freq (midicps note)
-        e (env-gen (perc :attack 10 :sustain 2 :release 2) :gate gate-trig)
+        vol (> note 0)
+
+        e (env-gen (perc :attack 10 :sustain 1 :release 1) :gate trg)
         src (lpf (mix [(saw (* 0.25 freq))
                        (sin-osc (* 1.01 freq))]))
         src (pitch-shift src 0.4 1 0 0.01)]
-    (out 0 (pan2:ar (* famp  amp e src)))))
+    (out 0 (pan2:ar (* vol amp e src)))))
 
 (defsynth glass-ping [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 num-steps 8 beat-num 0]
   (let [cnt      (in:kr beat-bus)
@@ -188,19 +188,20 @@
   (let [cnt (in:kr beat-bus)
         note (buf-rd:kr 1 note-buf cnt)
         trg (in:kr beat-trg-bus)
-        gate-trg (and (not= note 0) trg)
+        gate-trg (and (> note 0) trg)
 
+        vol (set-reset-ff gate-trg)
         freq (midicps note)
         src (lpf (saw freq) 400)
         e (env-gen (perc) :gate gate-trg)]
-    (out 0 (pan2:ar (* amp e src) (sin-osc:kr 2)))))
+    (out 0 (pan2:ar (* vol amp e src) (sin-osc:kr 2)))))
 
-(defsynth growler [note-buf 0 beat-bus 0 beat-trg-bus 0 amp 1 attack 10 sustain 2 release 2 growl-amp-buf 0]
+(defsynth growler [note-buf 0 beat-bus 0 beat-trg-bus 0 amp 1 attack 10 sustain 2 release 2]
   (let [cnt (in:kr beat-bus)
         note (buf-rd:kr 1 note-buf cnt)
         trg (in:kr beat-trg-bus)
-        famp (buf-rd:kr 1 growl-amp-buf cnt)
-        gate-trig (and (not= 0 note) trg)
+        gate-trig (and (> note 0) trg)
+        vol (set-reset-ff gate-trig)
 
         freq (midicps note)
         e (env-gen (perc attack release sustain) :gate gate-trig)
@@ -209,17 +210,17 @@
                   (lpf (saw (* 0.99 freq)))])
         src (pitch-shift src 0.4 1 0 0.01)
         src (free-verb src :room 10)]
-    (out 0 (pan2:ar (* famp  amp e src)))))
-
+    (out 0 (pan2:ar (* vol amp e src)))))
 
 (defsynth shrill-pong [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 duration-bus 0]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         note     (buf-rd:kr 1 note-buf cnt)
         duration (buf-rd:kr 1 duration-bus cnt)
-        bar-trg (and (buf-rd:kr 1 seq-buf cnt)
-                     beat-trg)
+        bar-trg (and (> note 0) beat-trg)
         freq (midicps note)
+
+        vol (set-reset-ff bar-trg)
 
         src (+ [(sin-osc (* 1.01 freq))
                 (rlpf (saw freq))
@@ -227,13 +228,14 @@
         src (free-verb src :room 10)
         _ (tap "a" 60 (a2k src))
         e (env-gen (adsr :release 4 :sustain 4 :attack 0.5 :curve -3) :gate beat-trg :time-scale duration)]
-    (out out-bus (* amp e src))))
+    (out out-bus (* vol amp e src))))
 
 (defsynth fizzy-pulsar [note-buf 0 beat-bus 0 beat-trg-bus 0 size 1 r 0 amp 1 duration-bus 0]
   (let [cnt (in:kr beat-bus)
         note (buf-rd:kr 1 note-buf cnt)
         trg (in:kr beat-trg-bus)
-        gate-trig (and (not= 0 note) trg)
+        gate-trig (and (> note 0) trg)
+        vol (set-reset-ff gate-trig)
         durs   (buf-rd:kr 1 duration-bus cnt)
         trig (and (not= durs 0) (t-duty:kr (dseq durs INFINITE)))
         freq (demand:kr trig 0 (drand note INFINITE))
@@ -244,4 +246,4 @@
                 (lpf (pulse freq) 1200)])
         src (lag src 0.005)
         e (env-gen (adsr :release 2 :sustain 2 :attack 0.5) :gate trg :time-scale durs)]
-    (out 0 (pan2:ar (* e amp src)))))
+    (out 0 (pan2:ar (* vol amp e src)))))

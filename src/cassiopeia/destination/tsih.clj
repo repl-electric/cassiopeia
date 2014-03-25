@@ -53,7 +53,6 @@
   (defonce notes-buf (buffer 128))
   (defonce shrill-buf (buffer 128))
   (defonce growl-buf (buffer 128))
-  (defonce growl-amp-buf (buffer 128))
   (defonce glass-g (group "glass"))
   (defonce mid-glass-g (group "A little more classey glass"))
   (defonce mid-ping-notes-buf (buffer 32))
@@ -124,7 +123,7 @@
      :num-steps 32
      :beat-num i))
 
-  (def s (shrill-pong [:head voice-g] :amp 1.1 :note-buf shrill-pong-buf :duration-bus shrill-dur-buf :seq-buf shrill-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
+  (def s (shrill-pong [:head voice-g] :amp 1.1 :note-buf shrill-pong-buf :duration-bus shrill-dur-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
 
   (ctl time/root-s :rate 4)
   (buf-cycle! kick-seq-buf [0 0 1 0 0 0
@@ -173,7 +172,6 @@
 
   (buf-cycle! mid-ping-seq-buf [0])
 
-  (buf-cycle! growl-amp-buf  [1])
   (buf-cycle! growl-buf [:D3 :D3 :D3  :E3 :E3 :E3  :A4 :A4 :A4
                          :C#4 :C#4 :C#4  :F#4 :F#4 :F#4])
   (kill glass-g))
@@ -193,7 +191,6 @@
 
 (buf-cycle! bass-notes-buf [:A1 :A1 :A1 :A1 :A1 :A1])
 
-(buf-cycle! growl-amp-buf [1 1 0 1 1 0])
 (buf-cycle! growl-buf [:D4 :D4 0 :A4 :A4 0])
 
 (buf-cycle! kick-seq-buf     [1 1 0 0])
@@ -224,9 +221,7 @@
 
 (buf-cycle! growl-buf [:D4 :D4 0 :A4 :A4 0])
 
-(buf-cycle! growl-amp-buf [1 1 0 1 1 0 1 1])
 (buf-cycle! growl-buf [:A3 :A3 0 :E3 :E3 0 :G#3 :G#3])
-(buf-cycle! growl-amp-buf [1 1 0 1 1])
 
 (buf-cycle! growl-buf [:G3 :G3 0 :G3 :G3 0
                        :E3 :E3 0 :E3 :G3 0])
@@ -234,10 +229,9 @@
 (buf-cycle! growl-buf [:E3 :E3 0 :E3 :E3 0
                        :A3 :A3 0 :A3 :A3 0])
 
-(buf-cycle! growl-amp-buf [1 1 0 0 1 1 0 1 1])
-(buf-cycle! growl-buf     [:C#3 :C#3 0 :A3 :A3 0 :C#3 :C#3])
-(buf-cycle! growl-buf     [:B3 :B3 0 :D3 :D3 0 :F#3 :F#3])
-(buf-cycle! growl-buf     [:D3 :D3 0 :D3 :D3])
+(buf-cycle! growl-buf [:C#3 :C#3 0 :A3 :A3 0 :C#3 :C#3])
+(buf-cycle! growl-buf [:B3 :B3 0 :D3 :D3 0 :F#3 :F#3])
+(buf-cycle! growl-buf [:D3 :D3 0 :D3 :D3])
 
 (reset! color-l 0.1)
 (reset! color-r 0.1)
@@ -248,14 +242,14 @@
 (buf-cycle! notes-buf [:E3 0 :E3])
 
 (buf-cycle! notes-buf    [:C#3 0 :C#3])
-(buf-cycle! shrill-buf   [0 :A3])
+(buf-cycle! shrill-buf   [0 0 :A3 0 :A3 0])
 (buf-cycle! shrill-pong-buf [0 0 :E3])
 
 (buf-cycle! notes-buf    [:D3 0 :D3])
 (buf-cycle! shrill-buf   [0 :F#3 0 :F#3 0])
 (buf-cycle! shrill-pong-buf [0 0 :B3])
 
-(def growl-synth (growl [:head bass-g] :amp 1.8 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf :growl-amp-buf growl-amp-buf))
+(def growl-synth (growl [:head bass-g] :amp 1.8 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf))
 (ctl bass-g :amp 1.8)
 
 (buf-cycle! shrill-seq-buf [0])
@@ -265,8 +259,7 @@
 (def fizzy-p (fizzy-pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf notes-buf :duration-bus fizzy-duration))
 
 (ctl growl-synth :amp 0)
-(buf-cycle! growl-amp-buf [1])
-(def g (growler [:head bass-g] :amp 0.8 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf :growl-amp-buf growl-amp-buf))
+(def g (growler [:head bass-g] :amp 0.8 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf))
 
 (ctl time/root-s :rate 4)
 
@@ -364,7 +357,7 @@
 ;;(spacy signals-s)
 
 (buf-cycle! notes-buf [0])
-(buf-cycle! growl-amp-buf [1 1 0 1 1 0 1 1])
+(buf-cycle! growl-buf     [:D3 :D3 0 :D3 :D3])
 
 (reset! color-l 0.0)
 (reset! color-r 0.0)
