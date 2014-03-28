@@ -321,11 +321,13 @@
 (def view-port "journey.glsl")
 
 (t/start-fullscreen (str "resources/shaders/" view-port)
-                    :textures [ :overtone-audio :previous-frame]
+                    :textures [:overtone-audio :previous-frame]
                     :user-data {"iLColor" color-l "iRColor" color-r
                                 "iRes" res
                                 "iSpace" space
-                                "iA" (atom {:synth s :tap "a"})})
+        ;;                        "iA" (atom {:synth s :tap "a"})
+                                "iG" (atom {:synth growl-synth :tap "g"})})
+
 
 (comment
   (t/stop)
