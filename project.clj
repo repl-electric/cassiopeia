@@ -12,6 +12,9 @@
 
                [shadertone "0.2.3-SNAPSHOT"]
 
+               [rogerallen/leaplib "0.8.1"]
+               [rogerallen/leaplib-natives "0.8.1"]
+
                [overtone.synths "0.1.0-SNAPSHOT"]
                [overtone.orchestra "0.1.0-SNAPSHOT"]]
 
