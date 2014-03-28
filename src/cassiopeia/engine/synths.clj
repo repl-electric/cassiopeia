@@ -131,8 +131,10 @@
         e (env-gen (perc :attack 10 :sustain 1 :release 1) :gate trg)
         src (lpf (mix [(saw (* 0.25 freq))
                        (sin-osc (* 1.01 freq))]))
-        src (pitch-shift src 0.4 1 0 0.01)]
-    (out 0 (pan2:ar (* vol amp e src)))))
+        src (pitch-shift src 0.4 1 0 0.01)
+        src (pan2:ar (* vol amp e src))
+        _ (tap "g" 60 (a2k src))]
+    (out 0 src)))
 
 (defsynth glass-ping [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 num-steps 8 beat-num 0]
   (let [cnt      (in:kr beat-bus)
