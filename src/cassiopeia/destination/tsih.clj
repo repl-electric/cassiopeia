@@ -364,7 +364,9 @@
 (reset! space 0.0)
 (reset! res 0.15)
 
-(t/start-fullscreen "resources/shaders/zoomwave.glsl"
+(def view-port "journey.glsl")
+
+(t/start-fullscreen (str "resources/shaders/" view-port)
                     :textures [ :overtone-audio :previous-frame]
                     :user-data {"iLColor" color-l "iRColor" color-r
                                 "iRes" res
