@@ -5,23 +5,23 @@ uniform float iOvertoneVolume;
 uniform float iG;
 uniform float iA;
 uniform float iD;
+uniform float iSpace;
+uniform float iRes;
 
 const float width=0.07;
 const float scale=4.5;
 const float detail=.0001;
 const int circleWarp=1;
-const int forward=1;
+const int forward=0;
 
 vec3 lightdir=-vec3(.1,.0,0.);
-
-mat2 rot;
 
 float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
-float applyMotion(vec3 p) {
-  float acceleration=0.0;
+float motion(vec3 p) {
+  float acceleration = 0.0;
   float movementReducer = 10.0;
 
   float t=iGlobalTime;
@@ -32,23 +32,20 @@ float applyMotion(vec3 p) {
   }
 
   if(iOvertoneVolume > 0.0){
-    acceleration=3.;
-    movementReducer = 1.0;
+    acceleration=0.1;
+    movementReducer = 10;
   }else{
     acceleration=0.0;
     movementReducer = 10000;
   }
 
-  // p.x+=sin(t*40.)*.0007;
   p = p/dotp*scale;
   p = sin(p+vec3(1,t/movementReducer,t*acceleration/movementReducer));
-
   float d=length(p.yz)-width;
   d = min(d,length(p.xz) - width);
   d = min(d,length(p.xy) - width);
 
   if(circleWarp==0){
-    d=min(d,length(p.xy)-width);
     d=min(d,length(p*p*p)-width*.3);
   }
   return d*dotp/scale;
@@ -57,12 +54,9 @@ float applyMotion(vec3 p) {
 vec3 normal(vec3 p) {
   vec3 e = vec3(0.0,detail,0.0);
 
-  return normalize(vec3(
-                        applyMotion(p+e.yxx)-applyMotion(p-e.yxx),
-                        applyMotion(p+e.xyx)-applyMotion(p-e.xyx),
-                        applyMotion(p+e.xxy)-applyMotion(p-e.xxy)
-                        )
-                   );
+  return normalize(vec3(motion(p+e.yxx)-motion(p-e.yxx),
+                        motion(p+e.xyx)-motion(p-e.xyx),
+                        motion(p+e.xxy)-motion(p-e.xxy)));
 }
 
 float light(in vec3 p, in vec3 dir) {
@@ -77,25 +71,23 @@ float light(in vec3 p, in vec3 dir) {
 
 float raymarch(in vec3 from, in vec3 dir)
 {
-  float noiseFactor = 0.01;
-
+  float noiseFactor = 0.20;
   vec2 uv = gl_FragCoord.xy / iResolution.xy*2.-1.;
   uv.y*=iResolution.y/iResolution.x;
   float st,d,col,totdist=st=0.;
   vec3 p;
   float ra=rand(uv.xy*iGlobalTime)-1.;
-  //float ras=max(0., sign(-.9+rand(vec2(1.3456,.3573)*floor(30.+iGlobalTime*200.))));
   float rab=1.1;
   float rac=0.0;
   float ral=0.0;
-  for (int i=0; i<50; i++) {
+  for (int i=0; i<35; i++) {
     p=from+totdist*dir;
-    d=applyMotion(p);
+    d=motion(p);
     if (d<detail || totdist>3.) break;
     totdist+=d;
     st+=max(0.,.04-d);
   }
-  vec2 li=uv*rot;
+  vec2 li=uv;
   float backg=.45*pow(1.5-min(1.,length(li+vec2(0.,-.6))),1.5);
   if (d<detail) {
     col=light(p-detail*dir, dir);
@@ -105,26 +97,23 @@ float raymarch(in vec3 from, in vec3 dir)
   col+=smoothstep(0.,1.,st)*.8*(.1+rab);
   col+=pow(max(0.,1.-length(p)),8.)*(.5+10.*rab);
   col+=pow(max(0.,1.-length(p)),30.)*50.;
-  col = iG * col;
-  col = mix(col, backg, 1.0-exp(-.25*pow(totdist,3.)));
-
-  if (rac>.7) col=col*.7+(.3+ra+ral*.5)*mod(uv.y+iGlobalTime*2.,.25);
+  col=  col;
+  col= mix(col, backg, 1.0-exp(-.25*pow(totdist,3.)));
   col = mix(col, .5+ra+ral*.5, max(0.,3.-iGlobalTime)/3.);
   return col+ra*noiseFactor+(ral*.1+ra*.1)*rab;
 }
 
 void main(void)
 {
-  float darkness= 0.9;
+  float darkness= 1.5;//(1-iOvertoneVolume) * 1/iGlobalTime;
   float t=iGlobalTime*0.002;
   vec2 uv = gl_FragCoord.xy / iResolution.xy*2.-1.;
   uv.y*=iResolution.y/iResolution.x;
   vec3 from=vec3(0.,0.1,-1.2);
   vec3 dir=normalize(vec3(uv,1.));
-  rot=mat2(cos(t),sin(t),-sin(t),cos(t));
   dir.xy=dir.xy;
-  float col=raymarch(from,dir);
-  col=pow(col,darkness);
+  float col=raymarch(from, dir);
+  col=pow(col, darkness);
   gl_FragColor = vec4(col);
-  //gl_FragColor = vec4(col, 0., 0., 0.);
+//  gl_FragColor = vec4(col, 0., 0., 0.);
 }
