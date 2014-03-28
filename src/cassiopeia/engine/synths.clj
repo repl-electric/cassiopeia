@@ -112,8 +112,12 @@
         vol (set-reset-ff gate-trig)
 
         freq (midicps note)
-        src (+ [(lpf (saw freq) 500)] [(sin-osc (* 1.01 freq))])
+        src (mix [(saw freq)
+                  (lf-cub freq)
+                  (lf-par freq)
+                  (sin-osc (* 1.01 freq))])
         src (rlpf src 1200 0.3)
+        src (free-verb src :mix 0.5 :room 0.9 :damp 0)
         e (env-gen (adsr :release 1) :gate gate-trig)]
     (out 0 (pan2:ar (* vol amp e src)))))
 
