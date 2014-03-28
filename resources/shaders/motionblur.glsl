@@ -2,6 +2,7 @@ uniform float iOvertoneVolume;
 uniform float iLColor;
 uniform float iRColor;
 uniform float iA;
+uniform float iG;
 uniform float iRes;
 uniform float iSpace;
 
@@ -53,9 +54,9 @@ vec3 trace(vec3 P, vec3 V, vec3 H, float time)
     {
       float I = float(i)*(1.0/float(N_SPHERE));
       float t = iOvertoneVolume*I*2.0 + time;
-      vec3 A = vec3(sin(t+t2),
-                    sin(t*3.0)*0.4,
-                    cos(t+t2));
+      vec3 A = vec3(sin(t+t2) * iOvertoneVolume,
+                    sin(t*3.0)* iA,
+                    cos(t+t2) * iG);
       float R = (0.3-I)*0.33 + 0.1;
       S[i]=vec4(A,R);
 
@@ -166,7 +167,7 @@ void main(void)
 
   vec3 H=normalize(L-V);
 
-  vec3 c = vec3(1.0,1.0,1.0);
+  vec3 c = vec3(0.0,0.0,0.0);
 
   vec2 ditheruv = floor(gl_FragCoord.xy)+vec2(.5);
 
