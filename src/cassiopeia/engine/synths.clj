@@ -5,12 +5,12 @@
             [cassiopeia.engine.mixers :as mix]
             [overtone.inst.synth :as s]))
 
-(defsynth spacy [buf 0 chain 0]
+(defsynth spacy [buf 0 chain 0 amp 1]
   (let [in  (play-buf:ar 1 buf (buf-rate-scale:kr buf) :loop false)
         b (local-buf 2048)
         chain  (fft b in)
         chain  (pv-rect-comb chain 8 0.6 0.6)
-        src (* 0.5  (ifft chain))]
+        src (* amp (* 0.5  (ifft chain)))]
     (out 0 [src src])))
 
 (defsynth echoey-buf
