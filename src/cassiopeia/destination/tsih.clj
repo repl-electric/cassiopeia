@@ -7,17 +7,16 @@
  An eruptive variable star, whose brightness changes irregularly between
  +2.15 mag and +3.40 mag
 "
-
-  (:require [cassiopeia.engine.timing :as time]
-            [overtone.studio.fx :as fx]
-            [cassiopeia.engine.mixers :as mix]
-            [overtone.inst.synth :as s]
-            [shadertone.tone :as t])
-  (:use [overtone.live]
-        [cassiopeia.engine.core]
-        [cassiopeia.samples]
-        [cassiopeia.view-screen]
-        [cassiopeia.engine.synths]))
+(:require [cassiopeia.engine.timing :as time]
+          [overtone.studio.fx :as fx]
+          [cassiopeia.engine.mixers :as mix]
+          [overtone.inst.synth :as s]
+          [shadertone.tone :as t])
+(:use [overtone.live]
+      [cassiopeia.engine.core]
+      [cassiopeia.samples]
+      [cassiopeia.view-screen]
+      [cassiopeia.engine.synths]))
 (stop)
 
 (do
@@ -25,31 +24,31 @@
 
   (declare p q growl-synth)
 
-  (defonce voice-g (group "main voice"))
-  (defonce bass-g (group "bass voice"))
-  (defonce drums-g (group "drums"))
-
-  (defonce power-kick-seq (buffer 16))
-  (defonce kick-buf (buffer 16))
-  (defonce kick-seq-buf (buffer 16))
-  (defonce notes-buf (buffer 128))
-  (defonce shrill-buf (buffer 128))
-  (defonce growl-buf (buffer 128))
-  (defonce glass-g (group "glass"))
+  (defonce voice-g     (group "main voice"))
+  (defonce bass-g      (group "bass voice"))
+  (defonce drums-g     (group "drums"))
+  (defonce glass-g     (group "glass"))
   (defonce mid-glass-g (group "A little more classey glass"))
-  (defonce mid-ping-notes-buf (buffer 32))
-  (defonce mid-ping-seq-buf (buffer 32))
-  (defonce bass-notes-buf (buffer 32))
-  (defonce ping-bass-seq-buf (buffer 32))
-  (defonce phase-bass-buf (buffer 32))
-  (defonce mid-ping-notes-buf (buffer 128))
-  (defonce mid-ping-seq-buf  (buffer 18))
-  (defonce white-seq-buf (buffer 24))
-  (defonce white-notes-buf (buffer 24))
-  (defonce shrill-seq-buf (buffer 32))
-  (defonce shrill-dur-buf (buffer 32))
-  (defonce fizzy-duration (buffer 128))
-  (defonce shrill-pong-buf (buffer 128))
+
+  (defonce power-kick-seq        (buffer 16))
+  (defonce kick-buf              (buffer 16))
+  (defonce kick-seq-buf          (buffer 16))
+  (defonce notes-buf             (buffer 128))
+  (defonce shrill-buf            (buffer 128))
+  (defonce growl-buf             (buffer 128))
+  (defonce mid-ping-notes-buf    (buffer 32))
+  (defonce mid-ping-seq-buf      (buffer 32))
+  (defonce bass-notes-buf        (buffer 32))
+  (defonce ping-bass-seq-buf     (buffer 32))
+  (defonce phase-bass-buf        (buffer 32))
+  (defonce mid-ping-notes-buf    (buffer 128))
+  (defonce mid-ping-seq-buf      (buffer 18))
+  (defonce white-seq-buf         (buffer 24))
+  (defonce white-notes-buf       (buffer 24))
+  (defonce shrill-seq-buf        (buffer 32))
+  (defonce shrill-dur-buf        (buffer 32))
+  (defonce fizzy-duration        (buffer 128))
+  (defonce shrill-pong-buf       (buffer 128))
   (defonce shrill-pong-final-buf (buffer 128)))
 
 (do
@@ -121,10 +120,6 @@
 
 (pattern! white-seq-buf [1])
 (pattern! white-seq-buf [0 0 0 1 1 0] (repeat 3 [0 0 0 0 0 0]))
-
-(kill whitenoise-hat)
-(kill kick2)
-(kill high-hats)
 
 (pattern! kick-seq-buf [0 0 1 0 0 1 0 0 1 1])
 
