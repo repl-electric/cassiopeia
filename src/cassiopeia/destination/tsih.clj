@@ -175,9 +175,9 @@
 (def q (shrill-pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf shrill-buf :amp 0.7))
 
 (reset! color-r 0.9)
-(def dark (dark-ambience :mul 0.4 :amp 0.4 :ring-freq (midi->hz (note :A3))))
+(def dark (dark-ambience :mul 0.4 :amp 0.4 :note (note :A3)))
 
-(ctl dark :ring-freq (midi->hz (note :A3)))
+(ctl dark :note (note :A3))
 
 (s/rise-fall-pad :freq (midi->hz (note :A3)))
 

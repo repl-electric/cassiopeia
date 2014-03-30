@@ -152,8 +152,10 @@
         filt     (*  (moog-ff mixed (* velocity (+ freq 200)) 2.2 bar-trg))]
     (out out-bus (* amp env filt))))
 
-(defsynth dark-ambience [out-bus 0 amp 1 mul 0.2 room-size 70 rev-time 99 ring-freq 60 ring-mul 55]
-  (let [pink (hpf:ar (* (* 0.005 (pink-noise)) (line:kr 0 1 9)) 5)
+(defsynth dark-ambience [out-bus 0 amp 1 mul 0.2 room-size 70 rev-time 99 note 60 ring-mul 55]
+  (let [ring-freq (midicps note)
+
+        pink (hpf:ar (* (* 0.005 (pink-noise)) (line:kr 0 1 9)) 5)
         src1 (ringz (* pink (lf-noise1:kr 0.15)) (+ ring-freq (* ring-mul 0)) mul)
         src2 (ringz (* pink (lf-noise1:kr 0.15)) (+ ring-freq (* ring-mul 1)) mul)
         src3 (ringz (* pink (lf-noise1:kr 0.15)) (+ ring-freq (* ring-mul 2)) mul)
