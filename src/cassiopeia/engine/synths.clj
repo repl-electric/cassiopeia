@@ -252,3 +252,11 @@
         src (lag src 0.005)
         e (env-gen (adsr :release 2 :sustain 2 :attack 0.5) :gate trg :time-scale durs)]
     (out 0 (pan2:ar (* vol amp e src)))))
+
+(defsynth deep-space-signals [out-bus 0]
+  (let [src1 (sin-osc:ar (repeatedly 8  #(ranged-rand 300 1000)))
+        src2 (* 0.2 (lf-pulse:kr (repeatedly 8 #(ranged-rand 0.1 4)) 0 0.1))
+        src (splay:ar (* src1 src2))
+        src (* src (lf-tri:ar 0.01))
+        src (g-verb:ar src)]
+    (out out-bus src)))
