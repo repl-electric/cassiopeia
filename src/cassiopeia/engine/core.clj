@@ -1,4 +1,5 @@
 (ns cassiopeia.engine.core
+  "Layers over Overtone which make composition more immediate"
   (:use [overtone.live]))
 
 (defn pattern!
@@ -20,3 +21,30 @@
                                     list))
                        lists)]
           (pattern! buf buf-lists)))
+
+(defn node-over-time
+  "Over time change val of `field` to end"
+  [node field start end rate]
+  (loop [vol start]
+    (when (>= vol end)
+      (println vol)
+      (Thread/sleep 200)
+      (ctl node field vol)
+      (recur (- vol rate)))))
+
+(defn over-time!
+  ([thing towards] (over-time thing towards 0.1))
+  ([thing towards rate]
+      (letfn [(change-fn [val]  (if (= towards 0)
+                                  (if (< (- val rate) towards)
+                                    towards
+                                    (- val rate))
+                                  (if (> (+ val rate) towards)
+                                    towards
+                                    (+ val rate))))]
+        (future (loop []
+                  (when (not= @thing towards)
+                    (Thread/sleep 200)
+                    (swap! thing change-fn)
+                    (println @thing)
+                    (recur)))))))

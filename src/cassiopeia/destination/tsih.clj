@@ -105,7 +105,7 @@
                                    [0 1 1 1 0 0])
   (pattern! white-seq-buf [0]))
 
-(reset! res 0.9)
+(over-time! res 0.9 0.01)
 (ctl time/root-s :rate 0)
 
 (def white (doall (map
@@ -174,7 +174,7 @@
 
 (def q (shrill-pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf shrill-buf :amp 0.7))
 
-(reset! color-r 0.9)
+(over-time! color-r 0.9)
 (def dark (dark-ambience :mul 0.4 :amp 0.4 :ring-freq (midi->hz (note :A3))))
 
 (ctl dark :ring-freq (midi->hz (note :A3)))
@@ -279,8 +279,6 @@
              :G#3 :E3 :D3  :G#3 :E3 :A4
              :G#3 :E3 :D3])
 
-(pattern! kick-seq-buf (repeat 3 [1 0 0 1 0 0]) [1 1 0 1 0 1])
-
 (ctl glass-g :amp 0)
 (ctl mid-glass-g :amp 0)
 (kill glass-g)
@@ -288,13 +286,15 @@
 
 ;;(kill high-hats)
 
+(pattern! kick-seq-buf (repeat 3 [1 0 0 1 0 0]) [1 1 0 1 0 1])
 (pattern! white-seq-buf [0 0 0 1 1 0] (repeat 3 [0 0 0 0 0 0]))
 
+;;(ctl drums-g :amp 0.1)
 ;;(ctl white :amp 0.4)
 
 (ctl time/root-s :rate 4)
 
-(reset! space 0.9)
+(over-time! space 0.9 0.05 )
 (ctl voice-g :note-buf shrill-pong-final-buf)
 (ctl s :amp 1.2)
 
@@ -318,14 +318,15 @@
 (reset! space 0.0)
 (reset! res 0.15)
 
-(def view-port "journey.glsl")
+;;(def view-port "journey.glsl")
+(def view-port "zoomwave.glsl")
 
 (t/start-fullscreen (str "resources/shaders/" view-port)
                     :textures [:overtone-audio :previous-frame]
                     :user-data {"iLColor" color-l "iRColor" color-r
                                 "iRes" res
                                 "iSpace" space
-        ;;                        "iA" (atom {:synth s :tap "a"})
+                                "iA" (atom {:synth s :tap "a"})
                                 "iG" (atom {:synth growl-synth :tap "g"})})
 
 
