@@ -1,6 +1,15 @@
 // Based on "The Inversion Machine" by Kali
 // Adapted by Joseph Wilk <joe@josephwilk.net>
 
+/*
+ * Light intensity => Amplitude
+ * Scale
+ * Detail
+ * Darkness => Overttime
+ * Acceleration
+ * Direction of movement
+*/
+
 uniform float iOvertoneVolume;
 uniform float iG;
 uniform float iA;
@@ -9,10 +18,21 @@ uniform float iSpace;
 uniform float iRes;
 
 const float width=0.07;
+
+//Circle Scale: 1.9 -> 20
+//Circle factoring
+//10000.9;
 const float scale=4.5;
-const float detail=.0001;
+//1
+const float detail=0.001;
+
 const int circleWarp=1;
+
 const int forward=0;
+
+//Light intensitiy
+const float lightIntensity0=0.3;
+const float lightIntensity1=0.1;
 
 vec3 lightdir=-vec3(.1,.0,0.);
 
@@ -71,15 +91,15 @@ float light(in vec3 p, in vec3 dir) {
 
 float raymarch(in vec3 from, in vec3 dir)
 {
-  float noiseFactor = 0.20;
+  float noiseFactor = 0.10;
   vec2 uv = gl_FragCoord.xy / iResolution.xy*2.-1.;
   uv.y*=iResolution.y/iResolution.x;
   float st,d,col,totdist=st=0.;
   vec3 p;
   float ra=rand(uv.xy*iGlobalTime)-1.;
-  float rab=1.1;
+  float rab=lightIntensity0;
   float rac=0.0;
-  float ral=0.0;
+  float ral=lightIntensity1;
   for (int i=0; i<35; i++) {
     p=from+totdist*dir;
     d=motion(p);
@@ -97,7 +117,8 @@ float raymarch(in vec3 from, in vec3 dir)
   col+=smoothstep(0.,1.,st)*.8*(.1+rab);
   col+=pow(max(0.,1.-length(p)),8.)*(.5+10.*rab);
   col+=pow(max(0.,1.-length(p)),30.)*50.;
-  col=  col;
+  col= col;
+
   col= mix(col, backg, 1.0-exp(-.25*pow(totdist,3.)));
   col = mix(col, .5+ra+ral*.5, max(0.,3.-iGlobalTime)/3.);
   return col+ra*noiseFactor+(ral*.1+ra*.1)*rab;
@@ -105,7 +126,7 @@ float raymarch(in vec3 from, in vec3 dir)
 
 void main(void)
 {
-  float darkness= 1.5;//(1-iOvertoneVolume) * 1/iGlobalTime;
+  float darkness= 2.5;//(1-iOvertoneVolume) * 1/iGlobalTime;
   float t=iGlobalTime*0.002;
   vec2 uv = gl_FragCoord.xy / iResolution.xy*2.-1.;
   uv.y*=iResolution.y/iResolution.x;
