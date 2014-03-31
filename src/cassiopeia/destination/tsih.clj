@@ -44,7 +44,6 @@
   (defonce mid-ping-notes-buf    (buffer 128))
   (defonce mid-ping-seq-buf      (buffer 18))
   (defonce white-seq-buf         (buffer 24))
-  (defonce white-notes-buf       (buffer 24))
   (defonce shrill-seq-buf        (buffer 32))
   (defonce shrill-dur-buf        (buffer 32))
   (defonce fizzy-duration        (buffer 128))
