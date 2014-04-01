@@ -30,10 +30,9 @@
   (defonce glass-g     (group "glass"))
   (defonce mid-glass-g (group "A little more classey glass"))
 
-  (defonce power-kick-seq        (buffer 16))
-  (defonce kick-buf              (buffer 16))
+  (defonce power-kick-seq-buf    (buffer 16))
   (defonce kick-seq-buf          (buffer 16))
-  (defonce notes-buf             (buffer 128))
+  (defonce pulsar-buf            (buffer 128))
   (defonce shrill-buf            (buffer 128))
   (defonce growl-buf             (buffer 128))
   (defonce mid-ping-notes-buf    (buffer 32))
@@ -41,12 +40,9 @@
   (defonce bass-notes-buf        (buffer 32))
   (defonce ping-bass-seq-buf     (buffer 32))
   (defonce phase-bass-buf        (buffer 32))
-  (defonce mid-ping-notes-buf    (buffer 128))
-  (defonce mid-ping-seq-buf      (buffer 18))
   (defonce white-seq-buf         (buffer 24))
-  (defonce shrill-seq-buf        (buffer 32))
   (defonce shrill-dur-buf        (buffer 32))
-  (defonce fizzy-duration        (buffer 128))
+  (defonce fizzy-dur-buf         (buffer 128))
   (defonce shrill-pong-buf       (buffer 128))
   (defonce shrill-pong-final-buf (buffer 128)))
 
@@ -81,11 +77,11 @@
               [:head drums-g]
               :amp 0.5
               :note-buf bass-notes-buf
-              :seq-buf power-kick-seq
+              :seq-buf power-kick-seq-buf
               :beat-bus (:count time/beat-1th)
               :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :beat-num %1) (range 0 16))))
 
-  (pattern! power-kick-seq [0 0 1 0 0 0] (repeat 3 [0 0 0 0 0 0]))
+  (pattern! power-kick-seq-buf [0 0 1 0 0 0] (repeat 3 [0 0 0 0 0 0]))
 
   (doseq [i (range 0 32)]
     (kick2
@@ -169,7 +165,7 @@
 
 (pattern!  kick-seq-buf [1 0 0 0])
 
-(def p (pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf notes-buf :amp 0.7))
+(def p (pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf pulsar-buf :amp 0.7))
 
 (def q (shrill-pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf shrill-buf :amp 0.7))
 
@@ -197,27 +193,24 @@
 (reset! color-l 0.1)
 (reset! color-r 0.1)
 
-(pattern! shrill-seq-buf [1])
+(pattern! pulsar-buf [:A3 0 :A3])
+(pattern! pulsar-buf [:E3 0 :E3])
 
-(pattern! notes-buf [:A3 0 :A3])
-(pattern! notes-buf [:E3 0 :E3])
-
-(pattern! notes-buf       [:C#3 0 :C#3])
+(pattern! pulsar-buf       [:C#3 0 :C#3])
 (pattern! shrill-buf      [0 0 :A3 0 :A3 0])
 (pattern! shrill-pong-buf [0 0 :E3])
 
-(pattern! notes-buf       [:D3 0 :D3])
+(pattern! pulsar-buf       [:D3 0 :D3])
 (pattern! shrill-buf      [0 :F#3 0 :F#3 0])
 (pattern! shrill-pong-buf [0 0 :B3])
 
 (def growl-synth (growl [:head bass-g] :amp 1.8 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf))
 (ctl bass-g :amp 1.8)
 
-(pattern! shrill-seq-buf [0])
-(pattern! notes-buf      [0])
-(pattern! shrill-buf     [0])
+(pattern! pulsar-buf [0])
+(pattern! shrill-buf [0])
 
-(def fizzy-p (fizzy-pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf notes-buf :duration-bus fizzy-duration))
+(def fizzy-p (fizzy-pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf pulsar-buf :duration-bus fizzy-dur-buf))
 
 (ctl growl-synth :amp 0)
 (def g (growler [:head bass-g] :amp 0.8 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf))
@@ -242,11 +235,11 @@
                       ;; :B3 :B3 :B3  :B3 :B3 :B3
                       ])
 
-(pattern! fizzy-duration [1 1/2 1/2])
-(pattern! notes-buf  [0  0    :D4 0 0 :D4
-                      0  0    :D4 0 0 :D4
-                      0  0    :E4 0 0 :E4
-                      :E4 :E4 :E4 0 0 :E4])
+(pattern! fizzy-dur-buf [1 1/2 1/2])
+(pattern! pulsar-buf  [0  0    :D4 0 0 :D4
+                       0  0    :D4 0 0 :D4
+                       0  0    :E4 0 0 :E4
+                       :E4 :E4 :E4 0 0 :E4])
 
 (pattern! shrill-pong-final-buf
             [:G#4 :E4 :D4  :G#4 :E4 :D4
@@ -309,8 +302,8 @@
 ;;(echoey-buf signals-s)
 ;;(spacy signals-s :amp 2.0)
 
-(pattern! notes-buf [0])
-(pattern! growl-buf [:D3 :D3 0 :D3 :D3])
+(pattern! pulsar-buf [0])
+(pattern! growl-buf  [:D3 :D3 0 :D3 :D3])
 
 (reset! color-l 0.0)
 (reset! color-r 0.0)
