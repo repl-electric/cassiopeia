@@ -32,3 +32,19 @@
 
 (woosh)
 (kill woosh)
+
+
+(defonce silent-buffer (buffer 0))
+(defonce soprano-samples (doall (map (fn [idx note] [note (load-sample (str (format "~/soprano/vor_sopr_sustain_ah_p_%02d" idx) ".wav"))]) (range 1 14) [60 61 62 63 64 65 66 67 68 69 70 71 72  73  74])))
+
+(defonce index-buffer
+  (let [b (buffer 128)]
+    (buffer-fill! b (:id silent-buffer))
+    (doseq [[note val] soprano-samples]
+      (buffer-set! b note (:id val)))
+    b))
+
+(defsynth sing [note 60 amp 0.1]
+  (let [buf (index:kr (:id index-buffer) note)
+        env (env-gen (adsr :release 2))]
+    (out 0 (pan2 (* amp env (play-buf:ar 1 buf))))))
