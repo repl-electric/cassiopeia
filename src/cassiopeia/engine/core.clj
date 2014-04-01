@@ -33,9 +33,9 @@
       (recur (- vol rate)))))
 
 (defn over-time!
-  ([thing towards] (over-time thing towards 0.1))
+  ([thing towards] (over-time! thing towards 0.1))
   ([thing towards rate]
-      (letfn [(change-fn [val]  (if (= towards 0)
+      (letfn [(change-fn [val]  (if (< towards @thing)
                                   (if (< (- val rate) towards)
                                     towards
                                     (- val rate))
