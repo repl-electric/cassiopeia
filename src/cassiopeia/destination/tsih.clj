@@ -13,6 +13,7 @@
           [overtone.inst.synth :as s]
           [shadertone.tone :as t])
 (:use [overtone.live]
+      [cassiopeia.scratch]
       [cassiopeia.engine.core]
       [cassiopeia.samples]
       [cassiopeia.view-screen]
@@ -170,7 +171,10 @@
 (def q (shrill-pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf shrill-buf :amp 0.7))
 
 (over-time! color-r 0.9)
-(def dark (dark-ambience :mul 0.4 :amp 0.4 :ring-freq (midi->hz (note :A3))))
+(def dark (dark-ambience :mul 0.2 :amp 0.4 :ring-freq (midi->hz (note :A3))))
+(sing :note 60 :amp 0.2 :pos 1)
+(sing :note 60 :amp 0.2 :pos -1)
+
 
 (ctl dark :ring-freq (midi->hz (note :A3)))
 
@@ -288,7 +292,7 @@
 
 (over-time! space 0.9 0.05 )
 (ctl voice-g :note-buf shrill-pong-final-buf)
-(ctl s :amp 1.2)
+;;(ctl s :amp 1.2)
 
 (pattern! shrill-dur-buf [1/12])
 
