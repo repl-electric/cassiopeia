@@ -251,10 +251,36 @@
         e (env-gen (adsr :release 2 :sustain 2 :attack 0.5) :gate trg :time-scale durs)]
     (out 0 (pan2:ar (* vol amp e src)))))
 
-(defsynth deep-space-signals [out-bus 0]
-  (let [src1 (sin-osc:ar (repeatedly 8  #(ranged-rand 300 1000)))
+(defsynth deep-space-signals [out-bus 0 freq 300]
+  (let [src1 (sin-osc:ar (repeatedly 8  #(ranged-rand freq 1000)))
         src2 (* 0.2 (lf-pulse:kr (repeatedly 8 #(ranged-rand 0.1 4)) 0 0.1))
         src (splay:ar (* src1 src2))
         src (* src (lf-tri:ar 0.01))
         src (g-verb:ar src)]
     (out out-bus src)))
+
+(def freq-limit-buf (buffer 12))
+(defsynth space-ping [amp 1 freq-limit-buf 0 beat-bus 0 dark-freq 1]
+  (let [cnt (in:kr beat-bus)
+        freq (buf-rd:kr 1 freq-limit-buf cnt)
+
+        src (bpf:ar
+             (* (repeat 12 1) dark-freq (pink-noise:ar))
+             (round (lin-exp (lf-noise0:kr (* freq (repeat 12 1))) -1 1 99 600) 50)
+             2e-3)
+        src (splay:ar src)
+        src (* 25 src)]
+    (out 0 (* amp src))))
+
+(comment
+  (def p (space-ping :freq-limit-buf ping-buf :beat-bus (:beat time/main-beat) :amp 2))
+  (ctl time/root-s :rate 4)
+  (ctl p :dark-freq 1)
+  (buffer-write! ping-buf (flatten (repeat 3 [4.9 4.9 0.3 0.3]))))
+
+(defsynth sparkling-darkness [freq 220 amp 3]
+  (out 0 (pan2 (* amp (bpf:ar (* 1 (pink-noise:ar)) freq 2e-3)) (sin-osc:kr 1) 1)))
+
+(comment
+  (def s (playz))
+  (ctl s :freq (midi->hz (note :A3))))
