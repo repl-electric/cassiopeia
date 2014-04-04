@@ -17,7 +17,7 @@
   (on-trigger
    (:trig-id beat)
    (fn [& _]
-     (buffer-write! buf (take (buffer-size buf) (cycle (map #(if (keyword? %) (note %) %) (flatten lists)))))
+     (apply pattern! [buf] lists)
      (remove-event-handler ::pattern-writer)) ::pattern-writer))
 
 (defn pattern-seq!
