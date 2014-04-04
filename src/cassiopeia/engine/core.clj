@@ -32,8 +32,8 @@
       (ctl node field vol)
       (recur (- vol rate)))))
 
-(defn over-time!
-  ([thing towards] (over-time! thing towards 0.1))
+(defn overtime!
+  ([thing towards] (overtime! thing towards 0.1))
   ([thing towards rate]
       (letfn [(change-fn [val]  (if (< towards @thing)
                                   (if (< (- val rate) towards)
@@ -48,3 +48,16 @@
                     (swap! thing change-fn)
                     (println @thing)
                     (recur)))))))
+
+(def _ nil)
+(defn degrees
+  "Convert degrees into pitches. If degree > 7 will automatically move to the next
+   octave degree."
+  ([ds] (degrees ds :major :A3))
+  ([ds n] (degrees ds :major n))
+  ([ds scale n]
+      (let [root (note n)]
+        (map (fn [degree]
+               (if degree
+                 (+ root (degree->interval degree scale))
+                 0)) ds))))

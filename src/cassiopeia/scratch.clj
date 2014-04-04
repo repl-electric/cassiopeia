@@ -1,5 +1,8 @@
 (ns cassiopeia.scratch
-  (:use overtone.live))
+  (:use overtone.live)
+  (:use cassiopeia.engine.synths)
+  (:use cassiopeia.engine.core)
+  (require [cassiopeia.engine.timing :as time]))
 
 (defsynth whoosher [freq 400 out-bus 0 swish 970 amp 0.1]
   (let [whoosh (lag
@@ -31,10 +34,13 @@
         panning (line:kr -0.9 0.9 3)]
     (out out-bus (* amp (pan2 src panning 1.0)))))
 
+
+
 (kill whoosher)
 
 (defonce silent-buffer (buffer 0))
-(defonce soprano-samples (doall (map (fn [idx note] [note (load-sample (str (format "~/soprano/vor_sopr_sustain_ah_p_%02d" idx) ".wav"))]) (range 1 14) [60 61 62 63 64 65 66 67 68 69 70 71 72  73  74])))
+(defonce soprano-samples (doall (map (fn [idx note] [note (load-sample
+  (str (format "/Users/josephwilk/Workspace/music/samples/Soundiron Voice of Rapture - The Soprano/Samples/Sustains/Ee p/vor_sopr_sustain_ee_p_%02d" idx) ".wav"))]) (range 1 14) [60 61 62 63 64 65 66 67 68 69 70 71 72  73  74])))
 
 (defonce index-buffer
   (let [b (buffer 128)]
@@ -49,5 +55,42 @@
     (out 0 (* env amp (pan2 (scaled-play-buf 1 buf) pos)))))
 
 (comment
-  (sing :note 61 :amp 0.2 :pos -1)
-  (sing :note 60 :amp 0.2 :pos 1))
+  (sing :note 61 :amp 0.09 :pos -1)
+  (sing :note 60 :amp 0.09 :pos -1))
+
+
+(comment
+  (def d (dark-ambience))
+
+  ;;(kill dark-ambience)
+
+  (def space-p (space-ping :freq-limit-buf freq-limit-buf
+                           :beat-bus (:beat time/main-beat)
+                           :amp 2))
+
+  (ctl space-p :amp 0)
+  (pattern! freq-limit-buf (repeat 3 [4.9 4.9 0.4 0.4]))
+
+  (deep-space-signals)
+
+  (ctl d :ring-freq (midi->hz (note :A3)))
+
+  (kill deep-space-signals)
+  (kill space-ping)
+
+  (sing :note 60 :amp 0.2 :pos 1)
+  (sing :note 61 :amp 0.2 :pos 1)
+
+  (sing :note 62 :amp 0.2 :pos -1)
+  (sing :note 64 :amp 0.2)
+  (sing :note 66 :amp 0.2)
+  (sing :note 69 :amp 0.2 :pos 1)
+
+
+  (let [[n1 n2 n3 n4] (chord-degree (rand-nth (keys (dissoc DEGREE :_))) (rand-nth [:A2 :A1]) :major)]
+    (pattern! pulsar-buf      [0 n2 0])
+    (pattern! shrill-buf      [0 n3 0 n2 0 n1 n4 0 0])
+    (pattern! shrill-pong-buf [0 n1 0 n3 0 n2 0 n3 0]))
+
+  (whoosher))
+(stop)

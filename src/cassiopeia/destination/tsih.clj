@@ -56,7 +56,6 @@
   (reset! color-r 0.9)
 
   (pattern! phase-bass-buf (repeat 3 [0 0 1 1 0 0]) [0 0 1 0 1 0])
-
   (pattern! bass-notes-buf [:A1])
 
   (def hats
@@ -121,8 +120,6 @@
 
 (doall (map #(glass-ping [:head glass-g] :amp 1 :note-buf bass-notes-buf :seq-buf ping-bass-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num %1) (range 0 18)))
 
-(doall (map #(glass-ping [:head glass-g] :amp 1 :note-buf bass-notes-buf :seq-buf ping-bass-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num (+ 2 %1)) (range 0 18)))
-
 (do
   (def mid-pings (doall (map-indexed #(glass-ping [:head mid-glass-g] :amp 1 :note-buf mid-ping-notes-buf :seq-buf mid-ping-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 18 :beat-num %2) (range 0 18))))
 
@@ -151,8 +148,9 @@
 
 (pattern! growl-buf [:D4 :D4 0 :A4 :A4 0])
 
-(pattern! kick-seq-buf     [1 1 0 0])
-(pattern! mid-ping-seq-buf [1 1 0 0])
+(pattern! power-kick-seq-buf [0 0 0 1])
+(pattern! kick-seq-buf       [1 1 0 0])
+(pattern! mid-ping-seq-buf   [1 1 0 0])
 (pattern! mid-ping-notes-buf [:A4 :A4 :D4 :D4 :D4 :E4])
 (pattern! mid-ping-notes-buf [:A4 :A4 :D4 :D4 :D4 :E4
                               0 0 0 0 0 0
@@ -172,44 +170,30 @@
 
 (over-time! color-r 0.9)
 (def dark (dark-ambience :mul 0.2 :amp 0.4 :ring-freq (midi->hz (note :A3))))
-(sing :note 60 :amp 0.2 :pos 1)
-(sing :note 60 :amp 0.2 :pos -1)
-
+(sing :note 60 :amp 0.09 :pos 1)
+(sing :note 60 :amp 0.09 :pos -1)
 
 (ctl dark :ring-freq (midi->hz (note :A3)))
-
 (s/rise-fall-pad :freq (midi->hz (note :A3)))
 
-(pattern! growl-buf [:D4 :D4 0 :A4 :A4 0])
-
-(pattern! growl-buf [:A3 :A3 0 :E3 :E3 0 :G#3 :G#3])
-
-(pattern! growl-buf [:G3 :G3 0 :G3 :G3 0
-                     :E3 :E3 0 :E3 :G3 0])
-
-(pattern! growl-buf [:E3 :E3 0 :E3 :E3 0
-                     :A3 :A3 0 :A3 :A3 0])
-
 (pattern! growl-buf [:C#3 :C#3 0 :A3 :A3 0 :C#3 :C#3])
-(pattern! growl-buf [:B3 :B3 0 :D3 :D3 0 :F#3 :F#3])
 (pattern! growl-buf [:D3 :D3 0 :D3 :D3])
 
-(reset! color-l 0.1)
-(reset! color-r 0.1)
+(reset! color-l 0.0)
+(reset! color-r 0.9)
 
 (pattern! pulsar-buf [:A3 0 :A3])
 (pattern! pulsar-buf [:E3 0 :E3])
 
-(pattern! pulsar-buf       [:C#3 0 :C#3])
+(pattern! pulsar-buf      [:C#3 0 :C#3])
 (pattern! shrill-buf      [0 0 :A3 0 :A3 0])
 (pattern! shrill-pong-buf [0 0 :E3])
 
-(pattern! pulsar-buf       [:D3 0 :D3])
+(pattern! pulsar-buf      [:D3 0 :D3])
 (pattern! shrill-buf      [0 :F#3 0 :F#3 0])
 (pattern! shrill-pong-buf [0 0 :B3])
 
 (def growl-synth (growl [:head bass-g] :amp 1.8 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf))
-(ctl bass-g :amp 1.8)
 
 (pattern! pulsar-buf [0])
 (pattern! shrill-buf [0])
@@ -279,13 +263,13 @@
 (ctl mid-glass-g :amp 0)
 (kill glass-g)
 (kill mid-glass-g)
-
 ;;(kill high-hats)
 
-(pattern! kick-seq-buf (repeat 3 [1 0 0 1 0 0]) [1 1 0 1 0 1])
-(pattern! white-seq-buf [0 0 0 1 1 0] (repeat 3 [0 0 0 0 0 0]))
+(pattern! kick-seq-buf       (repeat 3 [1 0 0 1 0 0]) [1 1 0 1 0 1])
+(pattern! white-seq-buf      [0 0 0 1 1 0]     (repeat 3 [0 0 0 0 0 0]))
+(pattern! power-kick-seq-buf [0 0 1 0 0 0]     (repeat 3 [0 0 0 0 0 0]))
 
-;;(ctl drums-g :amp 0.1)
+;;(ctl drums-g :amp 0.)
 ;;(ctl white :amp 0.4)
 
 (ctl time/root-s :rate 4)
@@ -304,17 +288,18 @@
 ;;(echoey-buf :b moore-s)
 ;;(spacy moore-s)
 ;;(echoey-buf signals-s)
-;;(spacy signals-s :amp 2.0)
+;;(spacy signals-s :amp 2.3)
 
+
+(pattern! shrill-dur-buf [1/12])
 (pattern! pulsar-buf [0])
 (pattern! growl-buf  [:D3 :D3 0 :D3 :D3])
-
 (reset! color-l 0.0)
 (reset! color-r 0.0)
 (reset! space 0.0)
 (reset! res 0.15)
 
-;;(def view-port "journey.glsl")
+(def view-port "journey.glsl")
 (def view-port "zoomwave.glsl")
 
 (t/start-fullscreen (str "resources/shaders/" view-port)
