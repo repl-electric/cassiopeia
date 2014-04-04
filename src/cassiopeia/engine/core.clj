@@ -1,12 +1,23 @@
 (ns cassiopeia.engine.core
   "Layers over Overtone which make composition more immediate"
-  (:use [overtone.live]))
+  (:use [overtone.live])
+  (:require [cassiopeia.engine.timing :as time]))
 
 (defn pattern!
   "Fill a buffer repeating pattern if required.
      Supports integers or notes which will be converted to midi notes"
   [buf & lists]
-      (buffer-write! buf (take (buffer-size buf) (cycle (map #(if (keyword? %) (note %) %) (flatten lists))))))
+  (buffer-write! buf (take (buffer-size buf) (cycle (map #(if (keyword? %) (note %) %) (flatten lists))))))
+
+(defn safe-pattern!
+  "Fill a buffer repeating pattern if required.
+     Supports integers or notes which will be converted to midi notes"
+  [buf & lists]
+  (on-trigger
+   (:trig-id time/main-beat)
+   (fn [& _]
+     (buffer-write! buf (take (buffer-size buf) (cycle (map #(if (keyword? %) (note %) %) (flatten lists)))))
+     (remove-event-handler ::pattern-writer)) ::pattern-writer))
 
 (defn pattern-seq!
   "Fill a buffer repeating pattern if required. Support expressing patterns with `x` and `o`.
