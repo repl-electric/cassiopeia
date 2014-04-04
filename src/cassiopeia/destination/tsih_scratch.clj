@@ -1,11 +1,6 @@
-(ns cassiopeia.destination.tsih
+(ns cassiopeia.destination.tsih-scratch
 "
- _______ _______ _____ _     _
-    |    |______   |   |_____|
-    |    ______| __|__ |     |
-
- An eruptive variable star, whose brightness changes irregularly between
- +2.15 mag and +3.40 mag
+Experiments
 "
 (:require [cassiopeia.engine.timing :as time]
           [overtone.studio.fx :as fx]
