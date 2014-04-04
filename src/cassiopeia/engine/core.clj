@@ -73,3 +73,15 @@
                (if degree
                  (+ root (degree->interval degree scale))
                  0)) ds))))
+
+
+(defn randomly-trigger
+  ([change-fn] (randomly-trigger change-fn 0.5 8))
+  ([change-fn chance at-beat]
+      (def random-counter (atom 0))
+      (on-trigger (:trig-id time/beat-1th)
+                  (fn [& _]
+                    (swap! count inc)
+                    (when (and (= 0 (mod @random-counter beat))
+                               (> (rand) chance)) (change-fn)))
+                  ::beat-picker)))
