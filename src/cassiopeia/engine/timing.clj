@@ -129,3 +129,4 @@
 (defonce beat-6th (beat-bus 1/6))
 (defonce beat-7th (beat-bus 1/7))
 (defonce beat-8th (beat-bus 1/8))
+(defonce beat-12th (beat-bus 1/12))

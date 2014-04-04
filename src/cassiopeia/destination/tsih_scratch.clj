@@ -96,11 +96,17 @@
 
   (def s (shrill-pong [:head voice-g] :amp 1.1 :note-buf shrill-pong-buf :duration-bus shrill-dur-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
 
-  (let [[n1 n2 n3 n4] (chord-degree :iii :A2 :major)
-        [n11 n12 n13 n14] (chord-degree :ii :A2 :major)]
-    (pattern! pulsar-buf      (repeat 2 [0 n2 0]) [0 n12 0])
-    (pattern! shrill-buf      (repeat 2 [0 n3 0 n2 0 n1 n4 0 0]) [0 n13 0 n12 0 n11 n14 0 0])
-    (pattern! shrill-pong-buf (repeat 2 [0 n1 0 n3 0 n2 0 n3 0]) [0 n11 0 n13 0 n12 0 n13 0]))
+  (let [[n1 n2 n3 n4] (chord-degree :v :A2 :major)
+        [n11 n12 n13 n14] (chord-degree :i :A3 :major)]
+    (pattern! pulsar-buf      (repeat 4 [0 n2 0])          (repeat 4 [n12 n12 n12]) )
+    (pattern! shrill-buf      (repeat 2 [0 n3 0 n2 0 n4])  (repeat 2 [n13 n12 n11]))
+    (pattern! shrill-pong-buf (repeat 2 [0 n1 0 n3 0 n3])  (repeat 2 [n11 n13 n12])))
+
+  (pattern! growl-buf (degrees [1 1 1  1 1 1  1 1 1  1 1 1
+                                3 3 3  3 3 3  3 3 3  3 3 3
+                                5 5 5  5 5 5  5 5 5  5 5 5
+                                6 6 6  6 6 6  6 6 6  6 6 6] :major :A3))
+
 
   (ctl time/root-s :rate 4)
   (pattern! kick-seq-buf (repeat 3 [0 0 1 0 0 0])
@@ -120,7 +126,7 @@
                      :num-steps 24
                      :beat-num %1) (range 0 24))))
 
-(pattern! white-seq-buf [1 1 ])
+(pattern! white-seq-buf [1 1])
 (pattern! white-seq-buf [0 0 0 1 1 0] (repeat 3 [0 0 0 0 0 0]))
 
 (pattern! kick-seq-buf [0 0 1 0 0 1 0 0 1 1])
@@ -243,7 +249,10 @@
 (pattern! shrill-buf      [0 :F#3 0 :F#3 0])
 (pattern! shrill-pong-buf [0 0 :B3])
 
-(def growl-synth (growl [:head bass-g] :amp 1.8 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th) :note-buf growl-buf))
+(def growl-synth (growl [:head bass-g] :amp 1.8 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-4th) :note-buf growl-buf))
+
+(stop)
+
 
 (pattern! pulsar-buf [0])
 (pattern! shrill-buf [0])
