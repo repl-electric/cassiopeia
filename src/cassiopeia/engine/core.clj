@@ -86,9 +86,10 @@
                                (> (rand) chance)) (change-fn)))
                   ::beat-picker)))
 
-(defn stutter [beat]
+(defn stutter [rate]
   (future
     (do
-      (ctl time/root-s -1)
+      (ctl time/root-s :rate (- 0 rate))
       (Thread/sleep 300)
-      (ctl time/root-s 1))))
+      (ctl time/root-s :rate rate))))
+
