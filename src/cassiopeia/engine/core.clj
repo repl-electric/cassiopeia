@@ -81,7 +81,14 @@
       (def random-counter (atom 0))
       (on-trigger (:trig-id time/beat-1th)
                   (fn [& _]
-                    (swap! count inc)
-                    (when (and (= 0 (mod @random-counter beat))
+                    (swap! random-counter inc)
+                    (when (and (= 0 (mod @random-counter at-beat))
                                (> (rand) chance)) (change-fn)))
                   ::beat-picker)))
+
+(defn stutter [beat]
+  (future
+    (do
+      (ctl time/root-s -1)
+      (Thread/sleep 300)
+      (ctl time/root-s 1))))
