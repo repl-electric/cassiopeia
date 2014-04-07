@@ -75,25 +75,28 @@
         eq (b-peak-eq dist 50.41 1 44)]
     (out out-bus (* amp env eq))))
 
-(defsynth kick2 [freq      {:default 80 :min 10 :max 20000 :step 1}
-                 amp       {:default 0.8 :min 0 :max 1.0 :step 0.001}
+(defsynth kick2 [amp       {:default 0.8 :min 0 :max 1.0 :step 0.001}
                  mod-freq  {:default 5 :min 0.001 :max 10.0 :step 0.01}
                  mod-index {:default 5 :min 0.001 :max 10.0 :step 0.01}
                  sustain   {:default 0.4 :min 0.001 :max 1.0 :step 0.001}
                  noise     {:default 0.025 :min 0.001 :max 1.0 :step 0.001}
+
                  beat-bus 0
                  beat-trg-bus 0
                  note-buf 0
                  seq-buf 0
+
                  beat-num 0
                  num-steps 8
                  out-bus 0]
+
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         note     (buf-rd:kr 1 note-buf cnt)
         bar-trg (and (buf-rd:kr 1 seq-buf cnt)
                      (= beat-num (mod cnt num-steps))
                      beat-trg)
+        freq (midicps note)
 
         pitch-contour (line:kr (* 2 freq) freq 0.02)
         drum (lpf (sin-osc pitch-contour (sin-osc mod-freq (/ mod-index 1.3))) 1000)
