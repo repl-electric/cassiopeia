@@ -93,3 +93,5 @@
       (Thread/sleep 300)
       (ctl time/root-s :rate rate))))
 
+(defn pause-time [] (ctl time/root-s :rate 0))
+(defn play-time [rate] (ctl time/root-s :rate rate))
