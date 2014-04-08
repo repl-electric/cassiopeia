@@ -100,7 +100,7 @@
                                    [0 1 1 1 0 0])
   (pattern! white-seq-buf [0]))
 
-(over-time! res 0.9 0.01)
+(overtime! res 0.9 0.01)
 (ctl time/root-s :rate 0)
 
 (def white (doall (map
@@ -168,7 +168,7 @@
 
 (def q (shrill-pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf shrill-buf :amp 0.7))
 
-(over-time! color-r 0.9)
+(overtime! color-r 0.9)
 (def dark (dark-ambience :mul 0.2 :amp 0.4 :ring-freq (midi->hz (note :A3))))
 (sing :note 60 :amp 0.09 :pos 1)
 (sing :note 60 :amp 0.09 :pos -1)
@@ -274,7 +274,7 @@
 
 (ctl time/root-s :rate 4)
 
-(over-time! space 0.9 0.05 )
+(overtime! space 0.9 0.05 )
 (ctl voice-g :note-buf shrill-pong-final-buf)
 ;;(ctl s :amp 1.2)
 
