@@ -17,7 +17,7 @@
       [cassiopeia.engine.core]
       [cassiopeia.samples]
       [cassiopeia.view-screen]
-      [cassiopeia.engine.synths]))
+      [cassiopeia.waves.synths]))
 (stop)
 
 (do

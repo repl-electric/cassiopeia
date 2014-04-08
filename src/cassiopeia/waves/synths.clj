@@ -1,5 +1,6 @@
-(ns cassiopeia.engine.synths
+(ns cassiopeia.waves.synths
   (:use overtone.live)
+  (:use cassiopeia.engine.core)
   (:require [cassiopeia.engine.timing :as time]
             [overtone.studio.fx :as fx]
             [cassiopeia.engine.mixers :as mix]
@@ -75,26 +76,12 @@
         eq (b-peak-eq dist 50.41 1 44)]
     (out out-bus (* amp env eq))))
 
-(defsynth kick2 [amp       {:default 0.8 :min 0 :max 1.0 :step 0.001}
-                 mod-freq  {:default 5 :min 0.001 :max 10.0 :step 0.01}
-                 mod-index {:default 5 :min 0.001 :max 10.0 :step 0.01}
-                 sustain   {:default 0.4 :min 0.001 :max 1.0 :step 0.001}
-                 noise     {:default 0.025 :min 0.001 :max 1.0 :step 0.001}
-
-                 beat-bus 0
-                 beat-trg-bus 0
-                 note-buf 0
-                 seq-buf 0
-
-                 beat-num 0
-                 num-steps 8
-                 out-bus 0]
-
-  (let [cnt      (in:kr beat-bus)
+(defsynth kick2 [amp 0.8 mod-freq  5 mod-index 5 sustain 0.4 noise 0.025 beat-bus 0 beat-trg-bus 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 8 out-bus 0]
+  (let [cnt      (mod (in:kr beat-bus) num-steps)
         beat-trg (in:kr beat-trg-bus)
-        note     (buf-rd:kr 1 note-buf cnt)
+        note (buf-rd:kr 1 note-buf beat-num)
         bar-trg (and (buf-rd:kr 1 seq-buf cnt)
-                     (= beat-num (mod cnt num-steps))
+                     (= beat-num cnt)
                      beat-trg)
         freq (midicps note)
 
@@ -262,7 +249,8 @@
         src (g-verb:ar src)]
     (out out-bus src)))
 
-(deep-space-signals)
+(comment
+  (deep-space-signals))
 
 (def freq-limit-buf (buffer 12))
 (defsynth space-ping [amp 1 freq-limit-buf 0 beat-bus 0 dark-freq 1]
@@ -284,8 +272,9 @@
   (ctl p :dark-freq 1)
   (buffer-write! freq-limit-buf (flatten (repeat 3 [5.9 5.9 0.5 0.5]))))
 
-(defsynth sparkling-darkness [freq 220 amp 3]
-  (out 0 (pan2 (* amp (bpf:ar (* 1 (pink-noise:ar)) freq 2e-3)) (sin-osc:kr 1) 1)))
+(comment
+  (defsynth sparkling-darkness [freq 220 amp 3]
+    (out 0 (pan2 (* amp (bpf:ar (* 1 (pink-noise:ar)) freq 2e-3)) (sin-osc:kr 1) 1))))
 
 (comment
   (def s (playz))

@@ -1,7 +1,7 @@
 (ns cassiopeia.scratch
   "Here lies demons and a splatter gun of ideas and experiments."
   (:use overtone.live)
-  (:use cassiopeia.engine.synths)
+  (:use cassiopeia.waves.synths)
   (:use cassiopeia.engine.core)
   (require [cassiopeia.engine.timing :as time]))
 
