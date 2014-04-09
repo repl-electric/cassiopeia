@@ -76,7 +76,9 @@
         eq (b-peak-eq dist 50.41 1 44)]
     (out out-bus (* amp env eq))))
 
-(defsynth kick2 [amp 0.8 mod-freq  5 mod-index 5 sustain 0.4 noise 0.025 beat-bus 0 beat-trg-bus 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 8 out-bus 0]
+(defsynth kick2
+  "We take the sting out of the overtone kick2 drum giving a softer more mellow kick"
+  [amp 0.8 mod-freq  5 mod-index 5 sustain 0.4 noise 0.025 beat-bus 0 beat-trg-bus 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 8 out-bus 0]
   (let [cnt      (mod (in:kr beat-bus) num-steps)
         beat-trg (in:kr beat-trg-bus)
         note (buf-rd:kr 1 note-buf beat-num)
