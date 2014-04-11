@@ -110,7 +110,7 @@
         e (env-gen (adsr :release 1) :gate gate-trig)]
     (out 0 (pan2:ar (* vol amp e src)))))
 
-(defsynth growl [note-buf 0 beat-bus 0 beat-trg-bus 0 amp 1]
+(defsynth growl [note-buf 0 beat-bus 0 beat-trg-bus 0 amp 1 pan-rate 50]
   (let [cnt (in:kr beat-bus)
         trg (in:kr beat-trg-bus)
         note (buf-rd:kr 1 note-buf cnt)
@@ -121,6 +121,7 @@
         src (lpf (mix [(saw (* 0.25 freq))
                        (sin-osc (* 1.01 freq))]))
         src (pitch-shift src 0.4 1 0 0.01)
+;;        panning (+ 0.1 (sin-osc:kr pan-rate))
         src (pan2:ar (* vol amp e src))
         _ (tap "g" 60 (a2k src))]
     (out 0 src)))
@@ -281,3 +282,38 @@
 (comment
   (def s (playz))
   (ctl s :freq (midi->hz (note :A3))))
+
+
+;;Experimental Synths
+
+(comment
+
+  (defsynth whoosher [freq 400 out-bus 0 swish 970 amp 0.1]
+    (let [whoosh (lag
+                  (env-gen:kr (envelope [0.8 1.0 0.9 0.7 0.5 0.3 0.24 0.12 0.0]
+                                        [0.08 0.2 0.15 0.11 0.08 0.09 0.06 0.18]
+                                        2)
+                              :time-scale (* 1.3 1.5))
+                  0.2)
+          whoosh-vol (env-gen:kr (envelope [0.0, 0.2, 0.7, 0.9, 1.0, 0.8, 0.6, 0.43, 0.22, 0.0]
+                                           [0.4, 0.5, 0.2, 0.15, 0.17, 0.11, 0.1, 0.16, 0.28]
+                                           2)
+                                 :time-scale (* 0.9 1.5))
+
+          whoosh-vol (* (* 1.5 (lag whoosh-vol 0.2)) (lag (+ 1 (* 0.2 (lf-noise1:kr 37.2))) 0.2))
+          noise (mix (comb-c:ar (* 0.2 (white-noise:ar)) 0.1 [(lin-exp whoosh 0.16 0.00011)
+                                                              (lin-exp whoosh 0.19 0.00013)] 0.09))
+          noise (+ noise (brown-noise))
+
+          trump (* freq (range-lin whoosh 0.92 1.08))
+          trump (* 0.6 (mix [(* 0.8 (sin-osc-fb:ar (* trump (lag (+ 1 (* 0.06 (lf-noise0 28))) 0.8) (+ 0.8 (* 0 0.05))) 1.2))
+                             (* 0.8 (sin-osc-fb:ar (* trump (lag (+ 1 (* 0.06 (lf-noise0 28))) 0.8) (+ 0.8 (* 1 0.05))) 1.2))
+                             (* 0.8 (sin-osc-fb:ar (* trump (lag (+ 1 (* 0.06 (lf-noise0 28))) 0.8) (+ 0.8 (* 2 0.05))) 1.2))]))
+          chain (fft (local-buf 2048) trump)
+          chain (pv-bin-shift chain (range-lin (white-noise:kr) 0.96 1.01) (range-lin whoosh 24 28))
+          trump (* (ifft chain) 0.2)
+
+          src (+ noise trump)
+          src (* src whoosh-vol)
+          panning (line:kr -0.9 0.9 3)]
+      (out out-bus (* amp (pan2 src panning 1.0))))))
