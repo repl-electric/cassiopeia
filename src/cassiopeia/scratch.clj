@@ -4,7 +4,8 @@
   (:use cassiopeia.waves.synths)
   (:use cassiopeia.engine.core)
   (:use cassiopeia.waves.soprano)
-  (require [cassiopeia.engine.timing :as time]))
+  (require [cassiopeia.engine.timing :as time]
+           [overtone.studio.fx :as fx]))
 
 (defsynth whoosher [freq 400 out-bus 0 swish 970 amp 0.1]
   (let [whoosh (lag
@@ -173,6 +174,16 @@
 
 (comment
   (def d (dark-ambience))
+
+  (fx/fx-chorus)
+  (fx/fx-reverb)
+  (fx/fx-limiter)
+  (fx/fx-compressor)
+  (fx/fx-rlpf)
+  (fx/fx-noise-gate)
+
+  (fx/fx-distortion-tubescreamer)
+  (fx/fx-echo)
 
   ;;(kill dark-ambience)
 
