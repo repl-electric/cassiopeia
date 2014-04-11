@@ -1,8 +1,8 @@
 (ns cassiopeia.destination.eta
-"
- ____ _____   __
-| |_   | |   / /\
-|_|__  |_|  /_/--\
+  "
+ ___
+ )_ _)_ _
+(__ (_ (_(
 
 Eta Cassiopeiae is a star system in the northern circumpolar constellation of Cassiopeia.
 "
@@ -25,6 +25,12 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
   (defonce drums-g (group "drums"))
 
   (defonce pulsar-buf            (buffer 128))
+
+  (defonce bass-notes-buf (buffer 128))
+
+  (defonce fizzy-note-buf         (buffer 128))
+
+  (defonce phase-bass-buf            (buffer 128))
   (defonce shrill-buf            (buffer 128))
   (defonce growl-buf             (buffer 128))
   (defonce growl2-buf            (buffer 128))
@@ -69,8 +75,8 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
           (repeat 2 [:A2]))
 (pattern! phase-bass-buf (repeat 4 (repeat 4 [1 0 0 0])) [1 1 1 1])
 (pattern! kick-seq-buf
-          (repeat 4 (repeat 4 [1 0 1 1]))
-          (repeat 2 (repeat 4 [1 1 1 1])))
+          (repeat 4 (repeat 4 [1 0 0 0]))
+          (repeat 2 (repeat 4 [1 1 0 0])))
 (pattern! bass-notes-buf
           (repeat 4 (repeat 4 [:A1 :A1 :A1 :A1]))
           (repeat 2 (repeat 4 [:E#1 :E#1 :E#1 :E#1])))
@@ -88,11 +94,14 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 (pattern! white-seq-buf [1])
 (pattern! white-seq-buf (repeat 4 [1 0 0 0]) [1 1 1 1])
 
-(def s (shrill-pong [:head voice-g] :amp 1.1 :note-buf shrill-pong-buf :duration-bus shrill-dur-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
+(def s (shrill-pong [:head voice-g] :amp 0.2 :note-buf shrill-pong-buf :duration-bus shrill-dur-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
+
+(ctl s :amp 1.1)
 
 (pattern! shrill-dur-buf
           (repeat 4 (repeat 4 [1/64 1/64 1/64 1/64]))
-          (repeat 4 [1/128 1/128 1/64 1/64]))
+          (repeat 4 [1/128 1/128 1/64 1/64])
+          )
 
 (pattern! shrill-dur-buf
           (repeat 4 (repeat 4 [1/12 1/12 1/2 1/2]))
@@ -109,31 +118,34 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 
 (def p (pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf pulsar-buf :amp 0.7))
 
-(def fizzy-p (fizzy-pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf pulsar-buf :duration-bus shrill-buf))
+(def fizzy-p (fizzy-pulsar :amp 0.6 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf fizzy-note-buf :duration-bus shrill-dur-buf))
 
-(let [oct 1
-      [n1 n2 n3 n4] (chord-degree    :v  (note-at-octave :A oct) :major)
-      [n11 n12 n13 n14] (chord-degree :i (note-at-octave :A (inc oct)) :major)]
+(let [octive 1
+      [n1 n2 n3 n4]     (chord-degree :v (note-at-octave :A octive)       :major)
+      [n11 n12 n13 n14] (chord-degree :i (note-at-octave :A (inc octive)) :major)]
   (pattern! pulsar-buf
             (repeat 4 (repeat 4 [0 0 0 0]))
-            (repeat 4 [(note-at-octave :F# (+ 2 oct)) (note-at-octave :F# (+ 2 oct))  0 0])
-            (repeat 4 [(note-at-octave :G# (+ 2 oct))  (note-at-octave :G# (+ 2 oct)) 0 0]))
+            (repeat 4 [(note-at-octave :F# (+ 2 octive)) (note-at-octave :F# (+ 2 octive))  0 0])
+            (repeat 4 [(note-at-octave :G# (+ 2 octive))  (note-at-octave :G# (+ 2 octive)) 0 0]))
   (pattern! shrill-buf
-            (repeat 4 (repeat 4 [n1 n1 n3 0]))   (repeat 4 [n3 n3 n4 0]))
+            (repeat 4 (repeat 4 [n1 n1 n3 0]))
+            (repeat 4 [n3 n3 n4 0]))
   (pattern! shrill-pong-buf
             (repeat 3 [n1 n2 n2 n3])
-
             (repeat 1 [n11 n13 n14 n14])
-
             (repeat 3 [n1 n2 0 0])
-            (repeat 1 [n11 n13 n14 69])
-            ;;(repeat 3 [n2 n2 n3 n3])
-            ;;(repeat 1 [n1 n2 n2 n3])
-            ))
+            (repeat 1 [n11 n13 n14 69]))
+  (pattern! fizzy-note-buf
+            (repeat 3 [n1 n1 n1 n1])
+            (repeat 1 [0 0 0 0])
+            (repeat 3 [n2 n2 n2 n2])
+            (repeat 1 [0 0 0 0])
+            (repeat 4 (repeat 4 [0 0 0 0])))
+  )
 
 (def growl-synth (growl [:head bass-g] :amp 1 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf growl-buf))
 
-(ctl growl-synth :amp 0.0)
+(node-over-time growl-synth :amp  1 0.0 0.01)
 
 (pattern! growl-buf (degrees [1 1 1 1  1 1 1 1  1 1 1 1  1 1 1 1
                               3 3 3 3  3 3 3 3  3 3 3 3  3 3 3 3] :major :A2))
@@ -145,8 +157,6 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
                               5 5 5 5  5 5 5 5  5 5 5 5  5 5 5 5
                               6 6 6 6  6 6 6 6  6 6 6 6  6 6 6 6
                               7 7 7 7  7 7 7 7  7 7 7 7  7 7 7 7
+                              8 8 8 8  8 8 8 8  8 8 8 8  8 8 8 8] :major :A3))
 
-                              8 8 8 8  8 8 8 8  8 8 8 8  8 8 8 8
-                              ] :major :A3))
-
-  (stop)
+(stop)

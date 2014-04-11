@@ -51,12 +51,12 @@
         env (env-gen (adsr :attack 2 :release 1 :sustain 1 :decay 0.2) :action FREE )]
     (out 0 (* env amp (pan2 (scaled-play-buf 1 buf) pos)))))
 
-(defsynth fast-singer [note-buf 0 amp 1 pos 0 release 0.2 count-b 0 beat-b 0]
+(defsynth fast-singer [note-buf 0 amp 1 pos 0 attack 1 release 0.4 count-b 0 beat-b 0]
   (let [cnt (in:kr count-b)
         trg (in:kr beat-b)
         note (buf-rd:kr 1 note-buf cnt)
         buf (index:kr (:id index-buffer) note)
-        env (env-gen (perc :release 0.4 :attack 1) :gate trg)]
+        env (env-gen (perc :release release :attack attack) :gate trg)]
     (out 0 (* env amp (pan2 (scaled-play-buf 1 buf :rate 1 :trigger trg) pos)))))
 
 (defsynth slow-singer [note-buf 0 amp 1 pos 0 release 0.2 count-b 0 beat-b 0 seq-b 0 beat-num 0 num-steps 6

@@ -64,9 +64,9 @@
 
 (pattern! seq-b4
           [0 0 0 0]
+          [0 0 0 0]
+          [0 0 0 0]
           [1 0 0 0]
-          [0 0 0 0]
-          [0 0 0 0]
           [0 0 0 0])
 
 ;;63 62 64 62 62 62 64
@@ -85,41 +85,27 @@
 (ctl singers-g :attack 0.2)
 (ctl singers-g :release 6.)
 
-(pattern! note2-buf [67 66 68])
+(pattern! note2-buf [:Eb4 :D4 :E4 :D4 :D4 :D4 :E4])
 (pattern! seq-b2 [1 1 1])
 
 (def fast-singing (fast-singer
                    [:head singers-g]
-                   :note-buf note-buf :amp 0
+                   :note-buf note2-buf :amp 0
                    :beat-b (:beat time/beat-1th) :count-b (:count time/beat-1th)))
 
+(pattern! note-buf [70 70 69 69  68 68 70 70])
+
 (node-over-time fast-singing :amp 0.0 0.35 0.01)
+(ctl fast-singing :release 0.1 :attack 0.1)
+(ctl fast-singing :release 0.4 :attack 1.0)
 
 (kill fast-singing)
-
-(pattern! note-buf
-          [63 64 62 70 70]
-          [63 64 62 70 70]
-          [62 63 64 70 70]
-          [62 63 64 70 70]
-
-          [70 68 70 70 70]
-          [70 68 70 70 70])
-
-(singer :note-buf b :amp 0.4 :beat-b (:beat time/beat-4th) :count-b (:count time/beat-4th) :release 10)
-
-(kill singer)
-(kill slow-singer)
-
 
 (comment
   (sing :note 60 :amp 1.49 :pos 0)
   (sing :note 64 :amp 1.09 :pos 0)
   (sing :note 67 :amp 1.09 :pos 0)
-  (sing :note 68 :amp 1.09 :pos 0))
-
-(comment
-  (def d (dark-ambience))
+  (sing :note 68 :amp 1.09 :pos 0)
 
   (fx/fx-chorus)
   (fx/fx-reverb)
