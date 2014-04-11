@@ -1,4 +1,4 @@
-(ns cassiopeia.destination.tsih-scratch
+(ns cassiopeia.destination.map-reduce
 "
 Experiments
 "
