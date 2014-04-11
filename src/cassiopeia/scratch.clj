@@ -138,10 +138,12 @@
 (pattern! note2-buf [67 66 68])
 (pattern! seq-b2 [1 1 1])
 
-(def fast-singing (singer
+(def fast-singing (fast-singer
                    [:head singers-g]
-                   :note-buf b :amp 0.4
+                   :note-buf note-buf :amp 0.4
                    :beat-b (:beat time/beat-1th) :count-b (:count time/beat-1th)))
+
+(node-over-time fast-singing :amp 0.0 0.39 0.01)
 
 (kill fast-singing)
 

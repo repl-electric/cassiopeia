@@ -74,10 +74,9 @@
                  (+ root (degree->interval degree scale))
                  0)) ds))))
 
-
 (defn randomly-trigger
   ([change-fn] (randomly-trigger change-fn 0.5 8))
-  ([change-fn chance at-beat]
+  ([chance at-beat change-fn]
       (def random-counter (atom 0))
       (on-trigger (:trig-id time/beat-1th)
                   (fn [& _]
@@ -95,3 +94,5 @@
 
 (defn pause-time [] (ctl time/root-s :rate 0))
 (defn play-time [rate] (ctl time/root-s :rate rate))
+
+(defn note-at-octave [note octave] (keyword (str (name note) octave)))
