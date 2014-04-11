@@ -28,6 +28,8 @@
 (def clap-s  (freesound-sample 48310))
 (def clap2-s (freesound-sample 132676))
 
+(def vogel-clap-s (freesound-sample 62427))
+
 (defonce bell-s               (freesound-sample 173000))
 
 (defonce shaker-s  (freesound-sample 100008))
