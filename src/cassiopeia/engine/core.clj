@@ -37,12 +37,20 @@
 (defn node-over-time
   "Over time change val of `field` to end"
   [node field start end rate]
-  (future (loop [vol start]
-    (when (>= vol end)
-      (println vol)
-      (Thread/sleep 200)
-      (ctl node field vol)
-      (recur (- vol rate))))))
+  (letfn [(change-fn [val]  (if (< end start)
+                              (if (< (- val rate) end)
+                                end
+                                (- val rate))
+                              (if (> (+ val rate) end)
+                                end
+                                (+ val rate))))]
+    (future
+      (loop [val start]
+        (when (not= val end)
+          (println :fast-singing val)
+          (Thread/sleep 200)
+          (ctl node field val)
+          (recur (change-fn val)))))))
 
 (defn overtime!
   ([thing towards] (overtime! thing towards 0.1))
