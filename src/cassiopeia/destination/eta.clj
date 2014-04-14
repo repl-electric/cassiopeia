@@ -22,28 +22,22 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 (do
   (ctl time/root-s :rate 4)
 
-  (defonce voice-g     (group "main voice"))
-  (defonce bass-g      (group "bass voice"))
+  (defonce voice-g (group "main voice"))
+  (defonce bass-g  (group "bass voice"))
   (defonce drums-g (group "drums"))
 
-  (defonce pulsar-buf            (buffer 128))
-
-  (defonce bass-notes-buf (buffer 128))
-
-  (defonce fizzy-note-buf         (buffer 128))
-
-  (defonce phase-bass-buf            (buffer 128))
-  (defonce shrill-buf            (buffer 128))
-  (defonce growl-buf             (buffer 128))
-  (defonce growl2-buf            (buffer 128))
-  (defonce white-seq-buf         (buffer 24))
-  (defonce shrill-dur-buf        (buffer 32))
-  (defonce fizzy-dur-buf         (buffer 128))
-  (defonce shrill-pong-buf       (buffer 128))
-  (defonce shrill-pong-final-buf (buffer 128))
-
-  (defonce kick-seq-buf          (buffer 96))
-  (defonce bass-notes-buf        (buffer 96)))
+  (defonce pulsar-buf      (buffer 128))
+  (defonce bass-notes-buf  (buffer 128))
+  (defonce fizzy-note-buf  (buffer 128))
+  (defonce hats-buf        (buffer 128))
+  (defonce shrill-buf      (buffer 128))
+  (defonce growl-buf       (buffer 128))
+  (defonce growl2-buf      (buffer 128))
+  (defonce white-seq-buf   (buffer 24))
+  (defonce shrill-dur-buf  (buffer 32))
+  (defonce shrill-pong-buf (buffer 128))
+  (defonce kick-seq-buf    (buffer 96))
+  (defonce bass-notes-buf  (buffer 96)))
 
 (def hats
     (doall (map #(high-hats
@@ -52,7 +46,7 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
                   :mix (nth (take 32 (cycle [1.0 1.0])) %1)
                   :room 4
                   :note-buf bass-notes-buf
-                  :seq-buf phase-bass-buf
+                  :seq-buf hats-buf
                   :beat-bus     (:count time/beat-1th)
                   :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num %1) (range 0 32))))
 (ctl hats :damp 1.9 :mix 0.9 :room 50 :amp 0.1)
@@ -75,7 +69,7 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 (pattern! bass-notes-buf
           (repeat 5 [:A1])
           (repeat 2 [:A2]))
-(pattern! phase-bass-buf (repeat 4 (repeat 4 [1 0 0 0])) [1 1 1 1])
+(pattern! hats-buf (repeat 4 (repeat 4 [1 0 0 0])) [1 1 1 1])
 (pattern! kick-seq-buf
           (repeat 2 (repeat 4 [1 0 0 0]))
           (repeat 4 (repeat 4 [1 0 0 0])))
@@ -98,7 +92,7 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 
 (def s (shrill-pong [:head voice-g] :amp 0.2 :note-buf shrill-pong-buf :duration-bus shrill-dur-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
 
-(node-over-time s :amp 0.2 1.1 0.01)
+(node-overtime s :amp 0.2 1.1 0.01)
 
 (pattern! shrill-dur-buf
           (repeat 4 (repeat 4 [1/32 1/32 1/32 1/32]))
@@ -117,6 +111,8 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 (pattern! shrill-dur-buf
           (repeat 4 (repeat 2 [1/2 1/4 1/4 1/2 1/4 1/4 1/2 1/8]))
           (repeat 4 [1/2 1/2 1/2 1/2]))
+
+  (defonce fizzy-dur-buf         (buffer 128))
 
 (def p (pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf pulsar-buf :amp 0.7))
 
@@ -147,15 +143,15 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 
 (def growl-synth (growl [:head bass-g] :amp 0 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf growl-buf))
 
-(node-over-time growl-synth :amp  1 0.0 0.01)
-(node-over-time growl-synth :amp  0 0.9 0.01)
+(node-overtime growl-synth :amp  1 0.0 0.01)
+(node-overtime growl-synth :amp  0 0.9 0.01)
 
 (pattern! growl-buf (degrees [1 1 1 1  1 1 1 1  1 1 1 1  1 1 1 1
                               3 3 3 3  3 3 3 3  3 3 3 3  3 3 3 3] :major :A2))
 
 (def growl-synth (growl [:head bass-g] :amp 0 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf growl2-buf))
 
-(node-over-time growl-synth :amp 0 1 0.01)
+(node-overtime growl-synth :amp 0 1 0.01)
 
 (pattern! growl2-buf (degrees [1 1 1 1  1 1 1 1  1 1 1 1  1 1 1 1
                               3 3 3 3  3 3 3 3  3 3 3 3  3 3 3 3

@@ -95,7 +95,7 @@
 
 (pattern! note-buf [70 70 69 69  68 68 70 70])
 
-(node-over-time fast-singing :amp 0.0 0.35 0.01)
+(node-overtime fast-singing :amp 0.0 0.35 0.01)
 (ctl fast-singing :release 0.1 :attack 0.1)
 (ctl fast-singing :release 0.4 :attack 1.0)
 
