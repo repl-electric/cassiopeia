@@ -127,7 +127,7 @@
     ```"
   [s-name & s-form]
   (let [param-pairs (partition 2 (first s-form))
-        buf-args (filter (fn [[k v]] (and (vector? v) (every? number? v))) param-pairs)
+        buf-args (filter (fn [[_ v]] (and (vector? v) (every? number? v))) param-pairs)
         buf-args (map (fn [[k v]]
                         (let [b (buffer (count v))]
                           (buffer-write! b v)
@@ -159,7 +159,7 @@
    ```
   "
   [node & args]
-  (let [{array-args true args false} (group-by (fn [[k v]] (vector? v)) (partition 2 args))]
+  (let [{array-args true args false} (group-by (fn [[_ v]] (vector? v)) (partition 2 args))]
     (doseq [[buf-name buf-val] array-args]
       (when-let [[_ buf-id] (some (fn [[k v]]
                                     (when (= (str (name buf-name)) (str (name k))) [k v]))
