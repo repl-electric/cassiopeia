@@ -10,9 +10,7 @@
   (buffer-write! buf (take (buffer-size buf) (cycle (map #(if (keyword? %) (note %) %) (flatten lists))))))
 
 (defn safe-pattern!
-  "Fill a buffer repeating pattern if required.
-   Supports integers or notes which will be converted to midi notes.
-   Only write on a beat."
+  "Exactly as `pattern!` but only writes on a beat."
   [buf beat & lists]
   (on-trigger
    (:trig-id beat)
