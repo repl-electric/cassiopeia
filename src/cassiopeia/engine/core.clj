@@ -1,7 +1,8 @@
 (ns cassiopeia.engine.core
   "Layers over Overtone which make composition more immediate"
   (:use [overtone.live])
-  (:require [cassiopeia.engine.timing :as time]))
+  (:require [cassiopeia.engine.timing :as time]
+            [overtone.sc.machinery.server.comms :refer [with-server-self-sync server-sync]]))
 
 (defn pattern!
   "Fill a buffer repeating pattern if required.
@@ -32,7 +33,7 @@
                        lists)]
           (pattern! buf buf-lists)))
 
-(defn node-over-time
+(defn node-overtime
   "Over time change val of `field` to end"
   [node field start end rate]
   (letfn [(change-fn [val]  (if (< end start)
@@ -45,7 +46,6 @@
     (future
       (loop [val start]
         (when (not= val end)
-          (println :fast-singing val)
           (Thread/sleep 200)
           (ctl node field val)
           (recur (change-fn val)))))))
@@ -102,3 +102,102 @@
 (defn play-time [rate] (ctl time/root-s :rate rate))
 
 (defn note-at-octave [note octave] (keyword (str (name note) octave)))
+
+(defmacro defasynth
+  "Behaves the same as Overtone's `defsynth` except it supports array arguments.
+   When passed an array of floats/int/doubles it will create a buffer and use these as its default values.
+   Within the synth the buffer will only be referable by its id. We still have to use buffer functions to
+   access its contents.
+
+   For each Synth definition we keep a reference of the id of the buffers that have been allocated.
+
+   An example:
+   ````
+    (defasynth sin-ly [notes [30 30 30 30 30] amp 1 beat-bus 0]
+      (let [cnt (in:kr beat-bus)
+            note (buf-rd:kr 1 notes cnt)
+            freq (midicps note)
+            src (sin-osc freq)]
+        (out 0 (pan2 (* amp src)))))
+
+    (def siz (sin-ly :beat-bus (:count time/main-beat)))
+
+    (actl siz :notes [50 50 60 75 75] :amp 0.2)
+    (actl siz :amp 1)
+    ```"
+  [s-name & s-form]
+  (let [param-pairs (partition 2 (first s-form))
+        buf-args (filter (fn [[k v]] (and (vector? v) (every? number? v))) param-pairs)
+        buf-args (map (fn [[k v]]
+                        (let [b (buffer (count v))]
+                          (buffer-write! b v)
+                          [k (:id b)]))
+                      buf-args)
+        buf-args-map (into {} buf-args)
+
+        new-args (vec (mapcat (fn [[k v]]
+                                (if-let [buf-id (k buf-args-map)]
+                                  [k buf-id]
+                                  [k v]))
+                              param-pairs))
+        tail-form (concat '(do) (rest s-form))
+        buf-ids (map (fn [[k v]] [(keyword k) v]) buf-args)]
+
+    `(do
+       (defsynth ~s-name ~new-args ~tail-form)
+       ;;Redefine synth with out buffer ids
+       (def ~s-name (assoc-in ~s-name [:sdef :buffers] ~@buf-ids)))))
+
+(defn actl
+  "Behaves the same as Overtone's `ctl`.
+   It supports implictly writing to buffers if a key matches
+   that of a buffer defined for the synth this node is created from.
+
+   An example:
+   ```
+   (actl siz :notes [50 50 60 75 75] :amp 0.2)
+   ```
+  "
+  [node & args]
+  (let [{array-args true args false} (group-by (fn [[k v]] (vector? v)) (partition 2 args))]
+    (doseq [[buf-name buf-val] array-args]
+      (when-let [[_ buf-id] (some (fn [[k v]]
+                                    (when (= (str (name buf-name)) (str (name k))) [k v]))
+                                  (partition 2 (-> node :sdef :buffers)))]
+        (apply snd "/b_setn" buf-id 0 (count buf-val) (map float buf-val))))
+    (when (seq args) (apply ctl [node] (flatten args))))
+  node)
+
+(defn afree
+  "Free all buffers held by this synth"
+  [synth]
+  (doseq [[_ buf-id] (partition 2 (-> synth :sdef :buffers))]
+    (with-server-self-sync (fn [uid]
+                             (snd "/b_free" buf-id)
+                             (server-sync uid))
+      (str "whilst freeing audio buffer " (with-out-str (pr buf-id))))))
+
+(comment "Usage"
+  (defasynth sin-ly [notes [30 30 30 30 30] amp 1 freq 300 beat-bus 0 amp 1]
+    (let [cnt (in:kr beat-bus)
+          note (buf-rd:kr 1 notes cnt)
+          freq (midicps note)
+          src (sin-osc freq)]
+      (out 0 (pan2 (* amp src)))))
+
+  (def siz (sin-ly :beat-bus (:count time/main-beat)))
+
+  (actl siz :notes [50 50 60 75 75] :amp 0.2)
+  (actl siz :amp 1)
+
+  (-> sin-ly :sdef :buffers second)
+
+  (def tester (buffer 5))
+
+  (ctl time/root-s :rate 2)
+  (buffer-write! tester [50 50 60 65 65])
+  (ctl siz :notes tester)
+
+  (afree sin-ly)
+
+  (stop))
