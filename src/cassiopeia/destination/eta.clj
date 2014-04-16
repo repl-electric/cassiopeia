@@ -42,14 +42,14 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 (def hats
     (doall (map #(high-hats
                   [:head drums-g]
-                  :amp 0.18
+                  :amp 0.2
                   :mix (nth (take 32 (cycle [1.0 1.0])) %1)
                   :room 4
                   :note-buf bass-notes-buf
                   :seq-buf hats-buf
                   :beat-bus     (:count time/beat-1th)
                   :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num %1) (range 0 32))))
-(ctl hats :damp 1.9 :mix 0.9 :room 50 :amp 0.1)
+(ctl hats :damp 1.9 :mix 0.9 :room 50 :amp 0.2)
 
 (doseq [i (range 0 96)]
   (kick2
@@ -69,10 +69,16 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 (pattern! bass-notes-buf
           (repeat 5 [:A1])
           (repeat 2 [:A2]))
-(pattern! hats-buf (repeat 4 (repeat 4 [1 0 0 0])) [1 1 1 1])
+(pattern! hats-buf (repeat 4 (concat (repeat 3 [1 0 0 0]) [1 1 0 0] )) )
+(pattern! kick-seq-buf (repeat 6 (repeat 4 (repeat 4 [1 1 1 1]))))
 (pattern! kick-seq-buf
-          (repeat 2 (repeat 4 [1 0 0 0]))
-          (repeat 4 (repeat 4 [1 0 0 0])))
+          (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
+          (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
+          (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
+          (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
+          (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
+          (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 1 1 1]))
+
 (pattern! bass-notes-buf
           (repeat 4 (repeat 4 [:A1 :A1 :A1 :A1]))
           (repeat 2 (repeat 4 [:E#1 :E#1 :E#1 :E#1])))
@@ -88,7 +94,7 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
                      :beat-num %1) (range 0 24))))
 
 (pattern! white-seq-buf [1])
-(pattern! white-seq-buf (repeat 4 [1 0 0 0]) [1 1 1 1])
+(pattern! white-seq-buf (repeat 3 [1 0 0 0]) [1 1 1 1])
 
 (def s (shrill-pong [:head voice-g] :amp 0.2 :note-buf shrill-pong-buf :duration-bus shrill-dur-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
 
