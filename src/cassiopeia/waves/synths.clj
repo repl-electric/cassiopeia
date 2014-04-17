@@ -223,7 +223,7 @@
                 (rlpf (pulse freq) 1200)])
         src (free-verb src :room 10)
         _ (tap "a" 60 (a2k src))
-        e (env-gen (adsr :release 4 :sustain 4 :attack 0.5 :curve -3) :gate beat-trg :time-scale duration)]
+        e (env-gen (adsr :release 4 :sustain 4 :attack 0.6 :curve -1) :gate beat-trg :time-scale duration)]
     (out out-bus (* vol amp e src))))
 
 (defsynth fizzy-pulsar [note-buf 0 beat-bus 0 beat-trg-bus 0 size 1 r 0 amp 1 duration-bus 0]
