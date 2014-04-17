@@ -80,8 +80,9 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
           (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 1 1 1]))
 
 (pattern! bass-notes-buf
-          (repeat 4 (repeat 4 [:A1 :A1 :A1 :A1]))
-          (repeat 2 (repeat 4 [:E#1 :E#1 :E#1 :E#1])))
+          (repeat 2 (repeat 4 [:B1 :B1 :B1 :B1]))
+          (repeat 2 (repeat 4 [:E#1 :E#1 :E#1 :E#1]))
+          (repeat 2 (repeat 4 [:F#1 :F#1 :F#1 :F#1])))
 
 (def white (doall (map
                    #(whitenoise-hat
@@ -98,6 +99,21 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 
 (def s (shrill-pong [:head voice-g] :amp 0.2 :note-buf shrill-pong-buf :duration-bus shrill-dur-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
 
+(def s2 (shrill-pong [:head voice-g] :amp 1.2 :note-buf shrill-pong2-buf :duration-bus shrill-dur2-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
+
+(def  shrill-pong2-buf (buffer 128))
+(def shrill-dur2-buf (buffer 128))
+
+(pattern! shrill-dur2-buf
+          (repeat 16 [1/9])
+          (repeat 4 (repeat 16 [1/8])))
+(pattern! shrill-dur2-buf [1/32])
+
+(kill s)
+(kill shrill-pong)
+(ctl s :amp 1.1)
+(ctl s2 :amp 1.6)
+
 (node-overtime s :amp 0.2 1.1 0.01)
 
 (pattern! shrill-dur-buf
@@ -108,52 +124,76 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 (pattern! shrill-dur-buf
           (repeat 4 (repeat 4 [1/12 1/12 1/2 1/2]))
           (repeat 4 (repeat 4 [1/12 1/12 1/12 1/4]))
-          (repeat 4 [1/24 1/2 1/24 1/2]))
+          (repeat 4           [1/24 1/2 1/24 1/2]))
 
 (pattern! shrill-dur-buf
           (repeat 4 (repeat 4 [1/12 1/12 1/12 1/4]))
           (repeat 4 [1/4 1/4 1/4 1/4]))
 
 (pattern! shrill-dur-buf
-          (repeat 4 (repeat 2 [1/2 1/4 1/4 1/2 1/4 1/4 1/2 1/8]))
+          (repeat 4 (repeat 2 [1/2 1/4 1/2 1/2 1/4 1/2 1/2 1/12]))
           (repeat 4 [1/2 1/2 1/2 1/2]))
 
-  (defonce fizzy-dur-buf         (buffer 128))
+  (defonce fizzy-dur-buf  (buffer 128))
 
 (def p (pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf pulsar-buf :amp 0.7))
 
 (def fizzy-p (fizzy-pulsar :amp 0.6 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf fizzy-note-buf :duration-bus shrill-dur-buf))
 
-(let [octive 1
-      [n1 n2 n3 n4]     (chord-degree :v (note-at-octave :A octive)       :major)
-      [n11 n12 n13 n14] (chord-degree :i (note-at-octave :A (inc octive)) :major)]
+(let [octave 2
+      [n1 n2 n3 n4]     (chord-degree :v (note-at-octave :A octave)       :major)
+      [n11 n12 n13 n14] (chord-degree :i (note-at-octave :A (inc octave)) :major)]
   (pattern! pulsar-buf
             (repeat 4 (repeat 4 [0 0 0 0]))
-            (repeat 4 [(note-at-octave :F# (+ 2 octive)) (note-at-octave :F# (+ 2 octive))  0 0])
-            (repeat 4 [(note-at-octave :G# (+ 2 octive))  (note-at-octave :G# (+ 2 octive)) 0 0]))
+            (repeat 4 [(note-at-octave :F# (+ 2 octave)) (note-at-octave :F# (+ 2 octave))  0 0])
+            (repeat 4 [(note-at-octave :G# (+ 2 octave))  (note-at-octave :G# (+ 2 octave)) 0 0]))
   (pattern! shrill-buf
             (repeat 4 (repeat 4 [n1 n1 n3 0]))
             (repeat 4 [n3 n3 n4 0]))
   (pattern! shrill-pong-buf
-            (repeat 3 [n1 n2 n2 n3])
-            (repeat 1 [n11 n13 n14 n14])
-            (repeat 3 [n1 n2 0 0])
-            (repeat 1 [n11 n13 n14 69]))
+            (repeat 4 [n1 n3 n3 n3])
+            [n1 n2 n3 n3] [n3 n3 n1 n1]   [n1 n2 n3 n3] [n1 n1 n3 n3]
+            (repeat 2 [n13 n13 n14 n14])  [n3 n3 n1 n1] [n1 n2 n3 n3] [n1 n1 n13 n13]
+            [n1 n2 n3 n3] [n3 n3 n1 n1]   [n1 n2 n3 n3] [n1 n1 n3 n3]
+            (repeat 1 [n14 n13 n12 (inc n14)]) [n3 n3 n1 n1] [n1 n2 n3 n3] [n1 n1 n13 n13]
+        ;;    (repeat 4 [n14 n13 n12 (inc n14)])
+            ) [n3 n3 n1 n1] [n1 n2 n3 n3] [n1 n1 n13 n13]
+  (pattern! shrill-pong2-buf
+            (degrees [8 8 8 8  8 8 8 8  8 8 8 8  8 8 8 8
+                      7 7 7 7  7 7 7 7  7 7 7 7  7 7 7 7
+                      6 6 6 6  6 6 6 6  6 6 6 6  6 6 6 6
+                      5 5 5 5  5 5 5 5  5 5 5 5  5 5 5 5
+                      3 3 3 3  3 3 3 3  3 3 3 3  3 3 3 3
+                      1 1 1 1  1 1 1 1  1 1 1 1  1 1 1 1] :major (note-at-octave :A (cond
+                                                                                     (= octave 1) octave
+                                                                                     true (dec octave))))
+
+            ;; (repeat 4 [n11 n11 n11 n11])
+            ;; (repeat 4 [n13 n13 n13 n13])
+            ;; (repeat 4 [n14 n14 n14 n14])
+            ;; (repeat 4 [n14 n14 n14 n14])
+            ;; (repeat 4 [n14 n14 n14 n14])
+            ;; (repeat 4 [n13 n13 n13 n13])
+            ;; (repeat 4 [n11 n11 n11 n11]))
+            )
+
   (pattern! fizzy-note-buf
             (repeat 3 [n1 n1 n1 n1])
             (repeat 1 [0 0 0 0])
             (repeat 3 [n2 n2 n2 n2])
             (repeat 1 [0 0 0 0])
-            (repeat 4 (repeat 4 [0 0 0 0])))
-  )
+            (repeat 4 (repeat 4 [0 0 0 0]))))
+
 
 (def growl-synth (growl [:head bass-g] :amp 0 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf growl-buf))
+
+(ctl growl-synth :amp 1)
 
 (node-overtime growl-synth :amp  1 0.0 0.01)
 (node-overtime growl-synth :amp  0 0.9 0.01)
 
 (pattern! growl-buf (degrees [1 1 1 1  1 1 1 1  1 1 1 1  1 1 1 1
-                              3 3 3 3  3 3 3 3  3 3 3 3  3 3 3 3] :major :A2))
+                              3 3 3 3  3 3 3 3  3 3 3 3  3 3 3 3] :major :A3))
 
 (def growl-synth (growl [:head bass-g] :amp 0 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf growl2-buf))
 
