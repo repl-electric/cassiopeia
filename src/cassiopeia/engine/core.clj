@@ -12,12 +12,15 @@
 
 (defn safe-pattern!
   "Exactly as `pattern!` but only writes on a beat."
-  [buf beat & lists]
+  [buf beat n & lists]
   (on-trigger
    (:trig-id beat)
-   (fn [& _]
-     (apply pattern! [buf] lists)
-     (remove-event-handler ::pattern-writer)) ::pattern-writer))
+   (fn [b]
+     (when (= 0.0 (mod b n))
+       (apply pattern! (concat [buf] lists))
+       (remove-event-handler ::pattern-writer))) ::pattern-writer))
+
+(remove-event-handler ::pattern-writer)
 
 (defn pattern-seq!
   "Fill a buffer repeating pattern if required. Support expressing patterns with `x` and `o`.
