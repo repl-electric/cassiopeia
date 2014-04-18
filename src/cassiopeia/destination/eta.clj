@@ -37,7 +37,11 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
   (defonce shrill-dur-buf  (buffer 32))
   (defonce shrill-pong-buf (buffer 128))
   (defonce kick-seq-buf    (buffer 96))
-  (defonce bass-notes-buf  (buffer 96)))
+  (defonce bass-notes-buf  (buffer 96))
+
+  (defonce shrill-pong2-buf (buffer 128))
+  (defonce shrill-dur2-buf  (buffer 128))
+  (defonce fizzy-dur-buf    (buffer 128)))
 
 (def growl-synth (growl [:head bass-g] :amp 0 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf growl-buf))
 
@@ -115,31 +119,20 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 
 (def s2 (shrill-pong [:head voice-g] :amp 1.2 :note-buf shrill-pong2-buf :duration-bus shrill-dur2-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
 
-(def  shrill-pong2-buf (buffer 128))
-(def shrill-dur2-buf (buffer 128))
-
 (pattern! shrill-dur2-buf
           (repeat 16 [1/9])
           (repeat 4 (repeat 16 [1/8])))
 (pattern! shrill-dur2-buf [1/32])
 
-(ctl s2 :amp 0)
-(ctl s :amp 0)
 (node-overtime s :amp 0.1 1.2 0.01)
 
 (pattern! shrill-dur-buf
           (repeat 4 (repeat 2 [1/2 1/4 1/2 1/2 1/4 1/2 1/2 1/12]))
           (repeat 4 [1/2 1/2 1/2 1/2]))
 
-  (defonce fizzy-dur-buf  (buffer 128))
-
 (def p (pulsar :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf pulsar-buf :amp 0.7))
 
 (def fizzy-p (fizzy-pulsar :amp 0.6 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf fizzy-note-buf :duration-bus shrill-dur-buf))
-
-(ctl p :amp 0)
-(ctl fizzy-p :amp 0)
-(ctl growl-synth :amp 0)
 
 (let [octave 2
       [n1 n2 n3 n4]     (chord-degree :v (note-at-octave :A octave)       :major)
@@ -176,6 +169,18 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
             (repeat 4 (repeat 4 [0 0 0 0]))))
 
 (stop)
-(def mm-s (load-sample "/Users/josephwilk/Workspace/music/samples/soprano/Samples/Sustains/Mm p/vor_sopr_sustain_mm_p_03.wav"))
-(schedule-sample mm-s time/main-beat :mod-size 64 :amp 0.2)
+(def mm-low-s (load-sample "/Users/josephwilk/Workspace/music/samples/soprano/Samples/Sustains/Mm p/vor_sopr_sustain_mm_p_03.wav"))
+(def mm-high-s (load-sample "/Users/josephwilk/Workspace/music/samples/soprano/Samples/Sustains/Mm p/vor_sopr_sustain_mm_p_04.wav"))
+
+(schedule-sample mm-low-s time/main-beat :mod-size 64 :amp 0.2)
+(schedule-sample mm-high-s time/main-beat :mod-size 64 :amp 0.2)
 (schedule-sample whisper-s time/main-beat :mod-size 64 :amp 0.09)
+
+(comment
+  (ctl drums-g :amp 0)
+  (ctl s2 :amp 0)
+  (ctl s :amp 0)
+  (ctl p :amp 0)
+  (ctl fizzy-p :amp 0)
+  (ctl growl-synth :amp 0)
+  )
