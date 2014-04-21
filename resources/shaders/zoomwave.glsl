@@ -6,21 +6,23 @@ uniform float iSpace;
 uniform float iOvertoneVolume;
 
 const int smoothWave = 0;
+const float waveReducer = 0.1;
 
 float smoothbump(float center, float width, float x, float orien) {
   float w2 = width/2.0;
   float cp = center+w2;
   float cm = center-w2;
+  float c;
 
   if(orien > 0.0){
     x = orien-x;
   }
 
-  //float c = smoothstep(cm, center, x) * (1.0-smoothstep(center, cp, x));
-  //float c = smoothstep(cm, center, x);
-  //float c = smoothstep(cm, center, 1-x);
-  //float c = smoothstep(cm, center, x) + smoothstep(cm, center, 1-x);
-  float c = smoothstep(cm, center, x) * 1-smoothstep(center, cp, x);
+  //c = smoothstep(cm, center, x) * (1.0-smoothstep(center, cp, x));
+  c = smoothstep(cm, center, x);
+  //c = smoothstep(cm, center, 1-x);
+  //c = smoothstep(cm, center, x) + smoothstep(cm, center, 1-x);
+  //c = smoothstep(cm, center, x) * 1-smoothstep(center, cp, x);
 
   return c;
 }
@@ -32,11 +34,11 @@ vec3 hsv2rgb(float time,float mixRate,float v) {
 vec4 generateWave(vec2 uv, float yOffset, float orien){
   float colorChangeRate = 10.0;
   vec4 wa = texture2D(iChannel0, vec2(uv.x, iRes*2.9));
-  float wave = wa.x;
+  float wave = waveReducer*wa.x;
 
   if(smoothWave==0){
     wave = smoothbump(0.2,(6.0/iResolution.y), wave+uv.y-yOffset, orien); //0.5
-  // wave = (-1.0 * wave)+0.5;
+    //wave = (-1.0 * wave)+0.5;
   }
   vec3  wc     = wave * hsv2rgb(fract(iGlobalTime/colorChangeRate),iLColor,iRColor);
 //0.1 0.1 0.9 0.9
@@ -52,28 +54,17 @@ void main(void)
 {
   float space = 0.1;
   float res = 0.75;
-  //vec2  uv2    = (gl_FragCoord.xy*0.1) / iResolution.xy*0.1;
 
   vec2  uv     = gl_FragCoord.xy / iResolution.xy;
   vec2  uv2    = gl_FragCoord.xy / iResolution.xy;
   vec2  uv3    = gl_FragCoord.xy / iResolution.xy;
 
-  vec4  wave1  = generateWave(uv2, 0.1, uv.x);
-  vec4  wave2  = generateWave(uv,  0.12,  uv.x);
-  vec4  wave3  = generateWave(uv3, 0.13,  uv.x);
-  vec4  wave4  = generateWave(uv3, 0.14, uv.x);
+  vec4  wave1  = generateWave(uv2, 0.1,  uv.x);
+  vec4  wave2  = generateWave(uv,  0.3, 0.0);
+  vec4  wave3  = generateWave(uv3, 0.2,  uv.x);
+  vec4  wave4  = generateWave(uv3, 0.25, -uv.x);
 
-
-    //    vec4  wave3  = generateWave(uv3, 0.4, -uv.x);
-    //    vec4  wave4  = generateWave(uv3, 0.45, -uv.x);
-
-    //vec4  w = wave2;
-
-    //vec4 w = sin(wave1)+tan(wave2)+tan(wave3);
-    vec4 w = mix(mix(mix(wave1,wave2,0.5), wave3, 0.5), wave4,0.5);
-
-  //  gl_FragColor = vec4(vec3(wc+pc),1.0);
-  //  gl_FragColor = vec4(,1.0);
+  vec4 w = mix(mix(mix(wave1,wave2,0.5), wave3, 0.5), wave4,0.5);
 
   gl_FragColor = w;
 }
