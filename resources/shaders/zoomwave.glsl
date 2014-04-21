@@ -5,8 +5,57 @@ uniform float iRes;
 uniform float iSpace;
 uniform float iOvertoneVolume;
 
+const float scale=10.5;
+const float detail=10.5;
+const float width=4.1;
+
 const int smoothWave = 0;
 const float waveReducer = 0.1;
+const int lightOn=0;
+
+vec3 lightdir=-vec3(.1,.0,0.);
+
+float motion(vec3 p) {
+  float acceleration = 0.0;
+  float movementReducer = 10.0;
+
+  float t=iGlobalTime;
+  float dotp=dot(p,p);
+
+  if(iOvertoneVolume > 0.0){
+    acceleration=0.1;
+    movementReducer = 1;
+  }else{
+    acceleration=0.0;
+    movementReducer = 10000;
+  }
+
+  p = p/dotp*scale;
+  p = sin(p+vec3(1,t/movementReducer,t*acceleration/movementReducer));
+  float d=length(p.yz)-width;
+  d = min(d,length(p.xz) - width);
+  d = min(d,length(p.xy) - width);
+  d = min(d,length(p*p*p)-width*.3);
+  return d*dotp/scale;
+}
+
+vec3 normal(vec3 p) {
+  vec3 e = vec3(0.0,detail,0.0);
+
+  return normalize(vec3(motion(p+e.yxx)-motion(p-e.yxx),
+                        motion(p+e.xyx)-motion(p-e.xyx),
+                        motion(p+e.xxy)-motion(p-e.xxy)));
+}
+
+float light(in vec3 p, in vec3 dir) {
+  vec3 ldir=normalize(lightdir);
+  vec3 n=normal(p);
+  float sh=1.;
+  float diff=max(0.,dot(ldir,-n))+.1*max(0.,dot(normalize(dir),-n));
+  vec3 r = reflect(ldir,n);
+  float spec=max(0.,dot(dir,-r))*sh;
+  return diff+pow(spec,20.)*.7;
+}
 
 float smoothbump(float center, float width, float x, float orien) {
   float w2 = width/2.0;
@@ -66,5 +115,13 @@ void main(void)
 
   vec4 w = mix(mix(mix(wave1,wave2,0.5), wave3, 0.5), wave4,0.5);
 
-  gl_FragColor = w;
+  if(lightOn==1){
+    vec3 from=vec3(0.,0.1,-1.2);
+    vec3 dir=normalize(vec3(uv,1.));
+    float col = light(from, dir);
+    gl_FragColor = w*vec4(col);
+  }
+  else{
+    gl_FragColor = w*vec4(col);
+  }
 }
