@@ -13,14 +13,14 @@ float smoothbump(float center, float width, float x, float orien) {
   float cm = center-w2;
 
   if(orien > 0.0){
-         x = orien-x;
+    x = orien-x;
   }
 
   //float c = smoothstep(cm, center, x) * (1.0-smoothstep(center, cp, x));
   //float c = smoothstep(cm, center, x);
   //float c = smoothstep(cm, center, 1-x);
   //float c = smoothstep(cm, center, x) * smoothstep(1-center, cp, x);
-  float c = smoothstep(cm, center, x) * smoothstep(1.0-center, cp, x);
+  float c = smoothstep(cm, center, x) * 1-smoothstep(center, cp, x);
 
   return c;
 }
@@ -35,19 +35,17 @@ vec4 generateWave(vec2 uv, float yOffset, float orien){
   float wave = wa.x;
 
   if(smoothWave==0){
-    wave = smoothbump(0.6,(6.0/iResolution.y), wave+uv.y-yOffset, orien); //0.5
+    wave = smoothbump(0.2,(6.0/iResolution.y), wave+uv.y-yOffset, orien); //0.5
   // wave = (-1.0 * wave)+0.5;
   }
-
-
   vec3  wc     = wave * hsv2rgb(fract(iGlobalTime/colorChangeRate),iLColor,iRColor);
 //0.1 0.1 0.9 0.9
 
   float zf     = -0.05;
-  vec2  uv2    = (-1.0+zf)*uv-(zf/-2.0,zf*-2.0);
+  vec2  uv2    = (1.0+zf)*uv-(zf/2.0,zf/2.0);
   vec3  pc     = iSpace*texture2D(iChannel1, uv2).rgb;
 
-  return vec4(vec3(pc+wc), 1.0);
+  return vec4(vec3(wc+pc), 1.0);
 }
 
 void main(void)
@@ -60,10 +58,12 @@ void main(void)
   vec2  uv2    = gl_FragCoord.xy / iResolution.xy;
   vec2  uv3    = gl_FragCoord.xy / iResolution.xy;
 
-    vec4  wave2  = generateWave(uv,  0.1,  -0.0);
+    vec4  wave2  = generateWave(uv,  0.1,  0.0);
     vec4  wave1  = generateWave(uv2, 0.15, uv.x);
     vec4  wave3  = generateWave(uv3, 0.4, -uv.x);
     vec4  wave4  = generateWave(uv3, 0.45, -uv.x);
+
+    //vec4  w = wave2;
 
     //vec4 w = sin(wave1)+tan(wave2)+tan(wave3);
     vec4 w = mix(mix(mix(wave1,wave2,0.5), wave3, 0.5), wave4,0.5);
