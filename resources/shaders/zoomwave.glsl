@@ -19,7 +19,7 @@ float smoothbump(float center, float width, float x, float orien) {
   //float c = smoothstep(cm, center, x) * (1.0-smoothstep(center, cp, x));
   //float c = smoothstep(cm, center, x);
   //float c = smoothstep(cm, center, 1-x);
-  //float c = smoothstep(cm, center, x) * smoothstep(1-center, cp, x);
+  //float c = smoothstep(cm, center, x) + smoothstep(cm, center, 1-x);
   float c = smoothstep(cm, center, x) * 1-smoothstep(center, cp, x);
 
   return c;
@@ -58,10 +58,14 @@ void main(void)
   vec2  uv2    = gl_FragCoord.xy / iResolution.xy;
   vec2  uv3    = gl_FragCoord.xy / iResolution.xy;
 
-    vec4  wave2  = generateWave(uv,  0.1,  0.0);
-    vec4  wave1  = generateWave(uv2, 0.15, uv.x);
-    vec4  wave3  = generateWave(uv3, 0.4, -uv.x);
-    vec4  wave4  = generateWave(uv3, 0.45, -uv.x);
+  vec4  wave1  = generateWave(uv2, 0.1, uv.x);
+  vec4  wave2  = generateWave(uv,  0.12,  uv.x);
+  vec4  wave3  = generateWave(uv3, 0.13,  uv.x);
+  vec4  wave4  = generateWave(uv3, 0.14, uv.x);
+
+
+    //    vec4  wave3  = generateWave(uv3, 0.4, -uv.x);
+    //    vec4  wave4  = generateWave(uv3, 0.45, -uv.x);
 
     //vec4  w = wave2;
 
