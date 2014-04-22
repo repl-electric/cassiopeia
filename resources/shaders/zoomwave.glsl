@@ -3,44 +3,37 @@ uniform float iRColor;
 uniform float iA;
 uniform float iRes;
 uniform float iSpace;
+uniform float iExpand;
+uniform float iYinYan;
 uniform float iOvertoneVolume;
 
 const float scale=10.5;
 const float detail=10.5;
-const float width=4.1;
+const float width=0.1;
 
-const int smoothWave = 0;
-const float waveReducer = 0.1;
+const int smoothWave=0;
+const float waveReducer=0.1;
 const int lightOn=0;
 
 vec3 lightdir=-vec3(.1,.0,0.);
-
-float motion(vec3 p) {
+  float motion(vec3 p) {
   float acceleration = 0.0;
   float movementReducer = 10.0;
 
   float t=iGlobalTime;
   float dotp=dot(p,p);
 
-  if(iOvertoneVolume > 0.0){
-    acceleration=0.1;
-    movementReducer = 1;
-  }else{
-    acceleration=0.0;
-    movementReducer = 10000;
-  }
-
-  p = p/dotp*scale;
-  p = sin(p+vec3(1,t/movementReducer,t*acceleration/movementReducer));
-  float d=length(p.yz)-width;
-  d = min(d,length(p.xz) - width);
-  d = min(d,length(p.xy) - width);
-  d = min(d,length(p*p*p)-width*.3);
-  return d*dotp/scale;
-}
+   p = p/dotp*scale;
+   p = sin(p+vec3(1,t/movementReducer,t*acceleration/movementReducer));
+   float d=length(p.yz)-width;
+   d = min(d,length(p.xz) - width);
+   d = min(d,length(p.xy) - width);
+   d = min(d,length(p*p*p)-width*.3);
+   return d*dotp/scale;
+ }
 
 vec3 normal(vec3 p) {
-  vec3 e = vec3(0.0,detail,0.0);
+  vec3 e = vec3(0.0, detail, 0.0);
 
   return normalize(vec3(motion(p+e.yxx)-motion(p-e.yxx),
                         motion(p+e.xyx)-motion(p-e.xyx),
@@ -50,7 +43,7 @@ vec3 normal(vec3 p) {
 float light(in vec3 p, in vec3 dir) {
   vec3 ldir=normalize(lightdir);
   vec3 n=normal(p);
-  float sh=1.;
+  float sh=0.1;
   float diff=max(0.,dot(ldir,-n))+.1*max(0.,dot(normalize(dir),-n));
   vec3 r = reflect(ldir,n);
   float spec=max(0.,dot(dir,-r))*sh;
@@ -67,12 +60,12 @@ float smoothbump(float center, float width, float x, float orien) {
     x = orien-x;
   }
 
-  //c = smoothstep(cm, center, x) * (1.0-smoothstep(center, cp, x));
-  c = smoothstep(cm, center, x);
-  //c = smoothstep(cm, center, 1-x);
-  //c = smoothstep(cm, center, x) + smoothstep(cm, center, 1-x);
-  //c = smoothstep(cm, center, x) * 1-smoothstep(center, cp, x);
-
+  if(iYinYan > 0.0){
+    c = iYinYan*smoothstep(cm, center, x);
+  }
+  else{
+    c = smoothstep(cm, center, x) * 1-smoothstep(center, cp, x);
+  }
   return c;
 }
 
@@ -108,10 +101,10 @@ void main(void)
   vec2  uv2    = gl_FragCoord.xy / iResolution.xy;
   vec2  uv3    = gl_FragCoord.xy / iResolution.xy;
 
-  vec4  wave1  = generateWave(uv2, 0.1,  uv.x);
-  vec4  wave2  = generateWave(uv,  0.3, 0.0);
-  vec4  wave3  = generateWave(uv3, 0.2,  uv.x);
-  vec4  wave4  = generateWave(uv3, 0.25, -uv.x);
+  vec4  wave1  = generateWave(uv2, 0.1, uv.x  * iExpand);
+  vec4  wave2  = generateWave(uv,  0.3, 0.0   * iExpand);
+  vec4  wave3  = generateWave(uv3, 0.2, uv.x  * iExpand);
+  vec4  wave4  = generateWave(uv3, 0.25,-uv.x * iExpand);
 
   vec4 w = mix(mix(mix(wave1,wave2,0.5), wave3, 0.5), wave4,0.5);
 
@@ -119,9 +112,10 @@ void main(void)
     vec3 from=vec3(0.,0.1,-1.2);
     vec3 dir=normalize(vec3(uv,1.));
     float col = light(from, dir);
-    gl_FragColor = w*vec4(col);
+     gl_FragColor = w*vec4(col);
   }
   else{
-    gl_FragColor = w*vec4(col);
+    gl_FragColor = w;
   }
+
 }

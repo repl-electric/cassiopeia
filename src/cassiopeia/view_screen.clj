@@ -4,10 +4,12 @@
 
 ;;(demo (sin-osc))
 
-(def color-l (atom 0.0))
-(def color-r (atom 0.0))
-(def res     (atom 0.75))
-(def space   (atom 0.1))
+(defonce color-l (atom 0.0))
+(defonce color-r (atom 0.0))
+(defonce res     (atom 0.75))
+(defonce space   (atom 0.1))
+(defonce expand   (atom 0.0))
+(defonce yinyan (atom 0.0))
 
 (comment
   (t/start-fullscreen "resources/shaders/zoomwave.glsl"
