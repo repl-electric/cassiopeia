@@ -140,7 +140,9 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
   (pattern! pulsar-buf
             (repeat 4 (repeat 4 [0 0 0 0]))
             (repeat 4 [(note-at-octave :F# (+ 2 octave)) (note-at-octave :F# (+ 2 octave))  0 0])
-            (repeat 4 [(note-at-octave :G# (+ 2 octave))  (note-at-octave :G# (+ 2 octave)) 0 0]))
+            (repeat 2 [(note-at-octave :G# (+ 2 octave)) (note-at-octave :G# (+ 2 octave)) 0 (note-at-octave :G# (+ 2 octave))])
+            (repeat 2 [(note-at-octave :G# (+ 2 octave))  (note-at-octave :G# (+ 2 octave)) 0  0 ])
+            )
   (pattern! shrill-buf
             (repeat 4 (repeat 4 [n1 n1 n3 0]))
             (repeat 4 [n3 n3 n4 0]))
@@ -175,8 +177,28 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 (schedule-sample mm-low-s time/main-beat :mod-size 64 :amp 0.2)
 (schedule-sample mm-high-s time/main-beat :mod-size 64 :amp 0.2)
 (schedule-sample whisper-s time/main-beat :mod-size 64 :amp 0.09)
+(def beats (buffer->tap kick-seq-buf (:count time/beat-1th)))
 
 (comment
+  (t/start-fullscreen (str "resources/shaders/waves.glsl")
+           :textures [:overtone-audio :previous-frame]
+           :user-data {"iLColor" color-l "iRColor" color-r
+                       "iRes" res
+                       "iSpace" space
+                       "iExpand" expand
+                       "iYinYan" yinyan
+                       "iBeat" (atom {:synth beats :tap "main-beat"})})
+
+  (reset! color-l 1.0)
+  (reset! color-r 1.0)
+  (reset! expand 1.0)
+  (reset! yinyan 1.0)
+  (reset! res 1.0)
+  (reset! color-l 0.0)
+  (reset! space 0.4)
+
+  (t/stop)
+
   (ctl drums-g :amp 0)
   (ctl s2 :amp 0)
   (ctl s :amp 0)

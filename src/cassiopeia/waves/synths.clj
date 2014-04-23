@@ -76,6 +76,12 @@
         eq (b-peak-eq dist 50.41 1 44)]
     (out out-bus (* amp env eq))))
 
+(defsynth buffer->tap [beat-buf 0 beat-bus 0]
+  (let [cnt (in:kr beat-bus)
+        beat (buf-rd:kr 1 beat-buf cnt)
+        _  (tap "main-beat" 60 (a2k beat))])
+  (out 0 0))
+
 (defsynth kick2
   "We take the sting out of the overtone kick2 drum giving a softer more mellow kick"
   [amp 0.8 mod-freq  5 mod-index 5 sustain 0.4 noise 0.025 beat-bus 0 beat-trg-bus 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 8 out-bus 0]
@@ -93,6 +99,7 @@
         ;;hit (hpf (* noise (white-noise)) 500)
         ;;hit (lpf hit (line 6000 500 0.03))
         ;;hit-env (env-gen (perc))
+;;        _  (tap "main-beat" 60 (a2k bar-trg))
         src (* amp (+ (* drum drum-env)))]
     (out out-bus (pan2 src))))
 
@@ -123,7 +130,8 @@
         src (pitch-shift src 0.4 1 0 0.01)
 ;;        panning (+ 0.1 (sin-osc:kr pan-rate))
         src (pan2:ar (* vol amp e src))
-        _ (tap "g" 60 (a2k src))]
+;;        _ (tap "g" 60 (a2k src))
+        ]
     (out 0 src)))
 
 (defsynth glass-ping [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 num-steps 8 beat-num 0]
@@ -145,11 +153,11 @@
         filt     (*  (moog-ff mixed (* velocity (+ freq 200)) 2.2 bar-trg))]
     (out out-bus (* amp env filt))))
 
-(defsynth dark-ambience [out-bus 0 amp 1 mul 0.2 room-size 70 rev-time 99 ring-freq 60 ring-mul 55]
+(defsynth dark-ambience [out-bus 0 amp 1 mul 0.2 room-size 70 rev-time 99 freq 60 ring-mul 55]
   (let [pink (hpf:ar (* (* 0.005 (pink-noise)) (line:kr 0 1 9)) 5)
-        src1 (ringz (* pink (lf-noise1:kr 0.15)) (+ ring-freq (* ring-mul 0)) mul)
-        src2 (ringz (* pink (lf-noise1:kr 0.15)) (+ ring-freq (* ring-mul 1)) mul)
-        src3 (ringz (* pink (lf-noise1:kr 0.15)) (+ ring-freq (* ring-mul 2)) mul)
+        src1 (ringz (* pink (lf-noise1:kr 0.15)) (+ freq (* ring-mul 0)) mul)
+        src2 (ringz (* pink (lf-noise1:kr 0.15)) (+ freq (* ring-mul 1)) mul)
+        src3 (ringz (* pink (lf-noise1:kr 0.15)) (+ freq (* ring-mul 2)) mul)
         src (tanh (g-verb (sum [src1 src2 src3]) room-size rev-time))]
     (out out-bus (* amp src))))
 
@@ -222,7 +230,7 @@
                 (rlpf (saw freq))
                 (rlpf (pulse freq) 1200)])
         src (free-verb src :room 10)
-        _ (tap "a" 60 (a2k src))
+;;        _ (tap "a" 60 (a2k src))
         e (env-gen (adsr :release 4 :sustain 4 :attack 0.6 :curve -1) :gate beat-trg :time-scale duration)]
     (out out-bus (* vol amp e src))))
 
