@@ -84,9 +84,6 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 (ctl drums-g :mod-freq 1)
 (ctl drums-g :mod-index 1.3 :noise 900)
 
-(pattern! bass-notes-buf
-          (repeat 5 [:A1])
-          (repeat 2 [:A2]))
 (pattern! kick-seq-buf  [1 0 0 0 0 0 0 0])
 (pattern! hats-buf      [0 0 0 0 0 0 1 1])
 (pattern! white-seq-buf [0 1 1 0 1 0 1 1])
