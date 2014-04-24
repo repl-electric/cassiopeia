@@ -19,6 +19,7 @@
   (defonce seq-b3 (buffer 128))
   (defonce seq-b4 (buffer 128)))
 
+
 (def singers-ah-p (doseq [i (range 0 3)]
                     (slow-singer
                      [:head singers-g]
@@ -57,10 +58,10 @@
           [0 0 0 0])
 
 (pattern! seq-b3
-          [1 0 0 0]
-          [1 0 0 0]
-          [1 0 0 0]
-          [1 0 0 0]
+          [0 0 0 0]
+          [0 0 0 0]
+          [0 0 0 0]
+          [0 0 0 0]
           [1 0 0 0])
 
 (pattern! seq-b4
@@ -108,7 +109,13 @@
 
 (ctl singers-g :amp 1)
 
-(pattern! sing-attack [1 1 1/12 1/12])
+(pattern! sing-attack
+          (repeat 2 [1 1 1/12 1/12])
+          (repeat 2 [2 2 2 2]))
+
+(pattern! sing-attack
+          (repeat 2 [1/32]))
+
 (pattern! note2-buf
           (repeat 2 [70 68 70 69])
           (repeat 2 [69 70 0 0])
@@ -123,7 +130,7 @@
 
 (pattern! note2-buf [:Eb4 :D4 :F4 :G4 :G4 :G4 :E4 :Eb4 :D4 :E4 :D4 :D4 :D4 :E4])
 
-(node-overtime fast-singing :amp 0.0 0.2 0.001)
+(node-overtime fast-singing :amp 0.0 0.2 0.01)
 (ctl fast-singing :release 0.1 :attack 0.1)
 (ctl fast-singing :release 0.4 :attack 1.0)
 
@@ -270,7 +277,7 @@
 (defonce cello-buf (buffer 128))
 (defonce cello-dur (buffer 128))
 
-(zello :beat-count-bus (:count timing/beat-2th) :offset-bus zello-buf :duration-bus zello-dur :beat-trg-bus (:beat timing/beat-2th))
+(cello :beat-count-bus (:count timing/beat-2th) :offset-bus zello-buf :duration-bus zello-dur :beat-trg-bus (:beat timing/beat-2th))
 
 (buffer-write! cello-buf (take 128 (cycle
                                     (map note
@@ -306,7 +313,7 @@
                      :gate gate)]
     (out 0 (pan2 (* env (scaled-play-buf 1 buf :level level :loop 1 :trigger trig :start-pos 0))))))
 
-(oboe :beat-count-bus (:count timing/beat-1th) :offset-bus zello-buf :duration-bus zello-dur :beat-trg-bus (:beat timing/beat-1th))
+(oboe :beat-count-bus (:count time/beat-1th) :offset-bus zello-buf :duration-bus zello-dur :beat-trg-bus (:beat time/beat-1th))
 
 (defonce zello-buf (buffer 128))
 (defonce zello-dur (buffer 128))
