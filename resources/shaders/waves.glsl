@@ -72,7 +72,7 @@ float smoothbump(float center, float width, float x, float orien) {
 
 vec3 hsv2rgb(float time,float mixRate,float v) {
   vec3 c = clamp((abs(fract(time+vec3(2.,3.,1.)/3.)*6.-3.)-1.),0.,1.);
-  //  c = c*1.0+iBeat;
+  //c = c*iBeat;
   c = c * clamp(iBeat,0.1, 0.3)+0.7;
   return mix(vec3(1.0), c, mixRate)*v;
 }

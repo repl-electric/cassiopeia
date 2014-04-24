@@ -179,9 +179,9 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 (schedule-sample mm-low-s time/main-beat :mod-size 64 :amp 0.2)
 (schedule-sample mm-high-s time/main-beat :mod-size 64 :amp 0.2)
 (schedule-sample whisper-s time/main-beat :mod-size 64 :amp 0.09)
-(def beats (buffer->tap kick-seq-buf (:count time/beat-1th)))
 
 (comment
+  (def beats (buffer->tap kick-seq-buf (:count time/beat-1th)))
   (t/start-fullscreen (str "resources/shaders/waves.glsl")
            :textures [:overtone-audio :previous-frame]
            :user-data {"iLColor" color-l "iRColor" color-r
@@ -197,11 +197,14 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
   (reset! yinyan 1.0)
   (reset! res 1.0)
   (reset! color-l 0.0)
-  (reset! space 0.4)
+  (reset! space 0.5)
 
   (overtime! res 1 0.1)
   (t/stop)
 
+  (kill drums-g)
+  (kill voice-g)
+  (kill bass-g)
   (ctl drums-g :amp 0)
   (ctl s2 :amp 0)
   (ctl s :amp 0)

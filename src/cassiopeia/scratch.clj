@@ -103,9 +103,7 @@
                    [:head singers-g]
                    :note-buf note2-buf :amp 0
                    :beat-b (:beat time/beat-1th) :count-b (:count time/beat-1th)
-                   :attack-b sing-attack
-
-                   ))
+                   :attack-b sing-attack))
 
 (ctl singers-g :amp 1)
 
