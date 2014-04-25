@@ -52,9 +52,9 @@ float light(in vec3 p, in vec3 dir) {
 }
 
 float smoothbump(float center, float width, float x, float orien) {
-  float w2 = width/2.0;
-  float cp = center+w2;
-  float cm = center-w2;
+  float lineWidth = width/2.0;
+  float centerPlus = center+lineWidth;
+  float centerMinus = center-lineWidth;
   float c;
 
   if(orien > 0.0){
@@ -62,10 +62,10 @@ float smoothbump(float center, float width, float x, float orien) {
   }
 
   if(iYinYan > 0.0){
-    c = iYinYan*smoothstep(cm, center, x);
+    c = iYinYan*smoothstep(centerMinus, center, x);
   }
   else{
-    c = smoothstep(cm, center, x) * 1-smoothstep(center, cp, x);
+    c = smoothstep(centerMinus, center, x) * 1-smoothstep(center, centerPlus, x);
   }
   return c;
 }
