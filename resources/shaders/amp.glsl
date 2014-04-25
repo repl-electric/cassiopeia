@@ -9,7 +9,7 @@ uniform float iExpand;
 uniform float iYinYan;
 uniform float iOvertoneVolume;
 uniform float iBeat;
-uniform float iBeatCounter;
+uniform float iBeatCount;
 
 const float scale=50.5;
 const float detail=50.5;
