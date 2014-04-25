@@ -1,4 +1,5 @@
-;;Created by Joseph Wilk <joe@josephwilk.net>
+//AMP
+//Created by Joseph Wilk <joe@josephwilk.net>
 uniform float iLColor;
 uniform float iRColor;
 uniform float iA;
