@@ -45,6 +45,14 @@ vec3 normal(vec3 p) {
                         motion(p+e.xxy)-motion(p-e.xxy)));
 }
 
+vec4 textureCutout(vec4 w, vec4 tex){
+  vec4 logoAlpha = tex.aaaa;
+  vec4 negAlpha = logoAlpha * vec4(-1.,-1.,-1.,0.) + vec4(1.,1.,1.,0.);
+  w = w + logoAlpha;
+  w = negAlpha-w;
+  return w;
+}
+
 float light(in vec3 p, in vec3 dir) {
   vec3 ldir=normalize(lightdir);
   vec3 n=normal(p);
@@ -141,6 +149,8 @@ void main(void)
 
     w = mix(mix(mix(wave1,wave2,0.5), wave3, 0.5), wave4,0.5);
   }
+
+  w = textureCutout(w, texture2D(iChannel2, vec2(uv1.x, -uv1.y)));
 
   if(lightOn==1){
     vec3 from=vec3(0.,0.1,-1.2);
