@@ -1,6 +1,6 @@
 //AMP
 //Created by Joseph Wilk <joe@josephwilk.net>
-uniform float iLColor;
+uniform float iMixRate;
 uniform float iRColor;
 uniform float iA;
 uniform float iRes;
@@ -74,16 +74,19 @@ float smoothbump(float center, float width, float x, float orien) {
   return c;
 }
 
-vec3 hsv2rgb(float time,float mixRate,float v) {
-  vec3 c = clamp((abs(fract(time+vec3(2.,3.,1.)/3.)*6.-3.)-1.),0.,1.);
+vec3 hsv2rgb(float mixRate,float v) {
+  float colorChangeRate = 18.0;
+  float time = fract(iGlobalTime/colorChangeRate);
+  float movementStart = (iBeatCount == 0) ? 1.0 : 0.5;
+  vec3 x = abs(fract((iBeatCount-1+time) + vec3(2.,3.,1.)/3.) * 6.-3.) - 1.;
+  vec3 c = clamp(x, 0.,1.);
   //c = c*iBeat;
-  //c = c * clamp(iBeat,0.01, 0.04)+0.6;
-  return mix(vec3(1.0), c, mixRate)*v;
+  //c = c * clamp(iBeat, 0.1, 0.4)+0.6;
+  return mix(vec3(1.0), c, 1.0)*v;
 }
 
 vec4 generateWave(vec2 uv, float yOffset, float orien){
   float centerOffset=1.4;
-  float colorChangeRate = 10.0;
   vec4 wa = texture2D(iChannel0, vec2(uv.x, iRes*2.6));
   float wave = waveReducer*wa.x;
 
@@ -91,7 +94,7 @@ vec4 generateWave(vec2 uv, float yOffset, float orien){
     wave = smoothbump(centerOffset,(6/iResolution.y), wave+uv.y-0.9-yOffset, orien); //0.5
     //wave = (-1.0 * wave)+0.5;
   }
-  vec3  wc     = wave * hsv2rgb(fract(iGlobalTime/colorChangeRate),iLColor,iRColor);
+  vec3  wc     = wave * hsv2rgb(iMixRate,iRColor);
 
   float zf     = -0.05;
   vec2  uv2    = (1.0+zf)*uv-(zf/2.0,zf/2.0);
@@ -105,8 +108,8 @@ void main(void)
   float space = 0.1;
   float res = 0.75;
 
-  vec2 uv = (gl_FragCoord.xy / iResolution.xy);
-  vec2 uv1 = (gl_FragCoord.xy / iResolution.xy);;
+  vec2 uv = gl_FragCoord.xy / iResolution.xy;
+  vec2 uv1 = gl_FragCoord.xy / iResolution.xy;
 
   //Circle background
   vec2 pos = mod(gl_FragCoord.xy, vec2(5.0)) - vec2(0.0);
@@ -119,7 +122,7 @@ void main(void)
 
   uv.x = (radius * cos(uv.x * (6.2 * noCircles)));
   uv.y = (radius * sin(uv.y * (3.6 * noCircles)));
-  uv.x = uv.x + 0.90 + (clamp(0.01,0.02,iBeat));
+  uv.x = uv.x + 0.90 + (clamp(iBeat,0.01,0.02));
   uv.y = uv.y * 0.9;
 
   vec4 w;
