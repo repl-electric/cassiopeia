@@ -215,8 +215,8 @@ void main(void)
 
   vec4 cTextureScreen = w;
   float sCount = 900.;
-  float nIntensity=0.9;
-  float sIntensity=0.8;
+  float nIntensity=0.5;
+  float sIntensity=0.5;
   // sample the source
   float x = uv1.x * uv1.y * iGlobalTime *  1000.0;
   x = mod( x, 13.0 ) * mod( x, 123.0 );
@@ -227,7 +227,7 @@ void main(void)
   // add scanlines
   cResult += cTextureScreen.rgb * vec3( sc.x, sc.y, sc.x ) * sIntensity;
   // interpolate between source and result by intensity
-  cResult = cTextureScreen.rgb + clamp( nIntensity, 0.0,1.0 ) * ( cResult - cTextureScreen.rgb );
+  cResult = cTextureScreen.rgb + clamp(nIntensity, 0.0,1.0 ) * (cResult - cTextureScreen.rgb);
 
   vec4 f = vec4(cResult, cTextureScreen.a);
 
@@ -241,7 +241,7 @@ void main(void)
     gl_FragColor = w * vec4(col);
   }
   else{
-    gl_FragColor = cutout;
+    gl_FragColor = f;
   }
 
 }
