@@ -135,11 +135,11 @@ vec3 hsv2rgb(float mixRate,float v) {
   return mix(vec3(1.0), c, 1.0)*v;
 }
 
-vec4 generateWave(vec2 uv, float yOffset, float orien){
+vec4 generateWave(vec2 uv, float yOffset, float orien, float waveReductionFactor){
   float centerOffset=1.4;
 
   vec4 wa = texture2D(iChannel0, vec2(uv.x, iRes*2.6));
-  float wave = waveReducer*wa.x;
+  float wave = waveReductionFactor*wa.x;
 
   if(smoothWave==0){
     wave = smoothbump(centerOffset,(6/iResolution.y), wave+uv.y-0.9-yOffset, orien); //0.5
@@ -152,6 +152,35 @@ vec4 generateWave(vec2 uv, float yOffset, float orien){
   vec3  pc     = iSpace*texture2D(iChannel1, uv2).rgb;
 
   return vec4(vec3(wc+pc), 1.0);
+}
+
+float rand(vec2 co){
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+vec4 generateSnow(vec2 p, vec4 tex){
+  float size = 8.0;
+  vec4 color = tex;
+  float amount=0.9;
+  float xs = floor(gl_FragCoord.x / size);
+  float ys = floor(gl_FragCoord.y / size);
+  vec4 snow = vec4(rand(vec2(xs * iGlobalTime,ys * iGlobalTime))*amount);
+  return snow;
+}
+
+vec2 warpedCords(vec2 p){
+  float distortion=0.0001;
+  float distortion2=0.5;
+  float speed=0.05;
+  float rollSpeed=0.0;
+  float ty = iGlobalTime* speed;
+  float yt = p.y - ty;
+  float offset = snoise(vec2(yt*3.0,0.0))*0.2;
+  offset = pow(offset*distortion, 3.0)/distortion ;
+  offset += snoise(vec2(yt*50.0,0.0))*distortion2*0.001;
+
+  vec2 o = vec2(fract(p.x + offset),-fract(p.y-iGlobalTime*rollSpeed));
+  return o;
 }
 
 void main(void)
@@ -175,7 +204,6 @@ void main(void)
   float scale = 32.1;
   float noCircles = 1.0;
 
-
   uv.x = (radius * cos(uv.x * (6.2 * noCircles)));
   uv.y = (radius * sin(uv.y * (3.6 * noCircles)));
   uv.x = uv.x + 0.90 + (clamp(iBeat,0.01,0.02));
@@ -183,44 +211,31 @@ void main(void)
 
   vec4 w;
   if(ampMode==1){
-    vec4  wave1  = generateWave(uv,  0.0, uv.x);
-    vec4  wave2  = generateWave(uv,  0.1, uv.x);
-    vec4  wave3  = generateWave(uv,  0.05, uv.x);
+    vec4  wave1  = generateWave(uv,  0.0, uv.x, waveReducer);
+    vec4  wave2  = generateWave(uv,  0.1, uv.x, waveReducer);
+    vec4  wave3  = generateWave(uv,  0.05, uv.x, waveReducer);
 
     w = c * mix(wave3,mix(wave1, wave2,0.5),0.5);
   }
   else{
-    vec4  wave1  = generateWave(uv1, 0.1, -uv1.x   * iExpand);
-    vec4  wave2  = generateWave(uv1, 0.3, -uv1.x     * iExpand);
-    vec4  wave3  = generateWave(uv1, 0.2, 1-uv1.x * iExpand);
-    vec4  wave4  = generateWave(uv1, 0.25,uv1.x  * iExpand);
+    vec4  wave1  = generateWave(uv1, 0.1, -uv1.x   * iExpand, waveReducer);
+    vec4  wave2  = generateWave(uv1, 0.3, -uv1.x   * iExpand, waveReducer);
+    vec4  wave3  = generateWave(uv1, 0.2,  1-uv1.x * iExpand, waveReducer);
+    vec4  wave4  = generateWave(uv1, 0.25, uv1.x   * iExpand, waveReducer);
 
     w = mix(mix(mix(wave1,wave2,0.5), wave3, 0.5), wave4,0.5);
   }
 
-  // make some noise
-
-  vec2 p = uv1;
-  float distortion=0.0001;
-  float distortion2=0.8;
-  float speed=0.05;
-  float rollSpeed=0.0;
-  float ty = iGlobalTime* speed;
-  float yt = p.y - ty;
-  float offset = snoise(vec2(yt*3.0,0.0))*0.2;
-  offset = pow(offset*distortion, 3.0)/distortion ;
-  offset += snoise(vec2(yt*50.0,0.0))*distortion2*0.001;
-
-  vec2 o = vec2(fract(p.x + offset),-fract(p.y-iGlobalTime*rollSpeed));
+  vec2 o = warpedCords(uv1);
 
   vec4 cTextureScreen = w;
   float sCount = 900.;
-  float nIntensity=0.5;
-  float sIntensity=0.5;
+  float nIntensity=0.8;
+  float sIntensity=0.9;
   // sample the source
   float x = uv1.x * uv1.y * iGlobalTime *  1000.0;
   x = mod( x, 13.0 ) * mod( x, 123.0 );
-  float dx = mod( x, 0.01 );
+  float dx = mod( x, 0.05 );
   vec3 cResult = cTextureScreen.rgb + cTextureScreen.rgb * clamp( 0.1 + dx * 100.0, 0.0, 1.0 );
   // get us a sine and cosine
   vec2 sc = vec2( sin( uv1.y * sCount ), cos( uv1.y * sCount ) );
@@ -230,8 +245,9 @@ void main(void)
   cResult = cTextureScreen.rgb + clamp(nIntensity, 0.0,1.0 ) * (cResult - cTextureScreen.rgb);
 
   vec4 f = vec4(cResult, cTextureScreen.a);
-
   vec4 cutout = textureCutout(f, texture2D(iChannel2, o));
+
+  vec4 snow = generateSnow(uv1, f);
 
   if(lightOn==1){
     vec3 from=vec3(0.,0.1,-1.2);
@@ -241,7 +257,7 @@ void main(void)
     gl_FragColor = w * vec4(col);
   }
   else{
-    gl_FragColor = f;
+    gl_FragColor = cutout + snow;
   }
 
 }
