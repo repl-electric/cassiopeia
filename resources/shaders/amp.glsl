@@ -90,8 +90,7 @@ vec3 normal(vec3 p) {
 vec4 textureCutout(vec4 w, vec4 tex){
   vec4 logoAlpha = tex.aaaa;
   vec4 negAlpha = logoAlpha * vec4(-1.,-1.,-1.,0.) + vec4(1.,1.,1.,0.);
-  w = w + logoAlpha;
-  w = negAlpha-w;
+  w = negAlpha - (1-w + logoAlpha);
   return w;
 }
 
@@ -210,18 +209,23 @@ void main(void)
   uv.y = uv.y * 0.9;
 
   vec4 w;
+  vec4 wave1;
+  vec4 wave2;
+  vec4 wave3;
+  vec4 wave4;
+
   if(ampMode==1){
-    vec4  wave1  = generateWave(uv,  0.0, uv.x, waveReducer);
-    vec4  wave2  = generateWave(uv,  0.1, uv.x, waveReducer);
-    vec4  wave3  = generateWave(uv,  0.05, uv.x, waveReducer);
+    wave1  = generateWave(uv, 0.0, uv.x,  waveReducer);
+    wave2  = generateWave(uv, 0.1, uv.x,  waveReducer);
+    wave3  = generateWave(uv, 0.05, uv.x, waveReducer);
 
     w = c * mix(wave3,mix(wave1, wave2,0.5),0.5);
   }
   else{
-    vec4  wave1  = generateWave(uv1, 0.1, -uv1.x   * iExpand, waveReducer);
-    vec4  wave2  = generateWave(uv1, 0.3, -uv1.x   * iExpand, waveReducer);
-    vec4  wave3  = generateWave(uv1, 0.2,  1-uv1.x * iExpand, waveReducer);
-    vec4  wave4  = generateWave(uv1, 0.25, uv1.x   * iExpand, waveReducer);
+    wave1  = generateWave(uv1, 0.1, -uv1.x   * iExpand, waveReducer+0.2);
+    wave2  = generateWave(uv1, 0.3,  uv1.x   * iExpand, waveReducer+0.2);
+    wave3  = generateWave(uv1, 0.2,  1-uv1.x * iExpand, waveReducer+0.2);
+    wave4  = generateWave(uv1, 0.25, uv1.x   * iExpand, waveReducer+0.2);
 
     w = mix(mix(mix(wave1,wave2,0.5), wave3, 0.5), wave4,0.5);
   }
@@ -247,6 +251,7 @@ void main(void)
   vec4 f = vec4(cResult, cTextureScreen.a);
   vec4 cutout = textureCutout(f, texture2D(iChannel2, o));
 
+  //vec4 snow = vec4(0.0,0.0,0.0,0.0);
   vec4 snow = generateSnow(uv1, f);
 
   if(lightOn==1){
@@ -257,7 +262,7 @@ void main(void)
     gl_FragColor = w * vec4(col);
   }
   else{
-    gl_FragColor = cutout + snow;
+    gl_FragColor = f;
   }
 
 }
