@@ -5,15 +5,15 @@
 
 Code that makes noises and sounds with Overtone and lots of brackets.
 
-### Try our some of our Repl Electric
+## Try our some of our Repl Electric
 
 https://soundcloud.com/repl-electric
 
-## Influences
+#### Influences
 
 Inspired by Meta-ex https://github.com/meta-ex/ignite
 
-## License
+#### License
 
 Copyright © 2014 Joseph Wilk
 
