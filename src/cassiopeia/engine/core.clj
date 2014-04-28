@@ -10,7 +10,7 @@
   [buf & lists]
   (buffer-write! buf (take (buffer-size buf) (cycle (map #(if (keyword? %) (note %) %) (flatten lists))))))
 
-(defn safe-pattern!
+(defn pattern-at!
   "Exactly as `pattern!` but only writes on a beat."
   [buf beat n & lists]
   (on-trigger
@@ -69,6 +69,9 @@
                     (swap! thing change-fn)
                     (println @thing)
                     (recur)))))))
+
+(defn fade-in  [node] (node-overtime node :amp 0 1 0.1))
+(defn fade-out [node] (node-overtime node :amp 1 0 0.1))
 
 (def _ nil)
 (defn degrees
