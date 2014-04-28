@@ -1,20 +1,7 @@
-```
-                    /                /
- ___  ___  ___  ___    ___  ___  ___    ___
-|    |   )|___ |___ | |   )|   )|___)| |   )
-|__  |__/| __/  __/ | |__/ |__/ |__  | |__/|
-                           |
-```
+![](http://s30.postimg.org/v33cwx6hd/Screen_Shot_2014_04_28_at_20_14_35.png)
 
-Cassiopeia is a constellation in the northern sky, named after the vain queen Cassiopeia
-in Greek mythology, who boasted about her unrivaled beauty
 
-Bordered by:
-* Andromeda to the south
-* Perseus to the southeast
-* Cepheus to the north.
-
-![Map](http://s2.postimg.org/q410hpla1/map.png)
+## Experimental musical source code
 
 ### Recorded Experiments
 
