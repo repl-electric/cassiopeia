@@ -3,6 +3,8 @@
 
 ## Experimental musical source code
 
+Code that makes noises and sounds with Overtone and lots of brackets.
+
 ### Recorded Experiments
 
 https://soundcloud.com/repl-electric
