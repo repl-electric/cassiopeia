@@ -16,7 +16,9 @@
                [rogerallen/leaplib-natives "0.8.1"]
 
                [overtone.synths "0.1.0-SNAPSHOT"]
-               [overtone.orchestra "0.1.0-SNAPSHOT"]]
+               [overtone.orchestra "0.1.0-SNAPSHOT"]
+
+               [org.clojure/math.numeric-tower "0.0.4"]]
 
 :jvm-opts [
 ;;             "-agentpath:/Applications/YourKit_Java_Profiler_12.0.5.app/bin/mac/libyjpagent.jnilib"
