@@ -39,7 +39,7 @@ vec3 toGamma(in vec3 col){
   return pow(col, vec3(1.0/GAMMA_CORRECTION));
 }
 
-vec4 textNoise(in ivec2 x){
+vec4 texNoise(in ivec2 x){
   return texture2D(iChannel3, (vec2(x)+0.5)/256.0, -100.0);
 }
 
