@@ -4,7 +4,7 @@
 
 Code that makes noises and sounds with Overtone and lots of brackets.
 
-## Try our some of our Repl Electric goodness
+#### Try our some of our Repl Electric goodness
 
 Music: https://soundcloud.com/repl-electric
 Performances: https://vimeo.com/replelectric/videos
