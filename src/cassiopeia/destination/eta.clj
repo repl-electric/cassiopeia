@@ -41,21 +41,36 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 
   (defonce shrill-pong2-buf (buffer 128))
   (defonce shrill-dur2-buf  (buffer 128))
+  (defonce shrill-pong3-buf (buffer 128))
+  (defonce shrill-dur3-buf  (buffer 128))
+
   (defonce fizzy-dur-buf    (buffer 128)))
 
 (def growl-synth (growl [:head bass-g] :amp 0 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf growl-buf))
 
-(node-overtime growl-synth :amp 0 1 0.01)
+(fade-in growl-synth)
 
-(safe-pattern! growl-buf time/main-beat 32
-               (degrees [1 1 1 1  1 1 1 1  1 1 1 1  1 1 1 1
-                         3 3 3 3  3 3 3 3  3 3 3 3  3 3 3 3
-;;                         5 5 5 5  5 5 5 5  5 5 5 5  5 5 5 5
-;;                         6 6 6 6  6 6 6 6  6 6 6 6  6 6 6 6
-;;                         7 7 7 7  7 7 7 7  7 7 7 7  7 7 7 7
-;;                         8 8 8 8  8 8 8 8  8 8 8 8  8 8 8 8
-                         ] :major :A2))
+(pattern-at! growl-buf time/main-beat 32
+             (degrees [1 1 1 1  1 1 1 1  1 1 1 1  1 1 1 1
+                       3 3 3 3  3 3 3 3  3 3 3 3  3 3 3 3
+ ;;                      5 5 5 5  5 5 5 5  5 5 5 5  5 5 5 5
+ ;;                      6 6 6 6  6 6 6 6  6 6 6 6  6 6 6 6
+ ;;                      7 7 7 7  7 7 7 7  7 7 7 7  7 7 7 7
+ ;;                      8 8 8 8  8 8 8 8  8 8 8 8  8 8 8 8
+                       ] :major :A2))
 
+(pattern! shrill-dur3-buf (repeat 4 [1/8 1/8 1/2 1/2])
+                          (repeat 4 [1/12 1/12 1/12 1/12]))
+(pattern! shrill-pong3-buf (degrees [3 3 3 3  3 3 3 3  3 3 3 3   3 3 3 3
+                                     5 5 5 5  5 5 5 5  5 5 5 5   5 5 5 5
+;;                                     7 7 7 7  7 7 7 7  7 7 7 7   7 7 7 7
+;;                                     8 8 8 8  8 8 8 8  8 8 8 8   8 8 8 8
+                                     ] :major :A2))
+
+(def s3 (shrill-pong [:head voice-g] :amp 1.2 :note-buf shrill-pong3-buf :duration-bus shrill-dur3-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
+
+(pattern! hats-buf     (repeat 4 [1 0 0 0]) (repeat 4 [1 1 1 1]))
+(pattern! kick-seq-buf (repeat 6 [1 0 0 0]) (repeat 2 [1 0 1 1]))
 
 (def hats
     (doall (map #(high-hats
@@ -68,6 +83,10 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
                   :beat-bus     (:count time/beat-1th)
                   :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num %1) (range 0 32))))
 (ctl hats :damp 1.9 :mix 0.9 :room 50 :amp 0.2)
+(pattern! bass-notes-buf
+          (repeat 2 (repeat 4 [:B1 :B1 :B1 :B1]))
+          (repeat 2 (repeat 4 [:E#1 :E#1 :E#1 :E#1]))
+          (repeat 2 (repeat 4 [:F#1 :F#1 :F#1 :F#1])))
 
 (doseq [i (range 0 96)]
   (kick2
@@ -99,11 +118,6 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
           (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
           (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 1 1 1]))
 
-(pattern! bass-notes-buf
-          (repeat 2 (repeat 4 [:B1 :B1 :B1 :B1]))
-          (repeat 2 (repeat 4 [:E#1 :E#1 :E#1 :E#1]))
-          (repeat 2 (repeat 4 [:F#1 :F#1 :F#1 :F#1])))
-
 (def white (doall (map
                    #(whitenoise-hat
                      [:head drums-g]
@@ -120,6 +134,8 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 (def s (shrill-pong [:head voice-g] :amp 0.1 :note-buf shrill-pong-buf :duration-bus shrill-dur-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
 
 (def s2 (shrill-pong [:head voice-g] :amp 1.2 :note-buf shrill-pong2-buf :duration-bus shrill-dur2-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
+
+(fade-out s3)
 
 (pattern! shrill-dur2-buf
           (repeat 16 [1/9])
