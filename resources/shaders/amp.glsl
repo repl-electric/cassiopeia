@@ -164,6 +164,7 @@ vec3 hsvToRgb(float mixRate,float v){
 
 vec4 generateWave(vec2 uv, float yOffset, float orien, float waveReductionFactor){
   float centerOffset=1.4;
+  yOffset = uv.y-0.9-yOffset;
 
   vec4 wa = texture2D(iChannel0, vec2(uv.x, iRes*2.6));
   float wave = waveReductionFactor*wa.x;
