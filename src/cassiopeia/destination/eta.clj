@@ -184,16 +184,19 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 
 (comment
   (def beats (buffer->tap kick-seq-buf (:count time/beat-1th)))
-  (t/start-fullscreen (str "resources/shaders/amp.glsl")
-                      :textures [:overtone-audio :previous-frame "resources/textures/repl-electric-t.png" "resources/textures/tex16.png"                       ]
-           :user-data {"iMixRate" color-l
-                       "iRColor" color-r
-                       "iRes" res
-                       "iSpace" space
-                       "iExpand" expand
-                       "iYinYan" yinyan
-                       "iBeat"      (atom {:synth beats :tap "beat"})
-                       "iBeatCount" (atom {:synth beats :tap "beat-count"})})
+  (t/start-fullscreen "resources/shaders/electric.glsl"
+                      :textures [:overtone-audio :previous-frame
+                                 "resources/textures/repl-electric-t.png"
+                                 "resources/textures/tex16.png"                       ]
+                      :user-data {"iMixRate" color-l "iColorStrength" color-r "iRes" res
+                                  "iSpace" space "iExpand" expand "iYinYan" yinyan
+                                  "iCutoutWeight" cutout-weight
+                                  "iSpaceLightsWeight" space-lights-weight
+                                  "iDistortedWeight" distored-weight
+                                  "iSpaceyWeight" spacey-weight
+                                  "iMeasureCount" (atom {:synth beats :tap "measure-count"})
+                                  "iBeat"         (atom {:synth beats :tap "beat"})
+                                  "iBeatCount"    (atom {:synth beats :tap "beat-count"})})
 
   (reset! color-l 1.0)
   (reset! color-r 1.0)

@@ -11,6 +11,11 @@
 (defonce expand   (atom 0.0))
 (defonce yinyan (atom 0.0))
 
+(defonce cutout-weight       (atom 0.0))
+(defonce space-lights-weight (atom 0.0))
+(defonce distored-weight     (atom 0.0))
+(defonce spacey-weight       (atom 0.0))
+
 (comment
   (t/start-fullscreen "resources/shaders/zoomwave.glsl"
                       :textures [ :overtone-audio :previous-frame]
