@@ -67,7 +67,6 @@
                   (when (not= @thing towards)
                     (Thread/sleep 200)
                     (swap! thing change-fn)
-                    (println @thing)
                     (recur)))))))
 
 (defn fade-in  [node] (node-overtime node :amp 0 1 0.1))
@@ -85,6 +84,13 @@
                (if degree
                  (+ root (degree->interval degree scale))
                  0)) ds))))
+
+(defn on-beat-trigger [beat func]
+  (on-trigger (:trig-id time/main-beat)
+              (fn [b] (when (= 0.0 (mod b beat))
+                       (func))) ::on-beat-trigger))
+
+(defn remove-on-beat-trig [] (remove-event-handler ::on-beat-trigger))
 
 (defn randomly-trigger
   ([change-fn] (randomly-trigger change-fn 0.5 8))
