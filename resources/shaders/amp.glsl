@@ -21,13 +21,13 @@ const int smoothWave=0;
 const float waveReducer=.03;
 const int lightOn=0;
 
+#define GAMMA_CORRECTION (2.2)
+
 vec3 lightdir = vec3(.1,.0,0.);
 
 vec2 rotate(vec2 p, float a){
   return vec2(p.x * cos(a) - p.y * sin(a), p.x * sin(a) + p.y * cos(a));
 }
-
-#define GAMMA_CORRECTION (2.2)
 
 vec3 toLinear(in vec3 col){
   // simulate a monitor, converting colour values into light values
@@ -169,7 +169,7 @@ vec4 generateWave(vec2 uv, float yOffset, float orien, float waveReductionFactor
   float wave = waveReductionFactor*wa.x;
 
   if(smoothWave==0){
-    wave = smoothBump(centerOffset,(6/iResolution.y), wave+uv.y-0.9-yOffset, orien); //0.5
+    wave = smoothBump(centerOffset,(6/iResolution.y), wave+yOffset, orien); //0.5
     //wave = (-1.0 * wave)+0.5;
   }
   vec3  wc     = wave * hsvToRgb(iMixRate,iRColor);
@@ -238,6 +238,8 @@ vec4 generateSpace(){
   return vec4(toGamma(col),1.0);
 }
 
+float smoothedVolume;
+
 vec4 generateSpaceLights(vec2 uv1){
   vec2 uv = uv1 * 2.0 - 1.0;
   uv.x *= iResolution.x / iResolution.y;
@@ -251,31 +253,29 @@ vec4 generateSpaceLights(vec2 uv1){
   dir.xz = rotate(dir.xz, sin(iGlobalTime * 0.001) * 0.1);
   dir.xy = rotate(dir.xy, iGlobalTime * 0.01);
 
-  // very little steps for the sake of a good framerate
   #define STEPS 10
 
-  float inc = 0.35 / float(STEPS);
+  smoothedVolume += (iOvertoneVolume  - smoothedVolume) * 0.1;
+
+  //float inc = smoothedVolume / float(STEPS);
+  float inc = smoothedVolume / float(STEPS);
+  inc = clamp(inc, 0.1,0.9);
 
   vec3 acc = vec3(0.0);
 
-  for(int i = 0; i < STEPS; i ++)
-    {
+  for(int i = 0; i < STEPS; i ++){
       vec3 p = ray * 0.1;
 
       // do you like cubes?
       // p = floor(ray * 20.0) / 20.0;
 
-      // fractal from "cosmos"
-      for(int i = 0; i < 14; i ++)
-        {
-          p = abs(p) / dot(p, p) * 2.0 - 1.0;
-        }
+      for(int i = 0; i < 14; i ++){
+        p = abs(p) / dot(p, p) * 2.0 - 1.0;
+      }
       float it = 0.001 * length(p * p);
       v += it;
 
-      // cheap coloring
       acc += sqrt(it) * texture2D(iChannel3, ray.xy * 0.1 + ray.z * 0.1).xyz;
-
       ray += dir * inc;
     }
 
@@ -334,17 +334,17 @@ void main(void){
   vec4 wave4;
 
   if(ampMode==1){
-    wave1  = generateWave(uv, 0.0, uv.x,  waveReducer);
-    wave2  = generateWave(uv, 0.1, uv.x,  waveReducer);
-    wave3  = generateWave(uv, 0.05, uv.x, waveReducer);
+    wave1  = generateWave(uv, 0.0, uv.x  * iExpand,  waveReducer-0.2);
+    wave2  = generateWave(uv, 0.1, uv.x  * iExpand,  waveReducer-0.2);
+    wave3  = generateWave(uv, 0.05, uv.x * iExpand, waveReducer-0.2);
 
     w = c * mix(wave3,mix(wave1, wave2,0.5),0.5);
   }
   else{
-    wave1  = generateWave(uv1, 0.1, -uv1.x   * iExpand, waveReducer+0.2);
-    wave2  = generateWave(uv1, 0.3,  uv1.x   * iExpand, waveReducer+0.2);
-    wave3  = generateWave(uv1, 0.2,  1-uv1.x * iExpand, waveReducer+0.2);
-    wave4  = generateWave(uv1, 0.25, uv1.x   * iExpand, waveReducer+0.2);
+    wave1  = generateWave(uv1, 0.1,  uv1.x   * iExpand, waveReducer+0.1);
+    wave2  = generateWave(uv1, 0.3,   0.0     * iExpand, waveReducer+0.1);
+    wave3  = generateWave(uv1, 0.2,  1-uv1.x * iExpand, waveReducer+0.1);
+    wave4  = generateWave(uv1, 0.25, -uv1.x  * iExpand, waveReducer+0.1);
 
     w = mix(mix(mix(wave1,wave2,0.5), wave3, 0.5), wave4,0.5);
   }
