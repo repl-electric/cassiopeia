@@ -370,7 +370,8 @@ void main(void){
     gl_FragColor = (distorted + snow) * vec4(col);
   }
   else{
-    gl_FragColor = cutoutStrength*cutout + spaceLights;
-    //gl_FragColor = spaceLights;
+    //gl_FragColor = cutoutStrength*cutout + spaceLights;
+    gl_FragColor = spaceLights + cutoutStrength*cutout;
+    gl_FragColor = distorted;
   }
 }
