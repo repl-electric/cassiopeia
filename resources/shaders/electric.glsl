@@ -1,8 +1,7 @@
-//AMP
+//Electric
 //Created by Joseph Wilk <joe@josephwilk.net>
 uniform float iMixRate;
-uniform float iRColor;
-uniform float iA;
+uniform float iColorStrength;
 uniform float iRes;
 uniform float iSpace;
 uniform float iExpand;
@@ -10,16 +9,22 @@ uniform float iYinYan;
 uniform float iOvertoneVolume;
 uniform float iBeat;
 uniform float iBeatCount;
+uniform float iMeasureCount;
+
+uniform float iCutoutWeight;
+uniform float iSpaceLightsWeight;
+uniform float iDistortedWeight;
+uniform float iSpaceyWeight;
 
 const float scale=50.5;
 const float detail=50.5;
 const float width=0.001;
 const float tau = 6.28318530717958647692;
 
-const int ampMode=1;
-const int smoothWave=0;
-const float waveReducer=.01;
-const int lightOn=0;
+const int   ampMode=1;
+const int   smoothWave=0;
+const float waveReducer=.001;
+const int   lightOn=0;
 
 #define GAMMA_CORRECTION (2.2)
 
@@ -151,7 +156,7 @@ float smoothBump(float center, float width, float x, float orien){
   return c;
 }
 
-vec3 hsvToRgb(float mixRate,float v){
+vec3 hsvToRgb(float mixRate, float colorStrength){
   float colorChangeRate = 18.0;
   float time = fract(iGlobalTime/colorChangeRate);
   float movementStart = (iBeatCount == 0) ? 1.0 : 0.5;
@@ -159,7 +164,7 @@ vec3 hsvToRgb(float mixRate,float v){
   vec3 c = clamp(x, 0.,1.);
   //c = c*iBeat;
   //c = c * clamp(iBeat, 0.1, 0.4)+0.6;
-  return mix(vec3(1.0), c, 1.0)*v;
+  return mix(vec3(1.0), c, mixRate) * colorStrength;
 }
 
 vec4 generateWave(vec2 uv, float yOffset, float orien, float waveReductionFactor, float centerOffset, float yShift){
@@ -172,7 +177,7 @@ vec4 generateWave(vec2 uv, float yOffset, float orien, float waveReductionFactor
     wave = smoothBump(centerOffset,(6/iResolution.y), wave+yOffset, orien);
     //wave = (-1.0 * wave)+0.5;
   }
-  vec3  wc     = wave * hsvToRgb(iMixRate,iRColor);
+  vec3  wc     = wave * hsvToRgb(iMixRate,iColorStrength);
 
   float zf     = -0.05;
   vec2  uv2    = (1.0+zf)*uv-(zf/2.0,zf/2.0);
