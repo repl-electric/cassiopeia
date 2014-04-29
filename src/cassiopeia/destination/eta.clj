@@ -6,45 +6,13 @@
 
 Eta Cassiopeiae is a star system in the northern circumpolar constellation of Cassiopeia.
 "
-(:require [cassiopeia.engine.timing :as time]
-          [overtone.studio.fx :as fx]
-          [cassiopeia.engine.mixers :as mix]
-          [overtone.inst.synth :as s]
-          [shadertone.tone :as t])
-(:use [overtone.live]
-      [cassiopeia.engine.core]
-      [cassiopeia.engine.scheduled-sampler]
-      [cassiopeia.samples]
-      [cassiopeia.engine.samples]
-      [cassiopeia.view-screen]
-      [cassiopeia.waves.synths]))
-(stop)
+(:require [cassiopeia.engine.timing :as time] [overtone.studio.fx :as fx] [cassiopeia.engine.mixers :as mix] [overtone.inst.synth :as s] [shadertone.tone :as t])
+(:use [overtone.live] [cassiopeia.engine.core] [cassiopeia.engine.scheduled-sampler] [cassiopeia.samples] [cassiopeia.engine.samples] [cassiopeia.view-screen] [cassiopeia.waves.synths]))
+
 (do
   (ctl time/root-s :rate 4)
-
-  (defonce voice-g (group "main voice"))
-  (defonce bass-g  (group "bass voice"))
-  (defonce drums-g (group "drums"))
-
-  (defonce pulsar-buf      (buffer 128))
-  (defonce bass-notes-buf  (buffer 128))
-  (defonce fizzy-note-buf  (buffer 128))
-  (defonce hats-buf        (buffer 128))
-  (defonce shrill-buf      (buffer 128))
-  (defonce growl-buf       (buffer 128))
-  (defonce growl2-buf      (buffer 128))
-  (defonce white-seq-buf   (buffer 24))
-  (defonce shrill-dur-buf  (buffer 32))
-  (defonce shrill-pong-buf (buffer 128))
-  (defonce kick-seq-buf    (buffer 96))
-  (defonce bass-notes-buf  (buffer 96))
-
-  (defonce shrill-pong2-buf (buffer 128))
-  (defonce shrill-dur2-buf  (buffer 128))
-  (defonce shrill-pong3-buf (buffer 128))
-  (defonce shrill-dur3-buf  (buffer 128))
-
-  (defonce fizzy-dur-buf    (buffer 128)))
+  (defonce voice-g (group "main voice")) (defonce bass-g  (group "bass voice")) (defonce drums-g (group "drums"))
+  (defonce pulsar-buf (buffer 128)) (defonce bass-notes-buf (buffer 128)) (defonce fizzy-note-buf  (buffer 128)) (defonce hats-buf (buffer 128)) (defonce shrill-buf (buffer 128)) (defonce growl-buf (buffer 128)) (defonce growl2-buf (buffer 128)) (defonce white-seq-buf (buffer 24)) (defonce shrill-dur-buf (buffer 32)) (defonce shrill-pong-buf (buffer 128)) (defonce kick-seq-buf    (buffer 96)) (defonce bass-notes-buf  (buffer 96)) (defonce shrill-pong2-buf (buffer 128)) (defonce shrill-dur2-buf  (buffer 128)) (defonce shrill-pong3-buf (buffer 128)) (defonce shrill-dur3-buf  (buffer 128)) (defonce fizzy-dur-buf    (buffer 128)))
 
 (def growl-synth (growl [:head bass-g] :amp 0 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf growl-buf))
 
