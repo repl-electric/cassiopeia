@@ -373,10 +373,10 @@ void main(void){
   vec4 spacey = generateSpace();
   vec4 spaceLights = generateSpaceLights(uv1);
 
-  float cutoutStrength = 0.;
-  float spaceLightsWeight = 0.;
-  float distortedWeight = 1.0;
-  float spaceyWeight = 0.0;
+  float cutoutStrength = iCutoutWeight;
+  float spaceLightsWeight = iSpaceLightsWeight;
+  float distortedWeight = iDistortedWeight;
+  float spaceyWeight = iSpaceyWeight;
 
   if(lightOn==1){
     vec3 from=vec3(0.,0.1,-1.2);

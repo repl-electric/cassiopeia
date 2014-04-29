@@ -190,10 +190,10 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
                                  "resources/textures/tex16.png"                       ]
                       :user-data {"iMixRate" color-l "iColorStrength" color-r "iRes" res
                                   "iSpace" space "iExpand" expand "iYinYan" yinyan
-                                  "iCutoutWeight" cutout-weight
+                                  "iCutoutWeight"      cutout-weight
                                   "iSpaceLightsWeight" space-lights-weight
-                                  "iDistortedWeight" distored-weight
-                                  "iSpaceyWeight" spacey-weight
+                                  "iDistortedWeight"   distored-weight
+                                  "iSpaceyWeight"      spacey-weight
                                   "iMeasureCount" (atom {:synth beats :tap "measure-count"})
                                   "iBeat"         (atom {:synth beats :tap "beat"})
                                   "iBeatCount"    (atom {:synth beats :tap "beat-count"})})
