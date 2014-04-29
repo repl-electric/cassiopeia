@@ -18,7 +18,7 @@ const float tau = 6.28318530717958647692;
 
 const int ampMode=1;
 const int smoothWave=0;
-const float waveReducer=.03;
+const float waveReducer=.01;
 const int lightOn=0;
 
 #define GAMMA_CORRECTION (2.2)
@@ -340,9 +340,9 @@ void main(void){
   vec4 wave4;
 
   if(ampMode==1){
-    wave1  = generateWave(uv, 0.0, uv.x  * iExpand,  waveReducer-0.2);
-    wave2  = generateWave(uv, 0.1, uv.x  * iExpand,  waveReducer-0.2);
-    wave3  = generateWave(uv, 0.05, uv.x * iExpand, waveReducer-0.2);
+    wave1  = generateWave(uv, 0.0, uv.x  * iExpand,  waveReducer);
+    wave2  = generateWave(uv, 0.1, uv.x  * iExpand,  waveReducer);
+    wave3  = generateWave(uv, 0.05, uv.x * iExpand, waveReducer);
 
     w = c * mix(wave3,mix(wave1, wave2,0.5),0.5);
   }
