@@ -260,7 +260,12 @@ vec4 generateSpaceLights(vec2 uv1){
 
   //float inc = smoothedVolume / float(STEPS);
   float inc = smoothedVolume / float(STEPS);
-  inc = clamp(inc, 0.1,0.9);
+  if (iOvertoneVolume<=0.01){
+    inc = 0;
+  }
+  else{
+    inc = clamp(inc, 0.2,0.9);
+  }
 
   vec3 acc = vec3(0.0);
 
