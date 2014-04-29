@@ -162,15 +162,14 @@ vec3 hsvToRgb(float mixRate,float v){
   return mix(vec3(1.0), c, 1.0)*v;
 }
 
-vec4 generateWave(vec2 uv, float yOffset, float orien, float waveReductionFactor){
-  float centerOffset=1.4;
-  yOffset = uv.y-0.9-yOffset;
+vec4 generateWave(vec2 uv, float yOffset, float orien, float waveReductionFactor, float centerOffset, float yShift){
+  yOffset = uv.y-yShift-yOffset;
 
   vec4 wa = texture2D(iChannel0, vec2(uv.x, iRes*2.6));
   float wave = waveReductionFactor*wa.x;
 
   if(smoothWave==0){
-    wave = smoothBump(centerOffset,(6/iResolution.y), wave+yOffset, orien); //0.5
+    wave = smoothBump(centerOffset,(6/iResolution.y), wave+yOffset, orien);
     //wave = (-1.0 * wave)+0.5;
   }
   vec3  wc     = wave * hsvToRgb(iMixRate,iRColor);
@@ -254,7 +253,7 @@ vec4 generateSpaceLights(vec2 uv1){
   dir.xz = rotate(dir.xz, sin(iGlobalTime * 0.001) * 0.1);
   dir.xy = rotate(dir.xy, iGlobalTime * 0.01);
 
-  #define STEPS 10
+  #define STEPS 8
 
   smoothedVolume += (iOvertoneVolume  - smoothedVolume) * 0.1;
 
@@ -264,7 +263,7 @@ vec4 generateSpaceLights(vec2 uv1){
     inc = 0;
   }
   else{
-    inc = clamp(inc, 0.2,0.9);
+    inc = clamp(inc, 0.2,0.8);
   }
 
   vec3 acc = vec3(0.0);
@@ -340,17 +339,21 @@ void main(void){
   vec4 wave4;
 
   if(ampMode==1){
-    wave1  = generateWave(uv, 0.0, uv.x  * iExpand,  waveReducer);
-    wave2  = generateWave(uv, 0.1, uv.x  * iExpand,  waveReducer);
-    wave3  = generateWave(uv, 0.05, uv.x * iExpand, waveReducer);
+    float centerOffset=1.4;
+    float yShift=0.9;
+    wave1  = generateWave(uv, 0.0, uv.x  * iExpand,  waveReducer, centerOffset, yShift);
+    wave2  = generateWave(uv, 0.1, uv.x  * iExpand,  waveReducer, centerOffset, yShift);
+    wave3  = generateWave(uv, 0.05, uv.x * iExpand, waveReducer,  centerOffset, yShift);
 
     w = c * mix(wave3,mix(wave1, wave2,0.5),0.5);
   }
   else{
-    wave1  = generateWave(uv1, 0.1,  uv1.x   * iExpand, waveReducer+0.1);
-    wave2  = generateWave(uv1, 0.3,   0.0     * iExpand, waveReducer+0.1);
-    wave3  = generateWave(uv1, 0.2,  1-uv1.x * iExpand, waveReducer+0.1);
-    wave4  = generateWave(uv1, 0.25, -uv1.x  * iExpand, waveReducer+0.1);
+    float centerOffset=0.2;
+    float yShift=0.0;
+    wave1  = generateWave(uv1, 0.1,  uv1.x   * iExpand, waveReducer+0.1,  centerOffset, yShift);
+    wave2  = generateWave(uv1, 0.3,  0.0     * iExpand, waveReducer+0.1, centerOffset, yShift);
+    wave3  = generateWave(uv1, 0.2,  1-uv1.x * iExpand, waveReducer+0.1,  centerOffset, yShift);
+    wave4  = generateWave(uv1, 0.25, -uv1.x  * iExpand, waveReducer+0.1,  centerOffset, yShift);
 
     w = mix(mix(mix(wave1,wave2,0.5), wave3, 0.5), wave4,0.5);
   }
@@ -365,7 +368,10 @@ void main(void){
   vec4 spacey = generateSpace();
   vec4 spaceLights = generateSpaceLights(uv1);
 
-  float cutoutStrength = 1.0;
+  float cutoutStrength = 0.;
+  float spaceLightsWeight = 0.;
+  float distortedWeight = 1.0;
+  float spaceyWeight = 0.0;
 
   if(lightOn==1){
     vec3 from=vec3(0.,0.1,-1.2);
@@ -375,8 +381,8 @@ void main(void){
     gl_FragColor = (distorted + snow) * vec4(col);
   }
   else{
-    //gl_FragColor = cutoutStrength*cutout + spaceLights;
-    gl_FragColor = spaceLights + cutoutStrength*cutout;
-    gl_FragColor = distorted;
+    gl_FragColor = (distorted *distortedWeight) +
+                   (cutoutStrength*cutout) + (spaceLightsWeight*spaceLights) +
+                   (spaceyWeight*spacey);
   }
 }
