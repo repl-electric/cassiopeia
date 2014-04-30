@@ -213,3 +213,12 @@
   (afree sin-ly)
 
   (stop))
+
+(defmacro defbufs [size vars]
+  (let [vs (map (fn [v] `(defonce ~v (overtone.live/buffer ~size))) vars)]
+    `(do ~@vs)))
+
+(comment
+  (macroexpand
+   '(defbufs 10 [repl electric])
+   ))
