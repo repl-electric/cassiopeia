@@ -82,9 +82,9 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 (pattern! hats-buf      [0 0 0 0 0 0 1 1])
 (pattern! white-seq-buf [0 1 1 0 1 0 1 1])
 
-(pattern! bass-notes-buf     (repeat 5 [:A1]) (repeat 2 [:A2]))
-(pattern! hats-buf (repeat 4 (concat (repeat 3 [0 1 0 0]) [1 1 0 0] )) )
-(pattern! kick-seq-buf (repeat 6 (repeat 4 (repeat 4 [1 1 1 0]))))
+(pattern! bass-notes-buf (repeat 5 [:A1]) (repeat 2 [:A2]))
+(pattern! hats-buf       (repeat 6 (concat (repeat 3 [0 1 0 0]) [1 1 0 0] )))
+(pattern! kick-seq-buf   (repeat 5 (repeat 4 [1 0 1 1])) (repeat 4 [1 1 1 1]))
 (pattern! kick-seq-buf
           (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
           (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
@@ -111,13 +111,11 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 (def s2 (shrill-pong [:head voice-g] :amp 1.2 :note-buf shrill-pong2-buf :duration-bus shrill-dur2-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
 
 (fade-out s3)
+(node-overtime s :amp 0.1 1.2 0.01)
 
 (pattern! shrill-dur2-buf
           (repeat 16 [1/9])
           (repeat 4 (repeat 16 [1/8])))
-;;(pattern! shrill-dur2-buf [1/32])
-
-(node-overtime s :amp 0.1 1.2 0.01)
 
 (pattern! shrill-dur-buf
           (repeat 4 (repeat 2 [1/2 1/4 1/2 1/2 1/4 1/2 1/2 1/12]))
@@ -173,19 +171,7 @@ Eta Cassiopeiae is a star system in the northern circumpolar constellation of Ca
 
 (comment
   (def beats (buffer->tap kick-seq-buf (:count time/beat-1th)))
-  (t/start-fullscreen "resources/shaders/electric.glsl"
-                      :textures [:overtone-audio :previous-frame
-                                 "resources/textures/repl-electric-t.png"
-                                 "resources/textures/tex16.png"                       ]
-                      :user-data {"iMixRate" color-l "iColorStrength" color-r "iRes" res
-                                  "iSpace" space "iExpand" expand "iYinYan" yinyan
-                                  "iCutoutWeight"      cutout-weight
-                                  "iSpaceLightsWeight" space-lights-weight
-                                  "iDistortedWeight"   distored-weight
-                                  "iSpaceyWeight"      spacey-weight
-                                  "iMeasureCount" (atom {:synth beats :tap "measure-count"})
-                                  "iBeat"         (atom {:synth beats :tap "beat"})
-                                  "iBeatCount"    (atom {:synth beats :tap "beat-count"})})
+  (activate-eta-view-screen beats)
 
   (reset! color-l 1.0)
   (reset! color-r 1.0)

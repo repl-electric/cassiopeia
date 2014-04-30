@@ -3,43 +3,49 @@
 
 (defonce silent-buffer (buffer 0))
 
-(defonce silent-buffer (buffer 0))
+(def soprano-root-dir "/Users/josephwilk/Workspace/music/samples/soprano/Samples/Sustains")
 
-(def soprano-samples (doall (map (fn [idx note] [note (load-sample
-                                                       (str (format "/Users/josephwilk/Workspace/music/samples/soprano/Samples/Sustains/Ee F/vor_sopr_sustain_ee_F_%02d" idx) ".wav"))]) (range 1 14) [60 61 62 63 64 65 66 67 68 69 70 71 72  73  74])))
+(defonce mm-low-s (load-sample (str soprano-root-dir "/Mm p/vor_sopr_sustain_mm_p_03.wav")))
+(defonce mm-high-s (load-sample (str soprano-root-dir "/Mm p/vor_sopr_sustain_mm_p_04.wav")))
 
-(def ah-strong-soprano-samples (doall (map (fn [idx note] [note (load-sample
-                                                                 (str (format "/Users/josephwilk/Workspace/music/samples/soprano/Samples/Sustains/Ah F/vor_sopr_sustain_ah_F_%02d" idx) ".wav"))]) (range 1 14) [60 61 62 63 64 65 66 67 68 69 70 71 72  73  74])))
+(defonce soprano-samples
+  (doall (map (fn [idx note] [note (load-sample
+                                   (str soprano-root-dir (format "/Ee F/vor_sopr_sustain_ee_F_%02d" idx) ".wav"))]) (range 1 14) [60 61 62 63 64 65 66 67 68 69 70 71 72 73 74])))
 
-(def ah-soprano-samples (doall (map (fn [idx note] [note (load-sample
-                                                          (str (format "/Users/josephwilk/Workspace/music/samples/soprano/Samples/Sustains/Ah p/vor_sopr_sustain_ah_p_%02d" idx) ".wav"))]) (range 1 14) [60 61 62 63 64 65 66 67 68 69 70 71 72  73  74])))
+(defonce ah-strong-soprano-samples
+  (doall (map (fn [idx note] [note (load-sample
+                                   (str soprano-root-dir (format "/Ah F/vor_sopr_sustain_ah_F_%02d" idx) ".wav"))]) (range 1 14) [60 61 62 63 64 65 66 67 68 69 70 71 72 73 74])))
 
-(def yeh-soprano-samples (doall (map (fn [idx note] [note (load-sample
-                                                           (str (format "/Users/josephwilk/Workspace/music/samples/soprano/Samples/Sustains/Yeh p/vor_sopr_sustain_eh_p_%02d" idx) ".wav"))]) (range 1 14) [60 61 62 63 64 65 66 67 68 69 70 71 72  73  74])))
+(defonce ah-soprano-samples
+  (doall (map (fn [idx note] [note (load-sample
+                                   (str soprano-root-dir (format "/Ah p/vor_sopr_sustain_ah_p_%02d" idx) ".wav"))]) (range 1 14) [60 61 62 63 64 65 66 67 68 69 70 71 72 73 74])))
 
+(defonce yeh-soprano-samples
+  (doall (map (fn [idx note] [note (load-sample
+                                   (str soprano-root-dir (format "/Yeh p/vor_sopr_sustain_eh_p_%02d" idx) ".wav"))]) (range 1 14) [60 61 62 63 64 65 66 67 68 69 70 71 72  73  74])))
 
-(def index-buffer
+(defonce index-buffer
   (let [b (buffer 128)]
     (buffer-fill! b (:id silent-buffer))
     (doseq [[note val] soprano-samples]
       (buffer-set! b note (:id val)))
     b))
 
-(def ah-index-buffer
+(defonce ah-index-buffer
   (let [b (buffer 128)]
     (buffer-fill! b (:id silent-buffer))
     (doseq [[note val] ah-soprano-samples]
       (buffer-set! b note (:id val)))
     b))
 
-(def ah-strong-index-buffer
+(defonce ah-strong-index-buffer
   (let [b (buffer 128)]
     (buffer-fill! b (:id silent-buffer))
     (doseq [[note val] ah-strong-soprano-samples]
       (buffer-set! b note (:id val)))
     b))
 
-(def yeh-index-buffer
+(defonce yeh-index-buffer
   (let [b (buffer 128)]
     (buffer-fill! b (:id silent-buffer))
     (doseq [[note val] yeh-soprano-samples]
@@ -67,7 +73,6 @@
         buf (index:kr (:id index-buffer) note)
         env (env-gen (perc :release release :attack attack) :gate trg)]
     (out 0 (* env amp (pan2 (scaled-play-buf 1 buf :rate 1 :trigger trg) pos)))))
-
 
 (defsynth slow-singer [note-buf 0 amp 1 pos 0 release 0.2 count-b 0 beat-b 0 seq-b 0 beat-num 0 num-steps 6
                        attack 0.2 release 6 decay 0.09 index-b 0]
