@@ -1,10 +1,8 @@
 (ns cassiopeia.destination.eta
-  "
- ___
+"___
  )_ _)_ _
 (__ (_ (_(
-
-Eta Cassiopeiae is a star system in the northern circumpolar constellation of Cassiopeia.
+Eta Cassiopeia is a star system in the northern circumpolar constellation of Cassiopeia.
 "
 (:require [cassiopeia.engine.timing :as time] [overtone.studio.fx :as fx] [cassiopeia.engine.mixers :as mix] [overtone.inst.synth :as s] [shadertone.tone :as t])
 (:use [overtone.live] [cassiopeia.engine.core] [cassiopeia.engine.scheduled-sampler] [cassiopeia.samples] [cassiopeia.engine.samples] [cassiopeia.view-screen] [cassiopeia.waves.synths]))
