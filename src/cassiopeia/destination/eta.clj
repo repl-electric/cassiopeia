@@ -160,12 +160,7 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
             (repeat 4 (repeat 4 [0 0 0 0]))))
 
 (stop)
-(def mm-low-s (load-sample "/Users/josephwilk/Workspace/music/samples/soprano/Samples/Sustains/Mm p/vor_sopr_sustain_mm_p_03.wav"))
-(def mm-high-s (load-sample "/Users/josephwilk/Workspace/music/samples/soprano/Samples/Sustains/Mm p/vor_sopr_sustain_mm_p_04.wav"))
-
-(schedule-sample mm-low-s time/main-beat :mod-size 64 :amp 0.9)
-(schedule-sample mm-high-s time/main-beat :mod-size 64 :amp 0.2)
-(schedule-sample whisper-s time/main-beat :mod-size 64 :amp 0.09)
+(pattern! kick-seq-buf  [0])
 
 (comment
   (def beats (buffer->tap kick-seq-buf (:count time/beat-1th)))
