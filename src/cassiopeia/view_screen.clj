@@ -23,7 +23,7 @@
                                  "resources/textures/tex16.png"]
                       :user-data {"iMixRate" color-l "iColorStrength" color-r "iRes" res
                                   "iSpace" space "iExpand" expand "iYinYan" yinyan
-                                  "iCutoutWeight"      cutout-weight
+                                  "iCutoutWeight"      cutout-w
                                   "iSpaceLightsWeight" stars-w
                                   "iDistortedWeight"   heart-w
                                   "iSpaceyWeight"      hyper-w
