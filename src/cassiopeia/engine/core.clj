@@ -54,20 +54,30 @@
           (recur (change-fn val)))))))
 
 (defn overtime!
-  ([thing towards] (overtime! thing towards 0.1))
-  ([thing towards rate]
-      (letfn [(change-fn [val]  (if (< towards @thing)
-                                  (if (< (- val rate) towards)
-                                    towards
-                                    (- val rate))
-                                  (if (> (+ val rate) towards)
-                                    towards
-                                    (+ val rate))))]
-        (future (loop []
-                  (when (not= @thing towards)
-                    (Thread/sleep 200)
-                    (swap! thing change-fn)
-                    (recur)))))))
+  "Change an atom or a sequence of atoms to a `target` value at some `rate` of change.
+   If `rate` is a func it will be called per atom value (so they may all have different
+   targets.
+
+   Example:
+   (overtime! [(atom 0.1) (atom 0.3)] #(rand 1.0))
+  "
+  ([thing target] (overtime! thing target 0.1))
+  ([thing target rate]
+     (let [things (if-not (vector? thing) [thing] thing)
+           things-and-targets (map vector things (repeatedly #(if (fn? %1) (%1) %1)))]
+       (doseq [[thing target] things-and-targets]
+         (letfn [(change-fn [val]  (if (< target @thing)
+                                     (if (< (- val rate) target)
+                                       target
+                                       (- val rate))
+                                     (if (> (+ val rate) target)
+                                       target
+                                       (+ val rate))))]
+           (future (loop []
+                     (when (not= @thing target)
+                       (Thread/sleep 200)
+                       (swap! thing change-fn)
+                       (recur)))))))))
 
 (defn fade-in  [node] (node-overtime node :amp 0 1 0.1))
 (defn fade-out [node] (node-overtime node :amp 1 0 0.1))
