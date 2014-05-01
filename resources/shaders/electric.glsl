@@ -384,7 +384,9 @@ void main(void){
     vec3 dir=normalize(vec3(uv,1.));
     float col = light(from, dir);
     col = col;
-    gl_FragColor = (distorted + snow) * vec4(col);
+    gl_FragColor = ((distorted *distortedWeight) +
+                    (cutoutStrength*cutout) + (spaceLightsWeight*spaceLights) +
+                    (spaceyWeight*spacey)) * vec4(col);
   }
   else{
     gl_FragColor = (distorted *distortedWeight) +
