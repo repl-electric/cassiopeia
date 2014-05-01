@@ -8,13 +8,13 @@
 (defonce color-r (atom 0.0))
 (defonce res     (atom 0.75))
 (defonce space   (atom 0.1))
-(defonce expand   (atom 0.0))
-(defonce yinyan (atom 0.0))
+(defonce expand  (atom 0.0))
+(defonce yinyan  (atom 0.0))
 
-(defonce cutout-weight       (atom 0.0))
-(defonce space-lights-weight (atom 0.0))
-(defonce distored-weight     (atom 0.0))
-(defonce spacey-weight       (atom 0.0))
+(defonce cutout-w (atom 0.0))
+(defonce stars-w  (atom 0.0))
+(defonce heart-w  (atom 0.0))
+(defonce hyper-w  (atom 0.0))
 
 (defn activate-eta-view-screen [beats]
   (t/start-fullscreen "resources/shaders/electric.glsl"
@@ -24,9 +24,9 @@
                       :user-data {"iMixRate" color-l "iColorStrength" color-r "iRes" res
                                   "iSpace" space "iExpand" expand "iYinYan" yinyan
                                   "iCutoutWeight"      cutout-weight
-                                  "iSpaceLightsWeight" space-lights-weight
-                                  "iDistortedWeight"   distored-weight
-                                  "iSpaceyWeight"      spacey-weight
+                                  "iSpaceLightsWeight" stars-w
+                                  "iDistortedWeight"   heart-w
+                                  "iSpaceyWeight"      hyper-w
                                   "iMeasureCount" (atom {:synth beats :tap "measure-count"})
                                   "iBeat"         (atom {:synth beats :tap "beat"})
                                   "iBeatCount"    (atom {:synth beats :tap "beat-count"})})
