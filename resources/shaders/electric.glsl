@@ -349,8 +349,9 @@ void main(void){
     wave1  = generateWave(uv, 0.0, uv.x  * iExpand,  waveReducer, centerOffset, yShift);
     wave2  = generateWave(uv, 0.1, uv.x  * iExpand,  waveReducer, centerOffset, yShift);
     wave3  = generateWave(uv, 0.05, uv.x * iExpand, waveReducer,  centerOffset, yShift);
+    wave4  = generateWave(uv, 0.05, uv.x * iExpand, waveReducer,  centerOffset, yShift);
 
-    w = c * mix(wave3,mix(wave1, wave2,0.5),0.5);
+    w = c * mix(mix(wave3,mix(wave1, wave2,0.5),0.5), wave4,0.5);
   }
   else{
     float centerOffset=0.2;
