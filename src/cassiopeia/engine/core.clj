@@ -90,7 +90,7 @@
               (fn [b] (when (= 0.0 (mod b beat))
                        (func))) ::on-beat-trigger))
 
-(defn remove-on-beat-trig [] (remove-event-handler ::on-beat-trigger))
+(defn remove-on-beat-trigger [] (remove-event-handler ::on-beat-trigger))
 
 (defn randomly-trigger
   ([change-fn] (randomly-trigger change-fn 0.5 8))
