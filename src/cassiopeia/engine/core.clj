@@ -64,7 +64,7 @@
   ([thing target] (overtime! thing target 0.1))
   ([thing target rate]
      (let [things (if-not (vector? thing) [thing] thing)
-           things-and-targets (map vector things (repeatedly #(if (fn? %1) (%1) %1)))]
+           things-and-targets (map vector things (repeatedly #(if (fn? target) (target) target)))]
        (doseq [[thing target] things-and-targets]
          (letfn [(change-fn [val]  (if (< target @thing)
                                      (if (< (- val rate) target)
