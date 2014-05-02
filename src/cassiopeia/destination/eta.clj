@@ -22,11 +22,11 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
 
 (pattern! hats-buf     (repeat 4 [1 0 0 0]) (repeat 4 [1 1 1 1]))
 (pattern! kick-seq-buf (repeat 6 [1 0 0 0]) (repeat 2 [1 0 1 1]))
+(pattern! bass-notes-buf (repeat 5 [:A1]) (repeat 2 [:A2]))
 (pattern! bass-notes-buf
           (repeat 2 (repeat 4 [:B1 :B1 :B1 :B1]))
           (repeat 2 (repeat 4 [:E#1 :E#1 :E#1 :E#1]))
-                    (repeat 2 (repeat 4 [:F#1 :F#1 :F#1 :F#1])))
-
+          (repeat 2 (repeat 4 [:F#1 :F#1 :F#1 :F#1])))
 (pattern! kick-seq-buf  [1 0 0 0 0 0 0 0])
 (pattern! hats-buf      [0 0 0 0 0 0 1 1])
 (pattern! white-seq-buf [0 1 1 0 1 0 1 1])
@@ -58,7 +58,6 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
                   :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num %1) (range 0 32))))
 (ctl hats :damp 1.9 :mix 0.9 :room 50 :amp 0.2)
 
-(pattern! bass-notes-buf (repeat 5 [:A1]) (repeat 2 [:A2]))
 (pattern! hats-buf       (repeat 6 (concat (repeat 3 [0 1 0 0]) [1 1 0 0] )))
 (pattern! kick-seq-buf   (repeat 5 (repeat 4 [1 0 1 1])) (repeat 4 [1 1 1 1]))
 (pattern! kick-seq-buf
