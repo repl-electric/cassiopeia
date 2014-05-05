@@ -62,8 +62,8 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
 (pattern! hats-buf     (repeat 6 (concat (repeat 3 [0 1 0 0]) [1 1 0 0] )))
 (pattern! kick-seq-buf (repeat 5 (repeat 4 [1 0 1 1])) (repeat 4 [1 1 1 1]))
 (pattern! kick-seq-buf
-          (repeat 5 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
-          (repeat 1 [1 0 0 0 1 0 0 0 0 0 0 1 1 1 1 1]))
+          (repeat 5 [1 0 0 0  1 0 0 0  1 0 0 1  1 0 1 1])
+          (repeat 1 [1 0 0 0  1 0 0 0  0 0 0 1  1 1 1 1]))
 
 (def white (doall (map #(whitenoise-hat [:head drums-g] :amp 0.2 :seq-buf  white-seq-buf :beat-bus     (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 24 :beat-num %1) (range 0 24))))
 
