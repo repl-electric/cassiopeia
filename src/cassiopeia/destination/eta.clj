@@ -166,6 +166,7 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
                       "resources/textures/tex16.png"]
            :user-data {"iMixRate" color-l "iColorStrength" color-r "iRes" res
                        "iSpace" space "iExpand" expand "iYinYan" yinyan
+                       "iCircleCount" no-circles "iStarDirection" stars-direction
                        "iCutoutWeight"      cutout-w
                        "iSpaceLightsWeight" stars-w
                        "iDistortedWeight"   heart-w
@@ -183,6 +184,9 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
   (reset! color-l 0.0)
   (reset! space 0.5)
 
+  (overtime! stars-direction 10.0 0.001)
+
+  (reset! no-circles 1.0)
   (t/stop)
 
   (kill drums-g)

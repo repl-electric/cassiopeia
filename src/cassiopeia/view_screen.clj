@@ -14,6 +14,8 @@
 (defonce space   (atom 0.1))
 (defonce expand  (atom 0.0))
 (defonce yinyan  (atom 0.0))
+(defonce no-circles (atom 1.0))
+(defonce stars-direction (atom 1.0))
 
 (defonce cutout-w (atom 0.0))
 (defonce stars-w  (atom 0.0))

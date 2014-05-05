@@ -6,6 +6,9 @@ uniform float iRes;
 uniform float iSpace;
 uniform float iExpand;
 uniform float iYinYan;
+uniform float iStarDirection;
+uniform float iCircleCount;
+
 uniform float iOvertoneVolume;
 uniform float iBeat;
 uniform float iBeatCount;
@@ -253,13 +256,7 @@ vec4 generateSpaceLights(vec2 uv1){
 
   vec3 ray = vec3(sin(iGlobalTime * 0.1) * 0.2, cos(iGlobalTime * 0.13) * 0.2, 1.5);
   vec3 dir;
-
-  if(iMeasureCount==0){
-    dir = normalize(vec3(uv, 1.0));
-  }
-  else{
-    dir = normalize(vec3(uv, 0.1));
-  }
+  dir = normalize(vec3(uv, iStarDirection));
 
   ray.z += iGlobalTime * 0.001 - 20.0;
   dir.xz = rotate(dir.xz, sin(iGlobalTime * 0.001) * 0.1);
@@ -335,13 +332,13 @@ void main(void){
   float dist_squared = dot(pos, pos);
   vec4 c = (dist_squared < 0.6) ? vec4(.0, .0, .0, 0.0): vec4(1.0, 1.0, 1.0, 1.0);
 
-  float radius = 0.29;
-  float noCircles = 1.0;//2.74;
+  float radius = 0.30;
+  float noCircles = iCircleCount;//2.74;
 
-  uv.x = (radius * cos(uv.x * (4.0 * noCircles) + 1.1));
-  uv.y = (radius * sin(uv.y * (3.6 * noCircles) - 0.2));
+  uv.x = (radius * cos(uv.x * (8.0 * noCircles) - 0.8));
+  uv.y = (radius * sin(uv.y * (6.0 * noCircles) - 1.2));
   uv.x = uv.x + 0.9; //+ (clamp(iBeat,0.01,0.02));
-  uv.y = uv.y * 0.9;
+  uv.y = uv.y * 0.81;
 
   vec4 w;
   vec4 wave1;
