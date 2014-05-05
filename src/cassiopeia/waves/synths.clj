@@ -76,7 +76,7 @@
         eq (b-peak-eq dist 50.41 1 44)]
     (out out-bus (* amp env eq))))
 
-(defsynth buffer->tap [beat-buf 0 beat-bus 0 beat-size 16 measure 5]
+(defsynth buffer->tap [beat-buf 0 beat-bus 0 beat-size 16 measure 6]
   (let [cnt (in:kr beat-bus)
         beat (buf-rd:kr 1 beat-buf cnt)
         _  (tap "beat"          60 (a2k beat))

@@ -169,7 +169,24 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
 
 (comment
   (def beats (buffer->tap kick-seq-buf (:count time/beat-1th)))
-  (activate-eta-view-screen beats)
+
+  (reset! heart-w 1.0)
+  (reset! stars-w 0.0)
+
+  (t/start "resources/shaders/osmo.glsl"
+           :textures [:overtone-audio :previous-frame
+                      "resources/textures/repl-electric-t.png"
+                      "resources/textures/tex16.png"]
+           :user-data {"iMixRate" color-l "iColorStrength" color-r "iRes" res
+                       "iSpace" space "iExpand" expand "iYinYan" yinyan
+                       "iCutoutWeight"      cutout-w
+                       "iSpaceLightsWeight" stars-w
+                       "iDistortedWeight"   heart-w
+                       "iSpaceyWeight"      hyper-w
+                       "iMeasureCount" (atom {:synth beats :tap "measure-count"})
+                       "iBeat"         (atom {:synth beats :tap "beat"})
+                       "iBeatCount"    (atom {:synth beats :tap "beat-count"})})
+
 
   (reset! color-l 1.0)
   (reset! color-r 1.0)
