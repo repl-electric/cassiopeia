@@ -252,7 +252,14 @@ vec4 generateSpaceLights(vec2 uv1){
   float v = 0.0;
 
   vec3 ray = vec3(sin(iGlobalTime * 0.1) * 0.2, cos(iGlobalTime * 0.13) * 0.2, 1.5);
-  vec3 dir = normalize(vec3(uv, 1.0));
+  vec3 dir;
+
+  if(iMeasureCount==0){
+    dir = normalize(vec3(uv, 1.0));
+  }
+  else{
+    dir = normalize(vec3(uv, 0.1));
+  }
 
   ray.z += iGlobalTime * 0.001 - 20.0;
   dir.xz = rotate(dir.xz, sin(iGlobalTime * 0.001) * 0.1);
@@ -329,12 +336,11 @@ void main(void){
   vec4 c = (dist_squared < 0.6) ? vec4(.0, .0, .0, 0.0): vec4(1.0, 1.0, 1.0, 1.0);
 
   float radius = 0.29;
-  float scale = 2.1;
-  float noCircles = 1.0;
+  float noCircles = 1.0;//2.74;
 
-  uv.x = (radius * cos(uv.x * (6.2 * noCircles)));
-  uv.y = (radius * sin(uv.y * (3.6 * noCircles)));
-  uv.x = uv.x + 0.90 + (clamp(iBeat,0.01,0.02));
+  uv.x = (radius * cos(uv.x * (4.0 * noCircles) + 1.1));
+  uv.y = (radius * sin(uv.y * (3.6 * noCircles) - 0.2));
+  uv.x = uv.x + 0.9; //+ (clamp(iBeat,0.01,0.02));
   uv.y = uv.y * 0.9;
 
   vec4 w;
@@ -343,13 +349,14 @@ void main(void){
   vec4 wave3;
   vec4 wave4;
 
+  float orien =  uv.x;
   if(ampMode==1){
     float centerOffset=1.4;
-    float yShift=0.9;
-    wave1  = generateWave(uv, 0.0, uv.x  * iExpand,  waveReducer, centerOffset, yShift);
-    wave2  = generateWave(uv, 0.1, uv.x  * iExpand,  waveReducer, centerOffset, yShift);
-    wave3  = generateWave(uv, 0.05, uv.x * iExpand, waveReducer,  centerOffset, yShift);
-    wave4  = generateWave(uv, 0.05, uv.x * iExpand, waveReducer,  centerOffset, yShift);
+    float yShift=0.88;
+    wave1  = generateWave(uv, 0.0, orien  * iExpand,  waveReducer, centerOffset, yShift);
+    wave2  = generateWave(uv, 0.1, orien * iExpand,  waveReducer, centerOffset, yShift);
+    wave3  = generateWave(uv, 0.05, orien * iExpand, waveReducer,  centerOffset, yShift);
+    wave4  = generateWave(uv, 0.05, orien * iExpand, waveReducer,  centerOffset, yShift);
 
     w = c * mix(mix(wave3,mix(wave1, wave2,0.5),0.5), wave4,0.5);
   }
