@@ -39,9 +39,10 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
    :beat-bus      (:count time/beat-1th)
    :beat-trg-bus  (:beat time/beat-1th)
    :num-steps 96
-   :beat-num i))
+   :beat-num i
+   :amp 1))
 
-(kill drums-g)
+;;(kill drums-g)
 
 (ctl drums-g :mod-freq 1)
 (ctl drums-g :mod-index 1.3 :noise 900)
@@ -58,25 +59,13 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
                   :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num %1) (range 0 32))))
 (ctl hats :damp 1.9 :mix 0.9 :room 50 :amp 0.2)
 
-(pattern! hats-buf       (repeat 6 (concat (repeat 3 [0 1 0 0]) [1 1 0 0] )))
-(pattern! kick-seq-buf   (repeat 5 (repeat 4 [1 0 1 1])) (repeat 4 [1 1 1 1]))
+(pattern! hats-buf     (repeat 6 (concat (repeat 3 [0 1 0 0]) [1 1 0 0] )))
+(pattern! kick-seq-buf (repeat 5 (repeat 4 [1 0 1 1])) (repeat 4 [1 1 1 1]))
 (pattern! kick-seq-buf
-          (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
-          (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
-          (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
-          (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
-          (repeat 1 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
+          (repeat 5 [1 0 0 0 1 0 0 0 1 0 0 1 1 0 1 1])
           (repeat 1 [1 0 0 0 1 0 0 0 0 0 0 1 1 1 1 1]))
 
-(def white (doall (map
-                   #(whitenoise-hat
-                     [:head drums-g]
-                     :amp 0.2
-                     :seq-buf  white-seq-buf
-                     :beat-bus     (:count time/beat-1th)
-                     :beat-trg-bus (:beat time/beat-1th)
-                     :num-steps 24
-                     :beat-num %1) (range 0 24))))
+(def white (doall (map #(whitenoise-hat [:head drums-g] :amp 0.2 :seq-buf  white-seq-buf :beat-bus     (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 24 :beat-num %1) (range 0 24))))
 
 (pattern! white-seq-buf [1 0 ])
 (pattern! white-seq-buf (repeat 3 [1 0 0 0]) [1 1 1 1])
@@ -165,15 +154,13 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
 (do
   (reset! color-l 1.0) (reset! color-r 1.0) (reset! expand 1.0) (reset! stars-w 1.0) (reset! yinyan 1.0))
 
-(stop)
-
 (comment
   (def beats (buffer->tap kick-seq-buf (:count time/beat-1th)))
 
   (reset! heart-w 1.0)
   (reset! stars-w 0.0)
 
-  (t/start "resources/shaders/osmo.glsl"
+  (t/start-fullscreen "resources/shaders/electric.glsl"
            :textures [:overtone-audio :previous-frame
                       "resources/textures/repl-electric-t.png"
                       "resources/textures/tex16.png"]
