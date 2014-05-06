@@ -277,7 +277,8 @@
     (out out-bus src)))
 
 (comment
-  (deep-space-signals))
+  (deep-space-signals)
+  (kill deep-space-signals))
 
 (def freq-limit-buf (buffer 12))
 (defsynth space-ping [amp 1 freq-limit-buf 0 beat-bus 0 dark-freq 1]
@@ -294,6 +295,7 @@
 
 (comment
   (def space-p (space-ping :freq-limit-buf freq-limit-buf :beat-bus (:beat time/main-beat) :amp 2))
+  (kill space-p)
   (ctl space-p :amp 5)
   (ctl time/root-s :rate 4)
   (ctl p :dark-freq 1)
