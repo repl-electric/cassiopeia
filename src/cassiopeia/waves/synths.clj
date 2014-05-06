@@ -341,3 +341,8 @@
           src (* src whoosh-vol)
           panning (line:kr -0.9 0.9 3)]
       (out out-bus (* amp (pan2 src panning 1.0))))))
+
+(defsynth tick [freq 880 dur 0.1 level 0.25 pan 0.0 out-bus 0]
+  (let [amp (env-gen (env-perc) :action FREE :time-scale dur)
+        snd (lpf:ar (white-noise:ar) freq)]
+    (out out-bus (pan2:ar (* snd amp level) pan))))
