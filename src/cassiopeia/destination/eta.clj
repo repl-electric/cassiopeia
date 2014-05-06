@@ -22,38 +22,38 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
                kick-seq-buf bass-notes-buf fizzy-note-buf fizzy-dur-buf
                effects-seq-buf effects2-seq-buf]))
 
-(pattern! hats-buf        (repeat 4 [1 0 0 0]) (repeat 4 [1 1 0 0]))
-(pattern! kick-seq-buf    (repeat 6 [1 0 0 0]) (repeat 2 [1 0 1 1]))
-(pattern! white-seq-buf   (repeat 3 [1 0 0 0]) [1 1 1 0])
-(pattern! effects-seq-buf (repeat 4 [1 0 0 0]))
-(pattern! effects2-seq-buf [0 0 0 0] [1 0 0 0] [0 0 0 0] [1 0 0 0])
-
 (pattern! kick-seq-buf  [1 0 0 0 0 0 0 0])
 (pattern! hats-buf      [0 0 0 0 0 0 1 1])
 (pattern! white-seq-buf [0 1 1 0 1 0 1 1])
 
-;;(kill drum-effects-g)
+(pattern! hats-buf        (repeat 4 [1 0 0 0]) (repeat 4 [1 1 0 0]))
+(pattern! kick-seq-buf    (repeat 6 [1 0 0 0]) (repeat 2 [1 0 1 1]))
+(pattern! white-seq-buf   (repeat 3 [1 0 0 0]) [1 1 1 0])
+(pattern! effects-seq-buf (repeat 4 [1 0 0 0]))
+(pattern! effects-seq-buf [1 0 0 0] (repeat 3 [0 0 0 0]))
+(pattern! effects2-seq-buf [0 0 0 0] [1 0 0 0])
 
-(def bass-kicks
-  (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :amp 0.1 :num-steps 16 :buf (b/buffer-mix-to-mono deep-bass-kick-s)) (range 0 16))))
+(pattern! white-seq-buf (repeat 3 [1 0 0 0]) [1 1 1 1])
+(pattern! hats-buf      (repeat 6 (concat (repeat 3 [0 1 0 0]) [1 1 0 0])))
+(pattern! kick-seq-buf  (repeat 5 (repeat 4 [1 0 1 1])) (repeat 4 [1 1 1 1]))
+(pattern! kick-seq-buf
+          (repeat 5 [1 0 0 0  1 0 0 0  1 0 0 1  1 0 1 1])
+          (repeat 1 [1 0 0 0  1 0 0 0  0 0 0 1  1 1 1 1]))
+
+;;(kill drum-effects-g)
+;;(kill drums-g)
+(def kicker (doseq [i (range 0 96)] (kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 96 :beat-num i :noise 0 :amp 1)))
+(ctl drums-g :mod-freq 10.2 :mod-index 0.1 :noise 0)
 
 (def ghostly-snares (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :rate 0.4 :amp 0.2 :num-steps 16 :buf (b/buffer-mix-to-mono snare-ghost-s)) (range 0 16))))
 
-(def kicker (doseq [i (range 0 96)] (kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 96 :beat-num i :noise 0 :amp 1)))
-(ctl drums-g :mod-freq 10.2 :mod-index 0.1 :noise 0)
-;;(kill drums-g)
+(def bass-kicks
+  (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :amp 0.1 :num-steps 8 :buf (b/buffer-mix-to-mono deep-bass-kick-s)) (range 0 8))))
 
 (def hats (doall (map #(high-hats [:head drums-g] :amp 0.2 :mix (nth (take 32 (cycle [1.0 1.0])) %1) :room 4 :note-buf bass-notes-buf :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num %1) (range 0 32))))
 (ctl hats :damp 1.9 :mix 0.2 :room 10 :amp 0.2)
 
-(def white (doall (map #(whitenoise-hat [:head drums-g] :amp 0.2 :seq-buf  white-seq-buf :beat-bus     (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 24 :beat-num %1) (range 0 24))))
-
-(pattern! white-seq-buf (repeat 3 [1 0 0 0]) [1 1 1 1])
-(pattern! hats-buf     (repeat 6 (concat (repeat 3 [0 1 0 0]) [1 1 0 0])))
-(pattern! kick-seq-buf (repeat 5 (repeat 4 [1 0 1 1])) (repeat 4 [1 1 1 1]))
-(pattern! kick-seq-buf
-          (repeat 5 [1 0 0 0  1 0 0 0  1 0 0 1  1 0 1 1])
-          (repeat 1 [1 0 0 0  1 0 0 0  0 0 0 1  1 1 1 1]))
+(def white (doall (map #(whitenoise-hat [:head drums-g] :amp 0.2 :seq-buf  white-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 24 :beat-num %1) (range 0 24))))
 
 (def growl-synth (growl [:head bass-g] :amp 0.0 :beat-trg-bus (:beat time/beat-16th) :beat-bus (:count time/beat-16th) :note-buf growl-buf))
 
@@ -138,6 +138,8 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
 (do
   (reset! color-l 1.0) (reset! color-r 1.0) (reset! expand 1.0) (reset! stars-w 1.0) (reset! yinyan 1.0))
 
+(stop)
+
 (comment
   (def beats (buffer->tap kick-seq-buf (:count time/beat-1th)))
 
@@ -169,6 +171,10 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
   (reset! space 0.5)
 
   (overtime! stars-direction 10.0 0.001)
+
+  (reset! cutout-w 0.0)
+  (reset! heart-w 1.0)
+  (reset! stars-w 0.0)
 
   (reset! no-circles 1.0)
   (t/stop)
