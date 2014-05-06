@@ -271,5 +271,5 @@
             ::seq128-press))
 
 (comment
-  (monome-sequencer/swap-samples! trigger-sampler128 trigger-samples)
+  (monome-sequencer/swap-samples! seq128 trigger-samples)
   )
