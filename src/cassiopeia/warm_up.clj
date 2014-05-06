@@ -27,15 +27,22 @@
    [cassiopeia.engine.sequencer :as sequencer]
    [cassiopeia.engine.mixers :as mixers]))
 
-(defn nk-bank
-  "Returns the nk bank number for the specified bank key"
-  [bank-k]
-  (case bank-k
-    :master btn/record
-    :lp64   btn/play
-    :m128   btn/stop
-    :riffs  btn/fast-forward
-    :synths btn/rewind))
+(do
+  (defonce default-mixer-g (group :tail (foundation-safe-post-default-group)))
+  (def drum-g (group "Drums"))
+  (defonce drum-trigger-mix-g (group "Drum triggers" :after drum-g))
+  (defonce drum-basic-mixer-g (group "Drum basic mix" :after default-mixer-g))
+  (def samples-set-1 (take 10 (cycle [tom-s])))
+
+  (defn nk-bank
+    "Returns the nk bank number for the specified bank key"
+    [bank-k]
+    (case bank-k
+      :master btn/record
+      :lp64   btn/play
+      :m128   btn/stop
+      :riffs  btn/fast-forward
+          :synths btn/rewind)))
 
 (def cfg
   {:synths {:s0 mixer-init-state :s1 mixer-init-state :s2 mixer-init-state :m0 mixer-init-state :m1 mixer-init-state :r0 mixer-init-state :r7 basic-mixer-init-state}
@@ -99,12 +106,6 @@
     (println "NK2 not connected")))
 
 (def phrase-size 8)
-
-(defonce default-mixer-g (group :tail (foundation-safe-post-default-group)))
-(def drum-g (group "Drums"))
-(defonce drum-trigger-mix-g (group "Drum triggers" :after drum-g))
-(defonce drum-basic-mixer-g (group "Drum basic mix" :after default-mixer-g))
-(def samples-set-1 (take 10 (cycle [tom-s])))
 
 (when-not (seq lp)
   (defonce seq-b  (audio-bus 2 "basic-mixer"))
