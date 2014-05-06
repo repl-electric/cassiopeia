@@ -10,3 +10,6 @@ pom.xml.asc
 .lein-failures
 .lein-plugins
 .lein-repl-history
+.nrepl-port
+hs_err_pid*.log
+.#*
