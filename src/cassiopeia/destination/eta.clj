@@ -47,19 +47,18 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
 
 (def ghostly-snares (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :rate 0.4 :amp 0.2 :num-steps 16 :buf (b/buffer-mix-to-mono snare-ghost-s)) (range 0 16))))
 
-(def bass-kicks
-  (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :amp 0.1 :num-steps 8 :buf (b/buffer-mix-to-mono deep-bass-kick-s)) (range 0 8))))
+(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :amp 0.1 :num-steps 8 :buf (b/buffer-mix-to-mono deep-bass-kick-s)) (range 0 8))))
 
 (def hats (doall (map #(high-hats [:head drums-g] :amp 0.2 :mix (nth (take 32 (cycle [1.0 1.0])) %1) :room 4 :note-buf bass-notes-buf :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num %1) (range 0 32))))
 (ctl hats :damp 1.9 :mix 0.2 :room 10 :amp 0.2)
 
-(def white (doall (map #(whitenoise-hat [:head drums-g] :amp 0.2 :seq-buf  white-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 24 :beat-num %1) (range 0 24))))
+(def white (doall (map #(whitenoise-hat [:head drums-g] :amp 0.2 :seq-buf  white-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :beat-num %1) (range 0 16))))
 
 (def growl-synth (growl [:head bass-g] :amp 0.0 :beat-trg-bus (:beat time/beat-16th) :beat-bus (:count time/beat-16th) :note-buf growl-buf))
 
 (fade-in growl-synth)
 (pattern-at! growl-buf time/main-beat 32 (degrees
-                                          [1 3 5 6 7 8] :major :A3))
+                                          [1 3] :major :A2))
 
 (pattern! shrill-dur3-buf
           (repeat 4 [1/8 1/8 1/2 1/2])
@@ -138,7 +137,7 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
 (do
   (reset! color-l 1.0) (reset! color-r 1.0) (reset! expand 1.0) (reset! stars-w 1.0) (reset! yinyan 1.0))
 
-(stop)
+;;(stop)
 
 (comment
   (def beats (buffer->tap kick-seq-buf (:count time/beat-1th)))
