@@ -4,7 +4,7 @@
 (__ (_ (_(
 Eta Cassiopeia is a star system in the northern circumpolar constellation of Cassiopeia.
 "
-(:require [cassiopeia.engine.timing :as time] [overtone.studio.fx :as fx] [cassiopeia.engine.mixers :as mix] [overtone.inst.synth :as s] [shadertone.tone :as t])
+(:require [cassiopeia.engine.timing :as time] [overtone.studio.fx :as fx] [cassiopeia.engine.mixers :as mix] [overtone.inst.synth :as s] [shadertone.tone :as t] [cassiopeia.engine.buffers :as b])
 (:use [overtone.live] [cassiopeia.engine.core] [cassiopeia.engine.scheduled-sampler] [cassiopeia.samples] [cassiopeia.engine.samples] [cassiopeia.view-screen] [cassiopeia.waves.synths]))
 
 (do
@@ -13,77 +13,56 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
   (defonce backing-voice-g (group "backing voices"))
   (defonce bass-g  (group "bass voice"))
   (defonce drums-g (group "drums"))
+  (defonce drum-effects-g (group "drums effects"))
 
   (defbufs 96 [pulsar-buf bass-notes-buf hats-buf growl-buf
                white-seq-buf shrill-buf shrill-dur-buf
                shrill-pong-buf shrill-pong2-buf shrill-pong3-buf
                shrill-dur-buf shrill-dur2-buf shrill-dur3-buf
-               kick-seq-buf bass-notes-buf fizzy-note-buf fizzy-dur-buf]))
+               kick-seq-buf bass-notes-buf fizzy-note-buf fizzy-dur-buf
+               effects-seq-buf effects2-seq-buf]))
 
-(pattern! hats-buf     (repeat 4 [1 0 0 0]) (repeat 4 [1 1 1 1]))
-(pattern! kick-seq-buf (repeat 6 [1 0 0 0]) (repeat 2 [1 0 1 1]))
-(pattern! bass-notes-buf (repeat 5 [:A1]) (repeat 2 [:A2]))
-(pattern! bass-notes-buf
-          (repeat 2 (repeat 4 [:B1 :B1 :B1 :B1]))
-          (repeat 2 (repeat 4 [:E#1 :E#1 :E#1 :E#1]))
-          (repeat 2 (repeat 4 [:F#1 :F#1 :F#1 :F#1])))
+(pattern! hats-buf        (repeat 4 [1 0 0 0]) (repeat 4 [1 1 0 0]))
+(pattern! kick-seq-buf    (repeat 6 [1 0 0 0]) (repeat 2 [1 0 1 1]))
+(pattern! white-seq-buf   (repeat 3 [1 0 0 0]) [1 1 1 0])
+(pattern! effects-seq-buf (repeat 4 [1 0 0 0]))
+(pattern! effects2-seq-buf [0 0 0 0] [1 0 0 0] [0 0 0 0] [1 0 0 0])
+
 (pattern! kick-seq-buf  [1 0 0 0 0 0 0 0])
 (pattern! hats-buf      [0 0 0 0 0 0 1 1])
 (pattern! white-seq-buf [0 1 1 0 1 0 1 1])
 
-(doseq [i (range 0 96)]
-  (kick2
-   [:head drums-g]
-   :note-buf bass-notes-buf
-   :seq-buf  kick-seq-buf
-   :beat-bus      (:count time/beat-1th)
-   :beat-trg-bus  (:beat time/beat-1th)
-   :num-steps 96
-   :beat-num i
-   :amp 1))
+;;(kill drum-effects-g)
 
+(def bass-kicks
+  (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :amp 0.1 :num-steps 16 :buf (b/buffer-mix-to-mono deep-bass-kick-s)) (range 0 16))))
+
+(def ghostly-snares (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :rate 0.4 :amp 0.2 :num-steps 16 :buf (b/buffer-mix-to-mono snare-ghost-s)) (range 0 16))))
+
+(def kicker (doseq [i (range 0 96)] (kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 96 :beat-num i :noise 0 :amp 1)))
+(ctl drums-g :mod-freq 10.2 :mod-index 0.1 :noise 0)
 ;;(kill drums-g)
 
-(ctl drums-g :mod-freq 1)
-(ctl drums-g :mod-index 1.3 :noise 900)
+(def hats (doall (map #(high-hats [:head drums-g] :amp 0.2 :mix (nth (take 32 (cycle [1.0 1.0])) %1) :room 4 :note-buf bass-notes-buf :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num %1) (range 0 32))))
+(ctl hats :damp 1.9 :mix 0.2 :room 10 :amp 0.2)
 
-(def hats
-    (doall (map #(high-hats
-                  [:head drums-g]
-                  :amp 0.2
-                  :mix (nth (take 32 (cycle [1.0 1.0])) %1)
-                  :room 4
-                  :note-buf bass-notes-buf
-                  :seq-buf hats-buf
-                  :beat-bus     (:count time/beat-1th)
-                  :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num %1) (range 0 32))))
-(ctl hats :damp 1.9 :mix 0.9 :room 50 :amp 0.2)
+(def white (doall (map #(whitenoise-hat [:head drums-g] :amp 0.2 :seq-buf  white-seq-buf :beat-bus     (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 24 :beat-num %1) (range 0 24))))
 
-(pattern! hats-buf     (repeat 6 (concat (repeat 3 [0 1 0 0]) [1 1 0 0] )))
+(pattern! white-seq-buf (repeat 3 [1 0 0 0]) [1 1 1 1])
+(pattern! hats-buf     (repeat 6 (concat (repeat 3 [0 1 0 0]) [1 1 0 0])))
 (pattern! kick-seq-buf (repeat 5 (repeat 4 [1 0 1 1])) (repeat 4 [1 1 1 1]))
 (pattern! kick-seq-buf
           (repeat 5 [1 0 0 0  1 0 0 0  1 0 0 1  1 0 1 1])
           (repeat 1 [1 0 0 0  1 0 0 0  0 0 0 1  1 1 1 1]))
 
-(def white (doall (map #(whitenoise-hat [:head drums-g] :amp 0.2 :seq-buf  white-seq-buf :beat-bus     (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 24 :beat-num %1) (range 0 24))))
-
-(pattern! white-seq-buf [1 0 ])
-(pattern! white-seq-buf (repeat 3 [1 0 0 0]) [1 1 1 1])
-
-(def growl-synth (growl [:head bass-g] :amp 0 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf growl-buf))
+(def growl-synth (growl [:head bass-g] :amp 0.0 :beat-trg-bus (:beat time/beat-16th) :beat-bus (:count time/beat-16th) :note-buf growl-buf))
 
 (fade-in growl-synth)
+(pattern-at! growl-buf time/main-beat 32 (degrees
+                                          [1 3 5 6 7 8] :major :A3))
 
-(pattern-at! growl-buf time/main-beat 32
-             (degrees [1 1 1 1  1 1 1 1  1 1 1 1  1 1 1 1
-                       3 3 3 3  3 3 3 3  3 3 3 3  3 3 3 3
-                       ;;                      5 5 5 5  5 5 5 5  5 5 5 5  5 5 5 5
-                       ;;                      6 6 6 6  6 6 6 6  6 6 6 6  6 6 6 6
-                       ;;                      7 7 7 7  7 7 7 7  7 7 7 7  7 7 7 7
-                       ;;                      8 8 8 8  8 8 8 8  8 8 8 8  8 8 8 8
-                       ] :major :A2))
-
-(pattern! shrill-dur3-buf (repeat 4 [1/8 1/8 1/2 1/2])
+(pattern! shrill-dur3-buf
+          (repeat 4 [1/8 1/8 1/2 1/2])
           (repeat 4 [1/12 1/12 1/12 1/12]))
 
 (pattern! shrill-pong3-buf (degrees [3 3 3 3  3 3 3 3  3 3 3 3   3 3 3 3
@@ -92,13 +71,12 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
 
 (def s3 (shrill-pong [:head voice-g] :amp 1.2 :note-buf shrill-pong3-buf :duration-bus shrill-dur3-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
 
-
-(def s (shrill-pong [:head voice-g] :amp 0.1 :note-buf shrill-pong-buf :duration-bus shrill-dur-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
-
 (def s2 (shrill-pong [:head voice-g] :amp 1.2 :note-buf shrill-pong2-buf :duration-bus shrill-dur2-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
 
+(def s1 (shrill-pong [:head voice-g] :amp 0.1 :note-buf shrill-pong-buf :duration-bus shrill-dur-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
+
 (fade-out s3)
-(node-overtime s :amp 0.1 1.2 0.01)
+(node-overtime s1 :amp 0.1 1.2 0.01)
 
 (pattern! shrill-dur2-buf
           (repeat 16 [1/9])
@@ -108,7 +86,7 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
           (repeat 4 (repeat 2 [1/2 1/4 1/2 1/2 1/4 1/2 1/2 1/12]))
           (repeat 4 [1/2 1/2 1/2 1/2]))
 
-(def p (pulsar [:head backing-voice-g] :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf pulsar-buf :amp 0.7))
+(def pip (pulsar [:head backing-voice-g] :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf pulsar-buf :amp 0.7))
 
 (def fizzy-p (fizzy-pulsar [:head backing-voice-g] :amp 0.6 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf fizzy-note-buf :duration-bus shrill-dur-buf))
 
@@ -148,8 +126,14 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
             (repeat 1 [0 0 0 0])
             (repeat 4 (repeat 4 [0 0 0 0]))))
 
+
 ;;(stop)
+
 (pattern! kick-seq-buf  [0])
+(pattern! bass-notes-buf
+          (repeat 2 (repeat 4 [:B1 :B1 :B1 :B1]))
+          (repeat 2 (repeat 4 [:E#1 :E#1 :E#1 :E#1]))
+          (repeat 2 (repeat 4 [:F#1 :F#1 :F#1 :F#1])))
 
 (do
   (reset! color-l 1.0) (reset! color-r 1.0) (reset! expand 1.0) (reset! stars-w 1.0) (reset! yinyan 1.0))
@@ -194,9 +178,11 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
   (kill backing-voice-g)
   (kill bass-g)
   (ctl drums-g :amp 0)
+  (ctl drum-effects-g :amp 0)
+  (ctl s3 :amp 0)
   (ctl s2 :amp 0)
-  (ctl s :amp 0)
-  (ctl p :amp 0)
+  (ctl s1 :amp 0)
+  (ctl pip :amp 0)
   (ctl fizzy-p :amp 0)
   (ctl growl-synth :amp 0)
   )

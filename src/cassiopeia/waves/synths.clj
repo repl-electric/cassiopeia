@@ -24,6 +24,21 @@
         output (+ output (comb-c:ar output 1 0.3 6))]
     (out out-bus output)))
 
+(defsynth seqer
+  "Plays a single channel audio buffer."
+  [buf 0 rate 1 out-bus 0 beat-num 0 pattern 0  num-steps 8 beat-bus 0 beat-trg-bus 0 amp 0.7]
+  (let [cnt      (in:kr beat-bus)
+        rander (mod cnt 1)
+        beat-trg (in:kr beat-trg-bus)
+        bar-trg  (and (buf-rd:kr 1 pattern cnt)
+                      (= beat-num (mod cnt num-steps))
+                      beat-trg)
+        vol      (set-reset-ff bar-trg)]
+    (out out-bus (* vol amp (scaled-play-buf :num-channels 1
+                                             :buf-num buf
+                                             :rate (t-rand:kr 0.1 0.9 rander)
+                                             :trigger bar-trg)))))
+
 (defsynth rise-fall-pad
   [freq 440 t 4 amt 0.3 amp 0.8 out-bus 0 note-buf 0 seq-buf 0 beat-bus 0 beat-trg-bus 0 num-steps 16 beat-num 0]
   (let [cnt      (in:kr beat-bus)
@@ -98,11 +113,10 @@
         pitch-contour (line:kr (* 2 freq) freq 0.02)
         drum (lpf (sin-osc pitch-contour (sin-osc mod-freq (/ mod-index 1.3))) 1000)
         drum-env (env-gen (perc 0.005 sustain) :gate bar-trg)
-        ;;hit (hpf (* noise (white-noise)) 500)
-        ;;hit (lpf hit (line 6000 500 0.03))
-        ;;hit-env (env-gen (perc))
-;;        _  (tap "main-beat" 60 (a2k bar-trg))
-        src (* amp (+ (* drum drum-env)))]
+        hit (hpf (* noise (white-noise)) 500)
+        hit (lpf hit (line 6000 500 0.03))
+        hit-env (env-gen (perc) :gate bar-trg)
+        src (* amp (+ (* drum drum-env) (* hit hit-env)))]
     (out out-bus (pan2 src))))
 
 (defsynth shrill-pulsar [note-buf 0 beat-bus 0 beat-trg-bus 0 size 1 r 0 amp 1]

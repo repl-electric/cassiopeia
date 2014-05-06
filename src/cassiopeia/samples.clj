@@ -80,3 +80,7 @@
 (defonce collect-coin-s (freesound-sample 135936))
 (defonce cin-boom-s (freesound-sample 160688))
 (defonce mystical-aura-s (freesound-sample 166185))
+
+(defonce snare-ghost-s (freesound-sample 46567))
+(defonce electric-woosh-s (freesound-sample 34172))
+(defonce deep-bass-kick-s (freesound-sample 46528))
