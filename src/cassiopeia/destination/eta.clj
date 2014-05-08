@@ -14,13 +14,7 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
   (defonce bass-g  (group "bass voice"))
   (defonce drums-g (group "drums"))
   (defonce drum-effects-g (group "drums effects"))
-
-  (defbufs 96 [pulsar-buf bass-notes-buf hats-buf growl-buf
-               white-seq-buf shrill-buf shrill-dur-buf
-               shrill-pong-buf shrill-pong2-buf shrill-pong3-buf
-               shrill-dur-buf shrill-dur2-buf shrill-dur3-buf
-               kick-seq-buf bass-notes-buf fizzy-note-buf fizzy-dur-buf
-               effects-seq-buf effects2-seq-buf]))
+  (defbufs 96 [pulsar-buf bass-notes-buf hats-buf growl-buf white-seq-buf shrill-buf shrill-dur-buf shrill-pong-buf shrill-pong2-buf shrill-pong3-buf shrill-dur-buf shrill-dur2-buf shrill-dur3-buf kick-seq-buf bass-notes-buf fizzy-note-buf fizzy-dur-buf effects-seq-buf effects2-seq-buf]))
 
 (pattern! kick-seq-buf  [1 0 0 0 0 0 0 0])
 (pattern! hats-buf      [0 0 0 0 0 0 1 1])
@@ -31,7 +25,7 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
 (pattern! white-seq-buf   (repeat 3 [1 0 0 0]) [1 1 1 0])
 (pattern! effects-seq-buf (repeat 4 [1 0 0 0]))
 (pattern! effects-seq-buf [1 0 0 0] (repeat 3 [0 0 0 0]))
-(pattern! effects2-seq-buf [0 0 0 0] [1 0 0 0])
+(pattern! effects2-seq-buf [0 0 0 0] [1 1 1 1] [0 0 0 0] [1 0 1 1])
 
 (pattern! white-seq-buf (repeat 3 [1 0 0 0]) [1 1 1 1])
 (pattern! hats-buf      (repeat 6 (concat (repeat 3 [0 1 0 0]) [1 1 0 0])))
@@ -161,6 +155,7 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
                        "iBeatCount"    (atom {:synth beats :tap "beat-count"})})
 
 
+  ;;(t/stop)
   (reset! color-l 1.0)
   (reset! color-r 1.0)
   (reset! expand 1.0)
@@ -176,7 +171,6 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
   (reset! stars-w 0.0)
 
   (reset! no-circles 1.0)
-  (t/stop)
 
   (kill drums-g)
   (kill voice-g)
@@ -191,3 +185,9 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
   (ctl fizzy-p :amp 0)
   (ctl growl-synth :amp 0)
   )
+(defn full-stop []
+  (reset! cutout-w 0.0)
+  (reset! stars-w 0.0)
+  (reset! heart-w 0.0)
+  (remove-on-beat-trigger)
+  (stop))
