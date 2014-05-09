@@ -10,8 +10,8 @@
                [launchpad "0.1.0-SNAPSHOT"]
                [monome "0.1.0-SNAPSHOT"]
 
-;;               [shadertone "0.2.3"]
-	[shadertone "0.2.4-SNAPSHOT"]
+               ;;[shadertone "0.2.3"]
+               [shadertone "0.2.4-SNAPSHOT"]
 
                [rogerallen/leaplib "0.8.1"]
                [rogerallen/leaplib-natives "0.8.1"]
