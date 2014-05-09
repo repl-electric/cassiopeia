@@ -389,14 +389,6 @@ void main(void){
   float dist_squared = dot(pos, pos);
   vec4 c = (dist_squared < 0.6) ? vec4(.0, .0, .0, 0.0): vec4(1.0, 1.0, 1.0, 1.0);
 
-  float radius = 0.30;
-  float noCircles = iCircleCount;//2.74;
-
-  uv.x = (radius * cos(uv.x * (8.0 * noCircles) - 0.8));
-  uv.y = (radius * sin(uv.y * (6.0 * noCircles) - 1.2));
-  uv.x = uv.x + 0.9; //+ (clamp(iBeat,0.01,0.02));
-  uv.y = uv.y * 0.81;
-
   vec4 w;
   vec4 wave1;
   vec4 wave2;
@@ -404,36 +396,74 @@ void main(void){
   vec4 wave4;
 
   float orien =  uv.x;
-  if(ampMode==1){
-    float centerOffset=1.4;
-    float yShift=0.88;
-    wave1  = generateWave(uv, 0.0, orien  * iExpand,  waveReducer, centerOffset, yShift);
-    wave2  = generateWave(uv, 0.1, orien * iExpand,  waveReducer, centerOffset, yShift);
-    wave3  = generateWave(uv, 0.05, orien * iExpand, waveReducer,  centerOffset, yShift);
-    wave4  = generateWave(uv, 0.05, orien * iExpand, waveReducer,  centerOffset, yShift);
 
-    w = c * mix(mix(wave3,mix(wave1, wave2,0.5),0.5), wave4,0.5);
+  vec4 distorted;
+  vec4 cutout;
+  vec4 snow = generateSnow(uv1, distorted);
+  vec4 spaceLights;
+  vec4 cellularGrowth;
+  vec4 spacey;
+
+  if(iDistortedWeight > 0.0 || iCutoutWeight > 0.0){
+    float radius = 0.30;
+    float noCircles = iCircleCount;//2.74;
+
+    uv.x = (radius * cos(uv.x * (8.0 * noCircles) - 0.8));
+    uv.y = (radius * sin(uv.y * (6.0 * noCircles) - 1.2));
+    uv.x = uv.x + 0.9; //+ (clamp(iBeat,0.01,0.02));
+    uv.y = uv.y * 0.81;
+
+    if(ampMode==1){
+      float centerOffset=1.4;
+      float yShift=0.88;
+      wave1  = generateWave(uv, 0.0, orien  * iExpand,  waveReducer, centerOffset, yShift);
+      wave2  = generateWave(uv, 0.1, orien * iExpand,  waveReducer, centerOffset, yShift);
+      wave3  = generateWave(uv, 0.05, orien * iExpand, waveReducer,  centerOffset, yShift);
+      wave4  = generateWave(uv, 0.05, orien * iExpand, waveReducer,  centerOffset, yShift);
+
+      w = c * mix(mix(wave3,mix(wave1, wave2,0.5),0.5), wave4,0.5);
+    }
+    else{
+      float centerOffset=0.2;
+      float yShift=0.0;
+      wave1  = generateWave(uv1, 0.1,  uv1.x   * iExpand, waveReducer+0.1,  centerOffset, yShift);
+      wave2  = generateWave(uv1, 0.3,  0.0     * iExpand, waveReducer+0.1, centerOffset, yShift);
+      wave3  = generateWave(uv1, 0.2,  1-uv1.x * iExpand, waveReducer+0.1,  centerOffset, yShift);
+      wave4  = generateWave(uv1, 0.25, -uv1.x  * iExpand, waveReducer+0.1,  centerOffset, yShift);
+
+      w = mix(mix(mix(wave1,wave2,0.5), wave3, 0.5), wave4,0.5);
+    }
+
+    vec2 o = warpedCords(uv1);
+
+    distorted = lineDistort(w, uv1);
+    cutout = textureCutout(distorted, texture2D(iChannel2, o));
   }
   else{
-    float centerOffset=0.2;
-    float yShift=0.0;
-    wave1  = generateWave(uv1, 0.1,  uv1.x   * iExpand, waveReducer+0.1,  centerOffset, yShift);
-    wave2  = generateWave(uv1, 0.3,  0.0     * iExpand, waveReducer+0.1, centerOffset, yShift);
-    wave3  = generateWave(uv1, 0.2,  1-uv1.x * iExpand, waveReducer+0.1,  centerOffset, yShift);
-    wave4  = generateWave(uv1, 0.25, -uv1.x  * iExpand, waveReducer+0.1,  centerOffset, yShift);
-
-    w = mix(mix(mix(wave1,wave2,0.5), wave3, 0.5), wave4,0.5);
+    distorted = vec4(0,0,0,0);
+    cutout = vec4(0,0,0,0);
   }
 
-  vec2 o = warpedCords(uv1);
+  if(iSpaceLightsWeight > 0.0){
+    spaceLights = generateSpaceLights(uv1);
+  }
+  else{
+    spaceLights = vec4(0,0,0,0);
+  }
 
-  vec4 distorted = lineDistort(w, uv1);
-  vec4 cutout = textureCutout(distorted, texture2D(iChannel2, o));
+  if(iCellularWeight > 0.0){
+    cellularGrowth = cellularStars();
+  }
+  else{
+    cellularGrowth = vec4(0,0,0,0);
+  }
 
-  //vec4 snow = vec4(0.0,0.0,0.0,0.0);
-  vec4 snow = generateSnow(uv1, distorted);
-  vec4 spacey = generateSpace();
-  vec4 spaceLights = generateSpaceLights(uv1);
+  if(iSpaceyWeight > 0.0){
+    spacey =  generateSpace();
+  }
+  else{
+    spacey = vec4(0,0,0,0);
+  }
 
   float cutoutStrength = iCutoutWeight;
   float spaceLightsWeight = iSpaceLightsWeight;
@@ -451,9 +481,10 @@ void main(void){
                     (spaceyWeight*spacey)) * vec4(col);
   }
   else{
-    gl_FragColor = (cellularStars() * cellularStarsWeight) +
-      (distorted *distortedWeight) +
-      (cutoutStrength*cutout) + (spaceLightsWeight*spaceLights) +
-      (spaceyWeight*spacey);
+    gl_FragColor = (cellularGrowth * cellularStarsWeight) +
+            (distorted * distortedWeight) +
+            (cutoutStrength * cutout) +
+            (spaceLightsWeight * spaceLights) +
+            (spaceyWeight * spacey);
   }
 }
