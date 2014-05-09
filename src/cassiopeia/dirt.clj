@@ -1,5 +1,6 @@
 (ns cassiopeia.dirt
-  "Easy access to DIRT's samples: https://github.com/yaxu/Dirt"
+  "Easy access to DIRT's samples: https://github.com/yaxu/Dirt.
+   Clone the repo and port `dirt-home` to it."
   (:use [overtone.live] [clojure.java.io] [overtone.helpers.file])
  (:import java.io.File)
   (:import java.io.FileNotFoundException))
