@@ -395,8 +395,6 @@ void main(void){
   vec4 wave3;
   vec4 wave4;
 
-  float orien =  uv.x;
-
   vec4 distorted;
   vec4 cutout;
   vec4 snow = generateSnow(uv1, distorted);
@@ -412,6 +410,8 @@ void main(void){
     uv.y = (radius * sin(uv.y * (6.0 * noCircles) - 1.2));
     uv.x = uv.x + 0.9; //+ (clamp(iBeat,0.01,0.02));
     uv.y = uv.y * 0.81;
+
+    float orien =  uv.x;
 
     if(ampMode==1){
       float centerOffset=1.4;
