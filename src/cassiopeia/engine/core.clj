@@ -36,22 +36,23 @@
                        lists)]
           (pattern! buf buf-lists)))
 
-(defn node-overtime
-  "Over time change val of `field` to end"
-  [node field start end rate]
-  (letfn [(change-fn [val]  (if (< end start)
-                              (if (< (- val rate) end)
-                                end
-                                (- val rate))
-                              (if (> (+ val rate) end)
-                                end
-                                (+ val rate))))]
-    (future
-      (loop [val start]
-        (when (not= val end)
-          (Thread/sleep 200)
-          (ctl node field val)
-          (recur (change-fn val)))))))
+(defn n-overtime!
+  "For a synth instance node over time change val of `field` to end"
+  ([node field start end] (n-overtime! node field start end 0.01))
+  ([node field start end rate]
+      (letfn [(change-fn [val]  (if (< end start)
+                                  (if (< (- val rate) end)
+                                    end
+                                    (- val rate))
+                                  (if (> (+ val rate) end)
+                                    end
+                                    (+ val rate))))]
+        (future
+          (loop [val start]
+            (when (not= val end)
+              (Thread/sleep 200)
+              (ctl node field val)
+              (recur (change-fn val))))))))
 
 (defn overtime!
   "Change an atom or a sequence of atoms to a `target` value at some `rate` of change.
@@ -79,8 +80,14 @@
                        (swap! thing change-fn)
                        (recur)))))))))
 
-(defn fade-in  [node] (node-overtime node :amp 0 1 0.1))
-(defn fade-out [node] (node-overtime node :amp 1 0 0.1))
+(defn fadein
+  ([node]     (fadein node 1.0 0.1))
+  ([node amp] (fadein node 1.0 0.1))
+  ([node amp rate] (n-overtime! node :amp 0 amp rate)))
+(defn fadeout
+  ([node] (fadeout node 0.1))
+  ([node rate]
+     (n-overtime! node :amp 1 0 rate)))
 
 (def _ nil)
 (defn degrees

@@ -128,7 +128,7 @@
 
 (pattern! note2-buf [:Eb4 :D4 :F4 :G4 :G4 :G4 :E4 :Eb4 :D4 :E4 :D4 :D4 :D4 :E4])
 
-(node-overtime fast-singing :amp 0.0 0.2 0.01)
+(n-overtime! fast-singing :amp 0.0 0.2 0.01)
 (ctl fast-singing :release 0.1 :attack 0.1)
 (ctl fast-singing :release 0.4 :attack 1.0)
 
