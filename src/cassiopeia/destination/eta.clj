@@ -51,8 +51,7 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
 (def growl-synth (growl [:head bass-g] :amp 0.0 :beat-trg-bus (:beat time/beat-16th) :beat-bus (:count time/beat-16th) :note-buf growl-buf))
 
 (fadein growl-synth)
-(pattern-at! growl-buf time/main-beat 32 (degrees
-                                          [1 3] :major :A2))
+(pattern-at! growl-buf time/main-beat 32 (degrees [1 3] :major :A2))
 
 (pattern! shrill-dur3-buf
           (repeat 4 [1/8 1/8 1/2 1/2])
@@ -119,7 +118,6 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
             (repeat 1 [0 0 0 0])
             (repeat 4 (repeat 4 [0 0 0 0]))))
 
-
 ;;(stop)
 
 (pattern! kick-seq-buf  [0])
@@ -154,7 +152,6 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
                        "iMeasureCount" (atom {:synth beats :tap "measure-count"})
                        "iBeat"         (atom {:synth beats :tap "beat"})
                        "iBeatCount"    (atom {:synth beats :tap "beat-count"})})
-
 
   ;;(t/stop)
   (reset! color-l 1.0)
