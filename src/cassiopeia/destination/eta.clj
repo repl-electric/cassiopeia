@@ -150,6 +150,7 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
                        "iSpaceLightsWeight" stars-w
                        "iDistortedWeight"   heart-w
                        "iSpaceyWeight"      hyper-w
+                       "iCellularWeight"    cellular-w
                        "iMeasureCount" (atom {:synth beats :tap "measure-count"})
                        "iBeat"         (atom {:synth beats :tap "beat"})
                        "iBeatCount"    (atom {:synth beats :tap "beat-count"})})

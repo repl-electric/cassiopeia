@@ -18,6 +18,7 @@ uniform float iCutoutWeight;
 uniform float iSpaceLightsWeight;
 uniform float iDistortedWeight;
 uniform float iSpaceyWeight;
+uniform float iCellularWeight;
 
 const float scale=50.5;
 const float detail=50.5;
@@ -438,7 +439,7 @@ void main(void){
   float spaceLightsWeight = iSpaceLightsWeight;
   float distortedWeight = iDistortedWeight;
   float spaceyWeight = iSpaceyWeight;
-  float cellularStarsWeight = 1.0;
+  float cellularStarsWeight = iCellularWeight;
 
   if(lightOn==1){
     vec3 from=vec3(0.,0.1,-1.2);
@@ -452,7 +453,7 @@ void main(void){
   else{
     gl_FragColor = (cellularStars() * cellularStarsWeight) +
       (distorted *distortedWeight) +
-                   (cutoutStrength*cutout) + (spaceLightsWeight*spaceLights) +
-                   (spaceyWeight*spacey);
+      (cutoutStrength*cutout) + (spaceLightsWeight*spaceLights) +
+      (spaceyWeight*spacey);
   }
 }

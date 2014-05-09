@@ -21,6 +21,7 @@
 (defonce stars-w  (atom 0.0))
 (defonce heart-w  (atom 0.0))
 (defonce hyper-w  (atom 0.0))
+(defonce cellular-w  (atom 0.0))
 
 (comment
   (t/start-fullscreen "resources/shaders/zoomwave.glsl"
