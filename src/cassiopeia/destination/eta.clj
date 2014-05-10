@@ -36,17 +36,17 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
 
 ;;(kill drum-effects-g)
 ;;(kill drums-g)
-(def kicker (doseq [i (range 0 96)] (kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 96 :beat-num i :noise 0 :amp 1)))
+(def kicker (doseq [i (range 0 96)] (kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 96 :beat-num i :noise 0 :amp 1)))
 (ctl drums-g :mod-freq 10.2 :mod-index 0.1 :noise 0)
 
-(def ghostly-snares (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :rate 0.4 :amp 0.2 :num-steps 16 :buf (b/buffer-mix-to-mono snare-ghost-s)) (range 0 16))))
+(def ghostly-snares (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.2 :num-steps 16 :buf (b/buffer-mix-to-mono snare-ghost-s)) (range 0 16))))
 
-(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :amp 0.1 :num-steps 8 :buf (b/buffer-mix-to-mono deep-bass-kick-s)) (range 0 8))))
+(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.1 :num-steps 8 :buf (b/buffer-mix-to-mono deep-bass-kick-s)) (range 0 8))))
 
-(def hats (doall (map #(high-hats [:head drums-g] :amp 0.2 :mix (nth (take 32 (cycle [1.0 1.0])) %1) :room 4 :note-buf bass-notes-buf :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 32 :beat-num %1) (range 0 32))))
+(def hats (doall (map #(high-hats [:head drums-g] :amp 0.2 :mix (nth (take 32 (cycle [1.0 1.0])) %1) :room 4 :note-buf bass-notes-buf :seq-buf hats-buf :num-steps 32 :beat-num %1) (range 0 32))))
 (ctl hats :damp 1.9 :mix 0.2 :room 10 :amp 0.2)
 
-(def white (doall (map #(whitenoise-hat [:head drums-g] :amp 0.2 :seq-buf  white-seq-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :beat-num %1) (range 0 16))))
+(def white (doall (map #(whitenoise-hat [:head drums-g] :amp 0.2 :seq-buf  white-seq-buf :num-steps 16 :beat-num %1) (range 0 16))))
 
 (def growl-synth (growl [:head bass-g] :amp 0.0 :beat-trg-bus (:beat time/beat-16th) :beat-bus (:count time/beat-16th) :note-buf growl-buf))
 
@@ -61,11 +61,11 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
                                      5 5 5 5  5 5 5 5  5 5 5 5   5 5 5 5
                                      ] :major :A2))
 
-(def s3 (shrill-pong [:head voice-g] :amp 1.2 :note-buf shrill-pong3-buf :duration-bus shrill-dur3-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
+(def s3 (shrill-pong [:head voice-g] :amp 1.2 :note-buf shrill-pong3-buf :duration-bus shrill-dur3-buf))
 
-(def s2 (shrill-pong [:head voice-g] :amp 1.2 :note-buf shrill-pong2-buf :duration-bus shrill-dur2-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
+(def s2 (shrill-pong [:head voice-g] :amp 1.2 :note-buf shrill-pong2-buf :duration-bus shrill-dur2-buf ))
 
-(def s1 (shrill-pong [:head voice-g] :amp 0.1 :note-buf shrill-pong-buf :duration-bus shrill-dur-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th)))
+(def s1 (shrill-pong [:head voice-g] :amp 0.1 :note-buf shrill-pong-buf :duration-bus shrill-dur-buf))
 
 (fadeout s3)
 (n-overtime! s1 :amp 0.1 1.2 0.01)
@@ -78,9 +78,8 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
           (repeat 4 (repeat 2 [1/2 1/4 1/2 1/2 1/4 1/2 1/2 1/12]))
           (repeat 4 [1/2 1/2 1/2 1/2]))
 
-(def pip (pulsar [:head backing-voice-g] :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf pulsar-buf :amp 0.7))
-
-(def fizzy-p (fizzy-pulsar [:head backing-voice-g] :amp 0.6 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :note-buf fizzy-note-buf :duration-bus shrill-dur-buf))
+(def pip (pulsar [:head backing-voice-g] :note-buf pulsar-buf :amp 0.7))
+(def fizzy-p (fizzy-pulsar [:head backing-voice-g] :amp 0.6 :note-buf fizzy-note-buf :duration-bus shrill-dur-buf))
 
 (let [octave 2
       [n1 n2 n3 n4]     (chord-degree :v (note-at-octave :A octave)       :major)

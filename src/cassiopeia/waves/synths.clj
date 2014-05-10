@@ -26,7 +26,7 @@
 
 (defsynth seqer
   "Plays a single channel audio buffer."
-  [buf 0 rate 1 out-bus 0 beat-num 0 pattern 0  num-steps 8 beat-bus 0 beat-trg-bus 0 amp 0.7]
+  [buf 0 rate 1 out-bus 0 beat-num 0 pattern 0  num-steps 8 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) amp 0.7]
   (let [cnt      (in:kr beat-bus)
         rander (mod cnt 1)
         beat-trg (in:kr beat-trg-bus)
@@ -101,7 +101,8 @@
 
 (defsynth kick2
   "We take the sting out of the overtone kick2 drum giving a softer more mellow kick"
-  [amp 0.8 mod-freq  5 mod-index 5 sustain 0.4 noise 0.025 beat-bus 0 beat-trg-bus 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 8 out-bus 0]
+  [amp 0.8 mod-freq  5 mod-index 5 sustain 0.4 noise 0.025
+   beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) note-buf 0 seq-buf 0 beat-num 0 num-steps 8 out-bus 0]
   (let [cnt      (mod (in:kr beat-bus) num-steps)
         beat-trg (in:kr beat-trg-bus)
         note (buf-rd:kr 1 note-buf beat-num)
@@ -177,7 +178,7 @@
         src (tanh (g-verb (sum [src1 src2 src3]) room-size rev-time))]
     (out out-bus (* amp src))))
 
-(defsynth whitenoise-hat [out-bus 0 seq-buf 0 beat-bus 0 beat-trg-bus 0 num-steps 0 beat-num 0 amp 1]
+(defsynth whitenoise-hat [out-bus 0 seq-buf 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) num-steps 0 beat-num 0 amp 1]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         bar-trg (and (buf-rd:kr 1 seq-buf cnt)
@@ -187,7 +188,7 @@
         e (env-gen (perc :attack 0 :release 1) :gate bar-trg)]
     (out out-bus (pan2 (* amp e w)))))
 
-(defsynth high-hats [out-bus 0 beat-bus 0 beat-trg-bus 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 0
+(defsynth high-hats [out-bus 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 0
                      attack 0.001 release 0.1 mix 0 room 0 damp 0 amp 1]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
@@ -204,7 +205,7 @@
         src (free-verb src :mix mix :room room :damp damp)]
     (out out-bus [(* amp src) (* amp src)])))
 
-(defsynth pulsar [note-buf 0 beat-bus 0 beat-trg-bus 0 amp 1]
+(defsynth pulsar [note-buf 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) 0 amp 1]
   (let [cnt (in:kr beat-bus)
         note (buf-rd:kr 1 note-buf cnt)
         trg (in:kr beat-trg-bus)
@@ -232,7 +233,9 @@
         src (free-verb src :room 10)]
     (out 0 (pan2:ar (* vol amp e src)))))
 
-(defsynth shrill-pong [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0 beat-trg-bus 0 beat-bus 0 duration-bus 0]
+(defsynth shrill-pong [out-bus 0 velocity 80 t 0.6 amp 1 seq-buf 0 note-buf 0
+                       beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat)
+                       duration-bus 0]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         note     (buf-rd:kr 1 note-buf cnt)
@@ -250,7 +253,7 @@
         e (env-gen (adsr :release 4 :sustain 4 :attack 0.6 :curve -1) :gate beat-trg :time-scale duration)]
     (out out-bus (* vol amp e src))))
 
-(defsynth fizzy-pulsar [note-buf 0 beat-bus 0 beat-trg-bus 0 size 1 r 0 amp 1 duration-bus 0]
+(defsynth fizzy-pulsar [note-buf 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) size 1 r 0 amp 1 duration-bus 0]
   (let [cnt (in:kr beat-bus)
         note (buf-rd:kr 1 note-buf cnt)
         trg (in:kr beat-trg-bus)
