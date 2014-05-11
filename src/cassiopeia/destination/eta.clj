@@ -88,8 +88,7 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
             (repeat 4 (repeat 4 [0 0 0 0]))
             (repeat 4 [(note-at-octave :F# (+ 2 octave)) (note-at-octave :F# (+ 2 octave))  0 0])
             (repeat 2 [(note-at-octave :G# (+ 2 octave)) (note-at-octave :G# (+ 2 octave)) 0 (note-at-octave :G# (+ 2 octave))])
-            (repeat 2 [(note-at-octave :G# (+ 2 octave))  (note-at-octave :G# (+ 2 octave)) 0  0 ])
-            )
+            (repeat 2 [(note-at-octave :G# (+ 2 octave))  (note-at-octave :G# (+ 2 octave)) 0  0 ]))
   (pattern! shrill-buf
             (repeat 4 (repeat 4 [n1 n1 n3 0]))
             (repeat 4 [n3 n3 n4 0]))
@@ -98,18 +97,16 @@ Eta Cassiopeia is a star system in the northern circumpolar constellation of Cas
             [n1 n2 n3 n3] [n3 n3 n1 n1]   [n1 n2 n3 n3] [n1 n1 n3 n3]
             (repeat 2 [n13 n13 n14 n14])  [n3 n3 n1 n1] [n1 n2 n3 n3] [n1 n1 n13 n13]
             [n1 n2 n3 n3] [n3 n3 n1 n1]   [n1 n2 n3 n3] [n1 n1 n3 n3]
-;;            (repeat 1 [n14 n13 n12 (inc n14)]) [n3 n3 n1 n1] [n1 n2 n3 n3] [n1 n1 n13 n13]
-            (repeat 4 [n14 n13 n12 (inc n14)])
-            );; [n3 n3 n1 n1] [n1 n2 n3 n3] [n1 n1 n13 n13]
+            (concat (repeat 3 [n14 n13 n12 (inc n14)])))
   (pattern! shrill-pong2-buf
             (degrees [8 8 8 8  8 8 8 8  8 8 8 8  8 8 8 8
                       7 7 7 7  7 7 7 7  7 7 7 7  7 7 7 7
                       6 6 6 6  6 6 6 6  6 6 6 6  6 6 6 6
                       5 5 5 5  5 5 5 5  5 5 5 5  5 5 5 5
                       3 3 3 3  3 3 3 3  3 3 3 3  3 3 3 3
-                      1 1 1 1  1 1 1 1  1 1 1 1  1 1 1 1] :major (note-at-octave :A (cond
-                                                                                     (= octave 1) octave
-                                                                                     true  (dec octave)))))
+                      1 1 1 1  1 1 1 1  1 1 1 1  1 1 1 1]
+                     :major (note-at-octave :A (cond (= octave 1) octave
+                                                     true (dec octave)))))
   (pattern! fizzy-note-buf
             (repeat 3 [n1 n1 n1 n1])
             (repeat 1 [0 0 0 0])
