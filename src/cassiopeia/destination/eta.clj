@@ -5,7 +5,7 @@
 Eta Cassiopeia is a star system in the northern circumpolar constellation of Cassiopeia.
 "
 (:require [cassiopeia.engine.timing :as time] [overtone.studio.fx :as fx] [cassiopeia.engine.mixers :as mix] [overtone.inst.synth :as s] [shadertone.tone :as t] [cassiopeia.engine.buffers :as b])
-(:use [overtone.live] [cassiopeia.engine.core] [cassiopeia.engine.scheduled-sampler] [cassiopeia.samples] [cassiopeia.engine.samples] [cassiopeia.view-screen] [cassiopeia.waves.synths]))
+(:use [overtone.live] [cassiopeia.engine.core] [cassiopeia.engine.scheduled-sampler] [cassiopeia.samples] [cassiopeia.engine.samples] [cassiopeia.view-screen] [cassiopeia.waves.synths] [cassiopeia.waves.soprano]))
 
 (do
   (ctl time/root-s :rate 4)
