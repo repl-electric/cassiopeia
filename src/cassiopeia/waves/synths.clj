@@ -188,7 +188,7 @@
         e (env-gen (perc :attack 0 :release 1) :gate bar-trg)]
     (out out-bus (pan2 (* amp e w)))))
 
-(defsynth high-hats [out-bus 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) 0 note-buf 0 seq-buf 0 beat-num 0 num-steps 0
+(defsynth high-hats [out-bus 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) note-buf 0 seq-buf 0 beat-num 0 num-steps 0
                      attack 0.001 release 0.1 mix 0 room 0 damp 0 amp 1]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
