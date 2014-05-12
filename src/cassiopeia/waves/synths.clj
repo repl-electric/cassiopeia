@@ -205,7 +205,7 @@
         src (free-verb src :mix mix :room room :damp damp)]
     (out out-bus [(* amp src) (* amp src)])))
 
-(defsynth pulsar [note-buf 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) 0 amp 1]
+(defsynth pulsar [note-buf 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) amp 1]
   (let [cnt (in:kr beat-bus)
         note (buf-rd:kr 1 note-buf cnt)
         trg (in:kr beat-trg-bus)
