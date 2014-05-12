@@ -54,27 +54,19 @@
 
 (pattern! hydrogen-note-buf (degrees [] :major :A2))
 
-(def hydrogen (shrill-pong [:head voice-g] :amp 1.2 :note-buf hydrogen-note-buf :duration-bus hydrogen-dur-buf))
-
-(def helium   (shrill-pong [:head voice-g] :amp 1.2 :note-buf helium-note-buf :duration-bus helium-dur-buf))
-
+(def hydrogen  (shrill-pong [:head voice-g] :amp 1.2 :note-buf hydrogen-note-buf :duration-bus hydrogen-dur-buf))
+(def helium    (shrill-pong [:head voice-g] :amp 1.2 :note-buf helium-note-buf :duration-bus helium-dur-buf))
 (def supernova (shrill-pong [:head voice-g] :amp 0.1 :note-buf supernova-note-buf :duration-bus supernova-dur-buf))
 
 (fadeout hydrogen)
 (n-overtime! supernova :amp 0.1 1.2 0.01)
 
-(pattern! helium-dur-buf
-          (repeat 16 [1/9])
-          (repeat 4 (repeat 16 [1/8])))
+(pattern! helium-dur-buf    (repeat 16 [1/9]) (repeat 4 (repeat 16 [1/8])))
+(pattern! supernova-dur-buf (repeat 4 (repeat 2 [1/2 1/4 1/2 1/2 1/4 1/2 1/2 1/12])) (repeat 4 [1/2 1/2 1/2 1/2]))
 
-(pattern! supernova-dur-buf
-          (repeat 4 (repeat 2 [1/2 1/4 1/2 1/2 1/4 1/2 1/2 1/12]))
-          (repeat 4 [1/2 1/2 1/2 1/2]))
-
-(def stellar-wind (pulsar :note-buf stella-wind-note-buf :amp 1.0))
-(kill stellar-wind)
-
+(def stellar-wind (pulsar :note-buf stella-wind-note-buf :amp 0.7))
 (def metallicity (fizzy-pulsar [:head backing-voice-g] :amp 0.6 :note-buf metallicity-note-buf :duration-bus supernova-dur-buf))
+
 (let [octave 3
       [n1 n2 n3 n4]     (chord-degree :v (note-at-octave :A octave)       :major)
       [n11 n12 n13 n14] (chord-degree :i (note-at-octave :A (inc octave)) :major)]
@@ -100,7 +92,7 @@
                       3 3 3 3  3 3 3 3  3 3 3 3  3 3 3 3
                       1 1 1 1  1 1 1 1  1 1 1 1  1 1 1 1]
                      :major (note-at-octave :A (cond (= octave 1) octave
-                                                     true octave))))
+                                                     true (dec octave)))))
   (pattern! metallicity-note-buf
             (repeat 3 [n1 n1 n1 n1])
             (repeat 1 [0 0 0 0])
@@ -173,6 +165,7 @@
   (ctl metallicity :amp 0)
   (ctl nebula :amp 0)
   )
+
 (defn full-stop []
   (reset! cutout-w 0.0)
   (reset! stars-w 0.0)
