@@ -4,6 +4,8 @@
   (:require [cassiopeia.engine.timing :as time]
             [overtone.sc.machinery.server.comms :refer [with-server-self-sync server-sync]]))
 
+(def overtime-default-sleep 200)
+
 (defn pattern!
   "Fill a buffer repeating pattern if required.
      Supports integers or notes which will be converted to midi notes"
@@ -49,9 +51,9 @@
                                     (+ val rate))))]
         (future
           (loop [val start]
+            (Thread/sleep overtime-default-sleep)
+            (ctl node field val)
             (when (not= val end)
-              (Thread/sleep 200)
-              (ctl node field val)
               (recur (change-fn val))))))))
 
 (defn overtime!
@@ -75,10 +77,9 @@
                                        target
                                        (+ val rate))))]
            (future (loop []
-                     (when (not= @thing target)
-                       (Thread/sleep 200)
-                       (swap! thing change-fn)
-                       (recur)))))))))
+                     (Thread/sleep overtime-default-sleep)
+                     (swap! thing change-fn)
+                     (when (not= @thing target) (recur)))))))))
 
 (defn fadein
   ([node]     (fadein node 1.0 0.1))
@@ -88,6 +89,8 @@
   ([node] (fadeout node 0.1))
   ([node rate]
      (n-overtime! node :amp 1 0 rate)))
+
+(defn fadeout-master [] (n-overtime! (foundation-output-group) :master-volume 1 0 0.05))
 
 (def _ nil)
 (defn degrees
