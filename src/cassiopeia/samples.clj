@@ -25,12 +25,12 @@
 (defonce hip-hop-kick-s       (freesound-sample 131336))
 (defonce clap-s               (freesound-sample 24786))
 
-(def clap-s  (freesound-sample 48310))
-(def clap2-s (freesound-sample 132676))
+(defonce clap-s  (freesound-sample 48310))
+(defonce clap2-s (freesound-sample 132676))
 
-(def vogel-clap-s (freesound-sample 62427))
+(defonce vogel-clap-s (freesound-sample 62427))
 
-(defonce bell-s               (freesound-sample 173000))
+(defonce bell-s (freesound-sample 173000))
 
 (defonce shaker-s  (freesound-sample 100008))
 
@@ -57,16 +57,17 @@
 (defonce kick-s    (load-local-sample "sliced-p5/kick.aif"))
 
 ;;Custom samples
-(defonce star-into-the-sun-s      (load-local-sample "star-into-the-sun.wav"))
-(defonce space-and-time-s         (load-local-sample "space_and_time.wav"))
-(defonce chaos-s                  (load-local-sample "chaos.wav"))
-(defonce dreamers-of-the-dreams-s (load-local-sample "dreamer-of-the-dreams.wav"))
-(defonce afraid-s                 (load-local-sample "afraid.wav"))
-(defonce one-moment-please-s      (load-local-sample "1moment-clean.wav"))
-(defonce constant-blues-s         (load-local-sample "constant-blues.wav"))
-(defonce death-s                  (load-local-sample "oh-death.wav"))
-(defonce moore-s                  (load-local-sample "patrick-moore.wav"))
-(defonce signals-s                (load-local-sample "signals-from-outerspace.wav"))
+(defonce star-into-the-sun-s        (load-local-sample "star-into-the-sun.wav"))
+(defonce space-and-time-s           (load-local-sample "space_and_time.wav"))
+(defonce chaos-s                    (load-local-sample "chaos.wav"))
+(defonce dreamers-of-the-dreams-s   (load-local-sample "dreamer-of-the-dreams.wav"))
+(defonce afraid-s                   (load-local-sample "afraid.wav"))
+(defonce one-moment-please-s        (load-local-sample "1moment-clean.wav"))
+(defonce constant-blues-s           (load-local-sample "constant-blues.wav"))
+(defonce death-s                    (load-local-sample "oh-death.wav"))
+(defonce moore-s                    (load-local-sample "patrick-moore.wav"))
+(defonce signals-s                  (load-local-sample "signals-from-outerspace.wav"))
+(defonce the-sound-of-live-coding-s (load-local-sample "joe-typing-keyboard.wav"))
 
 ;;Triggers
 (defonce glitch1-s (freesound-sample 130301))
