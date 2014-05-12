@@ -5,15 +5,8 @@
                                 ███████╗   ██║   ██║  ██║
                                 ╚══════╝   ╚═╝   ╚═╝  ╚═╝"
 (:require [cassiopeia.engine.timing :as time] [overtone.studio.fx :as fx] [cassiopeia.engine.mixers :as mix] [overtone.inst.synth :as s] [shadertone.tone :as t] [cassiopeia.engine.buffers :as b]) (:use [overtone.live] [cassiopeia.engine.core] [cassiopeia.engine.scheduled-sampler] [cassiopeia.samples] [cassiopeia.engine.samples] [cassiopeia.view-screen] [cassiopeia.waves.synths] [cassiopeia.waves.soprano]))
-
-(do
-  (ctl time/root-s :rate 4)
-  (defonce voice-g (group "main voice"))
-  (defonce backing-voice-g (group "backing voices"))
-  (defonce bass-g  (group "bass voice"))
-  (defonce drums-g (group "drums"))
-  (defonce drum-effects-g (group "drums effects for extra sweetness"))
-  (defbufs 96 [bass-notes-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf stella-wind-note-buf nebula-note-buf supernova-dur-buf supernova-note-buf helium-note-buf hydrogen-note-buf supernova-dur-buf helium-dur-buf hydrogen-dur-buf metallicity-note-buf]))
+(do (ctl time/root-s :rate 4)
+    (defonce voice-g (group "main voice")) (defonce backing-voice-g (group "backing voices")) (defonce bass-g  (group "bass voice")) (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 96 [bass-notes-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf stella-wind-note-buf nebula-note-buf supernova-dur-buf supernova-note-buf helium-note-buf hydrogen-note-buf supernova-dur-buf helium-dur-buf hydrogen-dur-buf metallicity-note-buf]))
 
 (pattern! kick-seq-buf  [1 0 0 0 0 0 0 0])
 (pattern! hats-buf      [0 0 0 0 0 0 1 1])
@@ -48,10 +41,7 @@
 (fadein nebula)
 (pattern-at! nebula-note-buf time/main-beat 32 (degrees [] :major :A2))
 
-(pattern! hydrogen-dur-buf
-          (repeat 4 [1/8 1/8 1/2 1/2])
-          (repeat 4 [1/12 1/12 1/12 1/12]))
-
+(pattern! hydrogen-dur-buf  (repeat 4 [1/8 1/8 1/2 1/2]) (repeat 4 [1/12 1/12 1/12 1/12]))
 (pattern! hydrogen-note-buf (degrees [] :major :A2))
 
 (def hydrogen  (shrill-pong [:head voice-g] :amp 1.2 :note-buf hydrogen-note-buf :duration-bus hydrogen-dur-buf))
@@ -69,7 +59,7 @@
 
 (let [octave 3
       [n1 n2 n3 n4]     (chord-degree :v (note-at-octave :A octave)       :major)
-      [n11 n12 n13 n14] (chord-degree :i (note-at-octave :A (inc octave)) :major)]
+      [n11 n12 n13 n14] (chord-degree :i (note-at-octave :A (if (> octave 3) octave (inc octave)) :major))]
   (pattern! stella-wind-note-buf
             (repeat 4 (repeat 4 [0 0 0 0]))
             (repeat 4 [(note-at-octave :F# (+ (if (> octave 3) 0 2) octave)) (note-at-octave :F# (+ (if (> octave 3) 0 2) octave))  0 0])
@@ -105,8 +95,7 @@
           (repeat 2 (repeat 4 [:E#1 :E#1 :E#1 :E#1]))
           (repeat 2 (repeat 4 [:F#1 :F#1 :F#1 :F#1])))
 
-(do
-  (reset! color-l 1.0) (reset! color-r 1.0) (reset! expand 1.0) (reset! stars-w 1.0) (reset! yinyan 1.0) (reset! cellular-w 1.0))
+(do (reset! color-l 1.0) (reset! color-r 1.0) (reset! expand 1.0) (reset! stars-w 1.0) (reset! yinyan 1.0) (reset! cellular-w 1.0))
 
 ;;(stop)
 
