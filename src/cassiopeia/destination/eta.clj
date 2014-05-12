@@ -97,7 +97,7 @@
           (repeat 2 (repeat 4 [:E#1 :E#1 :E#1 :E#1]))
           (repeat 2 (repeat 4 [:F#1 :F#1 :F#1 :F#1])))
 
-(do (reset! color-l 1.0) (reset! color-r 1.0) (reset! expand 1.0) (reset! stars-w 1.0) (reset! yinyan 1.0) (reset! cellular-w 1.0))
+(do (reset! color-l 1.0) (reset! color-r 1.0) (reset! expand 1.0) (reset! stars-w 1.0) (reset! yinyan 1.0) (reset! cellular-w 0.0))
 
 ;;(stop)
 
@@ -119,6 +119,7 @@
                        "iDistortedWeight"   heart-w
                        "iSpaceyWeight"      hyper-w
                        "iCellularWeight"    cellular-w
+                       "iCellGrowth"        cellular-growth
                        "iMeasureCount" (atom {:synth beats :tap "measure-count"})
                        "iBeat"         (atom {:synth beats :tap "beat"})
                        "iBeatCount"    (atom {:synth beats :tap "beat-count"})})

@@ -8,6 +8,7 @@ uniform float iExpand;
 uniform float iYinYan;
 uniform float iStarDirection;
 uniform float iCircleCount;
+uniform float iCellGrowth;
 
 uniform float iOvertoneVolume;
 uniform float iBeat;
@@ -45,7 +46,7 @@ vec2 randpos(float x){
 
 float cell(float size,vec2 basepos,vec2 uv,vec2 vel){
   float ss=size;
-  vec2 pos = basepos;
+  vec2 pos= basepos;
   vec2 center = uv;
   float dis;
   float influence;
@@ -65,27 +66,44 @@ vec4 cellularStars(void)
 {
   vec2 uv = 2.0*(gl_FragCoord.xy /iResolution.xy)-1.0;
   uv.x *= iResolution.x/iResolution.y;
+  uv.x += 0.03;
+  uv.y += 0.077;
 
   float color=0.0;
   float intensity=0.0;
   vec2 vel = vec2((texture2D( iChannel0, vec2(0.05,0.0) ).x),
                   (texture2D( iChannel0, vec2(0.05,0.0) ).x));
 
+  if(iDistortedWeight != 1.0){
+    vel.x = 0.5+0.5*sin(iGlobalTime/8000);
+    vel.y = 0.5+0.5*sin(iGlobalTime/8000);
+  }
+
+  if(iCellGrowth<1.0){
+    vel.x = clamp(vel.x, 0.01, iCellGrowth);
+    vel.y = clamp(vel.y, 0.01, iCellGrowth);
+  }
+
   for(float k = 0.0; k<30.0 ; k++){
-    float size=rand(k+1.0)*0.3+0.05;
-    vec2 basepos =randpos(k+1.0);
+    float size = rand(k+1.0)*0.3+0.05;
+    vec2 basepos = randpos(k+1.0);
+
+    if(iCellGrowth == 0.0){
+      size += clamp(iBeat,0.01,0.05);
+    }
+
     intensity += cell(size,basepos,uv,vel);
   }
 
-  intensity = (clamp(intensity,CUTOFF, CUTOFF + 0.0125)-CUTOFF) * 80.0;
+  intensity = (clamp(intensity,CUTOFF, CUTOFF + 0.0125)-CUTOFF) * 60.0;
   color=intensity;
-  color=1-color;
+  color=color;
 
-  float bg = sqrt((1.5 *fract(iMeasureCount * 0.3))*length(uv));
+  float bg = sqrt((1.5 *fract(iMeasureCount * 0.01))*length(uv));
   bg += fract(sin(dot(uv, vec2(344.4324, time))*5.3543)*2336.65)*0.5;
 
-  color=color+bg;
-  return vec4(1-color,1-color,1-color ,0.0);
+  color=bg-color;
+  return vec4(color,color,color,1.0);
 }
 
 vec3 lightdir = vec3(.1,.0,0.);
@@ -408,7 +426,12 @@ void main(void){
 
     uv.x = (radius * cos(uv.x * (8.0 * noCircles) - 0.8));
     uv.y = (radius * sin(uv.y * (6.0 * noCircles) - 1.2));
-    uv.x = uv.x + 0.9; //+ (clamp(iBeat,0.01,0.02));
+    uv.x = uv.x + 0.9;
+
+    if(waveReducer <= 0.01){
+      uv.x += clamp(iBeat,0.01,0.02);
+    }
+
     uv.y = uv.y * 0.81;
 
     float orien =  uv.x;
@@ -470,6 +493,13 @@ void main(void){
   float distortedWeight = iDistortedWeight;
   float spaceyWeight = iSpaceyWeight;
   float cellularStarsWeight = iCellularWeight;
+
+  if(distortedWeight > 0.){
+    cutoutStrength = 0.0;
+  }
+  else if(cutoutStrength > 0.){
+    distortedWeight = 0.0;
+  }
 
   if(lightOn==1){
     vec3 from=vec3(0.,0.1,-1.2);
