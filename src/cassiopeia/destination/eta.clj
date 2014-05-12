@@ -13,7 +13,7 @@
   (defonce bass-g  (group "bass voice"))
   (defonce drums-g (group "drums"))
   (defonce drum-effects-g (group "drums effects for extra sweetness"))
-  (defbufs 96 [stella-wind-note-buf bass-notes-buf hats-buf nebula-note-buf white-seq-buf shrill-note-buf supernova-dur-buf supernova-note-buf shrill-pong-buf helium-note-buf hydrogen-note-buf supernova-dur-buf helium-dur-buf hydrogen-dur-buf kick-seq-buf bass-notes-buf metallicity-note-buf fizzy-dur-buf effects-seq-buf effects2-seq-buf]))
+  (defbufs 96 [bass-notes-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf stella-wind-note-buf nebula-note-buf supernova-dur-buf supernova-note-buf helium-note-buf hydrogen-note-buf supernova-dur-buf helium-dur-buf hydrogen-dur-buf metallicity-note-buf]))
 
 (pattern! kick-seq-buf  [1 0 0 0 0 0 0 0])
 (pattern! hats-buf      [0 0 0 0 0 0 1 1])
@@ -75,9 +75,6 @@
             (repeat 4 [(note-at-octave :F# (+ (if (> octave 3) 0 2) octave)) (note-at-octave :F# (+ (if (> octave 3) 0 2) octave))  0 0])
             (repeat 2 [(note-at-octave :G# (+ (if (> octave 3) 0 2) octave)) (note-at-octave :G# (+ (if (> octave 3) 0 2) octave)) 0 (note-at-octave :G# (+  (if (> octave 3) 0 2) octave))])
             (repeat 2 [(note-at-octave :G# (+ (if (> octave 3) 0 2) octave)) (note-at-octave :G# (+ (if (> octave 3) 0 2) octave)) 0  0 ]))
-  (pattern! shrill-note-buf
-            (repeat 4 (repeat 4 [n1 n1 n3 0]))
-            (repeat 4 [n3 n3 n4 0]))
   (pattern! supernova-note-buf
             (repeat 4 [n1 n3 n3 n3])
             [n1 n2 n3 n3] [n3 n3 n1 n1]   [n1 n2 n3 n3] [n1 n1 n3 n3]
