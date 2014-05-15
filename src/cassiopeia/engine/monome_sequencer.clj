@@ -32,13 +32,29 @@
     (fon/led-off tgt-fonome  (mod beat range-x) beat-track-y)))
 
 (defn mk-ticker
-  ([tgt-fonome] (mk-ticker tgt-fonome (atom time/main-beat) (uuid) (:width tgt-fonome)))
-  ([tgt-fonome beat-bus-a beat-key range-x]
-      (add-watch beat-bus-a ::update-beat-bus-monome-knightrider
-                 (fn [k r o n]
-                   (on-trigger (:trig-id n)
-                               #(update-monome-leds tgt-fonome range-x %)
-                               beat-key)))))
+  ([tgt-fonome handle] (mk-ticker tgt-fonome handle (atom time/main-beat) (uuid) (:width tgt-fonome)))
+  ([tgt-fonome handle beat-bus-a beat-key range-x]
+     (let [t-id (:trig-id @beat-bus-a)
+           key3 (uuid)]
+       (on-trigger t-id
+                   (fn [beat]
+                     (let [beat-track-y (dec (:height tgt-fonome))
+                           total-cells (* (:height tgt-fonome) range-x)
+                           x-pos (mod beat range-x)
+                           y-pos (/ (mod beat 96) range-x)]
+                       (when (and (= 0.0 x-pos) (= 0.0 y-pos))
+                         (doseq [x (range total-cells)]
+                           (fon/led-off tgt-fonome (mod x range-x) (/ x range-x))))
+                       (fon/led-on tgt-fonome x-pos y-pos)))
+                   key3)
+
+       (with-meta
+         {:trg-key key3
+          :beat-key       beat-key
+          :fonome         tgt-fonome
+          :handle         handle
+          :status         (atom :running)}
+         {:type ::monome-ticker}))))
 
 (defn mk-monome-sequencer
   ([nk-group handle samples tgt-fonome]
@@ -102,15 +118,7 @@
                    (fon/toggle-led fonome x y))
                  key2)
 
-       (on-trigger t-id
-                   (fn [beat]
-                     (let [beat-track-y (dec (:height tgt-fonome))]
-                       (doseq [x (range (:width tgt-fonome))]
-                         (fon/led-off tgt-fonome x beat-track-y))
-                       (fon/led-on tgt-fonome  (mod beat range-x) beat-track-y)))
-                   key3)
-
-       (mk-ticker tgt-fonome beat-bus-a key3 range-x)
+       (mk-ticker tgt-fonome ::ticker128 beat-bus-a key3 range-x)
 
        (oneshot-event :reset (fn [_] (remove-event-handler key1) (remove-event-handler key2)) (uuid))
 
