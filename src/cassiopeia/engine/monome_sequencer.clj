@@ -32,7 +32,7 @@
     (fon/led-off tgt-fonome  (mod beat range-x) beat-track-y)))
 
 (defn mk-ticker
-  ([tgt-fonome beat-bus-a range-x] (mk-ticker tgt-fonome beat-bus-a (uuid) range-x))
+  ([tgt-fonome] (mk-ticker tgt-fonome (atom time/main-beat) (uuid) (:width tgt-fonome)))
   ([tgt-fonome beat-bus-a beat-key range-x]
       (add-watch beat-bus-a ::update-beat-bus-monome-knightrider
                  (fn [k r o n]
