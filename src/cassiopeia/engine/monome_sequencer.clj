@@ -108,7 +108,7 @@
                        (fon/led-on tgt-fonome  (mod beat range-x) beat-track-y)))
                    key3)
 
-       (mk-ticker tgt-fonome beta-bus-a beat-key range-x)
+       (mk-ticker tgt-fonome beta-bus-a key3 range-x)
 
        (oneshot-event :reset (fn [_] (remove-event-handler key1) (remove-event-handler key2)) (uuid))
 
