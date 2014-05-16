@@ -59,7 +59,7 @@
 (def stellar-wind (pulsar :note-buf stella-wind-note-buf :amp 0.7))
 (def metallicity (fizzy-pulsar [:head backing-voice-g] :amp 0.6 :note-buf metallicity-note-buf :duration-bus supernova-dur-buf))
 
-(let [octave 3
+(let [octave 2
       [n1 n2 n3 n4]     (chord-degree :v (note-at-octave :A octave) :major)
       [n11 n12 n13 n14] (chord-degree :i (note-at-octave :A (if (> octave 3) octave (inc octave))) :major)]
   (pattern! stella-wind-note-buf
