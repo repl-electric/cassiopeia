@@ -78,8 +78,7 @@ vec4 cellularStars(void)
     vel.x = 0.5+0.5*sin(iGlobalTime/9000);
     vel.y = 0.5+0.5*sin(iGlobalTime/9000);
   }
-
-  if(iCellGrowth<1.0){
+  else if(iCellGrowth<1.0){
     vel.x = clamp(vel.x, 0.01, iCellGrowth);
     vel.y = clamp(vel.y, 0.01, iCellGrowth);
   }
