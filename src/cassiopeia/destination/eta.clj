@@ -6,7 +6,7 @@
                                 ╚══════╝   ╚═╝   ╚═╝  ╚═╝"
 (:require [cassiopeia.engine.timing :as time] [overtone.studio.fx :as fx] [cassiopeia.engine.mixers :as mix] [overtone.inst.synth :as s] [shadertone.tone :as t] [cassiopeia.engine.buffers :as b]) (:use [overtone.live] [cassiopeia.engine.core] [cassiopeia.engine.scheduled-sampler] [cassiopeia.samples] [cassiopeia.engine.samples] [cassiopeia.view-screen] [cassiopeia.waves.synths] [cassiopeia.waves.soprano]))
 (do (ctl time/root-s :rate 4)
-    (ctl (foundation-output-group) :master-volume 1)
+;;    (ctl (foundation-output-group) :master-volume 1)
     (defonce voice-g (group "main voice")) (defonce backing-voice-g (group "backing voices")) (defonce bass-g  (group "bass voice")) (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 96 [bass-notes-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf stella-wind-note-buf nebula-note-buf supernova-dur-buf supernova-note-buf helium-note-buf hydrogen-note-buf supernova-dur-buf helium-dur-buf hydrogen-dur-buf metallicity-note-buf]))
 
 (pattern! kick-seq-buf  [1 0 0 0 0 0 0 0])
@@ -98,6 +98,9 @@
           (repeat 2 (repeat 4 [:F#1 :F#1 :F#1 :F#1])))
 
 (do (reset! color-l 1.0) (reset! color-r 1.0) (reset! expand 1.0) (reset! stars-w 1.0) (reset! yinyan 1.0) (reset! cellular-w 0.0))
+(reset! heart-w 0.0)
+(reset! cutout-w 0.0)
+(reset! cellular-w 0.0)
 
 ;;(stop)
 
