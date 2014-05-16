@@ -75,8 +75,8 @@ vec4 cellularStars(void)
                   (texture2D( iChannel0, vec2(0.05,0.0) ).x));
 
   if(iDistortedWeight != 1.0){
-    vel.x = 0.5+0.5*sin(iGlobalTime/8000);
-    vel.y = 0.5+0.5*sin(iGlobalTime/8000);
+    vel.x = 0.5+0.5*sin(iGlobalTime/9000);
+    vel.y = 0.5+0.5*sin(iGlobalTime/9000);
   }
 
   if(iCellGrowth<1.0){
