@@ -36,7 +36,7 @@
         vol      (set-reset-ff bar-trg)]
     (out out-bus (* vol amp (scaled-play-buf :num-channels 1
                                              :buf-num buf
-                                             :rate (t-rand:kr 0.1 0.9 rander)
+                                             :rate (t-rand:kr 0.5 0.9 rander)
                                              :trigger bar-trg)))))
 
 (defsynth rise-fall-pad
