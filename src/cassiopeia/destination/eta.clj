@@ -162,5 +162,6 @@
   (reset! cutout-w 0.0)
   (reset! stars-w 0.0)
   (reset! heart-w 0.0)
+  (reset! cellular-w 0.0)
   (remove-on-beat-trigger)
   (fadeout-master))
