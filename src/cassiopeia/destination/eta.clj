@@ -89,8 +89,6 @@
             (repeat 1 [0 0 0 0])
             (repeat 4 (repeat 4 [0 0 0 0]))))
 
-;;(stop)
-
 (pattern! kick-seq-buf  [0])
 (pattern! bass-notes-buf
           (repeat 2 (repeat 4 [:B1 :B1 :B1 :B1]))
