@@ -8,7 +8,8 @@
 (ctl time/root-s :rate 8)
 
 (definst plucked-string [amp 0.8 decay 30 coef 0.3 gate 1
-                         beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) notes-buf 0 dur-buf 0]
+                         beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) notes-buf 0 dur-buf 0
+                         mix-rate 0.5]
   (let [cnt (in:kr beat-bus)
         trg (in:kr beat-trg-bus)
         note (buf-rd:kr 1 notes-buf cnt)
@@ -21,20 +22,23 @@
         dist   (distort plk)
         filt   (rlpf dist (* 12 freq) 0.6)
         clp    (clip2 filt 0.8)
-        reverb (free-verb clp 0.5 1.99 0.2)]
+        reverb (free-verb clp mix-rate (+ 1.0 (* 0.5 (sin-osc:kr 20))) 0.2)]
     (* amp (env-gen (perc 1.0 dur) :gate trg) reverb)))
 
 (defonce note-b (buffer 128))
 (defonce note-dur-b (buffer 128))
 
 (def puck (plucked-string :notes-buf note-b :amp 0.2 :dur-buf note-dur-b :coef 0.8 :decay 50))
-(ctl puck :coef 0.3 :decay 70)
+(ctl puck :coef 0.3 :decay 50)
+(ctl puck :mix-rate 0.6)
 
 (pattern! note-dur-b
-          (repeat 3 [1/2 1/2 1/2 1/2])
-                    [1/8 1/8 1/8 1/8])
+          (repeat 3 [1 1/2 1 1/2]) [1/8 1/8 1/8 1/4])
 
 (pattern! note-b
           (repeat 16 (degrees [1 3] :minor :F3))
           (repeat 16 (degrees [3 5] :minor :F3))
           (repeat 16 (degrees [5 7] :minor :F3)))
+
+(comment
+  (kill puck))
