@@ -29,16 +29,31 @@
 (defonce note-dur-b (buffer 128))
 
 (def puck (plucked-string :notes-buf note-b :amp 0.2 :dur-buf note-dur-b :coef 0.8 :decay 50))
-(ctl puck :coef 0.3 :decay 50)
-(ctl puck :mix-rate 0.6)
+(ctl puck :coef 0.8 :decay 50)
+(ctl puck :mix-rate 0.3)
 
-(pattern! note-dur-b
-          (repeat 3 [1 1/2 1 1/2]) [1/8 1/8 1/8 1/4])
+(pattern! note-dur-b (repeat 3 [1 1/2 1 1/2]) [1/8 1/8 1/8 1/4])
 
-(pattern! note-b
+(pattern! note-b (repeat 16 (degrees [1 3] :minor :F3))
+                 (repeat 16 (degrees [3 5] :minor :F3))
+                 (repeat 16 (degrees [5 7] :minor :F3)))
+
+(defonce note1-b (buffer 128))
+(defonce note1-dur-b (buffer 128))
+
+(pattern! note1-dur-b (repeat 3 [1 1/2 1 1/2]) [1/8 1/8 1/8 1/4])
+
+(pattern! note1-b
           (repeat 16 (degrees [1 3] :minor :F3))
           (repeat 16 (degrees [3 5] :minor :F3))
-          (repeat 16 (degrees [5 7] :minor :F3)))
+          (repeat 16 (degrees [5 7] :minor :F3))
+          (repeat 8  (degrees [5 3] :minor :F3))
+          )
 
 (comment
   (kill puck))
+
+(do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 96 [bass-notes-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf]))
+
+(pattern! effects2-seq-buf [0 0 0 0] [1 1 1 1] [0 0 0 0] [1 0 1 1])
+(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.1 :num-steps 8 :buf deep-bass-kick-s) (range 0 8))))
