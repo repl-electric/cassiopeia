@@ -69,4 +69,29 @@
 
 (def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.1 :num-steps 8 :buf deep-bass-kick-s) (range 0 16)))) (pattern! (degrees [1 0 0 0 0 1] ))
 (kill drum-effects-g)
+
+(definst space-flute [freq 880 amp 0.5 attack 0.4 decay 0.5 sustain 0.8 release 1 gate 1 out 0
+                       beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) notes-buf 0 dur-buf 0]
+  (let [cnt (in:kr beat-bus)
+        trg (in:kr beat-trg-bus)
+        note (buf-rd:kr 1 notes-buf cnt)
+        dur (buf-rd:kr 1 dur-buf cnt)
+        freq (midicps note)
+
+        env  (env-gen (adsr attack decay 3 3) :gate trg :time-scale dur)
+
+        ;;mod2 (lin-lin:kr (lf-noise2:kr 1) -1 1 0.2 1)
+        ;;mod3 (lin-lin:kr (sin-osc:kr (ranged-rand 4 6)) -1 1 0.5 1)
+        sig (distort (* env (sin-osc [freq freq])))
+        sig (* amp sig)
+        sig (free-verb sig :mix 0.9 :room 2 :damp 1)
+        ]
+    sig))
+(defonce note-flute-b (buffer 128))
+
+(pattern! note-flute-b (degrees [3 3 3 3 -1 1 1 1 1] :minor :F3))
+(def s (space-flute :notes-buf note-flute-b :amp 0.8 :dur-buf note1-dur-b :attack 0.01
+                     :beat-bus (:count time/beat-2th)
+                     :beat-trg-bus (:beat time/beat-2th)))
+
 (ctl (foundation-root-group) :volume 1)
