@@ -65,13 +65,11 @@
 
 (pattern! effects2-seq-buf [1 0 0 0] [1 0 1 1] [0 0 0 0] [1 1 1 1])
 
-
-
-(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.1 :num-steps 8 :buf deep-bass-kick-s) (range 0 16)))) (pattern! (degrees [1 0 0 0 0 1] ))
+(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.1 :num-steps 8 :buf deep-bass-kick-s) (range 0 16))))
 (kill drum-effects-g)
 
 (definst space-flute [freq 880 amp 0.5 attack 0.4 decay 0.5 sustain 0.8 release 1 gate 1 out 0
-                       beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) notes-buf 0 dur-buf 0]
+                      beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) notes-buf 0 dur-buf 0]
   (let [cnt (in:kr beat-bus)
         trg (in:kr beat-trg-bus)
         note (buf-rd:kr 1 notes-buf cnt)
@@ -94,4 +92,56 @@
                      :beat-bus (:count time/beat-2th)
                      :beat-trg-bus (:beat time/beat-2th)))
 
-(ctl (foundation-root-group) :volume 1)
+(kill space-flute)
+
+(ctl (foundation-root-group) :volume 5)
+
+
+(overtone.inst.synth/rise-fall-pad)
+
+(definst rize-fall-pad
+  [freq 440 t 4 amt 0.3 amp 0.8
+ beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) notes-buf 0 dur-buf 0
+   ]
+  (let [cnt (in:kr beat-bus)
+        trg (in:kr beat-trg-bus)
+        note (buf-rd:kr 1 notes-buf cnt)
+        dur (buf-rd:kr 1 dur-buf cnt)
+        freq (midicps note)
+
+        f-env      (env-gen (perc t t) trg 1 0 1)
+        src        (saw [freq (* freq 1.01)])
+        signal     (rlpf (* 0.3 src)
+                         (+ (* 0.6 freq) (* f-env 2 freq)) 0.2)
+        k          (/ (* 2 amt) (- 1 amt))
+        distort    (/ (* (+ 1 k) signal) (+ 1 (* k (abs signal))))
+        gate       (pulse (* 2 (+ 1 (sin-osc:kr 0.05))))
+        compressor (compander distort gate 0.01 1 0.5 0.01 0.01)
+        dampener   (+ 1 (* 0.5 (sin-osc:kr 0.5)))
+        reverb     (free-verb compressor 0.8 0.5 dampener)
+        echo       (comb-n reverb 0.4 0.3 0.5)]
+        (* amp echo)))
+
+
+(definst ping
+  [note   {:default 72   :min 0     :max 120 :step 1}
+   attack {:default 0.02 :min 0.001 :max 1   :step 0.001}
+   decay  {:default 0.3  :min 0.001 :max 1   :step 0.001}
+ beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) notes-buf 0 dur-buf 0
+   ]
+  (let [cnt (in:kr beat-bus)
+        trg (in:kr beat-trg-bus)
+        note (buf-rd:kr 1 notes-buf cnt)
+        dur (buf-rd:kr 1 dur-buf cnt)
+
+        snd (sin-osc (midicps note))
+        env (env-gen (perc attack decay) :gate trg :time-scale dur)
+        snd (free-verb snd 0.8 1)]
+
+    (* 0.8 env snd)))
+
+(def s (rize-fall-pad :notes-buf note-flute-b :amp 0.4 :dur-buf note1-dur-b
+                      :beat-bus (:count time/beat-2th)
+                      :beat-trg-bus (:beat time/beat-2th)))
+(stop)
+(kill ping)
