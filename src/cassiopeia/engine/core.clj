@@ -22,7 +22,20 @@
        (apply pattern! (concat [buf] lists))
        (remove-event-handler ::pattern-writer))) ::pattern-writer))
 
-(remove-event-handler ::pattern-writer)
+
+(defn pat-repeat!
+  [buf beat n & lists]
+
+  (on-trigger
+   (:trig-id beat)
+   (fn [b]
+     (when (= 0.0 (mod b n))
+       (apply pattern! (concat [buf] (map apply lists)))
+       ;;(remove-event-handler ::pattern-writer)
+       )) ::pattern-repeat-writer)
+  )
+
+;;(remove-event-handler ::pattern-writer)
 
 (defn pattern-seq!
   "Fill a buffer repeating pattern if required. Support expressing patterns with `x` and `o`.
