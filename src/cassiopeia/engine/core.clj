@@ -114,12 +114,20 @@
                  (+ root (degree->interval degree scale))
                  0)) ds))))
 
+(def beat-trig-idx (atom 0))
+
 (defn on-beat-trigger [beat func]
+  (swap! beat-trig-idx inc)
   (on-trigger (:trig-id time/main-beat)
               (fn [b] (when (= 0.0 (mod b beat))
-                       (func))) ::on-beat-trigger))
+                       (func))) (str "on-beat-trigger" @beat-trig-idx)))
 
 (defn remove-on-beat-trigger [] (remove-event-handler ::on-beat-trigger))
+
+(defn remove-all-beat-triggers []
+  (doseq [i (range 0 (inc @beat-trig-idx))]
+    (remove-event-handler (str "on-beat-trigger" i)))
+  (reset! beat-trig-idx 0))
 
 (defn randomly-trigger
   ([change-fn] (randomly-trigger change-fn 0.5 8))
@@ -131,6 +139,8 @@
                     (when (and (= 0 (mod @random-counter at-beat))
                                (> (rand) chance)) (change-fn)))
                   ::beat-picker)))
+
+
 
 (defn stutter [rate]
   (future
