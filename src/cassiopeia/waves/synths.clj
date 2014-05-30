@@ -16,13 +16,13 @@
 
 (defsynth echoey-buf
   "Play an existing buffer with a heavy echo"
-  [b 0 frames [256 :ir] out-bus 0 thresh 0.07]
+  [b 0 frames [256 :ir] out-bus 0 thresh 0.07 amp 1]
   (let [in (play-buf 1 b (* (buf-rate-scale:kr b) 1.1))
         chain (fft (local-buf frames) in)
         chain (pv-mag-freeze chain -0.1)
         output (* (ifft chain) 0.9)
         output (+ output (comb-c:ar output 1 0.3 6))]
-    (out out-bus output)))
+    (out out-bus (* amp output))))
 
 (defsynth seqer
   "Plays a single channel audio buffer."
