@@ -4,6 +4,7 @@
   (:use cassiopeia.waves.synths)
   (:use cassiopeia.samples)
   (:use cassiopeia.engine.buffers)
+  (:use cassiopeia.dirt)
 ;;  (:use dirt)
  (:require [cassiopeia.engine.timing :as time]))
 
@@ -52,8 +53,8 @@
 (pattern! coef-b
           (repeat 16 [0.6 0.6 0.6])
           (repeat 8  [0.5 0.5 0.5])
-          (repeat 16 [0.6 0.6 0.3])
-          (repeat 8  [0.1 0.1 0.1])
+          (repeat 16 [0.4 0.4 0.4])
+          (repeat 8  [0.3 0.3 0.3])
           (repeat 16 [0.1 0.1 0.1])
           )
 
@@ -145,7 +146,7 @@
 
   )
 
-;;(ctl (foundation-root-group) :master-volume 1)
+;;(ctl (foundation-output-group) :master-volume 1)
 
 (definst rize-fall-pad
   [freq 440 t 4 amt 0.3 amp 0.8
@@ -259,4 +260,13 @@
 
 ;;(on-beat-trigger 64 #(do (echoey-buf one-moment-please-s :amp 0.02)))
 ;;(on-beat-trigger 128 #(do (echoey-buf afraid-s :amp 0.01)))
+;;(remove-all-beat-triggers)
+
+;;(on-beat-trigger 128  #(do (echoey-buf (dirt :arp 0) :amp 0.09)))
+;;(on-beat-trigger 32 #(do (echoey-buf (dirt :moog 7) :amp 0.09)))
+;;(on-beat-trigger 32 #(do (echoey-buf (dirt :wind 0) :amp 0.1)))
+
+;;(on-beat-trigger 128 #(do (echoey-buf (dirt :birds 1) :amp 0.09)))
+
+
 ;;(remove-all-beat-triggers)
