@@ -44,16 +44,16 @@
 (defonce note1-b (buffer 128))
 (defonce note1-dur-b (buffer 128))
 
-(ctl puck :mix-rate 0.3)
-(def puck (plucked-string :notes-buf note-b :amp 0.1 :dur-buf note-dur-b :coef-b coef-b :decay 50 :mix-rate 0.3))
+(def puck (plucked-string :notes-buf note-b :amp 0.1 :dur-buf note-dur-b :coef-b coef-b :decay 50 :mix-rate 0.1))
+(ctl puck :mix-rate 0.5)
 
 (kill plucked-string)
 
 (pattern! coef-b
-          (repeat 16 [0.7 0.7 0.7])
-          (repeat 8  [0.6 0.6 0.6])
-          (repeat 16 [0.7 0.7 0.7])
+          (repeat 16 [0.6 0.6 0.6])
           (repeat 8  [0.5 0.5 0.5])
+          (repeat 16 [0.6 0.6 0.3])
+          (repeat 8  [0.1 0.1 0.1])
           (repeat 16 [0.1 0.1 0.1])
           )
 
@@ -95,7 +95,7 @@
 
 (do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf]))
 
-(pattern! effects2-seq-buf [1 0 0 0] [0 0 0 0] [0 0 0 0] [0 1 0 1])
+(pattern! effects2-seq-buf (repeat 47 0) [1])
 (pattern! effects-seq-buf [0 1] (repeat 12 [0]) [1 1])
 
 (def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.09 :num-steps 8 :buf (buffer-mix-to-mono deep-bass-kick-s)) (range 0 16))))
@@ -105,9 +105,9 @@
 (def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.02 :num-steps 8 :buf (buffer-mix-to-mono clap2-s)) (range 0 16))))
 (def two-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.02 :num-steps 8 :buf (buffer-mix-to-mono clap-s)) (range 0 16))))
 
-(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.02 :num-steps 8 :buf vogel-clap-s) (range 0 16))))
-(def two-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.03 :num-steps 8 :buf (buffer-mix-to-mono clap-s)) (range 0 16))))
+(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.2 :num-steps 8 :buf beep-s) (range 0 48))))
 
+(def two-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.03 :num-steps 8 :buf (buffer-mix-to-mono clap-s)) (range 0 16))))
 
 (kill drum-effects-g)
 (do
@@ -145,7 +145,7 @@
 
   )
 
-(ctl (foundation-root-group) :volume 1)
+;;(ctl (foundation-root-group) :master-volume 1)
 
 (definst rize-fall-pad
   [freq 440 t 4 amt 0.3 amp 0.8
@@ -171,11 +171,11 @@
         echo       (comb-n reverb 0.4 0.3 0.5)]
         (* amp echo)))
 
-(def s (rize-fall-pad :notes-buf note-b :amp 0.1 :dur-buf note1-dur-b
+(def s (rize-fall-pad :notes-buf note-b :amp 0.0 :dur-buf note1-dur-b
                       :beat-bus (:count time/beat-1th)
                       :beat-trg-bus (:beat time/beat-1th) :attack 0.9))
-(ctl s :room-rate 1 :mix-rate 0.8 :amt 0.3 :attack 0.002 :decay 0.001 :amp 0.1)
-(fadein s 0.5)
+(ctl s :room-rate 1 :mix-rate 0.8 :amt 0.3 :attack 0.002 :decay 0.001 :amp 0.0)
+(fadein s 0.5 0.01)
 
 ;;(stop)
 
@@ -195,6 +195,14 @@
           (repeat 24 (degrees [8 5 8] :minor :F4)))
 
 (pattern! tonal-notes-b
+          (repeat 8  (degrees  [2 0 0] :minor :F4)) (repeat 8 (degrees  [2 0 0] :minor :F3))
+          (repeat 8  (degrees  [3 0 0] :minor :F4)) (repeat 8 (degrees  [3 0 0] :minor :F3))
+          (repeat 8  (degrees  [4 0 0] :minor :F4)) (repeat 8 (degrees  [4 0 0] :minor :F3))
+          (repeat 8  (degrees  [3 0 0] :minor :F4)) (repeat 8 (degrees  [3 0 0] :minor :F3))
+          (repeat 8  (degrees  [2 0 0] :minor :F4)) (repeat 8 (degrees  [2 0 0] :minor :F3))
+          (repeat 8  (degrees  [5 0 0] :minor :F4)) (repeat 8 (degrees  [5 0 0] :minor :F3)))
+
+(pattern! tonal-notes-b
           (repeat 8  (degrees  [2 0 0] :minor :F4)) (repeat 8 0)
           (repeat 8  (degrees  [3 0 0] :minor :F4)) (repeat 8 0)
           (repeat 8  (degrees  [4 0 0] :minor :F4)) (repeat 8 0)
@@ -205,8 +213,6 @@
 (pattern! tonal-dur-b (repeat 16 [1 1 1/2 1/2 1/4]))
 
 (pattern! tonal-amp-b (repeat 3 [0.1 0.09 0.09 0.09 0.08 0.07 0.07 0.05]) (repeat 8 0.04))
-
-(fadeout tonal)
 
 (do
   (defsynth tonal [amp 1 notes-buf 0
@@ -235,16 +241,22 @@
           ]
       (out 0 (pan2 (* e (* amp b-amp) src)) )))
 
-  (kill tonal)
-  (tonal :amp 0.1 :notes-buf tonal-notes-b :reverb-buf tonal-reverb-b)
+;;  (kill tonal)
+  (tonal :amp 0.6 :notes-buf tonal-notes-b :reverb-buf tonal-reverb-b)
   )
+
+;;(fadeout tonal)
 
 (comment
   (recording-start "~/Desktop/pop3.wav")
   (recording-stop)
   )
 
-(on-beat-trigger 128 #(do
-                       (echoey-buf one-moment-please-s :amp 0.02)
-                        (echoey-buf afraid-s :amp 0.01)))
-(remove-on-beat-trigger)
+;;(fadeout-master)
+(echoey-buf one-moment-please-s :amp 0.9)
+(echoey-buf beep-s :amp 0.2)
+(echoey-buf goodbye-s :amp 0.2)
+
+;;(on-beat-trigger 64 #(do (echoey-buf one-moment-please-s :amp 0.02)))
+;;(on-beat-trigger 128 #(do (echoey-buf afraid-s :amp 0.01)))
+;;(remove-all-beat-triggers)

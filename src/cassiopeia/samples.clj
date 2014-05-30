@@ -61,13 +61,17 @@
 (defonce space-and-time-s           (load-local-sample "space_and_time.wav"))
 (defonce chaos-s                    (load-local-sample "chaos.wav"))
 (defonce dreamers-of-the-dreams-s   (load-local-sample "dreamer-of-the-dreams.wav"))
-(defonce afraid-s                   (load-local-sample "afraid.wav"))
-(defonce one-moment-please-s        (load-local-sample "1moment-clean.wav"))
 (defonce constant-blues-s           (load-local-sample "constant-blues.wav"))
 (defonce death-s                    (load-local-sample "oh-death.wav"))
 (defonce moore-s                    (load-local-sample "patrick-moore.wav"))
 (defonce signals-s                  (load-local-sample "signals-from-outerspace.wav"))
 (defonce the-sound-of-live-coding-s (load-local-sample "joe-typing-keyboard.wav"))
+
+;;HAL
+(defonce afraid-s                   (load-local-sample "afraid.wav"))
+(defonce one-moment-please-s        (load-local-sample "1moment-clean.wav"))
+(defonce goodbye-s                  (load-local-sample "goodbye.wav"))
+(defonce beep-s                     (load-local-sample "beep.wav"))
 
 ;;Triggers
 (defonce glitch1-s (freesound-sample 130301))
