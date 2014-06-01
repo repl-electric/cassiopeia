@@ -221,8 +221,12 @@
                    beat-bus (:count time/beat-1th)
                    dur-buf tonal-dur-b
                    amp-buf tonal-amp-b
+                   room-size 200
+                   rev-time 8
+                   damping 0.5
+                   offset 0
                    ]
-    (let [cnt (in:kr beat-bus)
+    (let [cnt (+ offset (in:kr beat-bus))
           trg (in:kr beat-trg-bus)
           note (buf-rd:kr 1 notes-buf cnt)
           dur (buf-rd:kr 1 dur-buf cnt)
@@ -238,7 +242,7 @@
           src (rlpf src 1000)
           e (env-gen (perc :attack 2 :release 2) :gate gate-trig :time-scale dur)
 ;;          src (free-verb src 0.7 1 0)
-          src (g-verb src 200 8)
+          src (g-verb src room-size rev-time damping)
           ]
       (out 0 (pan2 (* e (* amp b-amp) src)) )))
 
