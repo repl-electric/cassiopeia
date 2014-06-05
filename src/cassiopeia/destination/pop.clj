@@ -243,7 +243,6 @@
 (ctl s :amt 0.6 :attack 0.1 :decay 0.8 :mix-rate 0.5)
 (fadein s 0.1 0.01)
 
-
 ;;(stop)
 
 (defonce tonal-notes-b (buffer 256))
@@ -466,7 +465,7 @@
 
   (sharp-twang :notes-buf twang-notes2-buf :amp 5 :dur-buf twang-dur2-buf
                :attack-buf twang-attack2-buf :release-buf twang-release2-buf
-               :amp-buf twang-amp2-buf)
+               :amp-buf twang-amp2-buf :beat-trg-bus (:beat time/beat-2th) :beat-bus  (:count time/beat-2th))
 
   (pattern! twang-release2-buf [4])
   (pattern! twang-attack2-buf  [0.01])
@@ -474,11 +473,11 @@
   (pattern! twang-amp2-buf (repeat 3 [0.4]))
 
   (pattern! twang-notes2-buf
-            (repeat 3 (concat (repeat 1 (degrees [2 3 0] :major :F3)) [0 0 0 0 0]))
+            (repeat 1 (concat (repeat 1 (degrees [1] :major :F3)) [0 0 0 0 0 0 0]))
             ;;(repeat 2 [0 0 0 0 0 0 0 0])
-            (repeat 3 (concat (repeat 1 (degrees [2 1 0] :major :F3)) [0 0 0 0 0]))
-            (repeat 3 (concat (repeat 1 (degrees [3 2 0] :major :F3)) [0 0 0 0 0]))
-            (repeat 3 (concat (repeat 1 (degrees [1 2 0] :major :F3)) [0 0 0 0 0]))
+            (repeat 1 (concat (repeat 1 (degrees [3] :major :F3)) [0 0 0 0 0 0 0]))
+            (repeat 1 (concat (repeat 1 (degrees [5] :major :F3)) [0 0 0 0 0 0 0]))
+            (repeat 1 (concat (repeat 1 (degrees [3] :major :F3)) [0 0 0 0 0 0 0]))
 
 ;;            (repeat 1 (degrees [2 1 0] :major :F3)) [0 0 0 0 0] (repeat 2 [0 0 0 0 0 0 0 0])
   ;;          (repeat 1 (degrees [3 2 0] :major :F3)) [0 0 0 0 0] (repeat 2 [0 0 0 0 0 0 0 0])
@@ -544,14 +543,18 @@
             [0 0 0 0 0 0 0] (degrees [1] :major :F4) [0 0 0 0]
             [0 0 0 0 0 0 0] (degrees [5] :major :F4) [0 0 0 0]
             [0 0 0 0 0 0 0] (degrees [7] :major :F4) [0 0 0 0]
-            )
-)
 
-(ctl sawer :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :amp 0.4)
+            [0 0 0 0 0 0 0] (degrees [5] :major :F4) [0 0 0 0]
+            [0 0 0 0 0 0 0] (degrees [3] :major :F4) [0 0 0 0]
+            [0 0 0 0 0 0 0] (degrees [6] :major :F4) [0 0 0 0]
+            [0 0 0 0 0 0 0] (degrees [7] :major :F4) [0 0 0 0])
+
+
+  )
+
+(ctl sawer :beat-bus (:count time/beat-2th) :beat-trg-bus (:beat time/beat-2th) :amp 0.4)
 
 (stop)
-
-
 
 (require '[clojure.math.numeric-tower :as math])
 
@@ -576,11 +579,62 @@
 
 (stop)
 
+(do
+  (definst wow []
+    (g-verb:ar
+     (moog-ff:ar (* 0.3 (clip-noise))
+                 (+ 100 (* 300 (lf-par:kr [(rand 0.3) (rand 0.3)] 0)))) 9 9 1))
 
-;;play {a=Saw;b=(2..12);c=0.015;GVerb.ar(Splay.ar(Klank.ar(`[b*50+b,c,c],Hasher.ar(a.ar(b/4pi,a.ar(c)*b+b).ceil)))/9,5.rand+1)}//#SuperCollider }
+  (kill wow)
+  (wow))
+(pb)
 
-(definst bell []
-  (let [b [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-        c 0.015
-        src (g-verb:ar (/ (splay:ar (klank:ar [(+ b (* b 50)) c c] (hasher:ar (saw:ar (/ b (* 4 Math/PI) (* (+ b b) (saw:ar c)))))) 9)) (+ 1 (rand 5)))]
-    src))
+(stop)
+
+
+(do
+  (definst slobber [amp 1
+                beat-trg-bus (:beat time/beat-1th)
+                beat-bus      (:count time/beat-1th)]
+    (let [trg (in:kr beat-trg-bus)
+
+          limit 99
+          freqs [4 0.5 8 16]
+          src1 (+ 12 (* limit (blip:ar freqs (+ limit (* limit (lf-saw:ar (/ 1 freqs) 0))))))
+          rq (+ 0.5 (* 0.5 (sin-osc:ar freqs freqs)))
+          note (rlpf:ar src1 limit rq)
+          freq (midicps note)
+          src (formant:ar freq limit)
+          src (splay:ar src)
+          e (env-gen (perc) :gate trg)
+          ]
+      (pan2 (* e amp src) (line:kr -1.0 1.0 32 :action FREE))))
+  (kill slobber)
+  (slobber :amp 0.05)
+)
+
+(do
+  (definst echoey-twang [amp 1
+                         beat-trg-bus (:beat time/beat-1th)
+                         beat-bus      (:count time/beat-1th)
+                         notes-buf 0]
+    (let [trg (in:kr beat-trg-bus)
+          cnt (in:kr beat-bus)
+          note (buf-rd:kr 1 notes-buf cnt)
+          freq (midicps note)
+          gate-trg (and (> note 0) trg)
+
+          a [1 2 4 5]
+          e (env-gen (adsr) :gate gate-trg)
+
+          src (lag (blip:ar a) (* 1 (+ 1 (lf-saw:ar (/ 1 (+ 2.25 a)) (/ 2 a)))))
+          src (splay:ar  (* (sin-osc:ar freq (* 99 (blip:ar 2 (sin-osc 99)))) src))
+          src (g-verb:ar src 99 6 0.7)]
+      (* e  amp src)))
+
+  (defonce echo-note-b (buffer 256))
+  (kill echoey-twang)
+
+  (echoey-twang :amp 1 :notes-buf echo-note-b)
+  (pattern! echo-note-b (degrees [8] :major :F3))
+)
