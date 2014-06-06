@@ -6,7 +6,8 @@
   (:use cassiopeia.engine.buffers)
   (:use cassiopeia.dirt)
 ;;  (:use dirt)
- (:require [cassiopeia.engine.timing :as time]))
+  (:require [cassiopeia.engine.timing :as time]
+            [overtone.studio.fx :as fx]))
 
 (ctl time/root-s :rate 8.)
 
@@ -636,5 +637,16 @@
   (kill echoey-twang)
 
   (echoey-twang :amp 1 :notes-buf echo-note-b)
-  (pattern! echo-note-b (degrees [8] :major :F3))
+  (pattern! echo-note-b (degrees [8] :major :F2))
 )
+(stop)
+(remove-all-beat-triggers)
+
+(comment
+
+  (recording-start "~/Desktop/pop.wav")
+  (recording-stop)
+  (stop)
+  (remove-all-beat-triggers)
+  )
+
