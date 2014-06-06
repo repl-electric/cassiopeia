@@ -14,6 +14,8 @@
 
 (do
   (definst plucked-string [amp 0.8 decay 30 coef 0.3 gate 1
+                           release 0.2
+                           attack 0.03
                            damp 0.2
                            coef-buf coef-b
                            beat-bus (:count time/beat-1th) beat-trg-bus (:beat time/beat-1th)
@@ -42,25 +44,30 @@
           ;;reverb (g-verb clp 400 2.0 0.0 0.1 0.3 0.2 0.5 0.1 400)
           reverb (g-verb clp 250 20 0)
           ]
-      (pan2 (* amp (env-gen (perc 0.03 0.2) :gate trg :time-scale dur) reverb))))
+      (pan2 (* amp (env-gen (perc attack release) :gate trg :time-scale dur) reverb))))
 
   (defonce note-b (buffer 128))
   (defonce note-dur-b (buffer 128))
   (defonce note1-b (buffer 128))
   (defonce note1-dur-b (buffer 128))
 
-(kill plucked-string)
+  (kill plucked-string)
 
   (def puck (plucked-string :notes-buf note-b :amp 0.04 :dur-buf note-dur-b :coef-b coef-b :decay 90 :mix-rate 0.3))
   (ctl puck :decay 90 :amp 0.04)
-  )
 
-(pattern! coef-b [0.1])
+  (ctl puck :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :release 0.2 :attack 0.03)
+  (ctl puck :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :release 0.9 :attack 0.9)
+
+  ;; (n-overtime! puck :release 2 0.2 0.01)
+)
+
+(pattern! coef-b (repeat (* 3 4 6) [0.2]) [0.1 0.1 0.1 0.1])
 
 (pattern! coef-b
-          (repeat 6 [0.5 0.5 0.5 0.5])
+          (repeat 6 [0.6 0.6 0.6 0.6])
           (repeat 6 [0.4 0.4 0.4 0.4])
-          (repeat 6 [0.3 0.3 0.3 0.2])
+          (repeat 6 [0.5 0.5 0.5 0.4])
           (repeat 6 [0.2 0.2 0.2 0.1]))
 
 (pattern! note-dur-b [4 4 4 4 4 2 2 2 2 2 1 1 1])
@@ -72,19 +79,19 @@
           (repeat 2 [1 1 1 1])
           (repeat 4 [1/12 1/12 1 1/12]))
 
-(pattern! note-b (concat (repeat 16  (degrees [1 2 3] :minor :F3))
-                         (repeat 8   (degrees [1 2 4] :minor :F3))
-                         (repeat 16  (degrees [3 3 5] :minor :F3))
-                         (repeat 8   (degrees [1 3 5] :minor :F3))
-                         (repeat 16  (degrees [5 4 7] :minor :F3))))
+(pattern! note-b (concat (repeat 16  (degrees [1 2 3] :major :F3))
+                         (repeat 8   (degrees [1 2 4] :major :F3))
+                         (repeat 16  (degrees [3 3 5] :major :F3))
+                         (repeat 8   (degrees [1 3 5] :major :F3))
+                         (repeat 16  (degrees [5 4 7] :major :F3))))
 
-(pattern! note-b (map #(- % 0)
+(pattern! note-b (map #(+ % 0)
                       (flatten (concat
-                                (repeat 16  (degrees [1 3 1] :minor :F3))
-                                (repeat 8   (degrees [4 3 4] :minor :F3))
-                                (repeat 16  (degrees [1 3 1] :minor :F3))
-                                (repeat 8   (degrees [4 3 4] :minor :F3))
-                                (repeat 16  (degrees [1 3 1] :minor :F3))))))
+                                (repeat 16  (degrees [1 3 1] :major :F3))
+                                (repeat 8   (degrees [4 3 4] :major :F3))
+                                (repeat 16  (degrees [1 3 1] :major :F3))
+                                (repeat 8   (degrees [4 3 4] :major :F3))
+                                (repeat 16  (degrees [1 3 1] :major :F3))))))
 
 (pattern! note1-dur-b
           [1/2 1/2 1/12 1/12]
@@ -123,12 +130,6 @@
           (repeat 8 (degrees [6 0 0] :major :F4))
           ;;          (repeat 8 (degrees [1 3 1] :major :F3))
           )
-
-
-
-(defonce coef2-b (buffer 128))
-(pattern! coef2-b 0.8)
-(def puck (plucked-string :notes-buf note-b :amp 0.2 :dur-buf note1-dur-b :coef-b coef2-b :decay 0.001 :mix-rate 1.0) )
 
 (comment
   (fadeout puck)
@@ -197,6 +198,7 @@
 (ctl grumble :room-rate 1 :mix-rate 0.8 :amt 0.3 :attack 0.002 :decay 0.001 :amp 0.0)
 (ctl grumble :amt 0.6 :attack 0.1 :decay 0.8 :mix-rate 0.5)
 (fadein grumble 0.1 0.01)
+
 
 (do
   (defonce tonal-notes-b (buffer 256))
@@ -308,31 +310,7 @@
 
   (kill tonal)
 
-  (def tone (tonal :amp 0.6 :notes-buf tonal-notes-b :reverb-buf tonal-reverb-b :rev-time 0 :room-rate 0 :dur-buf tonal-dur-b))
-
-(comment
-  (recording-start "~/Desktop/pop7.wav")
-  (recording-stop)
-  (stop)
-  )
-
-;;(fadeout-master)
-(echoey-buf one-moment-please-s :amp 0.1)
-(echoey-buf beep-s :amp 0.01)
-(echoey-buf goodbye-s :amp 0.2)
-(spacy beep-s)
-
-;;(on-beat-trigger 192 #(do (echoey-buf one-moment-please-s :amp 0.02)))
-;;(on-beat-trigger 96 #(do (echoey-buf afraid-s :amp 0.009)))
-;;(remove-all-beat-triggers)
-
-;;(on-beat-trigger 128 #(do (echoey-buf (dirt :arp 0) :amp 0.09)))
-;;(on-beat-trigger 32  #(do (echoey-buf (dirt :moog 7) :amp 0.09)))
-;;(on-beat-trigger 24  #(do (echoey-buf (dirt :wind 0) :amp 0.1)))
-
-;;(on-beat-trigger 128 #(do (echoey-buf (dirt :crows 1) :amp 0.19)))
-
-;;(remove-all-beat-triggers)
+  (def tone (tonal :amp 0.6 :notes-buf tonal-notes-b :reverb-buf tonal-reverb-b :rev-time 0 :room-rate 0 :dur-buf tonal-dur-b)))
 
 (do
   (definst sharp-twang [notes-buf 0 amp 1
@@ -441,12 +419,23 @@
             )
 
 
-  (pattern! twang-attack-buf  [0.08 0.08 0.1 0.08 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3])
+  (pattern! twang-release-buf [0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.1 0.9 2.0 0.5 0.5 ])
+  (pattern! twang-attack-buf  [0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.1 0.5 0.3 0.5 0.5 ])
+  (pattern! twang-dur-buf     [1 1 1 1 1 1 1 1 1/2 2   1 1 ])
+  (pattern! twang-amp-buf     [1 1 1 1 1 1 1 1 0.8 0.9 1 1 ])
+
+
+  (pattern! twang-amp-buf      [1])
+  (pattern! twang-attack-buf   [0.3])
+  (pattern! twang-release-buf  [1.0])
+  (pattern! twang-dur-buf      [3])
+  (pattern! twang-amp-buf      [1])
+
   (pattern! twang-notes-buf
-            [0 0 0] (degrees [1] :major :F4) [0 0 0 0 0 0 0 0]
-            [0 0 0] (degrees [3] :major :F4) [0 0 0 0 0 0 0 0]
-            [0 0 0] (degrees [3] :major :F4) [0 0 0 0 0 0 0 0]
-            [0 0 0] (degrees [5] :major :F4) [0 0 0 0 0 0 0 0])
+            [0 0 0 0 0 0 0 0] (degrees [5] :major :F3)  (degrees [3] :major :F4) (degrees [3] :major :F4) [0]
+            [0 0 0 0 0 0 0 0] (degrees [3] :major :F3)  (degrees [1] :major :F4) (degrees [1] :major :F4) [0]
+            [0 0 0 0 0 0 0 0] (degrees [7] :major :F3)  (degrees [5] :major :F4) (degrees [5] :major :F4) [0]
+            [0 0 0 0 0 0 0 0] (degrees [8] :major :F3)  (degrees [7] :major :F4) (degrees [7] :major :F4) [0])
 
   (comment
     (pattern! twang-notes-buf
@@ -477,7 +466,7 @@
   (kill sawer)
   (defonce sawer-notes-buf (buffer 256))
 
-  (sawer :notes-buf sawer-notes-buf :amp 0.2)
+  (def undertone (sawer :notes-buf sawer-notes-buf :amp 0.19))
 
   (pattern! sawer-notes-buf
             [0 0 0 0 0 0 0] (degrees [3] :major :F4) [0 0 0 0]
@@ -522,7 +511,7 @@
       ))
 
   (kill wow)
-  (def wow-synth (wow :amp 0.01)))
+  (def wow-synth (wow :amp 0.4)))
 
 (do
   (definst slobber [amp 1
@@ -572,15 +561,42 @@
 )
 
 (comment
+
   (fx/fx-distortion-tubescreamer)
-  (fadeout pluck)
+
+  (fadeout puck)
+  (fadeout tone)
+  (fadeout grumble)
+  (fadeout undertone)
+
   (fadeout-master)
 
-  (recording-start "~/Desktop/pop.wav")
+  (fx/fx-chorus)
+  (fx/fx-reverb)
+
+  (recording-start "~/Desktop/pop2.wav")
   (recording-stop)
   (stop)
   (remove-all-beat-triggers)
   )
+
+;;(fadeout-master)
+;;(echoey-buf one-moment-please-s :amp 0.1)
+;;(echoey-buf beep-s :amp 0.01)
+:;(echoey-buf goodbye-s :amp 0.2)
+;;(spacy beep-s)
+
+;;(on-beat-trigger 192 #(do (echoey-buf one-moment-please-s :amp 0.02)))
+;;(on-beat-trigger 96 #(do (echoey-buf afraid-s :amp 0.009)))
+;;(remove-all-beat-triggers)
+
+;;(on-beat-trigger 128 #(do (echoey-buf (dirt :arp 0) :amp 0.09)))
+;;(on-beat-trigger 32  #(do (echoey-buf (dirt :moog 7) :amp 0.09)))
+;;(on-beat-trigger 48  #(do (echoey-buf (dirt :wind 0) :amp 0.1)))
+
+;;(on-beat-trigger 128 #(do (echoey-buf (dirt :crows 1) :amp 0.19)))
+
+;;(remove-all-beat-triggers)
 
 (stop)
 (remove-all-beat-triggers)
