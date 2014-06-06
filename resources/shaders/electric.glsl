@@ -340,7 +340,6 @@ vec4 generateSpaceLights(vec2 uv1){
 
   smoothedVolume += (iOvertoneVolume  - smoothedVolume) * 0.1;
 
-  //float inc = smoothedVolume / float(STEPS);
   float inc = smoothedVolume / float(STEPS);
   if (iOvertoneVolume<=0.01){
     inc = 0;
@@ -353,9 +352,6 @@ vec4 generateSpaceLights(vec2 uv1){
 
   for(int i = 0; i < STEPS; i ++){
       vec3 p = ray * 0.1;
-
-      // do you like cubes?
-      // p = floor(ray * 20.0) / 20.0;
 
       for(int i = 0; i < 14; i ++){
         p = abs(p) / dot(p, p) * 2.0 - 1.0;
