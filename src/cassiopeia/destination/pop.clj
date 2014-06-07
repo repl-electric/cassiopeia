@@ -370,6 +370,27 @@
             (degrees [5 7 6 0 5 0 5 3] :major :F4) [0 0 0 0]
             )
 
+  (pattern! twang-notes-buf
+            (degrees [3 0 0 3 0 0   3 3 3 3 3 3] :major :F3)
+            (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
+            (degrees [1 0 0 1 0 0   1 0 0 1 0 0] :major :F3)
+            (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
+
+            (degrees [3 0 0 3 0 0   3 0 0 3 0 0] :major :F3)
+            (degrees [5 0 0 5 0 0   5 0 5 5 0 0] :major :F3)
+            (degrees [3 0 0 3 0 0   3 0 0 3 0 0] :major :F3)
+            (degrees [6 0 0 6 0 0   6 6 6 6 6 6] :major :F3)
+
+            (degrees [1 0 0 1 0 0   1 1 1 1 1 1] :major :C4)
+            (degrees [4 0 0 4 0 0   4 4 4 4 4 4] :major :C4)
+            (degrees [1 0 0 1 0 0   1 1 1 1 1 1] :major :C4)
+            (degrees [4 0 0 4 0 0   4 4 4 4 4 4] :major :C4)
+
+            (degrees [3 0 0 3 0 0   3 3 3 3 3 3] :major :F4)
+            (degrees [5 0 0 5 0 0   5 0 0 5 0 0] :major :F4)
+            (degrees [3 0 0 3 0 0   3 0 0 3 0 0] :major :F4)
+            (degrees [6 0 0 6 0 0   6 6 6 6 6 6] :major :F4)
+            )
   (pattern! twang-notes-buf (degrees [5 7 5 7] :major :F4) [0 0 0 0 0 0 0 0])
 
   (pattern! twang-notes-buf (degrees [7] :major :F4) [0 0 0 0])
@@ -481,7 +502,7 @@
             )
   )
 
-;;(ctl sawer :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :amp 0.2)
+;;(ctl sawer :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :amp 0.19)
 
 (do
   (definst zip-zop [amp 1]
