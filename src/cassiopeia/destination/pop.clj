@@ -154,11 +154,11 @@
           [0 0 0 0 0 0 0 0]
           [1 0 0 0 0 0 0 0])
 
-(pattern! effects2-seq-buf [1])
+(pattern! effects2-seq-buf [1 0 0 0 0 0  0 0 0 0 0 0])
 
 
 (def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.04 :num-steps 16 :buf bell-s) (range 0 16))))
-(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.05 :num-steps 16 :buf (buffer-mix-to-mono deep-bass-kick-s)) (range 0 16))))
+(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.05 :num-steps 16 :buf (buffer-mix-to-mono deep-bass-kick-s)) (range 0 3))))
 
 (def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.04 :num-steps 8 :buf beep-s) (range 0 16))))
 
@@ -361,7 +361,7 @@
                             :amp-buf twang-amp-buf))
 
   ;;(ctl sharp-t :overtones 1.5 :amp 4)
-  ;;(ctl sharp-t :overtones 1.5 :amp 6 :attack 0.01 :release 0.01 :decay 0.01 :sustain 0.01)
+  ;;(ctl sharp-t :overtones 0.01 :amp 3 :decay 0.01 :sustain 0.01)
 
   (pattern! twang-release-buf [0.8  0.8   0.8   4   4   4   4   4   4   4   4   4   4])
   (pattern! twang-attack-buf  [0.08 0.08 0.08 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3])
@@ -421,6 +421,22 @@
           )
 
 
+(pattern! twang-notes-buf
+          (degrees [3 1 1 3 1 1   1 0 0 1 0 0] :major :F3)
+          (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
+          (degrees [1 0 0 1 0 0   1 0 0 1 0 0] :major :A3)
+          (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3))
+
+
+
+
+
+
+
+
+
+
+
   (pattern! twang-notes-buf
              (degrees [3 1 1 3 1 1   1 0 0 1 0 0] :major :F4)
              (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
@@ -437,31 +453,31 @@
              (degrees [1 3 3 1 3 3   1 5 5 1 5 5] :major :C4)
              (degrees [4 3 3 4 3 3   4 5 5 4 5 5] :major :C4)
 
-             (degrees [3 0 0 3 0 0   3 1 1 3 1 1] :major :F3)
+             (degrees [3 0 0 3 0 0   3 1 1 3 1 1] :major :F4)
              (degrees [5 0 0 5 0 0   5 0 0 5 0 0] :major :F4)
-             (degrees [3 0 0 3 0 0   3 0 0 3 0 0] :major :F3)
+             (degrees [3 0 0 3 0 0   3 0 0 3 0 0] :major :F4)
              (degrees [6 0 0 6 0 0   6 0 0 6 0 0] :major :F4)
             ;;---------------------------------------------
 
-            ;;  (degrees [3 1 1 3 1 1   1 0 0 1 0 0] :major :F4)
-            ;;  (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
-            ;;  (degrees [1 0 0 1 0 0   1 0 0 1 0 0] :major :F3)
-            ;;  (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
+              (degrees [3 1 1 3 1 1   1 0 0 1 0 0] :major :F4)
+              (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
+              (degrees [1 0 0 1 0 0   1 0 0 1 0 0] :major :F3)
+              (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
 
-            ;;  (degrees [3 1 1 3 1 1   4 1 1 4 1 1] :major :F3)
-            ;;  (degrees [5 3 3 5 3 3   5 3 3 5 3 3] :major :F3)
-            ;;  (degrees [3 1 1 3 1 1   3 1 1 3 1 1] :major :F4)
-            ;;  (degrees [6 3 3 6 3 3   6 5 5 6 5 5] :major :F3)
+              (degrees [3 1 1 3 1 1   4 1 1 4 1 1] :major :F3)
+              (degrees [5 3 3 5 3 3   5 3 3 5 3 3] :major :F3)
+              (degrees [3 1 1 3 1 1   3 1 1 3 1 1] :major :F4)
+              (degrees [6 3 3 6 3 3   6 5 5 6 5 5] :major :F3)
 
-            ;;  (degrees [1 3 3 1 3 3   1 5 5 1 5 5] :major :C4)
-            ;;  (degrees [4 1 1 4 1 1   4 1 1 4 1 1] :major :C4)
-            ;;  (degrees [1 3 3 1 3 3   1 5 5 1 5 5] :major :C4)
-            ;;  (degrees [4 3 3 4 3 3   4 5 5 4 5 5] :major :C4)
+              (degrees [1 3 3 1 3 3   1 5 5 1 5 5] :major :C4)
+              (degrees [4 1 1 4 1 1   4 1 1 4 1 1] :major :C4)
+              (degrees [1 3 3 1 3 3   1 5 5 1 5 5] :major :C4)
+              (degrees [4 3 3 4 3 3   4 5 5 4 5 5] :major :C4)
 
-            ;;  (degrees [3 0 0 3 0 0   3 1 1 3 1 1] :major :F4)
-            ;;  (degrees [5 0 0 5 0 0   5 0 0 5 0 0] :major :F4)
-            ;; (degrees [3 0 0 3 0 0   3 0 0 3 0 0] :major :F4)
-            ;;  (degrees [7 5 5 7 5 5   7 5 5 7 5 5] :major :F4)
+              (degrees [3 0 0 3 0 0   3 1 1 3 1 1] :major :F4)
+              (degrees [5 0 0 5 0 0   5 0 0 5 0 0] :major :F4)
+              (degrees [3 0 0 3 0 0   3 0 0 3 0 0] :major :F4)
+              (degrees [7 5 5 7 5 5   7 5 5 7 5 5] :major :F4)
              )
 
   (pattern! twang-notes-buf (degrees [5 7 5 7] :major :F4) [0 0 0 0 0 0 0 0])
@@ -484,7 +500,7 @@
 
   (pattern! twang-release2-buf [4])
   (pattern! twang-attack2-buf  [0.01])
-  (pattern! twang-dur2-buf [5])
+  (pattern! twang-dur2-buf [3])
   (pattern! twang-amp2-buf (repeat 3 [0.1]))
 
   (pattern! twang-notes2-buf
@@ -520,10 +536,10 @@
 
 
   (pattern! twang-amp-buf      [1])
-  (pattern! twang-attack-buf   [0.3])
-  (pattern! twang-release-buf  [1.0])
-  (pattern! twang-dur-buf      [3])
-  (pattern! twang-amp-buf      [1])
+  (pattern! twang-attack-buf   [2])
+  (pattern! twang-release-buf  [2])
+  (pattern! twang-dur-buf      [0.8])
+  (pattern! twang-amp-buf      [0.2])
 
   (pattern! twang-notes-buf
             [0 0 0 0 0 0 0 0] (degrees [5] :major :F3)  (degrees [3] :major :F4) (degrees [3] :major :F4) [0]
@@ -544,24 +560,59 @@
                   notes-buf 0 amp 1
                   beat-trg-bus (:beat time/beat-2th)
                   beat-bus (:count time/beat-2th)
+                  dur-buf 0
                   attack 0.2]
 
     (let [cnt (in:kr beat-bus)
           trg (in:kr beat-trg-bus)
           note (buf-rd:kr 1 notes-buf cnt)
+          dur (buf-rd:kr 1 dur-buf cnt)
           freq (midicps note)
           gate-trig (and (> note 0) trg)
 
           src (bpf (lf-tri freq) 2000)
           src (comb-l src 2 2 10)
           src (g-verb src :roomsize 200 :revtime 120 :damping 0.5)
-          e (env-gen (adsr :attack attack :decay 2 :sustain 2 :release 2) :gate gate-trig)]
-      (pan2 (* e amp src))))
+          e (env-gen (adsr :attack attack :decay 2 :sustain 2 :release 2) :gate gate-trig :time-scale dur)]
+      (pan2 (* e amp src)) ))
 
   (kill sawer)
-  (defonce sawer-notes-buf (buffer 256))
 
-  (def undertone (sawer :notes-buf sawer-notes-buf :amp 0.19))
+  (defonce sawer-notes-buf (buffer 256))
+  (defonce sawer-dur-buf (buffer 256))
+
+  (def undertone (sawer :notes-buf sawer-notes-buf :amp 0.19 :dur-buf sawer-dur-buf))
+
+  (pattern! sawer-notes-buf
+            (degrees [0 0 0 0 0 3 1 5 0 0 0 0] :major :F4)
+            (degrees [0 0 0 0 0 1 5 7 0 0 0 0] :major :F4)
+
+            (degrees [0 0 0 0 0 3 1 6 0 0 0 0] :major :F4)
+            (degrees [0 0 0 0 0 1 3 7 0 0 0 0] :major :F4)
+
+            (degrees [0 0 0 0 0 3 1 5 0 0 0 0] :major :F3)
+            (degrees [0 0 0 0 0 1 5 7 0 0 0 0] :major :F3)
+
+            (degrees [0 0 0 0 0 3 1 6 0 0 0 0] :major :F3)
+            (degrees [0 0 0 0 0 1 3 7 0 0 0 0] :major :F3)
+
+            (degrees [0 0 0 0 0 3 1 5 0 0 0 0] :major :F3)
+            (degrees [0 0 0 0 0 1 5 7 0 0 0 0] :major :F3)
+
+            (degrees [0 0 0 0 0 3 1 6 0 0 0 0] :major :F3)
+            (degrees [0 0 0 0 0 1 3 8 0 0 0 0] :major :F3)
+            )
+
+
+  (pattern! sawer-notes-buf
+            (degrees [0 0 0 0 0 3 1 5 0 0 0 0] :major :F3)
+            (degrees [0 0 0 0 0 1 5 7 0 0 0 0] :major :F3)
+
+            (degrees [0 0 0 0 0 3 1 6 0 0 0 0] :major :F3)
+            (degrees [0 0 0 0 0 1 3 7 0 0 0 0] :major :F3)
+            )
+
+  (pattern! sawer-dur-buf [0.9 0.5 0.7 0.8 0.9 1 3 8 0.9 0.8 0.5 0.5])
 
   (pattern! sawer-notes-buf
             [0 0 0 0 0 0 0] (degrees [3] :major :F4) [0 0 0 0]
