@@ -6,7 +6,8 @@
   (:use cassiopeia.engine.buffers)
   (:use cassiopeia.dirt)
   (:require [cassiopeia.engine.timing :as time]
-            [clojure.math.numeric-tower :as math]))
+            [clojure.math.numeric-tower :as math]
+            [overtone.studio.fx :as fx]))
 
 (ctl time/root-s :rate 8.)
 
@@ -54,10 +55,11 @@
   (kill plucked-string)
 
   (def puck (plucked-string :notes-buf note-b :amp 0.04 :dur-buf note-dur-b :coef-b coef-b :decay 90 :mix-rate 0.3))
-  (ctl puck :decay 90 :amp 0.04)
+;;  (ctl puck :notes-buf twang-notes-buf)
+  (ctl puck :decay 90 :amp 0.02)
 
-  (ctl puck :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :release 0.2 :attack 0.03)
-  (ctl puck :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :release 0.9 :attack 0.9)
+  (ctl puck :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :release 0.2 :attack 0.03 :amp 0.04)
+  (ctl puck :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :release 0.9 :attack 0.9 :amp 0.02)
 
   ;; (n-overtime! puck :release 2 0.2 0.01)
 )
@@ -152,16 +154,17 @@
           [0 0 0 0 0 0 0 0]
           [1 0 0 0 0 0 0 0])
 
-(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.3 :num-steps 16 :buf (buffer-mix-to-mono deep-bass-kick-s)) (range 0 16))))
-(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.04 :num-steps 16 :buf bell-s) (range 0 16))))
+(pattern! effects2-seq-buf [1])
 
+
+(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.04 :num-steps 16 :buf bell-s) (range 0 16))))
+(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.05 :num-steps 16 :buf (buffer-mix-to-mono deep-bass-kick-s)) (range 0 16))))
+
+(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.04 :num-steps 8 :buf beep-s) (range 0 16))))
 
 (def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.8 :num-steps 8 :buf snare-ghost-s) (range 0 16))))
-
 (def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.02 :num-steps 8 :buf (buffer-mix-to-mono clap2-s)) (range 0 16))))
 (def two-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.02 :num-steps 8 :buf (buffer-mix-to-mono clap-s)) (range 0 16))))
-
-(def bass-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects2-seq-buf :amp 0.2 :num-steps 8 :buf beep-s) (range 0 48))))
 
 (def two-kicks (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.03 :num-steps 8 :buf (buffer-mix-to-mono clap-s)) (range 0 16))))
 
@@ -196,9 +199,8 @@
                         :beat-bus (:count time/beat-1th)
                         :beat-trg-bus (:beat time/beat-1th) :attack 0.9)))
 (ctl grumble :room-rate 1 :mix-rate 0.8 :amt 0.3 :attack 0.002 :decay 0.001 :amp 0.0)
-(ctl grumble :amt 0.6 :attack 0.1 :decay 0.8 :mix-rate 0.5)
+(ctl grumble :amt 0.6 :attack 0.1 :decay 0.8 :mix-rate 0.5 :amp 0.)
 (fadein grumble 0.1 0.01)
-
 
 (do
   (defonce tonal-notes-b (buffer 256))
@@ -275,7 +277,6 @@
           ]
       (out 0 (pan2 (* e (* amp b-amp) src)) )))
 
-
     (kill tonal)
 
   (defonce tonal-notes2-b (buffer 256))
@@ -310,7 +311,9 @@
 
   (kill tonal)
 
-  (def tone (tonal :amp 0.6 :notes-buf tonal-notes-b :reverb-buf tonal-reverb-b :rev-time 0 :room-rate 0 :dur-buf tonal-dur-b)))
+  (def tone (tonal :amp 0.6 :notes-buf tonal-notes-b :reverb-buf tonal-reverb-b :rev-time 0 :room-rate 0 :dur-buf tonal-dur-b))
+  )
+
 
 (do
   (definst sharp-twang [notes-buf 0 amp 1
@@ -321,6 +324,8 @@
                         release-buf 0
                         amp-buf 0
                         overtones 1.5
+                        decay 3
+                        sustain 1
                         ]
     (let [cnt (in:kr beat-bus)
           trg (in:kr beat-trg-bus)
@@ -336,12 +341,11 @@
           src  (blip freq (+ overtones (* 0.5 (sin-osc:kr 20))))
           o1 (comb-l:ar (/ (tanh src) 8) 1 1 8)
           o2 (comb-l:ar (/ (tanh src) 8) 1 1 8)
-          o1 (free-verb o1)
-          o2 (free-verb o2)
-
-          e (env-gen (adsr :attack attack :release release :decay 3) :time-scale dur :gate gate-trig)
+          o1 (free-verb o1 :mix (+ 0.5 (* 0.5 (sin-osc:kr 0.5))) :room 5)
+          o2 (free-verb o2 :mix (+ 0.5 (* 0.2 (sin-osc:kr 1.0))) :room 5)
+          e (env-gen (adsr :attack attack :release release :decay decay :sustain 0.1) :time-scale dur :gate gate-trig)
           ]
-      (* e (* amp-rate amp) (pan2 [o1 o2] (sin-osc:kr 5))))
+      (* e (* amp-rate amp) [o1 o2]))
     )
 
   (kill sharp-twang)
@@ -356,6 +360,9 @@
                             :attack-buf twang-attack-buf :release-buf twang-release-buf
                             :amp-buf twang-amp-buf))
 
+  ;;(ctl sharp-t :overtones 1.5 :amp 4)
+  ;;(ctl sharp-t :overtones 1.5 :amp 6 :attack 0.01 :release 0.01 :decay 0.01 :sustain 0.01)
+
   (pattern! twang-release-buf [0.8  0.8   0.8   4   4   4   4   4   4   4   4   4   4])
   (pattern! twang-attack-buf  [0.08 0.08 0.08 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3 0.3])
   (pattern! twang-dur-buf [2 2 2 1/2 1/2 1/2 1 1 1 1 1 1/2 1/2])
@@ -363,39 +370,104 @@
             (repeat 3 [1 1 1 1/2 1/2 1/2 1 1 1 1 1 1/2])
             [1.2 1.2 1.2 1/2 1/2 1/2 1 1 1 1 1 1/2])
 
-  (pattern! twang-notes2-buf
-            (degrees [1 5 3 0 3 0 3 2] :major :F4) [0 0 0 0]
-            (degrees [3 5 4 0 4 0 4 3] :major :F4) [0 0 0 0]
+  (pattern! twang-notes-buf
+            (degrees [1 5 3 0 3 0 3 2] :major :F3) [0 0 0 0]
+            (degrees [3 5 4 0 4 0 4 3] :major :F3) [0 0 0 0]
             (degrees [5 7 5 0 5 0 5 3] :major :F4) [0 0 0 0]
             (degrees [5 7 6 0 5 0 5 3] :major :F4) [0 0 0 0]
             )
 
+
+  (chord-degree :i (note-at-octave :F 3) :major 3)
+    ;;  72 76 79 82
+;;  (stop)
+  (degrees [3] :major :F3)
+
+
+  (defonce twang2-release-buf (buffer 256))
+  (defonce twang2-attack-buf (buffer 256))
+  (defonce twang3-note-buf (buffer 256))
+
+  (pattern! twang2-release-buf [2.0])
+  (pattern! twang2-attack-buf  [0.8])
+
+  (def background-sharp-t (sharp-twang :notes-buf twang3-note-buf :amp 2 :dur-buf twang-dur-buf
+                                       :attack-buf twang2-attack-buf :release-buf twang2-release-buf
+                                       :amp-buf twang-amp-buf))
+  (kill sharp-twang)
+
+;;(ctl background-sharp-t :overtones 0.5 :amp 4 :attack 1.0 :release 2.0 :decay 2.0 :sustain 2.0)
+(pattern! twang3-note-buf
+          (repeat 8 (degrees [3] :major :F3)) [0 0]
+          (repeat 8 (degrees [6] :major :F3)) [0 0]
+          (repeat 8 (degrees [3] :major :F3)) [0 0]
+          (repeat 8 (degrees [6] :major :F3)) [0 0]
+
+          (repeat 8 (degrees [5] :major :F3)) [0 0]
+          (repeat 8 (degrees [6] :major :F3)) [0 0]
+          (repeat 8 (degrees [5] :major :F3)) [0 0]
+          (repeat 8 (degrees [8] :major :F3)) [0 0]
+
+          (repeat 8 (degrees [3] :major :F3)) [0 0]
+          (repeat 8 (degrees [6] :major :F3)) [0 0]
+          (repeat 8 (degrees [3] :major :F3)) [0 0]
+          (repeat 8 (degrees [6] :major :F3)) [0 0]
+
+          (repeat 8 (degrees [5] :major :F3)) [0 0]
+          (repeat 8 (degrees [7] :major :F3)) [0 0]
+          (repeat 8 (degrees [5] :major :F3)) [0 0]
+          (repeat 8 (degrees [8] :major :F3)) [0 0]
+          ;;(repeat 8 (degrees [1 3 1] :major :F3))
+          )
+
+
   (pattern! twang-notes-buf
-            (degrees [3 0 0 3 0 0   3 3 3 3 3 3] :major :F3)
-            (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
-            (degrees [1 0 0 1 0 0   1 0 0 1 0 0] :major :F3)
-            (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
+             (degrees [3 1 1 3 1 1   1 0 0 1 0 0] :major :F4)
+             (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
+             (degrees [1 0 0 1 0 0   1 0 0 1 0 0] :major :A3)
+             (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
 
-            (degrees [3 0 0 3 0 0   3 0 0 3 0 0] :major :F3)
-            (degrees [5 0 0 5 0 0   5 0 5 5 0 0] :major :F3)
-            (degrees [3 0 0 3 0 0   3 0 0 3 0 0] :major :F3)
-            (degrees [6 0 0 6 0 0   6 6 6 6 6 6] :major :F3)
+             (degrees [3 1 1 3 1 1   4 1 1 4 1 1] :major :F3)
+             (degrees [5 3 3 5 3 3   5 3 3 5 3 3] :major :F3)
+             (degrees [3 1 1 3 1 1   3 1 1 3 1 1] :major :F4)
+             (degrees [6 3 3 6 3 3   6 5 5 6 5 5] :major :F3)
 
-            (degrees [1 0 0 1 0 0   1 1 1 1 1 1] :major :C4)
-            (degrees [4 0 0 4 0 0   4 4 4 4 4 4] :major :C4)
-            (degrees [1 0 0 1 0 0   1 1 1 1 1 1] :major :C4)
-            (degrees [4 0 0 4 0 0   4 4 4 4 4 4] :major :C4)
+             (degrees [1 3 3 1 3 3   1 5 5 1 5 5] :major :C4)
+             (degrees [4 1 1 4 1 1   4 1 1 4 1 1] :major :C4)
+             (degrees [1 3 3 1 3 3   1 5 5 1 5 5] :major :C4)
+             (degrees [4 3 3 4 3 3   4 5 5 4 5 5] :major :C4)
 
-            (degrees [3 0 0 3 0 0   3 3 3 3 3 3] :major :F4)
-            (degrees [5 0 0 5 0 0   5 0 0 5 0 0] :major :F4)
-            (degrees [3 0 0 3 0 0   3 0 0 3 0 0] :major :F4)
-            (degrees [6 0 0 6 0 0   6 6 6 6 6 6] :major :F4)
-            )
+             (degrees [3 0 0 3 0 0   3 1 1 3 1 1] :major :F3)
+             (degrees [5 0 0 5 0 0   5 0 0 5 0 0] :major :F4)
+             (degrees [3 0 0 3 0 0   3 0 0 3 0 0] :major :F3)
+             (degrees [6 0 0 6 0 0   6 0 0 6 0 0] :major :F4)
+            ;;---------------------------------------------
+
+            ;;  (degrees [3 1 1 3 1 1   1 0 0 1 0 0] :major :F4)
+            ;;  (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
+            ;;  (degrees [1 0 0 1 0 0   1 0 0 1 0 0] :major :F3)
+            ;;  (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
+
+            ;;  (degrees [3 1 1 3 1 1   4 1 1 4 1 1] :major :F3)
+            ;;  (degrees [5 3 3 5 3 3   5 3 3 5 3 3] :major :F3)
+            ;;  (degrees [3 1 1 3 1 1   3 1 1 3 1 1] :major :F4)
+            ;;  (degrees [6 3 3 6 3 3   6 5 5 6 5 5] :major :F3)
+
+            ;;  (degrees [1 3 3 1 3 3   1 5 5 1 5 5] :major :C4)
+            ;;  (degrees [4 1 1 4 1 1   4 1 1 4 1 1] :major :C4)
+            ;;  (degrees [1 3 3 1 3 3   1 5 5 1 5 5] :major :C4)
+            ;;  (degrees [4 3 3 4 3 3   4 5 5 4 5 5] :major :C4)
+
+            ;;  (degrees [3 0 0 3 0 0   3 1 1 3 1 1] :major :F4)
+            ;;  (degrees [5 0 0 5 0 0   5 0 0 5 0 0] :major :F4)
+            ;; (degrees [3 0 0 3 0 0   3 0 0 3 0 0] :major :F4)
+            ;;  (degrees [7 5 5 7 5 5   7 5 5 7 5 5] :major :F4)
+             )
+
   (pattern! twang-notes-buf (degrees [5 7 5 7] :major :F4) [0 0 0 0 0 0 0 0])
-
   (pattern! twang-notes-buf (degrees [7] :major :F4) [0 0 0 0])
 
-  (ctl sharp-t :notes-buf note-b)
+  ;;(ctl sharp-t :notes-buf note-b)
 
   (defonce twang-notes2-buf (buffer 256))
   (defonce twang-dur2-buf (buffer 256))
@@ -404,6 +476,7 @@
   (defonce twang-amp2-buf (buffer 256))
 
   (kill sharp-twang)
+;;  (stop)
 
   (sharp-twang :notes-buf twang-notes2-buf :amp 5 :dur-buf twang-dur2-buf
                :attack-buf twang-attack2-buf :release-buf twang-release2-buf
@@ -464,13 +537,14 @@
   )
 
 
-(ctl (foundation-output-group) :master-volume 2)
+(ctl (foundation-output-group) :master-volume 3)
 
 (do
   (definst sawer [freq 300
                   notes-buf 0 amp 1
                   beat-trg-bus (:beat time/beat-2th)
-                  beat-bus (:count time/beat-2th)]
+                  beat-bus (:count time/beat-2th)
+                  attack 0.2]
 
     (let [cnt (in:kr beat-bus)
           trg (in:kr beat-trg-bus)
@@ -481,7 +555,7 @@
           src (bpf (lf-tri freq) 2000)
           src (comb-l src 2 2 10)
           src (g-verb src :roomsize 200 :revtime 120 :damping 0.5)
-          e (env-gen (adsr :attack 0.2 :decay 2 :sustain 2 :release 2) :gate gate-trig)]
+          e (env-gen (adsr :attack attack :decay 2 :sustain 2 :release 2) :gate gate-trig)]
       (pan2 (* e amp src))))
 
   (kill sawer)
@@ -502,7 +576,7 @@
             )
   )
 
-;;(ctl sawer :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :amp 0.19)
+;;(ctl undertone :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :amp 0.10 :attack 0.4)
 
 (do
   (definst zip-zop [amp 1]
@@ -556,9 +630,11 @@
 )
 
 (do
+
+  (defonce twang-but (buffer 256))
   (definst echoey-twang [amp 1
-                         beat-trg-bus (:beat time/beat-1th)
-                         beat-bus      (:count time/beat-1th)
+                         beat-trg-bus (:beat time/beat-16th)
+                         beat-bus      (:count time/beat-16th)
                          notes-buf 0]
     (let [trg (in:kr beat-trg-bus)
           cnt (in:kr beat-bus)
@@ -566,23 +642,21 @@
           freq (midicps note)
           gate-trg (and (> note 0) trg)
 
-          a [1 2 4 5]
           e (env-gen (adsr) :gate gate-trg)
+          a [1 2 4 5]
 
           src (lag (blip:ar a) (* 1 (+ 1 (lf-saw:ar (/ 1 (+ 2.25 a)) (/ 2 a)))))
-          src (splay:ar  (* (sin-osc:ar freq (* 99 (blip:ar 2 (sin-osc 99)))) src))
+
+          src (splay:ar (* (sin-osc:ar freq (* 99 (blip:ar 2 (sin-osc 99)))) src))
+
           src (g-verb:ar src 99 6 0.7)]
       (* e  amp src)))
 
-  (defonce echo-note-b (buffer 256))
-  (kill echoey-twang)
-
-  (echoey-twang :amp 1 :notes-buf echo-note-b)
-  (pattern! echo-note-b (degrees [8] :major :F2))
+  (echoey-twang :amp 1 :freq-buf twang-but)
+;;  (pattern! echo-note-b (degrees [8] :major :F0))
 )
 
 (comment
-
   (fx/fx-distortion-tubescreamer)
 
   (fadeout puck)
@@ -595,7 +669,7 @@
   (fx/fx-chorus)
   (fx/fx-reverb)
 
-  (recording-start "~/Desktop/pop2.wav")
+  (recording-start "~/Desktop/pop4.wav")
   (recording-stop)
   (stop)
   (remove-all-beat-triggers)
@@ -604,20 +678,18 @@
 ;;(fadeout-master)
 ;;(echoey-buf one-moment-please-s :amp 0.1)
 ;;(echoey-buf beep-s :amp 0.01)
-:;(echoey-buf goodbye-s :amp 0.2)
+;;(echoey-buf goodbye-s :amp 0.2)
 ;;(spacy beep-s)
 
-;;(on-beat-trigger 192 #(do (echoey-buf one-moment-please-s :amp 0.02)))
+;;(on-beat-trigger 192 #(do (echoey-buf one-moment-please-s :amp 0.01)))
 ;;(on-beat-trigger 96 #(do (echoey-buf afraid-s :amp 0.009)))
-;;(remove-all-beat-triggers)
+;;(on-beat-trigger 60  #(do (echoey-buf (dirt :wind 0) :amp 0.1)))
 
 ;;(on-beat-trigger 128 #(do (echoey-buf (dirt :arp 0) :amp 0.09)))
 ;;(on-beat-trigger 32  #(do (echoey-buf (dirt :moog 7) :amp 0.09)))
-;;(on-beat-trigger 48  #(do (echoey-buf (dirt :wind 0) :amp 0.1)))
-
 ;;(on-beat-trigger 128 #(do (echoey-buf (dirt :crows 1) :amp 0.19)))
 
 ;;(remove-all-beat-triggers)
-
+(kill drum-effects-g)
 (stop)
 (remove-all-beat-triggers)
