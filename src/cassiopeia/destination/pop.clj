@@ -56,7 +56,7 @@
 
   (def puck (plucked-string :notes-buf note-b :amp 0.04 :dur-buf note-dur-b :coef-b coef-b :decay 90 :mix-rate 0.3))
 ;;  (ctl puck :notes-buf twang-notes-buf)
-  (ctl puck :decay 90 :amp 0.02)
+  (ctl puck :decay 90 :amp 0.07)
 
   (ctl puck :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :release 0.2 :attack 0.03 :amp 0.04)
   (ctl puck :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :release 0.9 :attack 0.9 :amp 0.02)
@@ -199,8 +199,8 @@
                         :beat-bus (:count time/beat-1th)
                         :beat-trg-bus (:beat time/beat-1th) :attack 0.9)))
 (ctl grumble :room-rate 1 :mix-rate 0.8 :amt 0.3 :attack 0.002 :decay 0.001 :amp 0.0)
-(ctl grumble :amt 0.6 :attack 0.1 :decay 0.8 :mix-rate 0.5 :amp 0.)
-(fadein grumble 0.1 0.01)
+(ctl grumble :amt 0.6 :attack 0.1 :decay 0.8 :mix-rate 0.5 :amp 0.0)
+(fadein grumble 0.2 0.01)
 
 (do
   (defonce tonal-notes-b (buffer 256))
@@ -311,7 +311,7 @@
 
   (kill tonal)
 
-  (def tone (tonal :amp 0.6 :notes-buf tonal-notes-b :reverb-buf tonal-reverb-b :rev-time 0 :room-rate 0 :dur-buf tonal-dur-b))
+  (def tone (tonal :amp 0.8 :notes-buf tonal-notes-b :reverb-buf tonal-reverb-b :rev-time 0 :room-rate 0 :dur-buf tonal-dur-b))
   )
 
 
@@ -345,7 +345,7 @@
           o2 (free-verb o2 :mix (+ 0.5 (* 0.2 (sin-osc:kr 1.0))) :room 5)
           e (env-gen (adsr :attack attack :release release :decay decay :sustain 0.1) :time-scale dur :gate gate-trig)
           ]
-      (* e (* amp-rate amp) [o1 o2]))
+      (* e (* amp-rate (+ 3 amp)) [o1 o2]))
     )
 
   (kill sharp-twang)
@@ -356,9 +356,11 @@
   (defonce twang-release-buf (buffer 256))
   (defonce twang-amp-buf (buffer 256))
 
-  (def sharp-t (sharp-twang :notes-buf twang-notes-buf :amp 4 :dur-buf twang-dur-buf
+  (def sharp-t (sharp-twang :notes-buf twang-notes-buf :amp 0 :dur-buf twang-dur-buf
                             :attack-buf twang-attack-buf :release-buf twang-release-buf
                             :amp-buf twang-amp-buf))
+
+  (fadein sharp-t 5)
 
   ;;(ctl sharp-t :overtones 1.5 :amp 4)
   ;;(ctl sharp-t :overtones 0.01 :amp 3 :decay 0.01 :sustain 0.01)
@@ -536,10 +538,9 @@
 
 
   (pattern! twang-amp-buf      [1])
-  (pattern! twang-attack-buf   [2])
+  (pattern! twang-attack-buf   [0.1])
   (pattern! twang-release-buf  [2])
   (pattern! twang-dur-buf      [0.8])
-  (pattern! twang-amp-buf      [0.2])
 
   (pattern! twang-notes-buf
             [0 0 0 0 0 0 0 0] (degrees [5] :major :F3)  (degrees [3] :major :F4) (degrees [3] :major :F4) [0]
@@ -553,7 +554,7 @@
   )
 
 
-(ctl (foundation-output-group) :master-volume 3)
+;;(ctl (foundation-output-group) :master-volume 3)
 
 (do
   (definst sawer [freq 300
@@ -574,15 +575,16 @@
           src (comb-l src 2 2 10)
           src (g-verb src :roomsize 200 :revtime 120 :damping 0.5)
           e (env-gen (adsr :attack attack :decay 2 :sustain 2 :release 2) :gate gate-trig :time-scale dur)]
-      (pan2 (* e amp src)) ))
+      (pan2 (* e amp src))))
 
   (kill sawer)
 
   (defonce sawer-notes-buf (buffer 256))
   (defonce sawer-dur-buf (buffer 256))
 
-  (def undertone (sawer :notes-buf sawer-notes-buf :amp 0.19 :dur-buf sawer-dur-buf))
+  (def undertone (sawer :notes-buf sawer-notes-buf :amp 1.5 :dur-buf sawer-dur-buf))
 
+  (ctl undertone :amp 0.7)
   (pattern! sawer-notes-buf
             (degrees [0 0 0 0 0 3 1 5 0 0 0 0] :major :F4)
             (degrees [0 0 0 0 0 1 5 7 0 0 0 0] :major :F4)
@@ -627,7 +629,7 @@
             )
   )
 
-;;(ctl undertone :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :amp 0.10 :attack 0.4)
+;;(ctl undertone :beat-bus (:count time/beat-2th) :beat-trg-bus (:beat time/beat-2th) :amp 0.20 :attack 0.1)
 
 (do
   (definst zip-zop [amp 1]
@@ -677,7 +679,7 @@
           ]
       (pan2 (* e amp src) (line:kr -1.0 1.0 32 :action FREE))))
   (kill slobber)
-  (slobber :amp 0.05)
+  (slobber :amp 0.19)
 )
 
 (do
@@ -732,9 +734,9 @@
 ;;(echoey-buf goodbye-s :amp 0.2)
 ;;(spacy beep-s)
 
-;;(on-beat-trigger 192 #(do (echoey-buf one-moment-please-s :amp 0.01)))
-;;(on-beat-trigger 96 #(do (echoey-buf afraid-s :amp 0.009)))
-;;(on-beat-trigger 60  #(do (echoey-buf (dirt :wind 0) :amp 0.1)))
+;;(on-beat-trigger 192 #(do (echoey-buf one-moment-please-s :amp 0.03)))
+;;(on-beat-trigger 96 #(do (echoey-buf afraid-s :amp 0.03)))
+;;(on-beat-trigger 60  #(do (echoey-buf (dirt :wind 0) :amp 0.15)))
 
 ;;(on-beat-trigger 128 #(do (echoey-buf (dirt :arp 0) :amp 0.09)))
 ;;(on-beat-trigger 32  #(do (echoey-buf (dirt :moog 7) :amp 0.09)))
