@@ -396,7 +396,7 @@
   (def background-sharp-t (sharp-twang :notes-buf twang3-note-buf :amp 2 :dur-buf twang-dur-buf
                                        :attack-buf twang2-attack-buf :release-buf twang2-release-buf
                                        :amp-buf twang-amp-buf))
-  (kill sharp-twang)
+;;  (kill sharp-twang)
 
 ;;(ctl background-sharp-t :overtones 0.5 :amp 4 :attack 1.0 :release 2.0 :decay 2.0 :sustain 2.0)
 (pattern! twang3-note-buf
@@ -428,16 +428,6 @@
           (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3)
           (degrees [1 0 0 1 0 0   1 0 0 1 0 0] :major :A3)
           (degrees [4 0 0 4 0 0   4 0 0 4 0 0] :major :F3))
-
-
-
-
-
-
-
-
-
-
 
   (pattern! twang-notes-buf
              (degrees [3 1 1 3 1 1   1 0 0 1 0 0] :major :F4)
@@ -503,7 +493,7 @@
   (pattern! twang-release2-buf [4])
   (pattern! twang-attack2-buf  [0.01])
   (pattern! twang-dur2-buf [3])
-  (pattern! twang-amp2-buf (repeat 3 [0.1]))
+  (pattern! twang-amp2-buf (repeat 3 [0.2]))
 
   (pattern! twang-notes2-buf
             (repeat 1 (concat (repeat 1 (degrees [1] :major :F3)) [0 0 0 0 0 0 0]))
@@ -584,27 +574,67 @@
 
   (def undertone (sawer :notes-buf sawer-notes-buf :amp 1.5 :dur-buf sawer-dur-buf))
 
+  (map find-note-name (chord-degree :i :F3 :major))
+  53 57 60 64
+  :F3 :A3 :C4 :E4
+
+  ;;(stop)
+
   (ctl undertone :amp 0.7)
   (pattern! sawer-notes-buf
-            (degrees [0 0 0 0 0 3 1 5 0 0 0 0] :major :F4)
-            (degrees [0 0 0 0 0 1 5 7 0 0 0 0] :major :F4)
+            (degrees [1 1 1 1 1 3] :major :F4)  (degrees [1] :major :E4) (degrees [5 0 0 0 0] :major :F4)
+            (degrees [1 1 1 1 1 1] :major :F4)  (degrees [5] :major :C4) (degrees [7 0 0 0 0] :major :F4)
+            (degrees [0 0 0 0 0 3] :major :F4)  (degrees [1] :major :E4) (degrees [6 0 0 0 0] :major :F4)
+            (degrees [0 0 0 0 0 1] :major :F4)  (degrees [3] :major :F3) (degrees [7 0 0 0 0] :major :F4)
 
-            (degrees [0 0 0 0 0 3 1 6 0 0 0 0] :major :F4)
-            (degrees [0 0 0 0 0 1 3 7 0 0 0 0] :major :F4)
+            (degrees [0 0 0 0 0 3] :major :F3) (degrees [1] :major :A3) (degrees [5 0 0 0 0] :major :F3)
+            (degrees [0 0 0 0 0 1] :major :F3) (degrees [5] :major :A3) (degrees [7 0 0 0 0] :major :F3)
+            (degrees [0 0 0 0 0 3] :major :F3) (degrees [1] :major :F3) (degrees [6 0 0 0 0] :major :F3)
+            (degrees [0 0 0 0 0 1] :major :F3) (degrees [3] :major :F3) (degrees [7 0 0 0 0] :major :F3)
 
-            (degrees [0 0 0 0 0 3 1 5 0 0 0 0] :major :F3)
-            (degrees [0 0 0 0 0 1 5 7 0 0 0 0] :major :F3)
-
-            (degrees [0 0 0 0 0 3 1 6 0 0 0 0] :major :F3)
-            (degrees [0 0 0 0 0 1 3 7 0 0 0 0] :major :F3)
-
-            (degrees [0 0 0 0 0 3 1 5 0 0 0 0] :major :F3)
-            (degrees [0 0 0 0 0 1 5 7 0 0 0 0] :major :F3)
-
-            (degrees [0 0 0 0 0 3 1 6 0 0 0 0] :major :F3)
-            (degrees [0 0 0 0 0 1 3 8 0 0 0 0] :major :F3)
+            (degrees [0 0 0 0 0 3] :major :F3) (degrees [1] :major :F3) (degrees [5 0 0 0 0] :major :F3)
+            (degrees [0 0 0 0 0 1] :major :F3) (degrees [5] :major :F3) (degrees [7 0 0 0 0] :major :F3)
+            (degrees [0 0 0 0 0 3] :major :F3) (degrees [1] :major :F3) (degrees [6 0 0 0 0] :major :F3)
+            (degrees [0 0 0 0 0 1] :major :F3) (degrees [3] :major :F3) (degrees [8 0 0 0 0] :major :F3)
             )
 
+;;  (kill sawer)
+  (defonce sawer-notes2-buf (buffer 256))
+  (def undertone2 (sawer :notes-buf sawer-notes2-buf :amp 0.19 :dur-buf sawer-dur-buf  :beat-bus (:count time/beat-2th) :beat-trg-bus (:beat time/beat-2th)))
+  (ctl undertone2 :attack 0.1 :amp 0.9)
+
+  (chord-degree :ii :F4 :major)
+  65 69 72 76
+
+  (chord-degree :ii :F4 :major)
+  67 70 74 77
+
+  (chord-degree :i :E4 :major)
+  64 68 71 75
+
+  (pattern! sawer-notes2-buf
+            [0 0 0 0 72 0 0 0 0 0 0 0]
+            [0 0 0 0 72 0 0 0 0 0 0 0]
+            [0 0 0 0 65 0 0 0 0 0 0 0]
+            [0 0 0 0 65 0 0 0 0 0 0 0]
+
+            [0 0 0 0 69 0 0 0 0 0 0 0]
+            [0 0 0 0 69 0 0 0 0 0 0 0]
+            [0 0 0 0 65 0 0 0 0 0 0 0]
+            [0 0 0 0 65 0 0 0 0 0 0 0]
+
+            [0 0 0 0 69 0 0 0 0 0 0 0]
+            [0 0 0 0 69 0 0 0 0 0 0 0]
+            [0 0 0 0 65 0 0 0 0 0 0 0]
+            [0 0 0 0 65 0 0 0 0 0 0 0]
+)
+
+  (pattern! sawer-notes2-buf
+            (degrees [3 1 2] :major :F3)  (repeat 9 [0])
+            (degrees [5 3 2] :major :F3)  (repeat 9 [0])
+            (degrees [3 1 2] :major :F4)  (repeat 9 [0])
+            (degrees [5 3 7] :major :F4)  (repeat 9 [0])
+            )
 
   (pattern! sawer-notes-buf
             (degrees [0 0 0 0 0 3 1 5 0 0 0 0] :major :F3)
@@ -615,6 +645,9 @@
             )
 
   (pattern! sawer-dur-buf [0.9 0.5 0.7 0.8 0.9 1 3 8 0.9 0.8 0.5 0.5])
+  (pattern! sawer-dur-buf [1.0])
+
+  ;;(pattern! sawer-dur-buf [0.3 0.3 0.3 0.3 0.3 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 1.5 2 3 4 5])
 
   (pattern! sawer-notes-buf
             [0 0 0 0 0 0 0] (degrees [3] :major :F4) [0 0 0 0]
@@ -683,7 +716,6 @@
 )
 
 (do
-
   (defonce twang-but (buffer 256))
   (definst echoey-twang [amp 1
                          beat-trg-bus (:beat time/beat-16th)
@@ -697,13 +729,10 @@
 
           e (env-gen (adsr) :gate gate-trg)
           a [1 2 4 5]
-
           src (lag (blip:ar a) (* 1 (+ 1 (lf-saw:ar (/ 1 (+ 2.25 a)) (/ 2 a)))))
-
           src (splay:ar (* (sin-osc:ar freq (* 99 (blip:ar 2 (sin-osc 99)))) src))
-
           src (g-verb:ar src 99 6 0.7)]
-      (* e  amp src)))
+      (* e amp src)))
 
   (echoey-twang :amp 1 :freq-buf twang-but)
 ;;  (pattern! echo-note-b (degrees [8] :major :F0))
@@ -722,7 +751,7 @@
   (fx/fx-chorus)
   (fx/fx-reverb)
 
-  (recording-start "~/Desktop/pop4.wav")
+  (recording-start "~/Desktop/pop5.wav")
   (recording-stop)
   (stop)
   (remove-all-beat-triggers)
@@ -746,3 +775,27 @@
 (kill drum-effects-g)
 (stop)
 (remove-all-beat-triggers)
+
+(do
+  (defonce w-note-b (buffer 256))
+  (definst deep-bass [notes-buf w-note-b
+                      beat-trg-bus (:beat time/beat-16th)
+                      beat-bus     (:count time/beat-16th)
+                      noise-level 0
+                      amp 1]
+    (let [trg (in:kr beat-trg-bus)
+          cnt (in:kr beat-bus)
+          note (buf-rd:kr 1 notes-buf cnt)
+          gate-trg (and (> note 0) trg)
+          freq (midicps note)
+          noize (* noise-level (pink-noise))
+          src (lpf (mix [noize (pulse:ar note 0.9)]) 100)
+]
+      (* amp src)))
+
+  (kill deep-bass)
+  (deep-bass :noise-level 0.01 :amp 0.1)
+  (pattern! w-note-b
+            [(degrees [3] :major :F2)] [0 0 0 0 0 0 0 0 0 0 0]
+            [(degrees [1] :major :F2)] [0 0 0 0 0 0 0 0 0 0 0])
+  )
