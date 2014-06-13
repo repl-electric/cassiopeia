@@ -601,6 +601,50 @@
 ;;  (kill sawer)
   (defonce sawer-notes2-buf (buffer 256))
   (def undertone2 (sawer :notes-buf sawer-notes2-buf :amp 0.19 :dur-buf sawer-dur-buf  :beat-bus (:count time/beat-2th) :beat-trg-bus (:beat time/beat-2th)))
+  (defonce n1 (buffer 256))
+  (defonce n2 (buffer 256))
+  (defonce n3 (buffer 256))
+  (defonce n4 (buffer 256))
+
+  (do
+    (let [_ [0 0 0]
+          [c31 c32 c33 c34 c35 c36 c37] (map #(chord-degree %1 :F3 :major 3) [:i :ii :iii :iv :v :vi :vii])
+          [c41 c42 c43 c44 c45 c46 c47] (map #(chord-degree %1 :F4 :major 3) [:i :ii :iii :iv :v :vi :vii])]
+      (let [chord-pat
+            [c31 c31 _ c31 c31 _ c31 c31 _ c31 c31 _ c31 c31 _ c31 c31 _ c31 c31 _ c31 c34 _
+             c34 c31 _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _
+             c31 c31 _ c31 c31 _ c31 c31 _ c31 c31 _ c31 c31 _ c31 c31 _ c31 c31 _ c31 c35 _
+             c34 c31 _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _
+
+             c33 c31 _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _
+             c35 c31 _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _
+             c33 c31 _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _
+             c36 c31 _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _
+
+             c41 c41 _ c41 c41 _ c41 c41 _ c41 c41 _ c41 c41 _ c41 c41 _ c41 c41 _ c41 c44 _
+             c44 c41 _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _
+             c41 c41 _ c41 c41 _ c41 c41 _ c41 c41 _ c41 c41 _ c41 c41 _ c41 c41 _ c41 c45 _
+             c44 c41 _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _
+
+             c43 c41 _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _
+             c45 c41 _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _
+             c43 c41 _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _
+             c46 c41 _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _ _   _   _
+             ]]
+        (pattern! n1 (map #(nth %1 0) chord-pat))
+        (pattern! n2 (map #(nth %1 1) chord-pat))
+        (pattern! n3 (map #(nth %1 2) chord-pat) )
+        ))
+
+    (kill sawer)
+
+    (def undertone1 (sawer :notes-buf n1 :amp 0.1 :dur-buf sawer-dur-buf))
+    (def undertone2 (sawer :notes-buf n2 :amp 0.1 :dur-buf sawer-dur-buf))
+    (def undertone3 (sawer :notes-buf n3 :amp 0.1 :dur-buf sawer-dur-buf))
+
+  ;;  (def undertone4 (sawer :notes-buf n4 :amp 1.2 :dur-buf sawer-dur-buf))
+
+    )
   (ctl undertone2 :attack 0.1 :amp 0.9)
 
   (chord-degree :ii :F4 :major)
