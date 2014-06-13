@@ -330,3 +330,17 @@
 
 (kill oboe)
 (stop)
+
+
+;; Nice way to play with chords
+
+(let [_ [0 0 0]
+      [f21 f22 f23 f24 f25 f26 f27] (map #(chord-degree %1 :F2 :major 3) [:i :ii :iii :iv :v :vi :vii])
+      [f31 f32 f33 f34 f35 f36 f37] (map #(chord-degree %1 :F3 :minor 3) [:i :ii :iii :iv :v :vi :vii])
+      [f41 f42 f43 f44 f45 f46 f47] (map #(chord-degree %1 :F4 :major 3) [:i :ii :iii :iv :v :vi :vii])]
+  (let [chord-pat
+        [_   _   _   _ _ _ _ _ _ _ _ _
+         f33 f35 f31 _ _ _ _ _ _ _ _ _]]
+    (let [chord-bufs (shuffle [n1 n2 n3])] ;; Play around with some random inversions
+      (dotimes [chord-idx (count chord-bufs)]
+                  (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat))))))
