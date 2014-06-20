@@ -148,13 +148,40 @@
           amp (+ (* amp 2) amp)
           ]
       (* amp e src)))
+  (kill deep-basz)
+  (deep-basz :amp 0.7 :noise-level 0.05
+             :notes-buf w-note-b
+             :beat-trg-bus (:beat time/beat-4th)
+             :beat-bus (:count time/beat-4th))
 
-  (kill deep-bass)
-  (deep-bass :amp 0.7)
+  (deep-basz :amp 0.7 :noise-level 0.05
+             :notes-buf w-note2-b
+             :beat-trg-bus (:beat time/beat-2th)
+             :beat-bus (:count time/beat-2th))
+
+  (pattern! w-note2-b
+            (repeat 16  0)
+            (repeat 1  [0 0 0 0 (degrees [3] :minor :F2) 0 (degrees [3] :minor :F2)
+0])
+            (repeat 1  [ 0 0 0 0
+                        (degrees [4] :minor :F2) 0 (degrees [4] :minor :F2) 0 ]))
+
   (pattern! w-note-b
-            (repeat 8  [(degrees [1] :major :F2)])
-            (repeat 4  [(degrees [3] :minor :F2)])
-            (repeat 4  [(degrees [4] :minor :F2)]))
+            (repeat 8  (degrees [1] :major :F2))
+            (repeat 4  (degrees [3] :minor :F2))
+            (repeat 4  (degrees [4] :minor :F2)))
+
+  (pattern! w-note-b
+            (repeat 4  [(degrees [1] :major :F2) 0])
+            (repeat 4  [(degrees [1] :major :F2) (degrees [1] :major :F2)])
+            )
+
+  (pattern! w-note-b
+            (repeat 8  [(degrees [1] :major :F2) ])
+            (repeat 1  [(degrees [3] :major :F2) (degrees [3] :major :F2) 0 0])
+            (repeat 1  [(degrees [4] :major :F2) (degrees [4] :major :F2) 0 0]))
+
+
   )
 
 (stop)
