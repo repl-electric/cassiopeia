@@ -303,14 +303,6 @@
           [0 0 1 0 0 0 1 0]
           [1 0 1 0 0 0 1 0]
           [0 0 1 0 0 0 1 0])
-#64
-
-
-(pattern! w-note2-b
-          (repeat 8 [0])
-          [(degrees [3] :minor :F2) 0 (degrees [3] :minor :F2) 0]
-          [(degrees [4] :minor :F2) 0 (degrees [4] :minor :F2) 0])
-
 
 (pattern! kick-seq-buf
           [1 0 0 0 1 0 0 0]
@@ -318,18 +310,17 @@
           [1 0 0 0 1 0 0 0]
           [1 0 0 0 1 0 0 0]
 
-          [0 0 0 0 1 0 0 0]
+          [1 0 0 0 0 0 0 0]
           [1 0 0 0 1 0 0 0]
-          [0 0 0 0 1 0 0 0]
-          [1 0 0 0 0 0 1 1])
+          [1 0 0 0 0 0 0 0]
+          [1 0 0 0 1 1 1 1])
 
 (pattern! bass-notes-buf
-          (degrees [5] :minor :F2) (repeat 7 (degrees [1] :minor :F2))
-          (repeat 2 (repeat 8 [(degrees [1] :minor :F2)]))
-          (repeat 2 (repeat 8 [(degrees [2] :minor :F2)]))
-          (repeat 2 (repeat 8 [(degrees [1] :minor :F2)]))
-          [0 0 0 0 0 0 (degrees [1] :minor :F2) (degrees [3] :minor :F2)])
-
+          (repeat 8 (degrees [1] :minor :F2))
+          (repeat 2 (repeat 8 (degrees [2] :minor :F2)))
+          (repeat 2 (repeat 8 (degrees [1] :minor :F2)))
+          (repeat 2 (repeat 8 (degrees [3] :minor :F2)))
+          [(degrees [1] :minor :F2) (degrees [3] :minor :F2) (degrees [5] :minor :F2) (degrees [1] :minor :F2) (degrees [1] :minor :F2) (degrees [1] :minor :F2) (degrees [1] :minor :F2)])
 
 (pattern! effects2-seq-buf
           [0 0 0 0 0 0 0 0]
@@ -354,7 +345,7 @@
           [0 0 0 0 0 0 0 0])
 
 (def hats (doall (map #(high-hats [:head drums-g] :amp 0.2 :mix (nth (take 32 (cycle [1.0 1.0])) %1) :room 4 :note-buf bass-notes2-buf :seq-buf hats-buf :num-steps 32 :beat-num %1) (range 0 32))))
-(ctl hats :damp 0.9 :mix 0.0 :room 1 :amp 0.3)
+(ctl hats :damp 0.0 :mix 0.0 :room 0 :amp 0.15)
 
 
 (ctl (foundation-output-group) :volume 1)
