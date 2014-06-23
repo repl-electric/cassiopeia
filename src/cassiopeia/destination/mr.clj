@@ -9,7 +9,7 @@
             [clojure.math.numeric-tower :as math]
             [overtone.studio.fx :as fx]))
 
-;;(ctl time/root-s :rate 8.)
+(ctl time/root-s :rate 8.)
 
 (do
   (defonce note1-dur-b (buffer 256))
@@ -130,11 +130,14 @@
 
 (do
   (defonce w-note-b (buffer 256))
-  (definst deep-bass [notes-buf w-note-b
+  (defonce w-note2-b (buffer 256))
+  (definst deep-basz [amp 1
+                      notes-buf 0
+                      noise-level 0.05
                       beat-trg-bus (:beat time/beat-4th)
                       beat-bus     (:count time/beat-4th)
-                      noise-level 0.05
-                      amp 1]
+
+                      ]
     (let [trg (in:kr beat-trg-bus)
           cnt (in:kr beat-bus)
           note (buf-rd:kr 1 notes-buf cnt)
@@ -147,7 +150,8 @@
           e (env-gen (perc 0.4 0.9) :gate gate-trg)
           amp (+ (* amp 2) amp)
           ]
-      (* amp e src)))
+      (* e src)))
+
   (kill deep-basz)
   (deep-basz :amp 0.7 :noise-level 0.05
              :notes-buf w-note-b
@@ -160,11 +164,9 @@
              :beat-bus (:count time/beat-2th))
 
   (pattern! w-note2-b
-            (repeat 16  0)
-            (repeat 1  [0 0 0 0 (degrees [3] :minor :F2) 0 (degrees [3] :minor :F2)
-0])
-            (repeat 1  [ 0 0 0 0
-                        (degrees [4] :minor :F2) 0 (degrees [4] :minor :F2) 0 ]))
+            (repeat 16 [0])
+            (repeat 1  [0 0 0 0 (degrees [3] :minor :F2) 0 (degrees [3] :minor :F2) 0])
+            (repeat 1  [0 0 0 0 (degrees [4] :minor :F2) 0 (degrees [4] :minor :F2) 0]))
 
   (pattern! w-note-b
             (repeat 8  (degrees [1] :major :F2))
@@ -177,10 +179,9 @@
             )
 
   (pattern! w-note-b
-            (repeat 8  [(degrees [1] :major :F2) ])
+            (repeat 8  [(degrees [1] :major :F2)])
             (repeat 1  [(degrees [3] :major :F2) (degrees [3] :major :F2) 0 0])
             (repeat 1  [(degrees [4] :major :F2) (degrees [4] :major :F2) 0 0]))
-
 
   )
 
@@ -201,11 +202,11 @@
           noize (* noise-level (pink-noise))
           src (lpf (mix [noize (pulse:ar note 0.01)]) 2000)
           src (pitch-shift src 0.01 0.9 1 0.1)
-          e (env-gen (adsr :release 0.6 :sustain 0.6) :gate gate-trg)]
+          e (env-gen (adsr :attack 0.1 :release 0.9 :sustain 0.9) :gate gate-trg)]
       (* (+ (* amp 1) amp) e src)))
 
   (kill sawy)
-  (sawy :noise-level 0.1 :amp 0.3)
+  (sawy :noise-level 0.1 :amp 0.1)
   (pattern! s-note-b
             (repeat (* 2 4) [(degrees [3] :minor :F3)]) (repeat (* 2 4) [0])
             (repeat (* 2 4) [(degrees [5] :minor :F4)]) (repeat (* 2 4) [0])))
@@ -224,22 +225,22 @@
           freq (midicps note)
           noize (bpf (* noise-level (pink-noise)) 1000)
           src (sum [(pulse:ar freq 5.0) noize (sin-osc (* 0.25 freq))])
-          ;; src (pitch-shift src 0.01 0.9 1 0.1)
+;;          src (pitch-shift src 0.01 0.9 1 0.1)
           e (env-gen (adsr :release 0.9 :sustain 0.9) :gate gate-trg)]
       (* (+ (* amp 1) amp) e src)))
 
   (kill fizzal)
   (fizzal :amp 0.3)
   (pattern! f-note-b
-            (repeat (* 2 4) [(degrees [1] :minor :F3)]) (repeat (* 2 4) [0])
-            (repeat (* 2 4) [(degrees [3] :minor :F3)]) (repeat (* 2 4) [0])))
+            (repeat (* 2 4) [(degrees [1] :minor :F2)]) (repeat (* 2 4) [0])
+            (repeat (* 2 4) [(degrees [3] :minor :F2)]) (repeat (* 2 4) [0])))
 
 (stop)
 (on-beat-trigger 64 #(grumble-chords))
 (remove-all-beat-triggers)
 
 
-(do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf]))
+(do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf]))
 
 (pattern! effects2-seq-buf (repeat 15 0) [1])
 (pattern! effects-seq-buf (repeat 15 0)  [1 1 1 1 1 1])
@@ -266,17 +267,95 @@
 (def clap-drums  (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.1 :num-steps 8 :buf (buffer-mix-to-mono clap-s)) (range 0 16))))
 
 (kill drum-effects-g)
-(kill drums-g)
 
-(pattern! bass-notes-buf (repeat 16 [:F2]) (repeat 16 [:G2]))
+;;(note :E2)
+(pattern! bass-notes-buf
+          (repeat 16 [:F2])
+          (repeat 16 [:G2]))
+
+(pattern! bass-notes2-buf
+          (repeat 16 [:F2])
+                    (repeat 16 [:G2]))
+
+
+(kill drums-g)
+(pattern! bass-notes-buf
+          (repeat 7 [(degrees [1] :minor :F2) 0 0 0])
+          (repeat 7 [(degrees [2] :minor :F2) 0 0 0])
+          [0 0 0 0]
+          [0 (degrees [1] :minor :F2) (degrees [3] :minor :F2) (degrees [4] :minor :F2)])
+
 (pattern! kick-seq-buf (repeat 14 [1 0 0 0]) [0 0 0 0] [0 1 1 1])
 
-(def kicker (doseq [i (range 0 96)] (kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 96 :beat-num i :noise 0 :amp 1)))
-(ctl drums-g :mod-freq 10.2 :mod-index 0.1 :noise 0)
+(def kicker (doseq [i (range 0 96)] (kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 96 :beat-num i :noise 0 :amp 1 :mod-index 0.1 :mod-freq 10.2)))
 
-(pattern! hats-buf  (repeat 14 [0 0 1 0]) [0 0 1 0] [0 0 0 0])
+(repeat 16 [0])
+(repeat 1  [0 0 0 0 (degrees [3] :minor :F2) 0 (degrees [3] :minor :F2) 0])
+            (repeat 1  [0 0 0 0 (degrees [4] :minor :F2) 0 (degrees [4] :minor :F2) 0])
 
-(def hats (doall (map #(high-hats [:head drums-g] :amp 0.2 :mix (nth (take 32 (cycle [1.0 1.0])) %1) :room 4 :note-buf bass-notes-buf :seq-buf hats-buf :num-steps 32 :beat-num %1) (range 0 32))))
+(pattern! hats-buf
+          [0 0 1 0 0 0 1 0]
+          [0 0 1 0 0 0 1 0]
+          [0 0 1 0 0 0 1 0]
+          [0 0 1 0 0 0 1 0]
+
+          [1 0 1 0 0 0 1 0]
+          [0 0 1 0 0 0 1 0]
+          [1 0 1 0 0 0 1 0]
+          [0 0 1 0 0 0 1 0])
+#64
+
+
+(pattern! w-note2-b
+          (repeat 8 [0])
+          [(degrees [3] :minor :F2) 0 (degrees [3] :minor :F2) 0]
+          [(degrees [4] :minor :F2) 0 (degrees [4] :minor :F2) 0])
+
+
+(pattern! kick-seq-buf
+          [1 0 0 0 1 0 0 0]
+          [1 0 0 0 1 0 0 0]
+          [1 0 0 0 1 0 0 0]
+          [1 0 0 0 1 0 0 0]
+
+          [0 0 0 0 1 0 0 0]
+          [1 0 0 0 1 0 0 0]
+          [0 0 0 0 1 0 0 0]
+          [1 0 0 0 0 0 1 1])
+
+(pattern! bass-notes-buf
+          (degrees [5] :minor :F2) (repeat 7 (degrees [1] :minor :F2))
+          (repeat 2 (repeat 8 [(degrees [1] :minor :F2)]))
+          (repeat 2 (repeat 8 [(degrees [2] :minor :F2)]))
+          (repeat 2 (repeat 8 [(degrees [1] :minor :F2)]))
+          [0 0 0 0 0 0 (degrees [1] :minor :F2) (degrees [3] :minor :F2)])
+
+
+(pattern! effects2-seq-buf
+          [0 0 0 0 0 0 0 0]
+          [0 0 0 0 0 0 0 0]
+          [0 0 0 0 0 0 0 0]
+          [0 0 0 0 0 0 0 0]
+
+          [0 0 0 0 0 0 0 0]
+          [0 0 0 0 0 0 0 0]
+          [0 0 1 0 0 0 0 0]
+          [0 0 0 0 0 0 0 0])
+
+(pattern! effects-seq-buf
+          [1 0 0 0 0 0 0 0]
+          [0 0 0 0 0 0 0 0]
+          [0 0 0 0 0 0 0 0]
+          [0 0 0 0 0 0 0 0]
+
+          [0 0 0 0 0 0 0 0]
+          [0 0 0 0 0 0 0 0]
+          [1 0 0 0 0 0 0 0]
+          [0 0 0 0 0 0 0 0])
+
+(def hats (doall (map #(high-hats [:head drums-g] :amp 0.2 :mix (nth (take 32 (cycle [1.0 1.0])) %1) :room 4 :note-buf bass-notes2-buf :seq-buf hats-buf :num-steps 32 :beat-num %1) (range 0 32))))
 (ctl hats :damp 0.9 :mix 0.0 :room 1 :amp 0.3)
 
+
+(ctl (foundation-output-group) :volume 1)
 ;;(stop)
