@@ -56,27 +56,25 @@
   (kill wobbling)
   (defonce grumblers-g (group "the grumblers"))
 
-  (def grumble1 (wobbling [:head grumblers-g] :notes-buf note1-b :amp 0.4 :dur-buf note1-dur-b
+  (def grumble1 (wobbling [:head grumblers-g] :notes-buf note1-b :amp 0.5 :dur-buf note1-dur-b
                           :beat-bus (:count time/beat-1th)
                           :beat-trg-bus (:beat time/beat-1th)
                           :lag-time 0.0
                           :t 0.5))
 
-
-  (def grumble2 (wobbling [:head grumblers-g] :notes-buf note2-b :amp 0.3 :dur-buf note1-dur-b
+  (def grumble2 (wobbling [:head grumblers-g] :notes-buf note2-b :amp 0.5 :dur-buf note1-dur-b
                           :beat-bus (:count time/beat-1th)
                           :beat-trg-bus (:beat time/beat-1th)
                           :lag-time 0.0
                           :t 0.5))
 
-  (def grumble3 (wobbling [:head grumblers-g]  :notes-buf note3-b :amp 0.2 :dur-buf note1-dur-b
+  (def grumble3 (wobbling [:head grumblers-g]  :notes-buf note3-b :amp 0.5 :dur-buf note1-dur-b
                           :beat-bus (:count time/beat-1th)
                           :beat-trg-bus (:beat time/beat-1th)
                           :lag-time 0.0
                           :t 0.5)))
 
-(on-beat-trigger 96 #(do
-                         (ctl grumblers-g :t 0.1)))
+(on-beat-trigger 96 #(do (ctl grumblers-g :t 0.1)))
 
 (remove-on-beat-trigger)
 
@@ -98,15 +96,15 @@
 
     (pattern! note1-dur-b [12 12 12 1/2 12 12 12 1/2])
     (let [chord-pat
-          (concat [F31 F31 F31 F31 F31 (degrees [1] :major :F3)   _ _]
-                  [F31 F31 F31 F31 F31 (degrees [1] :major :F3)   _ _]
-                  [F31 _   F31 F31 F31   (degrees [1] :major :F3) _ _]
-                  [F31 _   F31 F31 F31   (degrees [1] :major :F3) _ _]
+          (concat [F31 F31 F31 F31 F31  _ _ _]
+                  [F31 F31 F31 F31 F31  _ _ _]
+                  [F31 _   F31 F31 F31  _ _ _]
+                  [F31 _   F31 F31 F31  _ _ _]
 
-                  [F31 F31 F31 (degrees [1] :major :F3)  F33 F33 F33 (degrees [3] :major :F3)]
-                  [F31 F31 F31 F31 F31 (degrees [1] :major :F3)  _ _]
-                  [F31 F31 F31 (degrees [1] :major :F3)  F33 F33 F33 (degrees [3] :major :F3)]
-                  [F31 _   F31 F31 F31 (degrees [1] :major :F3) F32 F32]
+                  [F31 F31 F31 _ _ _ _ _]
+                  [F31 F31 F31 F31 F31 _ _ _]
+                  [F31 F31 F31 _ _ _ _ _]
+                  [F31 _   F31 F31 F31 _ _ _]
 
                   ;; [F33 F33 F33 F33 F33 (degrees [3] :major :F3)  _ _]
                   ;; [F33 F33 F33 F33 F33 (degrees [3] :major :F3)  _ _]
@@ -133,296 +131,351 @@
                         :beat-bus (:count time/beat-1th)
                         :beat-trg-bus (:beat time/beat-1th)))
 
+(defonce w-note-b (buffer 256))
+(defonce w-note2-b (buffer 256))
+(definst deep-basz [amp 1
+                    notes-buf 0
+                    noise-level 0.05
+                    beat-trg-bus (:beat time/beat-4th)
+                    beat-bus     (:count time/beat-4th)
+                    attack 0.4
+                    release 0.9
+                    saw-cutoff 300]
+  (let [trg (in:kr beat-trg-bus)
+        cnt (in:kr beat-bus)
+        note (buf-rd:kr 1 notes-buf cnt)
+        gate-trg (and (> note 0) trg)
+        freq (midicps note)
+        noize (* noise-level (pink-noise))
+        src (mix [(lpf (saw freq) saw-cutoff)
+                  (lpf noize 100)])
+        src (g-verb src 300 2 0.2)
+        e (env-gen (perc attack release) :gate gate-trg)
+        amp (+ (* amp 5) amp)
+        ]
+    (* amp e src)))
+
+(kill deep-basz)
+
+(defonce w-note3-b (buffer 256))
+
+(def apeg-deep (deep-basz :amp 0.7 :noise-level 0.05
+                          :notes-buf w-note3-b
+                          :beat-trg-bus (:beat time/beat-1th)
+                          :beat-bus (:count time/beat-1th)
+                          :attack 0.1
+                          :release 0.1))
+
 (do
-  (defonce w-note-b (buffer 256))
-  (defonce w-note2-b (buffer 256))
-  (definst deep-basz [amp 1
-                      notes-buf 0
-                      noise-level 0.05
-                      beat-trg-bus (:beat time/beat-4th)
-                      beat-bus     (:count time/beat-4th)
-                      attack 0.4
-                      release 0.9
-                      ]
-    (let [trg (in:kr beat-trg-bus)
-          cnt (in:kr beat-bus)
-          note (buf-rd:kr 1 notes-buf cnt)
-          gate-trg (and (> note 0) trg)
-          freq (midicps note)
-          noize (* noise-level (pink-noise))
-          src (mix [(lpf (saw freq) 300)
-                    (lpf noize 1000)])
-          src (g-verb src 300 2 0.2)
-          e (env-gen (perc attack release) :gate gate-trg)
-          amp (+ (* amp 5) amp)
-          ]
-      (* amp e src)))
-
-  (kill deep-basz)
-
-  (defonce w-note3-b (buffer 256))
-
-  (def apeg-deep (deep-basz :amp 0.7 :noise-level 0.05
-                            :notes-buf w-note3-b
-                            :beat-trg-bus (:beat time/beat-1th)
-                            :beat-bus (:count time/beat-1th)
-                            :attack 0.1
-                            :release 0.1))
-
   (def slow-deep (deep-basz :amp 0.7
                             :noise-level 0.05
                             :notes-buf w-note-b
                             :beat-trg-bus (:beat time/beat-4th)
                             :beat-bus (:count time/beat-4th)))
 
+  ;; (ctl slow-deep :saw-cutoff 300)
+
   (def highlight-deep (deep-basz :amp 0.7 :noise-level 0.05
                                  :notes-buf w-note2-b
                                  :beat-trg-bus (:beat time/beat-2th)
-                                 :beat-bus (:count time/beat-2th)))
+                                 :beat-bus (:count time/beat-2th))))
 
-  (defonce d-n1 (buffer 256))
-  (defonce d-n2 (buffer 256))
-  (defonce d-n3 (buffer 256))
 
-  (let [_ [0 0 0]
-        [f21 f22 f23 f24 f25 f26 f27] (map #(chord-degree %1 :F2 :major 3) [:i :ii :iii :iv :v :vi :vii])
-        [f31 f32 f33 f34 f35 f36 f37] (map #(chord-degree %1 :F3 :major 3) [:i :ii :iii :iv :v :vi :vii])
-        [f41 f42 f43 f44 f45 f46 f47] (map #(chord-degree %1 :F4 :major 3) [:i :ii :iii :iv :v :vi :vii])]
+;;(ctl sd-g :release 0.0 :attack 0.0 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :amp 0)
 
-    (let [chord-pat
-          [f31 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-           f33 _ _ _ _ _ _ _
-           f35 _ _ _ _ _ _ _
-           f37 _ _ _ _ _ _ _]]
-      (let [chord-bufs (shuffle [d-n1 d-n2 d-n3])] ;; Play around with some random inversions
-        (dotimes [chord-idx (count chord-bufs)]
-          (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat))))))
+(ctl time/root-s :rate 0)
+(kill drums-g)
 
+(map #(ctl %1 :saw-cutoff 300 :amp 0.2 :attack 0.1 :release 1.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) slow-deep-chord-group)
+
+(do
+  (doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 1000 :amp 0.2 :attack 0.1 :release 1.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)))
+
+;;  (ctl time/root-s :rate 8)
+
+  (def kicker (doseq [i (range 0 96)] (kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 96 :beat-num i :noise 0 :amp 2.2 :mod-index 0.1 :mod-freq 10.2))))
+
+(ctl drums-g :mod-index 0.0 :amp 2.2 :mod-freq 0)
+
+
+
+(def slow-deep-chord-group
   (do
+    (kill deep-basz)
+    (defonce sd-g (group "slow deep chords"))
+    (defonce sd-note1-b (buffer 256))
+    (defonce sd-note2-b (buffer 256))
+    (defonce sd-note3-b (buffer 256))
+    (defonce sd-note4-b (buffer 256))
+    [(deep-basz [:head sd-g] :attack 1 :release 8.0 :amp 0.4 :noise-level 0.05 :notes-buf sd-note1-b :beat-trg-bus (:beat time/beat-8th) :beat-bus (:count time/beat-8th))
+     (deep-basz [:head sd-g] :attack 1 :release 8.0 :amp 0.4 :noise-level 0.05 :notes-buf sd-note2-b :beat-trg-bus (:beat time/beat-8th) :beat-bus (:count time/beat-8th))
+     (deep-basz [:head sd-g] :attack 1 :release 8.0 :amp 0.4 :noise-level 0.05 :notes-buf sd-note3-b :beat-trg-bus (:beat time/beat-8th) :beat-bus (:count time/beat-8th))
+     (deep-basz [:head sd-g] :attack 1 :release 8.0 :amp 0.4 :noise-level 0.05 :notes-buf sd-note4-b :beat-trg-bus (:beat time/beat-8th) :beat-bus (:count time/beat-8th))]))
 
-    (deep-basz :amp 0.7 :noise-level 0.05
-               :notes-buf d-n3
-               :beat-trg-bus (:beat time/beat-1th)
-               :beat-bus (:count time/beat-1th)
-               :attack 0.1
-               :release 2.1
-               )
+(map #(map find-note-name %1) (map #(chord-degree %1 :F3 :major 4) [:i :ii :iii :iv :v :vi :vii]))
 
-    (deep-basz :amp 0.7 :noise-level 0.05
-               :notes-buf d-n2
-               :beat-trg-bus (:beat time/beat-1th)
-               :beat-bus (:count time/beat-1th)
-               :attack 0.1
-               :release 2.1)
+(let [_ [0 0 0]
+      [f21 f22 f23 f24 f25 f26 f27]        (map #(chord-degree %1 :F2 :major 4) [:i :ii :iii :iv :v :vi :vii])
+      [fm21 fm22 fm23 fm24 fm25 fm26 fm27] (map #(chord-degree %1 :F2 :major 4) [:i :ii :iii :iv :v :vi :vii])
+      [f31 f32 f33 f34 f35 f36 f37]        (map #(chord-degree %1 :F2 :major 4) [:i :ii :iii :iv :v :vi :vii])
+      [f41 f42 f43 f44 f45 f46 f47]        (map #(chord-degree %1 :F2 :major 4) [:i :ii :iii :iv :v :vi :vii])]
+  (let [chord-pat
+        [f31 f31 f31 f31 f31 f31 f31 f31 ;;f21 f21 f21 f21 f21 f21 f21
+         f33 f33 f33 f33
+         f34 f34 f34 f34
 
-    (deep-basz :amp 0.7 :noise-level 0.05
-               :notes-buf d-n1
-               :beat-trg-bus (:beat time/beat-1th)
-               :beat-bus (:count time/beat-1th)
-               :attack 0.1
-               :release 2.1
-               )
-    )
-
-  (pattern! w-note3-b
-            (repeat 8 [(degrees [1 3 5 4] :minor :F3)])
-            (repeat 5 [(degrees [1] :minor :F3) 0 (degrees [3] :minor :F3) 0])
-            (repeat 3 [(degrees [4] :minor :F3) 0 (degrees [1] :minor :F3) 0])
-
-            (repeat 8 [(degrees [6 1 3 5] :minor :F3)])
-            (repeat 5 [(degrees [5] :minor :F3) 0 (degrees [3] :minor :F3) 0])
-            (repeat 3 [(degrees [4] :minor :F3) 0 (degrees [1] :minor :F3) 0])
-
-            (repeat 8 [(degrees [6 4 2 1] :minor :F3)])
-            (repeat 4 [(degrees [1] :minor :F3) 0 (degrees [3] :minor :F3) 0])
-            (repeat 4 [(degrees [4] :minor :F3) 0 (degrees [1] :minor :F3) 0])
-
-            (repeat 4 [(degrees [1] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
-            (repeat 4 [(degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [2] :minor :F3)])
-            (repeat 4 [(degrees [1] :minor :F3) (degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2)])
-            (repeat 4 [(degrees [4] :minor :F3) (degrees [6] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
-            )
+         fm21 fm21 fm21 fm21;; fm21 fm21 fm21 fm21  ;;f21 f21 f21 f21 f21 f21 f21
+         fm23 fm23 fm23 fm23
+         fm24 fm24 fm24 fm24
 
 
-  ;;PART 2
-  (pattern! w-note3-b
-            (repeat 4 [(degrees [1] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
-            (repeat 4 [(degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [2] :minor :F3)])
-            (repeat 4 [(degrees [1] :minor :F3) (degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2)])
-            (repeat 4 [(degrees [4] :minor :F3) (degrees [6] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)]))
+         ;;           f34 f34 f34 f34 ;;f23 f23 f24
+         ;;         f32 f32 f32 f32 ;;f24 f23 f24
+         ;;       f33 f33 f33 f33
+         ;;     f31 f31 f31 f31
+         ;;   f34 f34 f34 f34
+         ]]
+    (let [chord-bufs (shuffle [sd-note1-b sd-note2-b sd-note3-b sd-note4-b])] ;; Play around with some random inversions
+      (dotimes [chord-idx (count chord-bufs)]
+        (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat))))))
 
-  ;;PART 3
-  (pattern! w-note3-b
-            (repeat 4 [(degrees [1] :minor :F4) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
-            (repeat 4 [(degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [2] :minor :F3)])
-            (repeat 4 [(degrees [1] :minor :F4) (degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2)])
-            (repeat 4 [(degrees [4] :minor :F3) (degrees [6] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
+(defonce d-n1 (buffer 256))
+(defonce d-n2 (buffer 256))
+(defonce d-n3 (buffer 256))
 
-            (repeat 4 [(degrees [3] :minor :F4) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
-            (repeat 4 [(degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [2] :minor :F3)])
-            (repeat 4 [(degrees [3] :minor :F4) (degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2)])
-            (repeat 4 [(degrees [4] :minor :F3) (degrees [6] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
-            )
+(let [_ [0 0 0]
+      [f21 f22 f23 f24 f25 f26 f27] (map #(chord-degree %1 :F2 :major 3) [:i :ii :iii :iv :v :vi :vii])
+      [f31 f32 f33 f34 f35 f36 f37] (map #(chord-degree %1 :F3 :major 3) [:i :ii :iii :iv :v :vi :vii])
+      [f41 f42 f43 f44 f45 f46 f47] (map #(chord-degree %1 :F4 :major 3) [:i :ii :iii :iv :v :vi :vii])]
 
-  ;;Switch scale
-  (pattern! w-note3-b
-            (repeat 4 [(degrees [1] :major :F4) (degrees [5] :major :F3) (degrees [7] :major :F2) (degrees [3] :major :F3)])
-            (repeat 4 [(degrees [3] :major :F3) (degrees [5] :major :F3) (degrees [7] :major :F2) (degrees [2] :major :F3)])
-            (repeat 4 [(degrees [1] :major :F4) (degrees [3] :major :F3) (degrees [5] :major :F3) (degrees [7] :major :F2)])
-            (repeat 4 [(degrees [4] :major :F3) (degrees [6] :major :F3) (degrees [7] :major :F2) (degrees [3] :major :F3)]))
+  (let [chord-pat
+        [f31 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+         f33 _ _ _ _ _ _ _
+         f35 _ _ _ _ _ _ _
+         f37 _ _ _ _ _ _ _]]
+    (let [chord-bufs (shuffle [d-n1 d-n2 d-n3])] ;; Play around with some random inversions
+      (dotimes [chord-idx (count chord-bufs)]
+        (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat))))))
 
-  (pattern-at! w-note3-b time/main-beat 0
-            (repeat 4 [(degrees [1] :minor :F3) (degrees [3] :minor :F3) 0 0])
-            (repeat 4 [(degrees [4] :minor :F3) (degrees [1] :minor :F3) 0 0])
-            (repeat 4 [(degrees [5] :minor :F3) (degrees [3] :minor :F3) 0 0])
-            (repeat 4 [(degrees [4] :minor :F3) (degrees [1] :minor :F3) 0 0])
-            )
+(do
 
-  (pattern! w-note3-b
-            (repeat 8 [(degrees [1] :major :F3) (degrees [3] :major :F3) (degrees [4] :major :F3) ])
-            (repeat 4 [(degrees [5] :major :F3) 0 (degrees [3] :major :F3) 0])
-            (repeat 4 [(degrees [4] :major :F3) 0 (degrees [1] :major :F3) 0])
+  (deep-basz :amp 0.7 :noise-level 0.05
+             :notes-buf d-n3
+             :beat-trg-bus (:beat time/beat-1th)
+             :beat-bus (:count time/beat-1th)
+             :attack 0.1
+             :release 2.1
+             )
 
-            (repeat 8 [(degrees [3] :major :F3) (degrees [3] :major :F3) (degrees [5] :major :F3) ])
-            (repeat 4 [(degrees [5] :major :F3) 0 (degrees [3] :major :F3) 0])
-            (repeat 4 [(degrees [4] :major :F3) 0 (degrees [1] :major :F3) 0])
+  (deep-basz :amp 0.7 :noise-level 0.05
+             :notes-buf d-n2
+             :beat-trg-bus (:beat time/beat-1th)
+             :beat-bus (:count time/beat-1th)
+             :attack 0.1
+             :release 2.1)
 
-            (repeat 8 [(degrees [1] :major :F3)   (degrees [3] :major :F3) (degrees [5] :major :F3)])
-            (repeat 4 [(degrees [5] :major :F3) 0 (degrees [3] :major :F3) 0])
-            (repeat 4 [(degrees [4] :major :F3) 0 (degrees [1] :major :F3) 0])
-            )
-
-  (pattern! w-note3-b
-            (repeat 2 [(degrees [1] :major :F4) 0 (degrees [3] :major :F3)])
-            (repeat 1 [(degrees [3] :major :F3) 0 (degrees [3] :major :F3)])
-            (repeat 2 [(degrees [1] :major :F4) 0 (degrees [4] :major :F3)])
-
-            (repeat 2 [(degrees [3] :major :F4) 0 (degrees [5] :major :F3)])
-            (repeat 1 [(degrees [5] :major :F3) 0 (degrees [5] :major :F3)])
-            (repeat 2 [(degrees [3] :major :F4) 0 (degrees [5] :major :F3)])
-
-            (repeat 2 [(degrees [7] :major :F3) 0 (degrees [5] :major :F3)])
-            (repeat 1 [(degrees [4] :major :F3) 0 (degrees [4] :major :F3)])
-            (repeat 2 [(degrees [5] :major :F3) 0 (degrees [5] :major :F3)])
-
-            (repeat 2 [(degrees [4] :major :F4) 0 (degrees [1] :major :F4)])
-            (repeat 1 [(degrees [3] :major :F4) 0 (degrees [1] :major :F4)])
-            (repeat 2 [(degrees [3] :major :F4) 0 (degrees [1] :major :F4)])
-            )
-
-  (pattern! w-note3-b (repeat 2 [(degrees [3] :major :F2)
-                                 0
-                                 (degrees [1] :major :F3)
-                                 (degrees [4] :major :F3)
-                                 0
-                                 (degrees [1] :major :F3)
-                                 (degrees [5] :major :F3)
-                                 (degrees [7] :major :F3)
-                                 (degrees [5] :major :F3)
-                                 (degrees [8] :major :F3)
-                                 0
-                                 ]))
-
-  (pattern! w-note2-b
-            (repeat 16 [0])
-            (repeat 1  [0 0 0 0 (degrees [3] :major :F2) 0 (degrees [3] :major :F2) 0])
-            (repeat 1  [0 0 0 0 (degrees [4] :major :F2) 0 (degrees [4] :major :F2) 0])
-
-            (repeat 16 [0])
-            (repeat 1  [0 0 0 0 (degrees [3] :minor :F2) 0 (degrees [3] :minor :F2) 0])
-            (repeat 1  [0 0 0 0 (degrees [4] :minor :F2) 0 (degrees [4] :minor :F2) 0]))
-
-  (pattern! w-note-b
-            (repeat 8  (degrees [1] :major :F2))
-            (repeat 4  (degrees [3] :minor :F2))
-            (repeat 4  (degrees [4] :minor :F2)))
-
-  (pattern! w-note-b
-            (repeat 1 [(degrees [1] :major :F2)
-                       (degrees [3] :major :F2)
-                       (degrees [4] :major :F2)])
-           )
-
-  ;;PART 2
-  (pattern! w-note2-b
-            (repeat 8 [(degrees [1] :major :F3)])
-            (repeat 8 [0])
-            (repeat 1  [0 0 0 0 0 0 0 0])
-            (repeat 1  [0 0 0 0 0 0 0 0])
-
-            (repeat 16 [0])
-            (repeat 1  [0 0 0 0 0 0 0 0])
-            (repeat 1  [0 0 0 0 0 0 0 0])
-
-            (repeat 16 [0])
-            (repeat 1  [0 0 0 0 0 0 0 0])
-            (repeat 1  [0 0 0 0 0 0 0 0])
-
-            (repeat 16 [0])
-            (repeat 1  [0 0 0 0 0 0 0 0])
-            (repeat 1  [0 0 0 0 0 0 0 0]))
-
-
-  (pattern! w-note2-b
-            (repeat 16 [0])
-            (repeat 8  [(degrees [1] :major :F3)])
-            (repeat 8  [(degrees [1] :major :F3)])
-
-            (repeat 16 [0])
-            (repeat 8  [(degrees [1] :major :F3)])
-            (repeat 8  [(degrees [1] :major :F3)])
-
-            (repeat 16 [0])
-            (repeat 8  [(degrees [1] :major :F3)])
-            (repeat 8  [(degrees [1] :major :F3)])
-
-            (repeat 16 [0])
-            (repeat 8  [(degrees [1] :major :F4)])
-            (repeat 8  [(degrees [1] :major :F4)])
-            )
-
-
-  (pattern! w-note-b
-            (repeat 8  [(degrees [1] :minor :F2)])
-            (repeat 1  [(degrees [3] :minor :F2) (degrees [3] :minor :F2) (degrees [3] :minor :F2) (degrees [3] :minor :F2)])
-            (repeat 1  [(degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2)])
-
-            (repeat 8  [(degrees [1] :minor :F2)])
-            (repeat 1  [(degrees [3] :minor :F2) (degrees [3] :minor :F2) (degrees [3] :minor :F2) (degrees [3] :minor :F2)])
-            (repeat 1  [(degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2)])
-
-            (repeat 8  [(degrees [1] :minor :F2)])
-            (repeat 1  [(degrees [3] :minor :F2) (degrees [3] :minor :F2) (degrees [3] :minor :F2) (degrees [3] :minor :F2)])
-            (repeat 1  [(degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2)])
-
-            (repeat 8  [(degrees [3] :minor :F2)])
-            (repeat 1  [(degrees [3] :minor :F2) (degrees [3] :minor :F2) (degrees [3] :minor :F2)  (degrees [3] :minor :F2)])
-            (repeat 1  [(degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2)])
-
-            )
-
-
-  ;;INIT
-  (pattern! w-note2-b
-            (repeat 16 [0])
-            (repeat 1  [0 0 0 0 (degrees [3] :major :F2) 0 (degrees [3] :major :F2) 0])
-            (repeat 1  [0 0 0 0 (degrees [4] :major :F2) 0 (degrees [4] :major :F2) 0])
-
-            (repeat 16 [0])
-            (repeat 1  [0 0 0 0 (degrees [3] :minor :F2) 0 (degrees [3] :minor :F2) 0])
-            (repeat 1  [0 0 0 0 (degrees [4] :minor :F2) 0 (degrees [4] :minor :F2) 0]))
-
-  (pattern! w-note-b
-            (repeat 8  [(degrees [1] :major :F2)])
-            (repeat 1  [(degrees [3] :major :F2) (degrees [3] :major :F2) 0 0])
-            (repeat 1  [(degrees [4] :major :F2) (degrees [4] :major :F2) 0 0])
-
-            (repeat 8  [(degrees [1] :minor :F2)])
-            (repeat 1  [(degrees [3] :minor :F2) (degrees [3] :minor :F2) 0 0])
-            (repeat 1  [(degrees [4] :minor :F2) (degrees [4] :minor :F2) 0 0]))
-
+  (deep-basz :amp 0.7 :noise-level 0.05
+             :notes-buf d-n1
+             :beat-trg-bus (:beat time/beat-1th)
+             :beat-bus (:count time/beat-1th)
+             :attack 0.1
+             :release 2.1
+             )
   )
 
+(pattern! w-note3-b
+          (repeat 8 [(degrees [1 3 5 4] :minor :F3)])
+          (repeat 5 [(degrees [1] :minor :F3) 0 (degrees [3] :minor :F3) 0])
+          (repeat 3 [(degrees [4] :minor :F3) 0 (degrees [1] :minor :F3) 0])
+
+          (repeat 8 [(degrees [6 1 3 5] :minor :F3)])
+          (repeat 5 [(degrees [5] :minor :F3) 0 (degrees [3] :minor :F3) 0])
+          (repeat 3 [(degrees [4] :minor :F3) 0 (degrees [1] :minor :F3) 0])
+
+          (repeat 8 [(degrees [6 4 2 1] :minor :F3)])
+          (repeat 4 [(degrees [1] :minor :F3) 0 (degrees [3] :minor :F3) 0])
+          (repeat 4 [(degrees [4] :minor :F3) 0 (degrees [1] :minor :F3) 0])
+
+          (repeat 4 [(degrees [1] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
+          (repeat 4 [(degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [2] :minor :F3)])
+          (repeat 4 [(degrees [1] :minor :F3) (degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2)])
+          (repeat 4 [(degrees [4] :minor :F3) (degrees [6] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
+          )
+
+;;PART 2
+(pattern! w-note3-b
+          (repeat 4 [(degrees [1] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
+          (repeat 4 [(degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [2] :minor :F3)])
+          (repeat 4 [(degrees [1] :minor :F3) (degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2)])
+          (repeat 4 [(degrees [4] :minor :F3) (degrees [6] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)]))
+
+;;PART 3
+(pattern! w-note3-b
+          (repeat 4 [(degrees [1] :minor :F4) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
+          (repeat 4 [(degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [2] :minor :F3)])
+          (repeat 4 [(degrees [1] :minor :F4) (degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2)])
+          (repeat 4 [(degrees [4] :minor :F3) (degrees [6] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
+
+          (repeat 4 [(degrees [3] :minor :F4) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
+          (repeat 4 [(degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [2] :minor :F3)])
+          (repeat 4 [(degrees [3] :minor :F4) (degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2)])
+          (repeat 4 [(degrees [4] :minor :F3) (degrees [6] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
+          )
+
+;;Switch scale
+(pattern! w-note3-b
+          (repeat 4 [(degrees [1] :major :F4) (degrees [5] :major :F3) (degrees [7] :major :F2) (degrees [3] :major :F3)])
+          (repeat 4 [(degrees [3] :major :F3) (degrees [5] :major :F3) (degrees [7] :major :F2) (degrees [2] :major :F3)])
+          (repeat 4 [(degrees [1] :major :F4) (degrees [3] :major :F3) (degrees [5] :major :F3) (degrees [7] :major :F2)])
+          (repeat 4 [(degrees [4] :major :F3) (degrees [6] :major :F3) (degrees [7] :major :F2) (degrees [3] :major :F3)]))
+
+(pattern-at! w-note3-b time/main-beat 0
+             (repeat 4 [(degrees [1] :minor :F3) (degrees [3] :minor :F3) 0 0])
+             (repeat 4 [(degrees [4] :minor :F3) (degrees [1] :minor :F3) 0 0])
+             (repeat 4 [(degrees [5] :minor :F3) (degrees [3] :minor :F3) 0 0])
+             (repeat 4 [(degrees [4] :minor :F3) (degrees [1] :minor :F3) 0 0])
+             )
+
+(pattern! w-note3-b
+          (repeat 8 [(degrees [1] :major :F3) (degrees [3] :major :F3) (degrees [4] :major :F3) ])
+          (repeat 4 [(degrees [5] :major :F3) 0 (degrees [3] :major :F3) 0])
+          (repeat 4 [(degrees [4] :major :F3) 0 (degrees [1] :major :F3) 0])
+
+          (repeat 8 [(degrees [3] :major :F3) (degrees [3] :major :F3) (degrees [5] :major :F3) ])
+          (repeat 4 [(degrees [5] :major :F3) 0 (degrees [3] :major :F3) 0])
+          (repeat 4 [(degrees [4] :major :F3) 0 (degrees [1] :major :F3) 0])
+
+          (repeat 8 [(degrees [1] :major :F3)   (degrees [3] :major :F3) (degrees [5] :major :F3)])
+          (repeat 4 [(degrees [5] :major :F3) 0 (degrees [3] :major :F3) 0])
+          (repeat 4 [(degrees [4] :major :F3) 0 (degrees [1] :major :F3) 0])
+          )
+
+(pattern! w-note3-b
+          (repeat 2 [(degrees [1] :major :F4) 0 (degrees [3] :major :F3)])
+          (repeat 1 [(degrees [3] :major :F3) 0 (degrees [3] :major :F3)])
+          (repeat 2 [(degrees [1] :major :F4) 0 (degrees [4] :major :F3)])
+
+          (repeat 2 [(degrees [3] :major :F4) 0 (degrees [5] :major :F3)])
+          (repeat 1 [(degrees [5] :major :F3) 0 (degrees [5] :major :F3)])
+          (repeat 2 [(degrees [3] :major :F4) 0 (degrees [5] :major :F3)])
+
+          (repeat 2 [(degrees [7] :major :F3) 0 (degrees [5] :major :F3)])
+          (repeat 1 [(degrees [4] :major :F3) 0 (degrees [4] :major :F3)])
+          (repeat 2 [(degrees [5] :major :F3) 0 (degrees [5] :major :F3)])
+
+          (repeat 2 [(degrees [4] :major :F4) 0 (degrees [1] :major :F4)])
+          (repeat 1 [(degrees [3] :major :F4) 0 (degrees [1] :major :F4)])
+          (repeat 2 [(degrees [3] :major :F4) 0 (degrees [1] :major :F4)])
+          )
+
+(pattern! w-note3-b (repeat 2 [(degrees [3] :minor :F2)
+                               0
+                               (degrees [1] :minor :F3)
+                               (degrees [4] :minor :F3)
+                               0
+                               (degrees [1] :minor :F3)
+                               (degrees [5] :minor :F3)
+                               (degrees [7] :minor :F3)
+                               (degrees [5] :minor :F3)
+                               (degrees [8] :minor :F3)
+                               0
+                               ]))
+
+(pattern! w-note2-b
+          (repeat 16 [0])
+          (repeat 1  [0 0 0 0 (degrees [3] :major :F2) 0 (degrees [3] :major :F2) 0])
+          (repeat 1  [0 0 0 0 (degrees [4] :major :F2) 0 (degrees [4] :major :F2) 0])
+
+          (repeat 16 [0])
+          (repeat 1  [0 0 0 0 (degrees [3] :minor :F2) 0 (degrees [3] :minor :F2) 0])
+          (repeat 1  [0 0 0 0 (degrees [4] :minor :F2) 0 (degrees [4] :minor :F2) 0]))
+
+(pattern! w-note-b
+          (repeat 8  (degrees [1] :major :F2))
+          (repeat 4  (degrees [3] :minor :F2))
+          (repeat 4  (degrees [4] :minor :F2)))
+
+(pattern! w-note-b
+          (repeat 1 [(degrees [1] :major :F2)
+                     (degrees [3] :major :F2)
+                     (degrees [4] :major :F2)])
+          )
+
+;;PART 2
+(pattern! w-note2-b
+          (repeat 8 [(degrees [1] :major :F3)])
+          (repeat 8 [0])
+          (repeat 1  [0 0 0 0 0 0 0 0])
+          (repeat 1  [0 0 0 0 0 0 0 0])
+
+          (repeat 16 [0])
+          (repeat 1  [0 0 0 0 0 0 0 0])
+          (repeat 1  [0 0 0 0 0 0 0 0])
+
+          (repeat 16 [0])
+          (repeat 1  [0 0 0 0 0 0 0 0])
+          (repeat 1  [0 0 0 0 0 0 0 0])
+
+          (repeat 16 [0])
+          (repeat 1  [0 0 0 0 0 0 0 0])
+          (repeat 1  [0 0 0 0 0 0 0 0]))
+
+
+(pattern! w-note2-b
+          (repeat 16 [0])
+          (repeat 8  [(degrees [1] :major :F3)])
+          (repeat 8  [(degrees [1] :major :F3)])
+
+          (repeat 16 [0])
+          (repeat 8  [(degrees [1] :major :F3)])
+          (repeat 8  [(degrees [1] :major :F3)])
+
+          (repeat 16 [0])
+          (repeat 8  [(degrees [1] :major :F3)])
+          (repeat 8  [(degrees [1] :major :F3)])
+
+          (repeat 16 [0])
+          (repeat 8  [(degrees [1] :major :F4)])
+          (repeat 8  [(degrees [1] :major :F4)])
+          )
+
+
+(pattern! w-note-b
+          (repeat 8  [(degrees [1] :minor :F2)])
+          (repeat 1  [(degrees [3] :minor :F2) (degrees [3] :minor :F2) (degrees [3] :minor :F2) (degrees [3] :minor :F2)])
+          (repeat 1  [(degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2)])
+
+          (repeat 8  [(degrees [1] :minor :F2)])
+          (repeat 1  [(degrees [3] :minor :F2) (degrees [3] :minor :F2) (degrees [3] :minor :F2) (degrees [3] :minor :F2)])
+          (repeat 1  [(degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2)])
+
+          (repeat 8  [(degrees [1] :minor :F2)])
+          (repeat 1  [(degrees [3] :minor :F2) (degrees [3] :minor :F2) (degrees [3] :minor :F2) (degrees [3] :minor :F2)])
+          (repeat 1  [(degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2)])
+
+          (repeat 8  [(degrees [3] :minor :F2)])
+          (repeat 1  [(degrees [3] :minor :F2) (degrees [3] :minor :F2) (degrees [3] :minor :F2)  (degrees [3] :minor :F2)])
+          (repeat 1  [(degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2) (degrees [4] :minor :F2)])
+          )
+
+;;INIT
+(pattern! w-note2-b
+          (repeat 16 [0])
+          (repeat 1  [0 0 0 0 (degrees [3] :major :F2) 0 (degrees [3] :major :F2) 0])
+          (repeat 1  [0 0 0 0 (degrees [4] :major :F2) 0 (degrees [4] :major :F2) 0])
+
+          (repeat 16 [0])
+          (repeat 1  [0 0 0 0 (degrees [3] :minor :F2) 0 (degrees [3] :minor :F2) 0])
+          (repeat 1  [0 0 0 0 (degrees [4] :minor :F2) 0 (degrees [4] :minor :F2) 0]))
+
+(pattern! w-note-b
+          (repeat 8  [(degrees [1] :major :F2)])
+          (repeat 1  [(degrees [3] :major :F2) (degrees [3] :major :F2) 0 0])
+          (repeat 1  [(degrees [4] :major :F2) (degrees [4] :major :F2) 0 0])
+
+          (repeat 8  [(degrees [1] :minor :F2)])
+          (repeat 1  [(degrees [3] :minor :F2) (degrees [3] :minor :F2) 0 0])
+          (repeat 1  [(degrees [4] :minor :F2) (degrees [4] :minor :F2) 0 0]))
 
 (stop)
 
@@ -617,7 +670,10 @@
 
 ;;(on-beat-trigger 64 #(echoey-buf pulse-s :amp 0.1))
 ;;(on-beat-trigger 64 #(echoey-buf godzilla-s :amp 0.3))
-;;(on-beat-trigger 64 #(spacy constant-blues-s :amp 0.1))
+;;(on-beat-trigger 64 #(spacy constant-blues-s :amp 0.5))
+
+;;(on-beat-trigger 8 #(dirt :kurt 2))
+;;(on-beat-trigger 16 #(dirt :kurt 0))
 
 (remove-all-beat-triggers)
 
