@@ -179,7 +179,6 @@
                                  :beat-trg-bus (:beat time/beat-2th)
                                  :beat-bus (:count time/beat-2th)))
 
-
   (defonce d-n1 (buffer 256))
   (defonce d-n2 (buffer 256))
   (defonce d-n3 (buffer 256))
@@ -190,10 +189,10 @@
         [f41 f42 f43 f44 f45 f46 f47] (map #(chord-degree %1 :F4 :major 3) [:i :ii :iii :iv :v :vi :vii])]
 
     (let [chord-pat
-          [f31 _ _ _ _ _ _ _ _ _ _ _
-           f31 _ _ _ _ _ _ _ _ _ _ _
-           f33 _ _ _ _ _ _ _ _ _ _ _
-           f33 _ _ _ _ _ _ _ _ _ _ _]]
+          [f31 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+           f33 _ _ _ _ _ _ _
+           f35 _ _ _ _ _ _ _
+           f37 _ _ _ _ _ _ _]]
       (let [chord-bufs (shuffle [d-n1 d-n2 d-n3])] ;; Play around with some random inversions
         (dotimes [chord-idx (count chord-bufs)]
           (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat))))))
@@ -273,6 +272,19 @@
             (repeat 2 [(degrees [3] :major :F4) 0 (degrees [1] :major :F4)])
             )
 
+  (pattern! w-note3-b (repeat 2 [(degrees [3] :major :F2)
+                                 0
+                                 (degrees [1] :major :F2)
+                                 (degrees [4] :major :F2)
+                                 0
+                                 (degrees [1] :major :F2)
+                                 (degrees [5] :major :F2)
+                                 (degrees [7] :major :F2)
+                                 (degrees [5] :major :F2)
+                                 (degrees [7] :major :F2)
+                                 0
+                                 ]))
+
   (pattern! w-note2-b
             (repeat 16 [0])
             (repeat 1  [0 0 0 0 (degrees [3] :major :F2) 0 (degrees [3] :major :F2) 0])
@@ -288,9 +300,10 @@
             (repeat 4  (degrees [4] :minor :F2)))
 
   (pattern! w-note-b
-            (repeat 4  [(degrees [1] :major :F2) 0])
-            (repeat 4  [(degrees [1] :major :F2) (degrees [1] :major :F2)])
-            )
+            (repeat 1 [(degrees [1] :major :F2)
+                       (degrees [3] :major :F2)
+                       (degrees [4] :major :F2)])
+           )
 
   (pattern! w-note-b
             (repeat 8  [(degrees [1] :major :F2)])
@@ -385,10 +398,10 @@
 (pattern! effects2-seq-buf [1 0 0  1 1 1  0 0 0  1 0 0])
 
 (def clap2-drums (doall (map #(seqer [:head drum-effects-g]
-                                     :rate-start 0.1 :rate-limit 0.3
+                                     :rate-start 0.5 :rate-limit 0.6
                                      :beat-num %1 :pattern effects2-seq-buf :amp 0.05 :num-steps 8 :buf (buffer-mix-to-mono clap2-s)) (range 0 16))))
 (def clap-drums  (doall (map #(seqer [:head drum-effects-g]
-                                     :rate-start 0.1 :rate-limit 0.3
+                                     :rate-start 0.5 :rate-limit 0.6
                                      :beat-num %1 :pattern effects-seq-buf :amp 0.05 :num-steps 8 :buf (buffer-mix-to-mono clap-s)) (range 0 16))))
 
 (kill drum-effects-g)
@@ -413,22 +426,14 @@
 (pattern! kick-seq-buf (repeat 14 [1 0 0 0]) [0 0 0 0] [0 1 1 1])
 
 (def kicker (doseq [i (range 0 96)] (kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 96 :beat-num i :noise 0 :amp 1.2 :mod-index 0.1 :mod-freq 10.2)))
-(ctl drums-g :mod-index 0.0 :amp 1 :mod-freq 0)
+(ctl drums-g :mod-index 0.0 :amp 1.5 :mod-freq 0)
 
 (repeat 16 [0])
 (repeat 1  [0 0 0 0 (degrees [3] :minor :F2) 0 (degrees [3] :minor :F2) 0])
             (repeat 1  [0 0 0 0 (degrees [4] :minor :F2) 0 (degrees [4] :minor :F2) 0])
 
-(pattern! hats-buf
-          [0 0 1 0 0 0 1 0]
-          [0 0 1 0 0 0 1 0]
-          [0 0 1 0 0 0 1 0]
-          [0 0 1 0 0 0 1 0]
-
-          [1 0 1 0 0 0 1 0]
-          [0 0 1 0 0 0 1 0]
-          [1 0 1 0 0 0 1 0]
-          [0 0 1 0 0 0 1 0])
+(pattern! kick-seq-buf [1 0])
+(pattern! kick-seq-buf [1])
 
 (pattern! kick-seq-buf
           [1 0 0 0 1 0 0 0]
@@ -440,6 +445,17 @@
           [1 0 0 0 1 0 0 0]
           [1 0 0 0 0 0 0 0]
           [1 0 0 0 1 1 1 1])
+
+(pattern! hats-buf
+          [0 0 1 0 0 0 1 0]
+          [0 0 1 0 0 0 1 0]
+          [0 0 1 0 0 0 1 0]
+          [0 0 1 0 0 0 1 0]
+
+          [1 0 1 0 0 0 1 0]
+          [0 0 1 0 0 0 1 0]
+          [1 0 1 0 0 0 1 0]
+          [0 0 1 0 0 0 1 0])
 
 (pattern! bass-notes-buf
           (repeat 8 (degrees [1] :minor :F1))
@@ -484,6 +500,20 @@
 (def hats (doall (map #(high-hats [:head drums-g] :amp 0.3 :mix (nth (take 32 (cycle [1.0 1.0])) %1) :room 4 :note-buf bass-notes2-buf :seq-buf hats-buf :num-steps 32 :beat-num %1) (range 0 32))))
 (ctl hats :damp 1.0 :mix 0.4 :room 1 :amp 0.1)
 
-(ctl (foundation-output-group) :volume 1)
+;;(ctl (foundation-output-group) :master-volume 1)
 ;;(stop)
 (kill grumblers-g)
+
+;;(on-beat-trigger 64 #(echoey-buf pulse-s :amp 0.1))
+;;(on-beat-trigger 64 #(echoey-buf godzilla-s :amp 0.3))
+;;(on-beat-trigger 64 #(spacy constant-blues-s :amp 0.1))
+
+(remove-all-beat-triggers)
+
+(stop)
+
+(commment
+ (fadeout-master)
+ (recording-start "~/Desktop/dumdum.wav")
+ (recording-stop)
+ )
