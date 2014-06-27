@@ -26,7 +26,10 @@
 
 (defsynth seqer
   "Plays a single channel audio buffer."
-  [buf 0 rate 1 out-bus 0 beat-num 0 pattern 0  num-steps 8 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) amp 0.7]
+  [buf 0 rate 1 out-bus 0 beat-num 0 pattern 0  num-steps 8 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) amp 0.7
+   rate-start 0.1
+   rate-limit 0.9
+   ]
   (let [cnt      (in:kr beat-bus)
         rander (mod cnt 1)
         beat-trg (in:kr beat-trg-bus)
@@ -36,7 +39,7 @@
         vol      (set-reset-ff bar-trg)]
     (out out-bus (* vol amp (scaled-play-buf :num-channels 1
                                              :buf-num buf
-                                             :rate (t-rand:kr 0.1 0.9 rander)
+                                             :rate (t-rand:kr rate-start rate-limit rander)
                                              :trigger bar-trg)))))
 
 (defsynth rise-fall-pad
