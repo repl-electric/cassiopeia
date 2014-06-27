@@ -225,21 +225,21 @@
 
   (pattern! w-note3-b
             (repeat 8 [(degrees [1] :major :F3) (degrees [3] :major :F3) (degrees [4] :major :F3) (degrees [4] :major :F3)])
-            (repeat 4 [(degrees [5] :major :F3) 0 (degrees [3] :major :F3) 0])
+            (repeat 4 [(degrees [1] :major :F3) 0 (degrees [3] :major :F3) (degrees [1] :major :F3)])
             (repeat 4 [(degrees [4] :major :F3) 0 (degrees [1] :major :F3) 0])
 
-            (repeat 8 [(degrees [4] :major :F3) (degrees [6] :major :F3) (degrees [7] :major :F3) (degrees [3] :major :F3)])
-            (repeat 4 [(degrees [5] :major :F3) 0 (degrees [3] :major :F3) 0])
+            (repeat 8 [(degrees [1] :minor :F3) (degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F3)])
+            (repeat 4 [(degrees [5] :minor :F3) 0 (degrees [3] :minor :F3) 0])
+            (repeat 4 [(degrees [4] :minor :F3) 0 (degrees [1] :minor :F3) 0])
+
+            (repeat 8 [(degrees [1] :major :F3) (degrees [2] :major :F3) (degrees [4] :major :F3) (degrees [6] :major :F3)])
+            (repeat 4 [(degrees [1] :major :F3) 0 (degrees [3] :major :F3) 0])
             (repeat 4 [(degrees [4] :major :F3) 0 (degrees [1] :major :F3) 0])
 
-            (repeat 8 [(degrees [5] :major :F3) (degrees [7] :major :F3) (degrees [2] :major :F3) (degrees [2] :major :F3)])
-            (repeat 4 [(degrees [5] :major :F3) 0 (degrees [3] :major :F3) 0])
-            (repeat 4 [(degrees [4] :major :F3) 0 (degrees [1] :major :F3) 0])
-
-            (repeat 4 [(degrees [1] :major :F3) (degrees [5] :major :F3) (degrees [7] :major :F3) (degrees [3] :major :F3)])
-            (repeat 4 [(degrees [3] :major :F3) (degrees [5] :major :F3) (degrees [7] :major :F3) (degrees [2] :major :F3)])
-            (repeat 4 [(degrees [1] :major :F3) (degrees [3] :major :F3) (degrees [5] :major :F3) (degrees [7] :major :F3)])
-            (repeat 4 [(degrees [4] :major :F3) (degrees [6] :major :F3) (degrees [7] :major :F3) (degrees [3] :major :F3)]))
+            (repeat 4 [(degrees [1] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)])
+            (repeat 4 [(degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2) (degrees [2] :minor :F3)])
+            (repeat 4 [(degrees [1] :minor :F3) (degrees [3] :minor :F3) (degrees [5] :minor :F3) (degrees [7] :minor :F2)])
+            (repeat 4 [(degrees [4] :minor :F3) (degrees [6] :minor :F3) (degrees [7] :minor :F2) (degrees [3] :minor :F3)]))
 
   (pattern! w-note3-b
             (repeat 8 [(degrees [1] :major :F3) (degrees [3] :major :F3) (degrees [4] :major :F3) ])
@@ -385,10 +385,10 @@
 (pattern! effects2-seq-buf [1 0 0  1 1 1  0 0 0  1 0 0])
 
 (def clap2-drums (doall (map #(seqer [:head drum-effects-g]
-                                     :rate-start 1 :rate-limit 1
+                                     :rate-start 0.1 :rate-limit 0.3
                                      :beat-num %1 :pattern effects2-seq-buf :amp 0.05 :num-steps 8 :buf (buffer-mix-to-mono clap2-s)) (range 0 16))))
 (def clap-drums  (doall (map #(seqer [:head drum-effects-g]
-                                     :rate-start 1 :rate-limit 1
+                                     :rate-start 0.1 :rate-limit 0.3
                                      :beat-num %1 :pattern effects-seq-buf :amp 0.05 :num-steps 8 :buf (buffer-mix-to-mono clap-s)) (range 0 16))))
 
 (kill drum-effects-g)
