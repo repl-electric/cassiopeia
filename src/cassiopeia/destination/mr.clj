@@ -519,7 +519,7 @@
       (* (+ (* amp 1) amp) e src)))
 
   (kill sawy)
-  (sawy :noise-level 0.1 :amp 0.4)
+  (sawy :noise-level 0.1 :amp 0.5)
   (pattern! s-note-b
             [(degrees [1] :minor :F1) (degrees [3] :minor :F1) 0 (degrees [4] :minor :F1) (degrees [1] :minor :F1) 0 0 0 0]
             (repeat 16 [0])
@@ -572,7 +572,7 @@
           [1 0 0 0 0 0 0 0]
           [0 0 0 0 0 0 0 0]
           [0 0 0 0 0 0 0 0]
-          [0 0 0 0 0 0 0 0])
+          [0 0 0 0 0 0 1 1])
 
 (pattern! effects2-seq-buf [1 1 0 0 0 0 0 0])
 
@@ -703,11 +703,12 @@
 ;;(stop)
 (kill grumblers-g)
 
-;;(on-beat-trigger 64 #(echoey-buf pulse-s :amp 0.09))
+;;(on-beat-trigger 128 #(echoey-buf pulse-s :amp 0.02))
 ;;(on-beat-trigger 64 #(echoey-buf godzilla-s :amp 0.3))
 ;;(on-beat-trigger 64 #(spacy constant-blues-s :amp 0.5))
 
 ;;(on-beat-trigger 16 #(spacy (dirt :kurt 1)))
+;;(on-beat-trigger 32 #(spacy (dirt :kurt 2)))
 ;;(on-beat-trigger 32 #(echoey-buf (dirt :kurt 3)))
 
 (remove-all-beat-triggers)
