@@ -11,85 +11,69 @@
 
 (ctl time/root-s :rate 8.)
 
-(do
-  (defonce note1-dur-b (buffer 256))
 
-  (definst wobbling
-    [amp 0.8
-     t 0.01
-     mix-rate 0.0
-     room-rate 0.0
-     beat-bus (:count time/beat-2th) beat-trg-bus (:beat time/beat-2th)
-     amt 0.3
-     notes-buf 0 dur-buf 0
-     max-delay 0.01
-     delay 0.01
-     decay 0.01
-     lag-time 0]
-    (let [cnt (in:kr beat-bus)
-          trg (in:kr beat-trg-bus)
-          note (buf-rd:kr 1 notes-buf cnt)
-          dur (buf-rd:kr 1 dur-buf cnt)
-          freq (midicps note)
-          gate-trg (and (> note 0) trg)
+(defonce note1-dur-b (buffer 256))
 
-          f-env      (env-gen (perc t t) gate-trg 1 0 dur)
-          src        (saw [freq (* freq 1.01)])
-          signal     (rlpf (* 0.3 src)
-                           (+ (* 0.6 freq) (* f-env 2 freq)) 0.2)
-          k          (/ (* 2 amt) (- 1 amt))
-          distort    (/ (* (+ 2 k) signal) (+ 2 (* k (abs signal))))
-;;          gate       (pulse (* 2 (+ 1 )))
-          ;;compressor (compander distort (pulse gate-trg) 0.01 1 0.5 0.01 0.01)
-          dampener   (+ 1 (* 0.5))
-          reverb     (free-verb distort mix-rate room-rate dampener)
-          echo       (comb-n reverb max-delay delay decay)
-;;          echo       (lag echo lag-time)
-;;          echo (free-verb echo :mix 0.1)
-          ]
-      (* amp echo)))
+(definst wobbling
+  [amp 0.8
+   t 0.01
+   mix-rate 0.0
+   room-rate 0.0
+   beat-bus (:count time/beat-2th) beat-trg-bus (:beat time/beat-2th)
+   amt 0.3
+   notes-buf 0 dur-buf 0
+   max-delay 0.01
+   delay 0.01
+   decay 0.01
+   lag-time 0]
+  (let [cnt (in:kr beat-bus)
+        trg (in:kr beat-trg-bus)
+        note (buf-rd:kr 1 notes-buf cnt)
+        dur (buf-rd:kr 1 dur-buf cnt)
+        freq (midicps note)
+        gate-trg (and (> note 0) trg)
 
-  (defonce note1-b (buffer 256))
-  (defonce note2-b (buffer 256))
-  (defonce note3-b (buffer 256))
+        f-env      (env-gen (perc t t) gate-trg 1 0 dur)
+        src        (saw [freq (* freq 1.01)])
+        signal     (rlpf (* 0.3 src)
+                         (+ (* 0.6 freq) (* f-env 2 freq)) 0.2)
+        k          (/ (* 2 amt) (- 1 amt))
+        distort    (/ (* (+ 2 k) signal) (+ 2 (* k (abs signal))))
+        ;;          gate       (pulse (* 2 (+ 1 )))
+        ;;compressor (compander distort (pulse gate-trg) 0.01 1 0.5 0.01 0.01)
+        dampener   (+ 1 (* 0.5))
+        reverb     (free-verb distort mix-rate room-rate dampener)
+        echo       (comb-n reverb max-delay delay decay)
+        ;;          echo       (lag echo lag-time)
+        ;;          echo (free-verb echo :mix 0.1)
+        ]
+    (* amp echo)))
 
-  (kill wobbling)
-  (defonce grumblers-g (group "the grumblers"))
+(def grumble-chord-group
+  (do
+    (defonce note1-b (buffer 256))
+    (defonce note2-b (buffer 256))
+    (defonce note3-b (buffer 256))
+    (defonce note4-b (buffer 256))
 
-  (def grumble1 (wobbling [:head grumblers-g] :notes-buf note1-b :amp 0.5 :dur-buf note1-dur-b
-                          :beat-bus (:count time/beat-1th)
-                          :beat-trg-bus (:beat time/beat-1th)
-                          :lag-time 0.0
-                          :t 0.5))
+    (defonce grumblers-g (group "the grumblers"))
 
-  (def grumble2 (wobbling [:head grumblers-g] :notes-buf note2-b :amp 0.5 :dur-buf note1-dur-b
-                          :beat-bus (:count time/beat-1th)
-                          :beat-trg-bus (:beat time/beat-1th)
-                          :lag-time 0.0
-                          :t 0.5))
+    (kill wobbling)
+    [(wobbling [:head grumblers-g] :notes-buf note1-b :amp 0.5 :dur-buf note1-dur-b :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :lag-time 0.0 :t 0.5)
+     (wobbling [:head grumblers-g] :notes-buf note2-b :amp 0.5 :dur-buf note1-dur-b :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :lag-time 0.0 :t 0.5)
+     (wobbling [:head grumblers-g]  :notes-buf note3-b :amp 0.5 :dur-buf note1-dur-b :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :lag-time 0.0 :t 0.5)
+     (wobbling [:head grumblers-g]  :notes-buf note4-b :amp 0.5 :dur-buf note1-dur-b :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :lag-time 0.0 :t 0.5)]))
 
-  (def grumble3 (wobbling [:head grumblers-g]  :notes-buf note3-b :amp 0.5 :dur-buf note1-dur-b
-                          :beat-bus (:count time/beat-1th)
-                          :beat-trg-bus (:beat time/beat-1th)
-                          :lag-time 0.0
-                          :t 0.5)))
-
-(on-beat-trigger 96 #(do (ctl grumblers-g :t 0.1)))
-
-(remove-on-beat-trigger)
-
-(ctl grumblers-g :amp 0)
+(map #(ctl %1 :t 0.0) grumble-chord-group)
 
 (defn grumble-chords []
   (let [_ [0 0 0]
-        [F21 F22 F23 F24 F25 F26 F27] (map #(chord-degree %1 :F2 :minor	 3) [:i :ii :iii :iv :v :vi :vii])
-        [F31 F32 F33 F34 F35 F36 F37] (map #(chord-degree %1 :F3 :major 3) [:i :ii :iii :iv :v :vi :vii])
-        [F41 F42 F43 F44 F45 F46 F47] (map #(chord-degree %1 :F4 :minor 3) [:i :ii :iii :iv :v :vi :vii])
+        [F21 F22 F23 F24 F25 F26 F27] (map #(chord-degree %1 :F2 :minor	 4) [:i :ii :iii :iv :v :vi :vii])
+        [F31 F32 F33 F34 F35 F36 F37] (map #(chord-degree %1 :F3 :major 4) [:i :ii :iii :iv :v :vi :vii])
+        [F41 F42 F43 F44 F45 F46 F47] (map #(chord-degree %1 :F4 :minor 4) [:i :ii :iii :iv :v :vi :vii])
 
-        ;;F3II
-        ;;ii
-        [Fa31 Fa32 Fa33 Fa34 Fa35 Fa36 Fa37] (map #(chord-degree %1 :F3 :minor 3) [:i :ii :iii :iv :v :vi :vii])
-        [Fa41 Fa42 Fa43 Fa44 Fa45 Fa46 Fa47] (map #(chord-degree %1 :F3 :major 3) [:i :ii :iii :iv :v :vi :vii])
+        [Fa31 Fa32 Fa33 Fa34 Fa35 Fa36 Fa37] (map #(chord-degree %1 :F3 :minor 4) [:i :ii :iii :iv :v :vi :vii])
+        [Fa41 Fa42 Fa43 Fa44 Fa45 Fa46 Fa47] (map #(chord-degree %1 :F3 :major 4) [:i :ii :iii :iv :v :vi :vii])
 
         [C41 C42 C43 C44 C45 C46 C47] (map #(chord-degree %1 :C4 :minor	3) [:i :ii :iii :iv :v :vi :vii])
         [C31 C32 C33 C34 C35 C36 C37] (map #(chord-degree %1 :C3 :minor	3) [:i :ii :iii :iv :v :vi :vii])]
@@ -104,27 +88,11 @@
                   [F31 F31 F31 _ _ _ _ _]
                   [F31 F31 F31 F31 F31 _ _ _]
                   [F31 F31 F31 _ _ _ _ _]
-                  [F31 _   F31 F31 F31 _ _ _]
-
-                  ;; [F33 F33 F33 F33 F33 (degrees [3] :major :F3)  _ _]
-                  ;; [F33 F33 F33 F33 F33 (degrees [3] :major :F3)  _ _]
-                  ;; [F33 _   F33 F33 F33 (degrees [3] :major :F3)  _ _]
-                  ;; [F33 _   F33 F33 F33 (degrees [3] :major :F3) F32 F32]
-
-
-;;                  [F33 _   F33 F33 F33 (degrees [3] :major :F3)  _ _]
-  ;;                [F33 _   F33 F33 F33 (degrees [3] :major :F3)  _ _]
-    ;;              [F33 _   F33 F33 F33 (degrees [3] :major :F3)  _ _]
-      ;;            [F33 _   F33 F33 F33 (degrees [3] :major :F3)  F33 F33]
-
-                  )]
-
-      (let [chord-bufs (shuffle [note1-b note2-b note3-b])] ;; Play around with some random inversions
+                  [F31 _   F31 F31 F31 _ _ _])]
+      (let [chord-bufs (shuffle [note1-b note2-b note3-b note4-b])] ;; Play around with some random inversions
         (dotimes [chord-idx (count chord-bufs)]
           (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat))))))
   )
-
-(kill wobbling)
 
 (defonce note4-b (buffer 256))
 (def grumble4 (wobbling [:head grumblers-g]  :notes-buf note4-b :amp 4.0 :dur-buf note1-dur-b
@@ -149,7 +117,7 @@
         noize (* noise-level (pink-noise))
         src (mix [(lpf (saw freq) saw-cutoff)
                   (lpf noize 100)])
-        src (g-verb src 300 2 0.2)
+        src (g-verb src 200 1 0.2)
         e (env-gen (perc attack release) :gate gate-trg)
         amp (+ (* amp 5) amp)
         ]
@@ -167,36 +135,40 @@
                           :release 0.1))
 
 (do
+  (kill deep-basz)
   (def slow-deep (deep-basz :amp 0.7
                             :noise-level 0.05
                             :notes-buf w-note-b
                             :beat-trg-bus (:beat time/beat-4th)
-                            :beat-bus (:count time/beat-4th)))
+                            :beat-bus (:count time/beat-4th)
+                            :saw-cutoff 0
+                            :attack 0.4
+                            ))
 
-  ;; (ctl slow-deep :saw-cutoff 300)
+  ;;(ctl slow-deep :saw-cutoff 200)
+  ;;(ctl highlight-deep :saw-cutoff 100)
 
   (def highlight-deep (deep-basz :amp 0.7 :noise-level 0.05
                                  :notes-buf w-note2-b
                                  :beat-trg-bus (:beat time/beat-2th)
                                  :beat-bus (:count time/beat-2th))))
 
-
 ;;(ctl sd-g :release 0.0 :attack 0.0 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :amp 0)
+;;(ctl apeg-deep :saw-cutoff 500)
 
-(ctl time/root-s :rate 0)
-(kill drums-g)
+;;(ctl time/root-s :rate 0)
+;;(kill drums-g)
 
-(map #(ctl %1 :saw-cutoff 300 :amp 0.2 :attack 0.1 :release 1.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) slow-deep-chord-group)
+;;(map #(ctl %1 :saw-cutoff 1000 :amp 0.05 :attack 0.8 :release 0.8 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) slow-deep-chord-group)
 
-(do
-  (doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 1000 :amp 0.2 :attack 0.1 :release 1.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)))
+;;(do(doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 2000 :amp 0.2 :attack 0.1 :release 1.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)))
 
-;;  (ctl time/root-s :rate 8)
+  ;;  (ctl time/root-s :rate 8)
 
-  (def kicker (doseq [i (range 0 96)] (kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 96 :beat-num i :noise 0 :amp 2.2 :mod-index 0.1 :mod-freq 10.2))))
+  ;;  (def kicker (doseq [i (range 0 96)] (kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 96 :beat-num i :noise 0 :amp 2.2 :mod-index 0.1 :mod-freq 10.2)))
+  ;;)
 
-(ctl drums-g :mod-index 0.0 :amp 2.2 :mod-freq 0)
-
+;;(ctl drums-g :mod-index 0.0 :amp 2.2 :mod-freq 0)
 
 
 (def slow-deep-chord-group
@@ -216,24 +188,20 @@
 
 (let [_ [0 0 0]
       [f21 f22 f23 f24 f25 f26 f27]        (map #(chord-degree %1 :F2 :major 4) [:i :ii :iii :iv :v :vi :vii])
-      [fm21 fm22 fm23 fm24 fm25 fm26 fm27] (map #(chord-degree %1 :F2 :major 4) [:i :ii :iii :iv :v :vi :vii])
-      [f31 f32 f33 f34 f35 f36 f37]        (map #(chord-degree %1 :F2 :major 4) [:i :ii :iii :iv :v :vi :vii])
-      [f41 f42 f43 f44 f45 f46 f47]        (map #(chord-degree %1 :F2 :major 4) [:i :ii :iii :iv :v :vi :vii])]
+      [fm21 fm22 fm23 fm24 fm25 fm26 fm27] (map #(chord-degree %1 :F3 :minor 4) [:i :ii :iii :iv :v :vi :vii])
+      [f31 f32 f33 f34 f35 f36 f37]        (map #(chord-degree %1 :F3 :major 4) [:i :ii :iii :iv :v :vi :vii])
+      [f41 f42 f43 f44 f45 f46 f47]        (map #(chord-degree %1 :F4 :major 4) [:i :ii :iii :iv :v :vi :vii])]
   (let [chord-pat
-        [f31 f31 f31 f31 f31 f31 f31 f31 ;;f21 f21 f21 f21 f21 f21 f21
-         f33 f33 f33 f33
-         f34 f34 f34 f34
+        [f31 f31 f31 f31;; f31 f31 f31 f31
+         f33 f33 f32 f34 ;;f33 f33
+         f34 f34 f32 f32 ;;f34 f34
 
-         fm21 fm21 fm21 fm21;; fm21 fm21 fm21 fm21  ;;f21 f21 f21 f21 f21 f21 f21
-         fm23 fm23 fm23 fm23
-         fm24 fm24 fm24 fm24
+         ;;fm21 fm21 fm21 fm21
+         ;;fm23 fm23 fm23 fm23
+         ;;fm24 fm24 fm24 fm24
 
+         ;;f34 f34 f35 f35 f35 f35 f31 f31
 
-         ;;           f34 f34 f34 f34 ;;f23 f23 f24
-         ;;         f32 f32 f32 f32 ;;f24 f23 f24
-         ;;       f33 f33 f33 f33
-         ;;     f31 f31 f31 f31
-         ;;   f34 f34 f34 f34
          ]]
     (let [chord-bufs (shuffle [sd-note1-b sd-note2-b sd-note3-b sd-note4-b])] ;; Play around with some random inversions
       (dotimes [chord-idx (count chord-bufs)]
@@ -672,7 +640,7 @@
 ;;(on-beat-trigger 64 #(echoey-buf godzilla-s :amp 0.3))
 ;;(on-beat-trigger 64 #(spacy constant-blues-s :amp 0.5))
 
-;;(on-beat-trigger 8 #(dirt :kurt 2))
+;;(on-beat-trigger 8 #(dirt :kurt 1))
 ;;(on-beat-trigger 16 #(dirt :kurt 0))
 
 (remove-all-beat-triggers)
