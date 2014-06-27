@@ -153,7 +153,7 @@
 
   ;;(ctl slow-deep :saw-cutoff 200)
   ;;(ctl highlight-deep :saw-cutoff 500)
-  ;;  (kill highlight-deep)
+  ;;(kill highlight-deep)
 
   (def highlight-deep (deep-basz :amp 0.9 :noise-level 0.05
                                  :notes-buf w-note2-b
@@ -228,7 +228,7 @@
 
 (comment
   (ctl sd-g :release 0.0 :attack 0.0 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :amp 0)
-  (ctl apeg-deep :saw-cutoff 500)
+  (ctl apeg-deep :saw-cutoff 300)
 
   (ctl time/root-s :rate 0)
   (kill drums-g)
@@ -249,7 +249,7 @@
 
 (def slow-deep-chord-group
   (do
-;;    (kill deep-basz)
+    ;;(kill deep-basz)
     (defonce sd-g (group "slow deep chords"))
     (defonce sd-note1-b (buffer 256))
     (defonce sd-note2-b (buffer 256))
@@ -460,6 +460,13 @@
           (repeat 8  [(degrees [1] :major :F4)])
           )
 
+(ctl apeg-deep :saw-cutoff 3000 :noise-level 0.01)
+
+(on-beat-trigger 32  #(do (boom-s :amp 5))
+                 ;;(stop)
+                  )
+
+(remove-on-beat-trigger)
 
 (pattern! w-note-b
           (repeat 8  [(degrees [1] :minor :F2)])
@@ -498,7 +505,7 @@
           (repeat 1  [(degrees [3] :minor :F2) (degrees [3] :minor :F2) 0 0])
           (repeat 1  [(degrees [4] :minor :F2) (degrees [4] :minor :F2) 0 0]))
 
-(stop)
+;;(stop)
 
 (do
   (defonce s-note-b (buffer 256))
@@ -519,7 +526,7 @@
       (* (+ (* amp 1) amp) e src)))
 
   (kill sawy)
-  (sawy :noise-level 0.1 :amp 0.5)
+  (sawy :noise-level 0.1 :amp 0.6)
   (pattern! s-note-b
             [(degrees [1] :minor :F1) (degrees [3] :minor :F1) 0 (degrees [4] :minor :F1) (degrees [1] :minor :F1) 0 0 0 0]
             (repeat 16 [0])
@@ -552,10 +559,9 @@
             (repeat (* 2 4) [(degrees [1] :minor :F2)]) (repeat (* 2 4) [0])
             (repeat (* 2 4) [(degrees [1] :minor :F2)]) (repeat (* 2 4) [0])))
 
-(stop)
-(on-beat-trigger 64 #(grumble-chords))
-(remove-all-beat-triggers)
-
+;;(stop)
+;;(on-beat-trigger 64 #(grumble-chords))
+;;(remove-all-beat-triggers)
 
 (do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf]))
 
@@ -644,7 +650,6 @@
           [1 0 0 0 1 0 0 0]
           [1 1 0 0 1 0 0 0])
 
-
 (pattern! hats-buf
           [0 0 1 0 0 0 1 0]
           [0 0 1 0 0 0 1 0]
@@ -701,7 +706,7 @@
 
 ;;(ctl (foundation-output-group) :master-volume 1)
 ;;(stop)
-(kill grumblers-g)
+;;(kill grumblers-g)
 
 ;;(on-beat-trigger 128 #(echoey-buf pulse-s :amp 0.02))
 ;;(on-beat-trigger 64 #(echoey-buf godzilla-s :amp 0.3))
@@ -712,7 +717,6 @@
 ;;(on-beat-trigger 32 #(echoey-buf (dirt :kurt 3)))
 
 (remove-all-beat-triggers)
-
 (stop)
 
 (comment
