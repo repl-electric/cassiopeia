@@ -114,14 +114,16 @@
                     beat-bus     (:count time/beat-4th)
                     attack 0.4
                     release 0.9
-                    saw-cutoff 300]
+                    saw-cutoff 300
+                    wave 0]
   (let [trg (in:kr beat-trg-bus)
         cnt (in:kr beat-bus)
         note (buf-rd:kr 1 notes-buf cnt)
         gate-trg (and (> note 0) trg)
         freq (midicps note)
         noize (* noise-level (pink-noise))
-        src (mix [(lpf (saw freq) saw-cutoff)
+        wave (select:ar wave [(saw freq) (pulse freq)])
+        src (mix [(lpf wave saw-cutoff)
                   (lpf noize 100)])
         src (g-verb src 200 1 0.2)
         e (env-gen (perc attack release) :gate gate-trg)
