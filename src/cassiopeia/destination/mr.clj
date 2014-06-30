@@ -122,7 +122,7 @@
         gate-trg (and (> note 0) trg)
         freq (midicps note)
         noize (* noise-level (pink-noise))
-        wave (select:ar wave [(saw freq) (pulse freq)])
+        wave (select:ar wave [(saw freq) (pulse freq) (mix [(saw freq) (pulse freq)])])
         src (mix [(lpf wave saw-cutoff)
                   (lpf noize 100)])
         src (g-verb src 200 1 0.2)
@@ -615,8 +615,19 @@
 
 (pattern! kick-seq-buf (repeat 14 [1 0 0 0]) [0 0 0 0] [0 1 1 1])
 
-(def kicker (doseq [i (range 0 96)] (kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 96 :beat-num i :noise 0 :amp 2.2 :mod-index 0.1 :mod-freq 10.2)))
-(ctl drums-g :mod-index 0.0 :amp 2.2 :mod-freq 0)
+(do
+  (def hats (doall (map #(high-hats [:head drums-g] :amp 0.3 :mix (nth (take 32 (cycle [1.0 1.0])) %1) :room 4 :note-buf bass-notes2-buf :seq-buf hats-buf :num-steps 32 :beat-num %1 :amp 0.2) (range 0 32))))
+  (ctl hats :damp 1.0 :mix 0.1 :room 1 :amp 0.0)
+
+  (def white (doall (map #(whitenoise-hat [:head drums-g] :amp 1.0 :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 24 :release 0.1 :attack 0.0 :beat-num %1) (range 0 24))))
+  (ctl white :attack 0.0 :release 0.8 :amp 10)
+
+  (def kicker (doseq [i (range 0 96)] (kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 96 :beat-num i :noise 0.01 :amp 4.2 :mod-index 0.1 :mod-freq 4.0 :mode-freq 0.2)))
+  )
+
+(pattern! hats-buf      [0 0 0 0 1 0 0 0   0 0 1 0 0 0 0 0])
+(pattern! kick-seq-buf  [1 0 0 1 0 0 0 0   1 0 0 0 0 0 0 0])
+
 
 (pattern! kick-seq-buf [1 0 0 0 0 0 0 0])
 (pattern! kick-seq-buf [1 0 0 0])
@@ -628,7 +639,7 @@
           (repeat 8 [(degrees [1] :minor :F2)])
           (degrees [1] :minor :F2) (degrees [3] :minor :F2) (repeat 6 [(degrees [1] :minor :F2)])
           (repeat 8 [(degrees [1] :minor :F2)])
-          (degrees [1] :minor :F2) (degrees [4] :minor :F2) (repeat 6 [(degrees [1] :minor :F2)]))
+          (degrees [1] :minor :F2) (degrees [2] :minor :F2) (repeat 6 [(degrees [1] :minor :F2)]))
 
 (pattern! kick-seq-buf
           [1 0 0 0 1 0 0 0]
@@ -651,6 +662,18 @@
           [1 1 0 0 1 0 0 0]
           [1 0 0 0 1 0 0 0]
           [1 1 0 0 1 0 0 0])
+
+(pattern! hats-buf
+          [0 0 1 0 0 0 1 0]
+          [0 0 1 0 0 0 1 0]
+          [0 0 1 0 0 0 1 0]
+          [0 0 1 1 0 0 1 0]
+
+          [0 0 1 0 0 0 1 0]
+          [0 0 1 0 0 0 1 0]
+          [0 0 1 0 0 0 1 0]
+          [0 0 1 1 0 0 1 0])
+
 
 (pattern! hats-buf
           [0 0 1 0 0 0 1 0]
@@ -703,8 +726,6 @@
           [1 0 0 0 0 0 0 0]
           [0 0 0 0 0 0 0 0])
 
-(def hats (doall (map #(high-hats [:head drums-g] :amp 0.3 :mix (nth (take 32 (cycle [1.0 1.0])) %1) :room 4 :note-buf bass-notes2-buf :seq-buf hats-buf :num-steps 32 :beat-num %1) (range 0 32))))
-(ctl hats :damp 1.0 :mix 0.1 :room 1 :amp 0.5)
 
 ;;(ctl (foundation-output-group) :master-volume 1)
 ;;(stop)
