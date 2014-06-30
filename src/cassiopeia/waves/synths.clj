@@ -181,14 +181,15 @@
         src (tanh (g-verb (sum [src1 src2 src3]) room-size rev-time))]
     (out out-bus (* amp src))))
 
-(defsynth whitenoise-hat [out-bus 0 seq-buf 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) num-steps 0 beat-num 0 amp 1]
+(defsynth whitenoise-hat [out-bus 0 seq-buf 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) num-steps 0 beat-num 0 amp 1
+                          release 1 attack 0]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         bar-trg (and (buf-rd:kr 1 seq-buf cnt)
                      (= beat-num (mod cnt num-steps))
                      beat-trg)
         w (* 0.01 (white-noise:ar))
-        e (env-gen (perc :attack 0 :release 1) :gate bar-trg)]
+        e (env-gen (perc :attack attack :release release) :gate bar-trg)]
     (out out-bus (pan2 (* amp e w)))))
 
 (defsynth high-hats [out-bus 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) note-buf 0 seq-buf 0 beat-num 0 num-steps 0
