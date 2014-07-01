@@ -269,9 +269,26 @@
 (defn note-in-chords
   "Fetch the `pos` note in every chord defined by `note` and `scale`"
   [pos note scale]
-  (map #(nth % (dec pos)) (map (fn [d] (chord-degree d :F3 :minor 4)) [:i :ii :iii :iv :v :vi :vii])))
+  (map #(nth % (dec pos)) (map (fn [d] (chord-degree d note scale 4)) [:i :ii :iii :iv :v :vi :vii])))
 
 (defn chords-for
   "Fetch all midi notes for all chords in `scale` and octave `note`"
   ([note scale] (chords-for note scale 4))
   ([note scale no-notes] (map #(chord-degree %1 note scale no-notes) [:i :ii :iii :iv :v :vi :vii])))
+
+(defn chords-with-inversion
+  "Invert a chord"
+  ([inversions note scale] (chords-with-inversion inversions note scale :up)
+)
+  ([inversions note scale dir]
+     (let [offset (case dir
+                    :up 12
+                    :down -12)]
+       (println offset)
+       (map (fn [m]
+              (reduce
+               (fn [new-m inversion]
+                 (assoc-in (vec new-m) [(dec inversion)] (+ offset (nth m (dec inversion)))))
+               (vec m)
+               inversions))
+            (chords-for note scale)))))
