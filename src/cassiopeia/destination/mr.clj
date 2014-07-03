@@ -238,12 +238,12 @@
                              :beat-trg-bus (:beat time/beat-2th)
                              :beat-bus (:count time/beat-2th)
                              :attack 0.5
-                             :wave 4
+                             :wave 5
                              :saw-cutoff 300
                              :release 0.5))
 
-  (ctl apeg-deep-fast :amp 0.5 :saw-cutoff 300)
-  (ctl apeg-deep-slow :amp 0.5 :saw-cutoff 300)
+  (ctl apeg-deep-fast :amp 0.2 :saw-cutoff 600)
+  (ctl apeg-deep-slow :amp 0.2 :saw-cutoff 600)
   )
 
 (def with-chords
@@ -675,6 +675,7 @@
 (pattern! kick-seq-buf [1 0 0])
 (pattern! kick-seq-buf [1 0])
 (pattern! kick-seq-buf [1])
+(pattern! hats-buf [1 ])
 
 (pattern! bass-notes-buf
           (repeat 8 [(degrees [1] :minor :F2)])
