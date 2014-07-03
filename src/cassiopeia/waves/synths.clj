@@ -104,7 +104,7 @@
 
 (defsynth kick2
   "We take the sting out of the overtone kick2 drum giving a softer more mellow kick"
-  [amp 0.8 mod-freq  5 mod-index 5 sustain 0.4 noise 0.025
+  [amp 0.8 mod-freq  5 mod-index 5 sustain 0.4 noise 0.025 attack 0.005
    beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) note-buf 0 seq-buf 0 beat-num 0 num-steps 8 out-bus 0]
   (let [cnt      (mod (in:kr beat-bus) num-steps)
         beat-trg (in:kr beat-trg-bus)
@@ -116,7 +116,7 @@
 
         pitch-contour (line:kr (* 2 freq) freq 0.02)
         drum (lpf (sin-osc pitch-contour (sin-osc mod-freq (/ mod-index 1.3))) 1000)
-        drum-env (env-gen (perc 0.005 sustain) :gate bar-trg)
+        drum-env (env-gen (perc attack sustain) :gate bar-trg)
         hit (hpf (* noise (white-noise)) 500)
         hit (lpf hit (line 6000 500 0.03))
         hit-env (env-gen (perc) :gate bar-trg)
