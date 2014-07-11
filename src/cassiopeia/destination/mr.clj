@@ -331,17 +331,17 @@
           [0 (degrees [1] :minor :F2) (degrees [3] :minor :F2) (degrees [4] :minor :F2)])
 
 (one-time-beat-trigger
- 0 8
+ 0 16
  (fn []
    (do
      (pattern! hats-buf      [0 0 0 0 1 0 0 0   0 0 1 0 0 0 0 0])
      (pattern! kick-seq-buf  [1 0 0 1 0 0 0 0   1 0 0 0 0 0 0 0])
 
      (def white (doall (map #(whitenoise-hat [:head drums-g] :amp 1.0 :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 24 :release 0.1 :attack 0.0 :beat-num %1) (range 0 24))))
-     (ctl white :attack 0.02 :release 0.01 :amp 2)
+     (ctl white :attack 0.002 :release 0.04 :amp 2)
 
      (def kicker (doall (map #(space-kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 32 :beat-num %1 :noise 0.05 :amp 4.2 :mod-index 0.1 :mod-freq 4.0 :mode-freq 0.2) (range 0 32))))
-     (ctl kicker :attack 0.1 :sustain 0.2 :amp 1.0)
+     (ctl kicker :attack 0.0 :sustain 0.2 :amp 1.0)
      )))
 
 
@@ -354,7 +354,7 @@
    ))
 
 (doseq [chord-g slow-deep-chord-group]
-  (ctl chord-g :saw-cutoff 300 :amp 0.00 :attack 0.1 :noise-level 0.05 :release 1.0 :beat-trg-bus (:beat time/beat-2th) :wave 4 :beat-bus (:count time/beat-2th))
+  (ctl chord-g :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :beat-trg-bus (:beat time/beat-2th) :wave 4 :beat-bus (:count time/beat-2th))
   (n-overtime! chord-g :amp 0 0.04 0.001))
 
 (def hand-drums (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.3 :num-steps 16 :buf hand-drum-s :rate-start 1.0 :rate-limit 1.0) (range 0 16))))
@@ -500,29 +500,31 @@
        (n-overtime! chord-g :amp 0 0.04 0.001)
        )
 
-(do
+
+(do ;;DARKER PROGRESSION
+  (spacy (dirt :pad 0) :amp 0.2)
   (ctl drum-effects-g :amp 0.0)
   (ctl drums-g :amp 0.0)
-  (map #(do (ctl % :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0) (n-overtime! % :amp 0.0 0.04)) apeg-deep-melody)
+  (doseq [s apeg-deep-melody] (ctl s :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0) (n-overtime! s :amp 0.02 0.05))
+
+  (let [chord-bufs [sd-note1-b sd-note2-b sd-note3-b sd-note4-b sd-note5-b sd-note6-b]]
+    (dotimes [chord-idx (count chord-bufs)]
+      (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) dark-chords-score))))
 
   (let [chord-bufs [w-note3-b w-note8-b w-note9-b w-note10-b]]
     (dotimes [chord-idx (count chord-bufs)]
       (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) darker-pinger-score))))
   )
 
-(mono-player (dirt :pad 0))
-
 (do
   (doseq [s apeg-deep-melody-spair]
-    #(do
-       (ctl s :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0)
-       (n-overtime! % :amp 0.0 0.09 0.01)))
+    (ctl s :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0)
+    (n-overtime! s :amp 0.0 0.08 0.01))
   (ctl drum-effects-g :amp 1.0) (ctl drums-g :amp 1.0)
   (pattern! hats-buf [1 0 0 0 0 0 0 0])
   )
 
 (pattern! hats-buf [1])
-
 
 (do
   (map #(set-beat % time/beat-1th) apeg-deep-melody)
@@ -573,7 +575,7 @@
 
 ;;Experiments with new melody progression
 
-(def chords-score
+(def dark-chords-score
   (let [_ [0 0 0 0]
         [c21 c22 c23 c24 c25 c26 c27]        (chords-for :C2 :minor 3)
         [f217 f227 f237 f247 f257 f267 f277] (chords-for :F2 :melodic-minor-asc 4)
