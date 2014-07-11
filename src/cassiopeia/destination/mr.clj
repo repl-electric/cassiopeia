@@ -501,6 +501,11 @@
        )
 
 
+(do ;;shh drums
+  (ctl drum-effects-g :amp 0.0)
+  (ctl drums-g :amp 0.0))
+
+
 (do ;;DARKER PROGRESSION
   (spacy (dirt :pad 0) :amp 0.2)
   (ctl drum-effects-g :amp 0.0)
