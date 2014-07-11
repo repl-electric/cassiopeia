@@ -120,6 +120,14 @@
 
 (def beat-trig-idx (atom 0))
 
+(defn one-time-beat-trigger
+  [beat beats func]
+  (on-trigger (:trig-id time/main-beat)
+              (fn [b] (when (= beat  (int (mod b beats)))
+                       (remove-event-handler ::one-time-beat-trigger)
+                       (func)))
+              ::one-time-beat-trigger))
+
 (defn on-beat-trigger [beat func]
   (swap! beat-trig-idx inc)
   (on-trigger (:trig-id time/main-beat)
