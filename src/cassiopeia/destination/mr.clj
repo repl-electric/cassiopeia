@@ -160,6 +160,40 @@
               (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))))))
     ))
 
+
+(comment
+  (map #(ctl %1 :saw-cutoff 800) slow-deep-chord-group)
+  (stop)
+  (map #(ctl %1 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) slow-deep-chord-group)
+  (map #(ctl %1 :saw-cutoff 800 :release 6 :noise 100.2 :attack 0.4 :amp 0.05) slow-deep-chord-group)
+
+  ;;Drum
+  (doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 500 :amp 0.06 :attack 0.01 :noise-level 0 :release 0.5 :beat-trg-bus (:beat time/beat-4th) :wave 4 :beat-bus (:count time/beat-4th)))
+
+  (doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 200 :amp 0.1 :attack 0.1 :noise-level 0.05 :release 1.0 :beat-trg-bus (:beat time/beat-2th) :wave 4 :beat-bus (:count time/beat-2th)))
+
+  (ctl drums-g :mod-index 0.0 :amp 2.2 :mod-freq 0))
+
+(def slow-deep-chord-group
+  (do
+    ;;(kill deep-basz-pi)
+    (defonce sd-g (group "slow deep chords"))
+    (defonce sd-note1-b (buffer 256))
+    (defonce sd-note2-b (buffer 256))
+    (defonce sd-note3-b (buffer 256))
+    (defonce sd-note4-b (buffer 256))
+    (defonce sd-attack-b (buffer 256))
+    (defonce sd-release-b (buffer 256))
+    (defonce sd-amp-b (buffer 256))
+
+    [(deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note1-b :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th))
+     (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note2-b :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th))
+     (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note3-b :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th))
+     (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note4-b :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th))]))
+
+
+
+
 (defonce w-note-b (buffer 256))
 (defonce w-note2-b (buffer 256))
 
@@ -496,37 +530,6 @@
 
                        ])
   )
-
-(comment
-  (map #(ctl %1 :saw-cutoff 800 ) slow-deep-chord-group)
-(stop)
-  (map #(ctl %1 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) slow-deep-chord-group)
-  (map #(ctl %1 :saw-cutoff 800 :release 6 :noise 100.2 :attack 0.4 :amp 0.05) slow-deep-chord-group)
-
-  ;;Drum
-  (doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 500 :amp 0.06 :attack 0.01 :noise-level 0 :release 0.5 :beat-trg-bus (:beat time/beat-4th) :wave 4 :beat-bus (:count time/beat-4th)))
-
-  (doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 200 :amp 0.1 :attack 0.1 :noise-level 0.05 :release 1.0 :beat-trg-bus (:beat time/beat-2th) :wave 4 :beat-bus (:count time/beat-2th)))
-
-  (ctl drums-g :mod-index 0.0 :amp 2.2 :mod-freq 0)
-  )
-
-(def slow-deep-chord-group
-  (do
-    ;;(kill deep-basz-pi)
-    (defonce sd-g (group "slow deep chords"))
-    (defonce sd-note1-b (buffer 256))
-    (defonce sd-note2-b (buffer 256))
-    (defonce sd-note3-b (buffer 256))
-    (defonce sd-note4-b (buffer 256))
-    (defonce sd-attack-b (buffer 256))
-    (defonce sd-release-b (buffer 256))
-    (defonce sd-amp-b (buffer 256))
-
-    [(deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note1-b :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th))
-     (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note2-b :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th))
-     (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note3-b :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th))
-     (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note4-b :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th))]))
 
 (map #(map find-note-name %1) (map #(chord-degree %1 :F3 :major 4) [:i :ii :iii :iv :v :vi :vii]))
 
@@ -947,15 +950,15 @@
   (pattern! kick-seq-buf  [1 0 0 1 0 0 0 0   1 0 0 0 0 0 0 0])
 
   (def white (doall (map #(whitenoise-hat [:head drums-g] :amp 1.0 :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 24 :release 0.1 :attack 0.0 :beat-num %1) (range 0 24))))
-  (ctl white :attack 0.01 :release 0.1 :amp 2)
+  (ctl white :attack 0.01 :release 0.07 :amp 2)
 
   (def kicker (doall (map #(space-kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 32 :beat-num %1 :noise 0.05 :amp 4.2 :mod-index 0.1 :mod-freq 4.0 :mode-freq 0.2) (range 0 32))))
-  (ctl kicker :attack 0.1 :sustain 0.8 :amp 1.0)
+  (ctl kicker :attack 0.0 :sustain 0.2 :amp 1.0)
     (map #(ctl %1 :t 0.005 :amp 0.35) grumble-chord-group)
   )
 
 (map #(ctl %1 :saw-cutoff 1000 :noise-level 0.5 :amp 0.09 :attack 0.3 :release 6.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) slow-deep-chord-group)
-(map #(ctl %1 :t 0.005 :amp 0.9) grumble-chord-group)
+(map #(ctl %1 :t 0.005 :amp 0.4) grumble-chord-group)
 (map #(ctl %1 :saw-cutoff 900) slow-deep-chord-group)
 
 (pattern! hats-buf      [0 0 0 0 1 0 0 0   0 0 1 0 0 0 0 0])
@@ -1009,8 +1012,9 @@
     (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf w-note10-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)])
 
 ;;(ctl apeg-deep-melody :amp 0.05 :saw-cutoff 1500 :wave 3 :attack 0.01 :release 1.0)
-(map #(ctl % :saw-cutoff 2000 :wave 4) apeg-deep-melody)
-(map #(ctl % :amp 0.06 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0) apeg-deep-melody)
+(map #(ctl % :saw-cutoff 2500 :wave 4) apeg-deep-melody)
+(map #(do (ctl % :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0)
+          (n-overtime! % :amp 0 0.04)) apeg-deep-melody)
 
 (ctl apeg-deep-melody :amp 0.06 :saw-cutoff 1000 :wave 1 :attack 1.0 :release 5.0)
 (set-beat apeg-deep-melody time/beat-1th)
@@ -1025,7 +1029,6 @@
           [0 (degrees [1] :minor :F3) (degrees [7] :minor :F3) 0]
           [0 (degrees [1] :minor :F3) (degrees [1] :minor :F4) 0]
           [0 (degrees [1] :minor :F3) (degrees [1] :minor :F4) 0]
-
           )
 
 (pattern! w-note3-b
@@ -1039,12 +1042,14 @@
 
 (def pinger-score
   (let [_ [0 0 0 0]
-        [c21 c22 c23 c24 c25 c26 c27]        (chords-for :C3 :minor 1)
+        [c21 c22 c23 c24 c25 c26 c27]        (chords-for :C2 :minor 1)
+        [c31 c32 c33 c34 c35 c36 c37]        (chords-for :C3 :minor 1)
+        [f21 f22 f23 f24 f25 f26 f27]        (chords-for :F2 :minor 1)
         [f31 f32 f33 f34 f35 f36 f37]        (chords-for :F3 :minor 1)
         [f41 f42 f43 f44 f45 f46 f47]        (chords-for :F4 :minor 1)
         ]
     (let [chord-pat
-          [f41 f43 f41 f44 c27 c26 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+          [f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
            ]]
       (let [chord-bufs [w-note3-b w-note8-b w-note9-b w-note10-b]]
         (dotimes [chord-idx (count chord-bufs)]
@@ -1093,6 +1098,7 @@
 ;;(ctl (foundation-output-group) :master-volume 1)
 ;;(stop)
 ;;(kill grumblers-g)
+;;(remove-all-beat-triggers)
 
 ;;(on-beat-trigger 256 #(echoey-buf pulse-s :amp 0.02))
 ;;(on-beat-trigger 64 #(echoey-buf godzilla-s :amp 0.3))
@@ -1102,13 +1108,30 @@
 ;;(on-beat-trigger 64 #(spacy (dirt :kurt 3)))
 ;;(on-beat-trigger 128 #(spacy (dirt :kurt 2)))
 
+;;(sample-trigger #(spacy (dirt :kurt 3)) 7  32)
+;;(sample-trigger #(spacy (dirt :kurt 2)) 15 32)
+;;(sample-trigger #(spacy (dirt :kurt 4)) 17 32)
+;;(sample-trigger #(spacy (dirt :kurt 5)) 1 32)
+;;(sample-trigger #(spacy (dirt :kurt 6)) 9 32)
+;;(sample-trigger #(spacy (dirt :kurt 7)) 19 32)
+
+;;(mono-player (dirt :pad 2))
+
+(sample-trigger #(do
+;;                   (echoey-buf boom-s :amp 0.1)
+                   (echoey-buf (dirt :kurt 6) :amp 0.3)
+;;                   (echoey-buf :b (dirt :kurt 1))
+                   ) 31 32)
+
+;;(remove-all-sample-triggers)
+
 ;;(spacy (dirt :cosmicg 2) :amp 0.5)
 ;;(on-beat-trigger 8 #(spacy (dirt :voodoo 0)))
-;;(on-beat-trigger 64 #(echoey-buf (dirt :wind )))
+;;(on-beat-trigger 64 #(echoey-buf (dirt :wind)))
 ;;
 
-(doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 200 :amp 0.04 :attack 0.1 :noise-level 0.05 :release 1.0 :beat-trg-bus (:beat time/beat-2th) :wave 4 :beat-bus (:count time/beat-2th)))
-
+(doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 200 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :beat-trg-bus (:beat time/beat-2th) :wave 4 :beat-bus (:count time/beat-2th))
+       (n-overtime! chord-g :amp 0 0.04))
 
 (comment
   (ctl apeg-bass-wallop :saw-cutoff 10)
@@ -1118,7 +1141,7 @@
   (kill wobbling)
 
  (fadeout-master)
- (recording-start "~/Desktop/flatiron06.wav")
+ (recording-start "~/Desktop/flatiron10.wav")
  (recording-stop)
  )
 
