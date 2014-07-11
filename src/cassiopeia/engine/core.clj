@@ -6,6 +6,10 @@
 
 (def overtime-default-sleep 200)
 
+(defn set-beat
+  "Quickly set the timing rate on a synth."
+  [node rate] (ctl node :beat-trg-bus (:beat rate) :beat-bus (:count rate)))
+
 (defn pattern!
   "Fill a buffer repeating pattern if required.
      Supports integers or notes which will be converted to midi notes"
@@ -278,17 +282,16 @@
 
 (defn chords-with-inversion
   "Invert a chord"
-  ([inversions note scale] (chords-with-inversion inversions note scale :up)
+  ([inversions note scale no-notes] (chords-with-inversion inversions note scale :up 3)
 )
-  ([inversions note scale dir]
+  ([inversions note scale dir no-notes]
      (let [offset (case dir
                     :up 12
                     :down -12)]
-       (println offset)
        (map (fn [m]
               (reduce
                (fn [new-m inversion]
                  (assoc-in (vec new-m) [(dec inversion)] (+ offset (nth m (dec inversion)))))
                (vec m)
                inversions))
-            (chords-for note scale)))))
+            (chords-for note scale no-notes)))))
