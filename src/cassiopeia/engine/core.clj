@@ -145,6 +145,24 @@
                   ::beat-picker)))
 
 
+(def sample-trig-idx (atom 0))
+(defn sample-trigger
+  ([sample-fn start size] (sample-trigger sample-fn start size size))
+  ([sample-fn start offset size]
+     (swap! sample-trig-idx inc)
+     (on-trigger (:trig-id time/beat-1th)
+                 (fn [b]
+                   (when-let [beat (int (mod b size))]
+                     (when (= beat start)
+                       ;;(= beat (+ start (* (floor (/ beat offset)) offset)))
+
+                       (sample-fn))))
+                 (str "sample-trigger-" @sample-trig-idx))))
+
+(defn remove-all-sample-triggers []
+  (doseq [i (range 0 (inc @sample-trig-idx))]
+    (remove-event-handler (str "sample-trigger-" i)))
+    (reset! sample-trig-idx 0))
 
 (defn stutter [rate]
   (future
