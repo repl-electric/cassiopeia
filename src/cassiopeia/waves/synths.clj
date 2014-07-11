@@ -7,7 +7,7 @@
             [overtone.inst.synth :as s]))
 
 (defsynth spacy [buf 0 chain 0 amp 1]
-  (let [in  (play-buf:ar 1 buf (buf-rate-scale:kr buf) :loop false)
+  (let [in  (play-buf:ar 1 buf (buf-rate-scale:kr buf) :loop false :action FREE)
         b (local-buf 2048)
         chain  (fft b in)
         chain  (pv-rect-comb chain 8 0.6 0.6)
@@ -18,10 +18,13 @@
   "Play an existing buffer with a heavy echo"
   [b 0 frames [256 :ir] out-bus 0 thresh 0.07 amp 1]
   (let [in (play-buf 1 b (* (buf-rate-scale:kr b) 1.1))
+        trg (:beat time/main-beat)
         chain (fft (local-buf frames) in)
         chain (pv-mag-freeze chain -0.1)
         output (* (ifft chain) 0.9)
-        output (+ output (comb-c:ar output 1 0.3 6))]
+        output (+ output (comb-c:ar output 1 0.3 6))
+        inv-trg (- 1 trg)]
+    (detect-silence:ar (+ inv-trg b) 0.001 10 FREE)
     (out out-bus (* amp output))))
 
 (defsynth seqer
