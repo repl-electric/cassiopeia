@@ -275,6 +275,11 @@
 
         sus4 (chord :F3 :dim)
 
+        f2iisus4 (chord :F2 :sus4 2)
+        f2isus4 (chord :F2 :sus4 1)
+        f2isus2 (chord :F2 :sus2 1)
+        f2iisus2 (chord :F2 :sus2 2)
+
         [fma21 fma22 fma23 fma24 fma25 fma26 fma27] (chords-with-inversion [] :F2 :melodic-minor-asc :up 3)
         [fmd21 fmd22 fmd23 fmd24 fmd25 fmd26 fmd27] (chords-with-inversion [] :F2 :melodic-minor-desc :up 3)
         ;;      [fma21 fma22 fma23 fma24 fma25 fma26 fma27] (chords-for :F2 :melodic-minor)
@@ -288,9 +293,19 @@
 
           chord-pat
           [
-           fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21  fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21
+;;           fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21  fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21
+;;           fu23 fu23 fu23 fu23 fu23 fu23 fu23 fu23
+;;           fu24 fu24 fu24 fu24 fu24 fu24 fu24 fu24
+
+           fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21  fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21
            fu23 fu23 fu23 fu23 fu23 fu23 fu23 fu23
+           fu24 fu24 fu24 fu24 fu24 fu24 (chord :F2 :sus4 2) (chord :F2 :sus4 2)
+
+           fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21  fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21
            fu23 fu23 fu23 fu23 fu23 fu23 fu23 fu23
+           fu25 fu25 fu25 fu25 fu25 fu25  (chord :F2 :7sus4 2) (chord :F2 :7sus4 2)
+
+
            ]]
       (let [chord-bufs [sd-note1-b sd-note2-b sd-note3-b sd-note4-b]]
         (dotimes [chord-idx (count chord-bufs)]
@@ -508,12 +523,12 @@
 (pattern! hats-buf [1])
 
 (one-time-beat-trigger
- 0 64
+ 0 128
  (fn [] ;;DARKER PROGRESSION
    (do
      (ctl drum-effects-g :amp 0.0)
      (ctl drums-g :amp 0.0)
-     (doseq [s apeg-deep-melody] (ctl s :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0) (n-overtime! s :amp 0.02 0.05))
+     (doseq [s apeg-deep-melody] (ctl s :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0) (n-overtime! s :amp 0.02 0.04))
 
      (let [chord-bufs [sd-note1-b sd-note2-b sd-note3-b sd-note4-b sd-note5-b sd-note6-b]]
        (dotimes [chord-idx (count chord-bufs)]
@@ -526,8 +541,9 @@
 
 (do
   (doseq [s apeg-deep-melody-spair]
-    (ctl s :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0)
-    (n-overtime! s :amp 0.0 0.08 0.01))
+    (ctl s :amp 0.00 :saw-cutoff 2000 :wave 2 :attack 1.0 :release 5.0)
+    (n-overtime! s :amp 0.0 0.04 0.01)
+    )
   (ctl drum-effects-g :amp 1.0) (ctl drums-g :amp 1.0)
   (doseq [s apeg-deep-melody] (ctl s :amp 0.05 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0))
 ;;  (pattern! hats-buf [1 0 0 0 0 0 0 0])
