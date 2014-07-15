@@ -325,6 +325,9 @@
         src (* 25 src)]
     (out 0 (* amp src))))
 
+(defsynth plain-space-organ [out-bus 0 tone 1 duration 3 amp 1]
+  (let [tones (map #(blip (* % 2) (mul-add:kr 1/8 1 4)) [tone])]
+    (out out-bus (* amp (g-verb (sum tones) 200 8) (line 1 0 duration FREE)))))
 (comment
   (def space-p (space-ping :freq-limit-buf freq-limit-buf :beat-bus (:beat time/main-beat) :amp 2))
   (kill space-p)
