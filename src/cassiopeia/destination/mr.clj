@@ -181,6 +181,10 @@
 (defonce ws-note3-b (buffer 256))
 (defonce ws-note4-b (buffer 256))
 
+(defonce ws-note11-b (buffer 256))
+(defonce ws-note12-b (buffer 256))
+(defonce ws-note13-b (buffer 256))
+
 (def apeg-deep-melody-spair
   [(deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note1-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
    (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note2-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
@@ -192,6 +196,11 @@
    (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf w-note8-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
    (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf w-note9-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
    (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf w-note10-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)])
+
+(def main-melody
+  [(deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note11-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1)
+   (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note12-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1)
+   (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note13-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1)])
 
 (comment
   (map #(ctl %1 :saw-cutoff 800) slow-deep-chord-group)
@@ -242,6 +251,20 @@
   )
 
 (map #(map find-note-name %1) (map #(chord-degree %1 :F3 :major 4) [:i :ii :iii :iv :v :vi :vii]))
+(def apeg-swell
+  (let [- [nil nil nil]
+        chord-pat [(degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3)
+
+                   (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3)
+
+                   (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3)
+
+                   (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3)
+                   (degrees [5] :minor :F3) (degrees [5] :minor :F3) (degrees [5] :minor :F3) (degrees [5] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3)
+                   ]
+        chord-bufs [ws-note11-b ws-note12-b ws-note3-b ws-note13-b]]
+    (dotimes [chord-idx (count chord-bufs)]
+      (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))))
 
 (def chords-score
   (let [_ [0 0 0 0]
@@ -509,7 +532,7 @@
 
 ;;(spacy (dirt :cosmicg 2) :amp 0.5)
 ;;(on-beat-trigger 8 #(spacy (dirt :voodoo 0)))
-;;(on-beat-trigger 64 #(echoey-buf (dirt :wind) :amp 0.3))
+;;(on-beat-trigger 64 #(echoey-buf (dirt :wind) :amp 0.1))
 
 (doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 300 :amp 0.00 :attack 0.1 :noise-level 0.05 :release 1.0 :beat-trg-bus (:beat time/beat-2th) :wave 4 :beat-bus (:count time/beat-2th))
        (n-overtime! chord-g :amp 0 0.04)
@@ -526,6 +549,7 @@
  0 128
  (fn [] ;;DARKER PROGRESSION
    (do
+     (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.5)
      (ctl drum-effects-g :amp 0.0)
      (ctl drums-g :amp 0.0)
      (doseq [s apeg-deep-melody] (ctl s :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0) (n-overtime! s :amp 0.02 0.04))
@@ -536,10 +560,15 @@
 
      (let [chord-bufs [w-note3-b w-note8-b w-note9-b w-note10-b]]
        (dotimes [chord-idx (count chord-bufs)]
-         (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) darker-pinger-score)))))
+         (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) darker-pinger-score))))
+     )
    ))
 
+;;Drive home home chords + highlight melody
+(doseq [s main-melody] (ctl s :amp 0.09 :saw-cutoff 500 :wave 1 :attack 1.0 :release 5.0))
+
 (do
+  (doseq [s main-melody] (ctl s :amp 0.0))
   (doseq [s apeg-deep-melody-spair]
     (ctl s :amp 0.00 :saw-cutoff 2000 :wave 2 :attack 1.0 :release 5.0)
     (n-overtime! s :amp 0.0 0.04 0.01)
@@ -706,10 +735,17 @@
         (dotimes [chord-idx (count chord-bufs)]
                     (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))) chord-pat)))
 
+
+(map #(ctl % :saw-cutoff 30 :amp 0.1) apeg-deep-melody)
+
 (comment
-  (map #(ctl % :saw-cutoff 10 :amp 0.02) apeg-deep-melody-spair)
-  (map #(ctl % :saw-cutoff 1 :amp 0.02) apeg-deep-melody)
-  (map #(ctl % :saw-cutoff 10 :amp 0) slow-deep-chord-group)
+  ;;(ctl (foundation-output-group) :master-volume 1)
+
+  (let [cutout 1]
+
+    (doall (map #(ctl % :saw-cutoff cutout :amp 0.03) apeg-deep-melody-spair))
+    (map #(ctl % :saw-cutoff cutout :amp 0.03) apeg-deep-melody)
+    (map #(ctl % :saw-cutoff cutout :amp 0.03) slow-deep-chord-group))
   (ctl drums-g :amp 0)
   (ctl drum-effects-g :amp 0)
 
