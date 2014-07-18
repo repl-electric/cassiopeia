@@ -175,30 +175,22 @@
           [
            c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
            c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
-
            c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
            c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
-
            c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
            c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
-
-           c41 f31 f33 f34    f31 f31 f41 f31  c34 f31 f33 f34    f31 f31 f41 f31
+           c37 f31 f33 f34    f31 f31 f41 f31  c37 f31 f33 f34    f31 f31 f41 f31
            c41 f31 f33 f34    f31 f31 f41 f31  c34 f31 f33 f31    f31 f31 f41 f31
 
            c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
            c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
-
            c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
            c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
-
            c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
            c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
+           c37 f31 f33 f34    f31 f31 f41 f31  c37 f31 f33 f34    f31 f31 f41 f31
+           c41 f31 f33 f41    f27 f31 f31 f31  c31 f31 f33 f41    f31 f31 f41 f31
 
-           c41 f31 f33 f34    f31 f31 f41 f31  c34 f31 f33 f34    f31 f31 f41 f31
-           c43 f31 f33 f41    f31 f31 f41 f41  c37 f31 f33 f41    f31 f31 f41 f31
-
-           ;;c31 f21 f23 f35    f31 f31 f41 f21
-           ;;c31 f21 f23 f35    f31 f31 f41 f31
            ]]
       (chord-pattern apeg-deep-melody-chord-bufs chord-pat))))
 
