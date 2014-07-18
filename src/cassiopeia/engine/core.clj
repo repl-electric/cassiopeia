@@ -311,7 +311,7 @@
 (defn chord-synth [synth-name & args]
   "Create multiple instances of a synth so we can easly play chords"
   (let [chord-bufs (map (fn [_] (buffer 256 "chord note buf")) (range 0 4))
-        synth-instances (doall (map (fn [b] (apply synth-name (concat args [:notes-buf b]))) chord-bufs))]
+        synth-instances (doall (map (fn [b] (apply synth-name (concat args [:note-buf b]))) chord-bufs))]
     (with-meta
       {:bufs chord-bufs :synths synth-instances}
       {:type ::chord-group})))

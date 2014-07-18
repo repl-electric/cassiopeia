@@ -27,6 +27,18 @@
     (detect-silence:ar (+ inv-trg b) 0.001 10 FREE)
     (out out-bus (* amp output))))
 
+
+(defsynth grainy-buf [b 0 amp 1 c-dur 10 trate 2]
+  (let [dur (/ 1.2 trate)
+        src (t-grains:ar :num-channels 1
+                         :trigger (impulse:ar trate)
+                         :bufnum b
+                         :rate 1
+                         :center-pos (line:kr 0 (buf-dur b) c-dur FREE);;(mouse-x:kr 0
+                         :dur dur
+                         :pan (* 0.6 (white-noise:kr))
+                         :amp amp)]
+    (out 0 (* amp src))))
 (defsynth seqer
   "Plays a single channel audio buffer."
   [buf 0 rate 1 out-bus 0 beat-num 0 pattern 0  num-steps 8 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) amp 0.7
@@ -336,14 +348,14 @@
   (ctl p :dark-freq 1)
   (buffer-write! freq-limit-buf (flatten (repeat 3 [5.9 5.9 0.5 0.5]))))
 
-(definst crackle-snail [notes-buf 0
+(definst crackle-snail [note-buf 0
                         beat-trg-bus (:beat time/beat-1th)
                         beat-bus     (:count time/beat-1th)
                         noise-level 0
                         amp 1]
   (let [trg (in:kr beat-trg-bus)
         cnt (in:kr beat-bus)
-        note (buf-rd:kr 1 notes-buf cnt)
+        note (buf-rd:kr 1 note-buf cnt)
         gate-trg (and (> note 0) trg)
         freq (midicps note)
         noize (* noise-level (pink-noise))
@@ -359,14 +371,14 @@
    room-rate 0.0
    beat-bus (:count time/beat-2th) beat-trg-bus (:beat time/beat-2th)
    amt 0.3
-   notes-buf 0 dur-buf 0
+   note-buf 0 dur-buf 0
    max-delay 0.01
    delay 0.01
    decay 0.01
    lag-time 0]
   (let [cnt (in:kr beat-bus)
         trg (in:kr beat-trg-bus)
-        note (buf-rd:kr 1 notes-buf cnt)
+        note (buf-rd:kr 1 note-buf cnt)
         dur (buf-rd:kr 1 dur-buf cnt)
         freq (midicps note)
         gate-trg (and (> note 0) trg)
@@ -382,10 +394,10 @@
         echo       (comb-n reverb max-delay delay decay)]
     (* amp echo)))
 
-(definst dulcet-fizzle [amp 0 c 200 n-rate 0.001 note-b 0 beat-trg-bus (:beat time/beat-8th) beat-bus (:count time/beat-8th)]
+(definst dulcet-fizzle [amp 0 c 200 n-rate 0.001 note-buf 0 beat-trg-bus (:beat time/beat-8th) beat-bus (:count time/beat-8th)]
   (let [trg (in:kr beat-trg-bus)
         cnt (in:kr beat-bus)
-        note (buf-rd:kr 1 note-b cnt)
+        note (buf-rd:kr 1 note-buf cnt)
         freq (midicps note)
         b (ringz (* 0.001 (rhpf (blip freq 3) (* 1.1 freq))) freq)
         n (ringz (* 0.001 (lpf (pink-noise) 200)) freq)
@@ -393,10 +405,10 @@
         src (mix [n s])]
           (* amp (g-verb src))))
 
-(definst general-purpose-assembly [amp 1 notes-buf 0 noise-level 0.05 beat-trg-bus (:beat time/beat-4th) beat-bus (:count time/beat-4th) attack 0.4 release 0.9 saw-cutoff 300 noise-cutoff 100 wave 1]
+(definst general-purpose-assembly [amp 1 note-buf 0 noise-level 0.05 beat-trg-bus (:beat time/beat-4th) beat-bus (:count time/beat-4th) attack 0.4 release 0.9 saw-cutoff 300 noise-cutoff 100 wave 1]
   (let [trg (in:kr beat-trg-bus)
         cnt (in:kr beat-bus)
-        note (buf-rd:kr 1 notes-buf cnt)
+        note (buf-rd:kr 1 note-buf cnt)
         gate-trg (and (> note 0) trg)
         freq (midicps note)
         noize (* noise-level (pink-noise))
@@ -411,10 +423,10 @@
         amp (+ (* amp 5) amp)]
     (* amp e src)))
 
-(definst general-purpose-assembly-pi [amp 1 notes-buf 0 noise-level 0.05 beat-trg-bus (:beat time/beat-4th) beat-bus (:count time/beat-4th) attack-buf 0 release-buf 0 amp-buf 0 attack 0.4 release 0.9 saw-cutoff 300 noise-cutoff 100 wave 1]
+(definst general-purpose-assembly-pi [amp 1 note-buf 0 noise-level 0.05 beat-trg-bus (:beat time/beat-4th) beat-bus (:count time/beat-4th) attack-buf 0 release-buf 0 amp-buf 0 attack 0.4 release 0.9 saw-cutoff 300 noise-cutoff 100 wave 1]
   (let [trg (in:kr beat-trg-bus)
         cnt (in:kr beat-bus)
-        note (buf-rd:kr 1 notes-buf cnt)
+        note (buf-rd:kr 1 note-buf cnt)
         attack (buf-rd:kr 1 attack-buf cnt)
         release (buf-rd:kr 1 release-buf cnt)
         b-amp (buf-rd:kr 1 amp-buf cnt)
@@ -434,7 +446,7 @@
     (* (* b-amp amp) e src)))
 
 (comment
-  (def f (dulcet-fizzle :amp 1.0 :note-b df-b))
+  (def f (dulcet-fizzle :amp 1.0 :note-buf df-b))
   (ctl f :note (note :F4)))
 
 (comment

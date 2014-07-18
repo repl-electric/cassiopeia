@@ -278,7 +278,7 @@
       (chord-pattern slow-deep-chord-g chord-pat ))))
 
 (do
-  (crackle-snail :noise-level 0.1 :amp 0.6 :notes-buf s-note-b)
+  (crackle-snail :noise-level 0.1 :amp 0.6 :note-buf s-note-b)
   (pattern! s-note-b [(degrees [1] :minor :F1) (degrees [3] :minor :F1) 0 (degrees [4] :minor :F1) (degrees [1] :minor :F1) 0 0 0] (repeat 24 [0])))
 
 (do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf effects3-seq-buf]))
@@ -521,7 +521,7 @@
     )
   (ctl drum-effects-g :amp 1.0) (ctl drums-g :amp 1.0)
   (doseq [s apeg-deep-melody-chord-g] (ctl s :amp 0.05 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0))
-  (def f (dulcet-fizzle :amp 2.0 :note-b df-b))
+  (def f (dulcet-fizzle :amp 2.0 :note-buf df-b))
 
   ;;  (pattern! hats-buf [1 0 0 0 0 0 0 0])
   )
