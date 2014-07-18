@@ -303,9 +303,18 @@
   Useful when creating chords and hence running multiple instances of synths
   with different buffers."
   [chord-bufs pattern]
-  (dotimes [chord-idx (count chord-bufs)]
-    (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) pattern)))
+  (let [chord-bufs (if (= :cassiopeia.engine.core/chord-group (type chord-bufs)) (:bufs chord-bufs) chord-bufs)]
+    (dotimes [chord-idx (count chord-bufs)]
+      (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) pattern))))
   pattern)
+
+(defn chord-synth [synth-name & args]
+  "Create multiple instances of a synth so we can easly play chords"
+  (let [chord-bufs (map (fn [_] (buffer 256 "chord note buf")) (range 0 4))
+        synth-instances (doall (map (fn [b] (apply synth-name (concat args [:notes-buf b]))) chord-bufs))]
+    (with-meta
+      {:bufs chord-bufs :synths synth-instances}
+      {:type ::chord-group})))
 
 (defn note-in-chords
   "Fetch the `pos` note in every chord defined by `note` and `scale`"
