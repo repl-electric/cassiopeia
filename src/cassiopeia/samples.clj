@@ -3,6 +3,10 @@
    [overtone.live]
    [cassiopeia.engine.samples]))
 
+;;Ambient
+(defonce ooo-s (freesound-sample 136627))
+(defonce g-ohh-s (freesound-sample 131911))
+
 ;;Kicks
 (defonce fragmented-kick-s (freesound-sample 8098))
 (defonce wood-kick-s (freesound-sample 169190))

@@ -336,6 +336,67 @@
   (ctl p :dark-freq 1)
   (buffer-write! freq-limit-buf (flatten (repeat 3 [5.9 5.9 0.5 0.5]))))
 
+(definst crackle-snail [notes-buf s-note-b
+                        beat-trg-bus (:beat time/beat-1th)
+                        beat-bus     (:count time/beat-1th)
+                        noise-level 0
+                        amp 1]
+  (let [trg (in:kr beat-trg-bus)
+        cnt (in:kr beat-bus)
+        note (buf-rd:kr 1 notes-buf cnt)
+        gate-trg (and (> note 0) trg)
+        freq (midicps note)
+        noize (* noise-level (pink-noise))
+        src (lpf (mix [noize (pulse:ar freq 0.01)]) 2000)
+        src (pitch-shift src 0.01 0.9 1 0.1)
+        e (env-gen (adsr :attack 0.6 :release 2.0 :sustain 2.0) :gate gate-trg)]
+    (* (+ (* amp 1) amp) e src)))
+
+(definst heart-wobble
+  [amp 0.8
+   t 0.01
+   mix-rate 0.0
+   room-rate 0.0
+   beat-bus (:count time/beat-2th) beat-trg-bus (:beat time/beat-2th)
+   amt 0.3
+   notes-buf 0 dur-buf 0
+   max-delay 0.01
+   delay 0.01
+   decay 0.01
+   lag-time 0]
+  (let [cnt (in:kr beat-bus)
+        trg (in:kr beat-trg-bus)
+        note (buf-rd:kr 1 notes-buf cnt)
+        dur (buf-rd:kr 1 dur-buf cnt)
+        freq (midicps note)
+        gate-trg (and (> note 0) trg)
+
+        f-env      (env-gen (perc t t) gate-trg 1 0 dur)
+        src        (saw [freq (* freq 1.01)])
+        signal     (rlpf (* 0.3 src)
+                         (+ (* 0.6 freq) (* f-env 2 freq)) 0.2)
+        k          (/ (* 2 amt) (- 1 amt))
+        distort    (/ (* (+ 2 k) signal) (+ 2 (* k (abs signal))))
+        dampener   (+ 1 (* 0.5))
+        reverb     (free-verb distort mix-rate room-rate dampener)
+        echo       (comb-n reverb max-delay delay decay)]
+    (* amp echo)))
+
+(definst dulcet-fizzle [amp 0 c 200 n-rate 0.001 note-b 0 beat-trg-bus (:beat time/beat-8th) beat-bus (:count time/beat-8th)]
+  (let [trg (in:kr beat-trg-bus)
+        cnt (in:kr beat-bus)
+        note (buf-rd:kr 1 note-b cnt)
+        freq (midicps note)
+        b (ringz (* 0.001 (rhpf (blip freq 3) (* 1.1 freq))) freq)
+        n (ringz (* 0.001 (lpf (pink-noise) 200)) freq)
+        s (* 0.001 (lpf (rhpf (saw (/ freq 2)) (* 2 freq)) (/ freq 2)))
+        src (mix [n s])]
+          (* amp (g-verb src))))
+
+(comment
+  (def f (dulcet-fizzle :amp 1.0 :note-b df-b))
+  (ctl f :note (note :F4)))
+
 (comment
   (defsynth sparkling-darkness [freq 220 amp 3]
     (out 0 (pan2 (* amp (bpf:ar (* 1 (pink-noise:ar)) freq 2e-3)) (sin-osc:kr 1) 1))))
@@ -343,7 +404,6 @@
 (comment
   (def s (playz))
   (ctl s :freq (midi->hz (note :A3))))
-
 
 ;;Experimental Synths
 
