@@ -162,14 +162,41 @@
 
 (def darker-pinger-score
   (let [_ [0 0 0 0]
-        [c21 c22 c23 c24 c25 c26 c27]  (chords-for :C4 :minor 1)
-        [c31 c32 c33 c34 c35 c36 c37]  (chords-for :C4 :minor 1)
-        [f21 f22 f23 f24 f25 f26 f27]  (chords-for :F3 :minor 1)
+        [c21 c22 c23 c24 c25 c26 c27]  (chords-for :C2 :minor 1)
+        [c31 c32 c33 c34 c35 c36 c37]  (chords-for :C3 :minor 1)
+        [c41 c42 c43 c44 c45 c46 c47]  (chords-for :C4 :minor 1)
+        [f21 f22 f23 f24 f25 f26 f27]  (chords-for :F2 :minor 1)
         [f31 f32 f33 f34 f35 f36 f37]  (chords-for :F3 :minor 1)
-        [f41 f42 f43 f44 f45 f46 f47]  (chords-for :F4 :minor 1)]
+        [f41 f42 f43 f44 f45 f46 f47]  (chords-for :F4 :minor 1)
+        [f51 f52 f53 f54 f55 f56 f57]  (chords-for :F5 :minor 1)
+        ]
+
     (let [chord-pat
           [
-           c31 f21 f23 f34    f21 f21 f41 f21
+           c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
+           c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
+
+           c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
+           c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
+
+           c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
+           c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
+
+           c41 f31 f33 f34    f31 f31 f41 f31  c34 f31 f33 f34    f31 f31 f41 f31
+           c41 f31 f33 f34    f31 f31 f41 f31  c34 f31 f33 f31    f31 f31 f41 f31
+
+           c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
+           c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
+
+           c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
+           c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
+
+           c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
+           c41 f31 f33 f34    f31 f31 f41 f31  c41 f31 f33 f34    f31 f31 f41 f31
+
+           c41 f31 f33 f34    f31 f31 f41 f31  c34 f31 f33 f34    f31 f31 f41 f31
+           c43 f31 f33 f41    f31 f31 f41 f41  c37 f31 f33 f41    f31 f31 f41 f31
+
            ;;c31 f21 f23 f35    f31 f31 f41 f21
            ;;c31 f21 f23 f35    f31 f31 f41 f31
            ]]
