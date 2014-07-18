@@ -214,16 +214,10 @@
 
 (comment
   (map #(ctl %1 :saw-cutoff 800) slow-deep-chord-group)
-  (stop)
   (map #(ctl %1 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) slow-deep-chord-group)
   (map #(ctl %1 :saw-cutoff 800 :release 6 :noise 100.2 :attack 0.4 :amp 0.05) slow-deep-chord-group)
-
-  ;;Drum
-  (doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 500 :amp 0.06 :attack 0.01 :noise-level 0 :release 0.5 :beat-trg-bus (:beat time/beat-4th) :wave 4 :beat-bus (:count time/beat-4th)))
-
   (doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 1000 :amp 0.03 :attack 0.1 :noise-level 0.05 :release 1.0 :beat-trg-bus (:beat time/beat-2th) :wave 2 :beat-bus (:count time/beat-2th)))
-
-  (ctl drums-g :mod-index 0.0 :amp 2.2 :mod-freq 0))
+)
 
 (def slow-deep-chord-group
   (do
@@ -247,20 +241,13 @@
 ;;     (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note6-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th))
      ]))
 
-(comment
-  (map #(ctl %1 :saw-cutoff 800 ) slow-deep-chord-group)
-(stop)
-  (map #(ctl %1 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) slow-deep-chord-group)
-  (map #(ctl %1 :saw-cutoff 800 :release 6 :noise 100.2 :attack 0.4 :amp 0.05) slow-deep-chord-group)
+(map #(map find-note-name %1) (map #(chord-degree %1 :F3 :major 4) [:i :ii :iii :iv :v :vi :vii]))
+(map #(map find-note-name %) (chords-with-inversion [1 2] :F2 :minor :up 4))
+(map #(map find-note-name %) (chords-with-inversion [1] :F2 :minor :up 3))
 
-  (do
-    (doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 400 :amp 0.06 :attack 0.5 :noise-level 0 :release 1.0 :beat-trg-bus (:beat time/beat-4th) :wave 4 :beat-bus (:count time/beat-4th)))
-    )
-  (ctl drums-g :mod-index 0.0 :amp 2.2 :mod-freq 0)
 
   )
 
-(map #(map find-note-name %1) (map #(chord-degree %1 :F3 :major 4) [:i :ii :iii :iv :v :vi :vii]))
 (def apeg-swell
   (let [- [nil nil nil]
         chord-pat [(degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3) (degrees [1] :minor :F3)
@@ -349,7 +336,7 @@
             [(degrees [1] :minor :F1) (degrees [3] :minor :F1) 0 (degrees [4] :minor :F1) (degrees [1] :minor :F1) 0 0 0]
             (repeat 24 [0])))
 
-(do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf]))
+(do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf effects3-seq-buf]))
 
 (do
   (pattern! effects2-seq-buf [1 1 0 0 0 0 0 0])
@@ -556,6 +543,9 @@
         ;;        (degrees [7 7 7 7] :minor :F3)
                 (degrees [1 1 1 1] :minor :F4)
                 ])
+
+(one-time-beat-trigger 126 128 #(plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.25))
+
 (one-time-beat-trigger
  126 128
  (fn [] ;;DARKER PROGRESSION
@@ -575,7 +565,7 @@
          (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) darker-pinger-score))))
      )
    (doseq [s apeg-deep-melody] (ctl s :amp 0.00 :saw-cutoff 100 :wave 0 :attack 1.0 :release 5.0)
-          (n-overtime! s :saw-cutoff 100 2000 100)
+          (n-overtime! s :saw-cutoff 100 2000 50)
           (n-overtime! s :amp 0.00 0.04 0.005))
 ;;   (doseq [s apeg-deep-melody] (ctl s :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0) (n-overtime! s :amp 0.00 0.04 0.005))
    ))
@@ -767,15 +757,16 @@
 
 (map #(ctl % :saw-cutoff 30 :amp 0.1) apeg-deep-melody)
 
+;;Fade
+(let [cutout 2000]
+  (doall (map #(ctl % :saw-cutoff cutout :amp 0.03) apeg-deep-melody-spair))
+  (doall (map #(ctl % :saw-cutoff cutout :amp 0.03) apeg-deep-melody))
+  (doall (map #(ctl % :saw-cutoff cutout :amp 0.03) slow-deep-chord-group)))
+
 (comment
+  ;;(volume 4.0)
   ;;(ctl (foundation-output-group) :master-volume 1)
-
-  (let [cutout 100]
-    (doall (map #(ctl % :saw-cutoff cutout :amp 0.03) apeg-deep-melody-spair))
-    (map #(ctl % :saw-cutoff cutout :amp 0.03) apeg-deep-melody)
-    (map #(ctl % :saw-cutoff cutout :amp 0.03) slow-deep-chord-group))
   (ctl drums-g :amp 0)
-
   (ctl drum-effects-g :amp 0)
 
   (remove-all-beat-triggers)
