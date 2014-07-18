@@ -104,8 +104,8 @@
      (n-overtime! node :amp 1 0 rate)))
 
 (defn fadeout-master
-  [] (fadeout-master 1)
-  [current] (n-overtime! (foundation-output-group) :master-volume current 0 0.05))
+  ([] (fadeout-master 1))
+  ([current] (n-overtime! (foundation-output-group) :master-volume current 0 0.05)))
 
 (def _ nil)
 (defn degrees
@@ -297,6 +297,15 @@
 
 
 ;;Chord fns
+
+(defn chord-pattern
+  "Write a pattern with list of notes to the buffers specified.
+  Useful when creating chords and hence running multiple instances of synths
+  with different buffers."
+  [chord-bufs pattern]
+  (dotimes [chord-idx (count chord-bufs)]
+    (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) pattern)))
+  pattern)
 
 (defn note-in-chords
   "Fetch the `pos` note in every chord defined by `note` and `scale`"

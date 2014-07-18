@@ -184,78 +184,161 @@
         (pattern! note1-dur-b [12 12 12 1/2 12 12 12 1/2])
         (let [chord-pat
               (concat
-               ;; (repeat 12 [0])
-               [F22 F21  _ _]
-               ;;(repeat 12 [0]) [_ _  _ _]
-               )]
-          (let [chord-bufs (shuffle [note1-b note2-b note3-b note4-b])] ;; Play around with some random inversions
-            (dotimes [chord-idx (count chord-bufs)]
-              (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))))))
-    ))
+               (repeat 12 [0]) [F22 F21  _ _]
+                (repeat 12 [0]) [_ _  _ _]
+                )]
+          (chord-pattern [note1-b note2-b note3-b note4-b] chord-pat))))
+    )
 
-(defonce ws-note1-b (buffer 256))
-(defonce ws-note2-b (buffer 256))
-(defonce ws-note3-b (buffer 256))
-(defonce ws-note4-b (buffer 256))
+  (defonce ws-note1-b (buffer 256))
+  (defonce ws-note2-b (buffer 256))
+  (defonce ws-note3-b (buffer 256))
+  (defonce ws-note4-b (buffer 256))
 
-(defonce ws-note11-b (buffer 256))
-(defonce ws-note12-b (buffer 256))
-(defonce ws-note13-b (buffer 256))
+  (defonce ws-note11-b (buffer 256))
+  (defonce ws-note12-b (buffer 256))
+  (defonce ws-note13-b (buffer 256))
 
-(def apeg-deep-melody-spair
-  [(deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note1-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
-   (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note2-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
-   (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note3-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
-   (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note4-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)])
+  (def apeg-deep-melody-spair
+    [(deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note1-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
+     (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note2-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
+     (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note3-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
+     (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note4-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)])
 
-(def apeg-deep-melody
-  [(deep-basz :amp 0.0 :noise-level 0.05 :notes-buf w-note3-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
-   (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf w-note8-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
-   (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf w-note9-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
-   (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf w-note10-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)])
+  (def apeg-deep-melody
+    [(deep-basz :amp 0.0 :noise-level 0.05 :notes-buf w-note3-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
+     (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf w-note8-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
+     (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf w-note9-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)
+     (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf w-note10-b :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1)])
 
-(def main-melody
-  [(deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note11-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1)
-   (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note12-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1)
-   (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note13-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1)])
+  (def main-melody
+    [(deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note11-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1)
+     (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note12-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1)
+     (deep-basz :amp 0.0 :noise-level 0.05 :notes-buf ws-note13-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1)])
 
-(comment
-  (map #(ctl %1 :saw-cutoff 800) slow-deep-chord-group)
-  (map #(ctl %1 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) slow-deep-chord-group)
-  (map #(ctl %1 :saw-cutoff 800 :release 6 :noise 100.2 :attack 0.4 :amp 0.05) slow-deep-chord-group)
-  (doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 1000 :amp 0.03 :attack 0.1 :noise-level 0.05 :release 1.0 :beat-trg-bus (:beat time/beat-2th) :wave 2 :beat-bus (:count time/beat-2th)))
-)
+  (comment
+    (map #(ctl %1 :saw-cutoff 800) slow-deep-chord-group)
+    (map #(ctl %1 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) slow-deep-chord-group)
+    (map #(ctl %1 :saw-cutoff 800 :release 6 :noise 100.2 :attack 0.4 :amp 0.05) slow-deep-chord-group)
+    (doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 1000 :amp 0.03 :attack 0.1 :noise-level 0.05 :release 1.0 :beat-trg-bus (:beat time/beat-2th) :wave 2 :beat-bus (:count time/beat-2th)))
+    )
 
-(def slow-deep-chord-group
-  (do
-    ;;(kill deep-basz-pi)
-    (defonce sd-g (group "slow deep chords"))
-    (defonce sd-note1-b (buffer 256))
-    (defonce sd-note2-b (buffer 256))
-    (defonce sd-note3-b (buffer 256))
-    (defonce sd-note4-b (buffer 256))
-    (defonce sd-note5-b (buffer 256))
-    (defonce sd-note6-b (buffer 256))
-    (defonce sd-attack-b (buffer 256))
-    (defonce sd-release-b (buffer 256))
-    (defonce sd-amp-b (buffer 256))
+  (def slow-deep-chord-group
+    (do
+      ;;(kill deep-basz-pi)
+      (defonce sd-g (group "slow deep chords"))
+      (defonce sd-note1-b (buffer 256))
+      (defonce sd-note2-b (buffer 256))
+      (defonce sd-note3-b (buffer 256))
+      (defonce sd-note4-b (buffer 256))
+      (defonce sd-note5-b (buffer 256))
+      (defonce sd-note6-b (buffer 256))
+      (defonce sd-attack-b (buffer 256))
+      (defonce sd-release-b (buffer 256))
+      (defonce sd-amp-b (buffer 256))
 
-    [(deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note1-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th))
-     (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note2-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th))
-     (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note3-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th))
-     (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note4-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th))
-  ;;   (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note5-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th))
-;;     (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note6-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th))
-     ]))
+      [(deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note1-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th))
+       (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note2-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th))
+       (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note3-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th))
+       (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note4-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th))
+       ;;   (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note5-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th))
+       ;;     (deep-basz-pi [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :notes-buf sd-note6-b :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th))
+       ])))
 
-(map #(map find-note-name %1) (map #(chord-degree %1 :F3 :major 4) [:i :ii :iii :iv :v :vi :vii]))
+(map #(map find-note-name %1) (map #(chord-degree %1 :F2 :major 4) [:i :ii :iii :iv :v :vi :vii]))
 (map #(map find-note-name %) (chords-with-inversion [1 2] :F2 :minor :up 4))
-(map #(map find-note-name %) (chords-with-inversion [1] :F2 :minor :up 3))
+(map #(map find-note-name %) (chords-with-inversion [1] :F2 :minor :up 4))
 
-;;C4 :Eb3 :G3
-;;fu24 bb3 c#3 F3
-;;fu23 :Ab3 :C3 :Eb3
-;;fuu21 :F3 :Ab3 :C3
+;;f26   :D3 :F3 :A3 :C4
+;;fu25  :C4 :Eb3 :G3 :Bb3
+;;fu24  :bb3 c#3 F3 Ab3
+;;fu23  :Ab3 :C3 :Eb3 :G3
+;;fuu21 :F3 :Ab3 :C3 :Eb3
+
+;;Experiments with new melody progression
+
+(def dark-chords-score
+  (let [_ [0 0 0 0]
+        [c21 c22 c23 c24 c25 c26 c27]        (chords-for :C2 :minor 3)
+        [f217 f227 f237 f247 f257 f267 f277] (chords-for :F2 :melodic-minor-asc 4)
+        [fm31 fm32 fm33 fm34 fm35 fm36 fm37] (chords-for :F3 :major 4)
+
+        [f31 f32 f33 f34 f35 f36 f37]        (chords-for :F3 :minor 3)
+        [f317 f327 f337 f347 f357 f367 f377] (chords-for :F3 :minor 4)
+
+        [f417 f427 f437 f447 f457 f467 f477] (chords-for :F4 :minor 4)
+
+        [f41 f42 f43 f44 f45 f46 f47]        (chords-for :F4 :minor 3)
+        [fu21 fu22 fu23 fu24 fu25 fu26 fu27]          (chords-with-inversion [1] :F2 :minor :up 3)
+        [fuu21 fuu22 fuu23 fuu24 fuu25 fuu26 fuu27]   (chords-with-inversion [1 2] :F2 :minor :up 3)
+        [f3ii21 f3ii22 f3ii23 f3ii24 f3ii25 f3ii26 f3ii27]   (chords-with-inversion [1 2] :F2 :minor :down 3)
+        [fii217 fii227 fii237 fii247 fii257 fii267 fii277]   (chords-with-inversion [1 2] :F2 :minor :down 4)
+        [fii21 fii22 fii23 fii24 fii25 fii26 fii27]   (chords-with-inversion [1 2] :F2 :minor :down 3)
+        [fi11 fi12 fi13 fi14 fi15 fi16 fi17]          (chords-with-inversion [1 2] :F2 :minor :down)
+        [fi21 fi22 fi23 fi24 fi25 fi26 fi27]          (chords-with-inversion [1]   :F2 :minor :down)
+        [f21 f22 f23 f24 f25 f26 f27]                 (chords-for :F2 :minor 3)
+        [fmm21 fmm22 fmm23 fmm24 fmm25 fmm26 fmm27]   (chords-with-inversion [1] :F2 :melodic-minor :down)
+        [fi31 fi32 fi33 fi34 fi35 fi36 fi37]          (chords-with-inversion [1] :F3 :minor :down)
+        [fii31 fii32 fii33 fii34 fii35 fii36 fii37]   (chords-with-inversion [1 2] :F3 :minor :down)
+
+        f317 (first (chords-for :F3 :minor 4))
+        f257 (first (chords-for :F2 :minor 4))
+
+        f31dim (chord :F3 :dim)
+        f42dim (chord :G2 :7sus4)
+        f43dim (chord :A3 :dim)
+        f44dim (chord :F3 :7sus4)
+        f45dim (chord :C3 :7sus4)
+        f46dim (chord :D3 :7sus4)
+        f47dim (chord :E3 :7sus4)
+
+        f3sus4   (chord :F3 :sus4)
+        f3susi4  (chord :F3 :sus4 1)
+        f3susii4 (chord :F3 :sus4 2)
+
+        f4sus4   (chord :F4 :sus4)
+        f4susi4  (chord :F4 :sus4 1)
+        f4susii4 (chord :F4 :sus4 2)
+
+        [fma21 fma22 fma23 fma24 fma25 fma26 fma27] (chords-with-inversion [] :F2 :melodic-minor-asc :up 3)
+        [fmd21 fmd22 fmd23 fmd24 fmd25 fmd26 fmd27] (chords-with-inversion [] :F2 :melodic-minor-desc :up 3)
+
+        all (chord-degree :ii :F3 :melodic-minor-asc)]
+    (let [_ (pattern! sd-attack-b  [0.2];;(repeat 2 [0.06 0.32 0.32 0.32 0.32 0.32 0.32 0.32]) (repeat 2 [0.06 0.32 0.32 0.32])
+                      )
+          _ (pattern! sd-release-b [1.0];; [1.0  1.0 1.0 1.0]
+                      )
+          _ (pattern! sd-amp-b     [1];;  (repeat 2 [1.1  0.9 0.9 0.9 0.9 0.9 0.9 0.9]) (repeat 2 [1.1 0.9 0.9 0.9])
+                      )
+          chord-pat
+          [
+           f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31
+           f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33
+           f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34
+           f36 f36 f36 f36 f36 f36 f36 f36
+           (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5)
+
+           f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31
+           f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33
+           f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34
+           f36 f36 f36 f36 f36 f36 f36 f36
+           (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5)]]
+      (chord-pattern [sd-note1-b sd-note2-b sd-note3-b sd-note4-b sd-note5-b sd-note6-b] chord-pat))))
+
+(def darker-pinger-score
+  (let [_ [0 0 0 0]
+        [c21 c22 c23 c24 c25 c26 c27]  (chords-for :C4 :minor 1)
+        [c31 c32 c33 c34 c35 c36 c37]  (chords-for :C4 :minor 1)
+        [f21 f22 f23 f24 f25 f26 f27]  (chords-for :F3 :minor 1)
+        [f31 f32 f33 f34 f35 f36 f37]  (chords-for :F3 :minor 1)
+        [f41 f42 f43 f44 f45 f46 f47]  (chords-for :F4 :minor 1)]
+    (let [chord-pat
+          [
+           c31 f21 f23 f34    f21 f21 f41 f21
+           ;;c31 f21 f23 f35    f31 f31 f41 f21
+           ;;c31 f21 f23 f35    f31 f31 f41 f31
+           ]]
+      (chord-pattern [w-note3-b w-note8-b w-note9-b w-note10-b] chord-pat))))
 
 (def pinger-score
   (let [_ [0 0 0 0]
@@ -264,45 +347,37 @@
         [c41 c42 c43 c44 c45 c46 c47]        (chords-for :C4 :minor 1)
         [f21 f22 f23 f24 f25 f26 f27]        (chords-for :F2 :minor 1)
         [f31 f32 f33 f34 f35 f36 f37]        (chords-for :F3 :minor 1)
-        [f41 f42 f43 f44 f45 f46 f47]        (chords-for :F4 :minor 1)]
+        [f41 f42 f43 f44 f45 f46 f47]        (chords-for :F4 :minor 1)
+
+        [fl21 fl22 fl23 fl24 fl25 fl26 fl27] (map #(do [(last %)]) (chords-for :F2 :minor 4))
+        ]
     (let [chord-pat
           [
-           [:C3] [:C4] [:C3] [:C3] c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-           [:C3] [:C3] [:C3] [:C3] c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-           [:C3] [:C3] [:C3] [:C3] c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-           [:C3] [:C3] [:C3] [:C3] c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+           [:C3] [:C4] [:C3] [:C3] c37 c36 f37 f37
+           [:C3] [:C3] [:C3] [:C3] c37 c36 f37 f37
+           [:C3] [:C3] [:C3] [:C3] c37 c36 f37 f37
+           [:C3] [:C3] [:C3] [:C3] c37 c36 f37 f37
 
-           [:Eb3] [:Eb4] [:Eb3] [:Eb3] c37 c36 (flatten [(degrees [6] :minor :F3) 0 0 0]) (flatten [(degrees [6] :minor :F3) 0 0 0])
-           [:Eb3] [:Eb3] [:Eb3] [:Eb3] c37 c36 (flatten [(degrees [6] :minor :F3) 0 0 0]) (flatten [(degrees [6] :minor :F3) 0 0 0])
+           c37 c37 c37 _ (chord :F3 :minor) _ f31 f34
+           c37 c36 c37 _ [:C4] [:C4] f31 f34
 
-           [:bb3] [:bb4] [:bb3] [:bb3] c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-           [:bb3] [:bb3] [:bb3] [:bb3] c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+           [:C4] [:C4] [:C4] [:C4]     c37 c36 f37 f37
+           [:Ab3] [:Ab3] [:Ab3] [:Ab3] c37 c36 f37 f37
 
-           ;;--
 
-           ;; [:C4] [:Ab4] [:Eb4] [:F4] [:Eb4] c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-           ;; [:C4] [:Ab4] [:Eb4] [:F4] [:Eb4] c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-           ;; [:C4] [:Ab4] [:Eb4] [:F4] [:Eb4] c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-           ;; [:C4] [:Ab4] [:Eb4] [:F4] [:Eb4] c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+           [:C3] [:C4] [:C3] [:C3] c37 c36 f37 f37
+           [:C3] [:C3] [:C3] [:C3] c37 c36 f37 f37
+           [:C3] [:C3] [:C3] [:C3] c37 c36 f37 f37
+           [:C3] [:C3] [:C3] [:C3] c37 c36 f37 f37
 
-           ;; [:F4] [:BB4] [:Eb4] [:G4] [:Eb4] c47 c36 (flatten [(degrees [6] :minor :F3) 0 0 0]) (flatten [(degrees [6] :minor :F3) 0 0 0])
-           ;; [:F4] [:BB4] [:Eb4] [:G4] [:Eb4] c47 c36 (flatten [(degrees [6] :minor :F3) 0 0 0]) (flatten [(degrees [6] :minor :F3) 0 0 0])
+           c37 c37 c37 _ (chord :F3 :minor) _ f31 f34
+           c37 c36 c37 _ [:C4] [:C4] f31 f34
 
-           ;; [:C4] [:Ab4] [:Eb4] [:G4] [:Eb4] c37 c36 (flatten [(degrees [7] :minor :F4) 0 0 0]) (flatten [(degrees [7] :minor :F2) 0 0 0])
-           ;; [:C4] [:Ab4] [:Eb4] [:G4] [:Eb4] c37 c36 (flatten [(degrees [7] :minor :F4) 0 0 0]) (flatten [(degrees [7] :minor :F2) 0 0 0])
+           [:C4] [:C4] [:C4] [:C4]     c37 c36 f37 f37
+           [:Bb3] [:Bb3] [:Bb4] [:Bb4] c37 c36 f37 f37
            ]
           ]
-      (let [chord-bufs [w-note3-b w-note8-b w-note9-b w-note10-b]]
-        (dotimes [chord-idx (count chord-bufs)]
-                    (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))) chord-pat)))
-
-
-(doseq [s main-melody]
-  (ctl s :amp 0.05 :saw-cutoff 1500 :wave 1 :attack 1.0 :release 5.0)
-;;  (n-overtime! s :amp 0 0.03 0.001)
-  )
-
-;;(kill main-melody)
+      (chord-pattern [w-note3-b w-note8-b w-note9-b w-note10-b] chord-pat))))
 
 (def apeg-swell
   (let [- [nil nil nil]
@@ -316,8 +391,7 @@
                    (degrees [5] :minor :F3) (degrees [5] :minor :F3) (degrees [5] :minor :F3) (degrees [5] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3)
                    ]
         chord-bufs [ws-note11-b ws-note12-b ws-note3-b ws-note13-b]]
-    (dotimes [chord-idx (count chord-bufs)]
-      (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))))
+    (chord-pattern chord-bufs chord-pat)))
 
 (def chords-score
   (let [_ [0 0 0 0]
@@ -378,13 +452,12 @@
            fu24 fu24 fu24 fu24 fu24 fu24 (chord :F2 :sus4 2) (chord :F2 :sus4 2)
 
            fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21  fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21
-           ;;f26 f26 f26 f26 f26 f26 f26 f26  f26 f26 f26 f26 f26 f26 f26 f26
+           ;;f26 f26 f26 f26 f26 f26 f26 f26   f26 f26 f26 f26 f26 f26 f26 f26
            fu23 fu23 fu23 fu23 fu23 fu23 fu23 fu23
            fu25 fu25 fu25 fu25 fu25 fu25  (chord :F2 :7sus4 2) (chord :F2 :7sus4 2)
            ]]
-      (let [chord-bufs [sd-note1-b sd-note2-b sd-note3-b sd-note4-b]]
-        (dotimes [chord-idx (count chord-bufs)]
-          (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))) chord-pat)))
+
+      (chord-pattern [sd-note1-b sd-note2-b sd-note3-b sd-note4-b] chord-pat ))))
 
 (do
   (crackle-snail :noise-level 0.1 :amp 0.6)
@@ -421,7 +494,7 @@
           [0 (degrees [1] :minor :F2) (degrees [3] :minor :F2) (degrees [4] :minor :F2)])
 
 (one-time-beat-trigger
- 0 16
+ 15 16
  (fn []
    (do
      (pattern! hats-buf      [0 0 0 0 1 0 0 0   0 0 1 0 0 0 0 0])
@@ -530,11 +603,10 @@
         [f41 f42 f43 f44 f45 f46 f47]        (chords-for :F4 :minor 1)
         ]
     (let [chord-pat
-          [f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+          [
+           f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
            ]]
-      (let [chord-bufs [w-note3-b w-note8-b w-note9-b w-note10-b]]
-        (dotimes [chord-idx (count chord-bufs)]
-          (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))) chord-pat)))
+      (chord-pattern [w-note3-b w-note8-b w-note9-b w-note10-b] chord-pat))))
 
 (def pinger-score-spair
   (let [_ [0 0 0 0]
@@ -544,11 +616,10 @@
         [f31 f32 f33 f34 f35 f36 f37]        (chords-for :F3 :minor 1)
         [f41 f42 f43 f44 f45 f46 f47]        (chords-for :F4 :minor 1)]
     (let [chord-pat
-          [f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])]]
-      (let [chord-bufs [ws-note1-b ws-note2-b ws-note3-b ws-note4-b]]
-        (dotimes [chord-idx (count chord-bufs)]
-                    (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))) chord-pat)))
-
+          [
+           f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])]
+          ]
+      (chord-pattern [ws-note1-b ws-note2-b ws-note3-b ws-note4-b] chord-pat))))
 
 ;;(ctl (foundation-output-group) :master-volume 4)
 
@@ -560,12 +631,13 @@
 ;;(on-beat-trigger 64 #(spacy (dirt :kurt 3)))
 ;;(on-beat-trigger 128 #(spacy (dirt :kurt 2)))
 
-;;(sample-trigger #(spacy (dirt :kurt 3)) 7  32)
-;;(sample-trigger #(spacy (dirt :kurt 2)) 15 32)
-;;;;(sample-trigger #(spacy (dirt :kurt 4)) 17 32)
-;;(sample-trigger #(spacy (dirt :kurt 5)) 1 32)
-;;(sample-trigger #(spacy (dirt :kurt 6)) 9 32)
-;;
+;;(on-beat-trigger 256 #(echoey-buf ooo-s :amp 0.04))
+
+;;(sample-trigger #(spacy (dirt :kurt 3)   :amp 0.5) 7  32)
+;;(sample-trigger #(spacy (dirt :kurt 2)   :amp 0.5) 15 32)
+;;;;(sample-trigger #(spacy (dirt :kurt 4) :amp 0.5) 17 32)
+;;(sample-trigger #(spacy (dirt :kurt 5)   :amp 0.5) 1 32)
+;;(sample-trigger #(spacy (dirt :kurt 6)   :amp 0.5) 9 32)
 ;;(remove-all-beat-triggers)
 ;;(remove-all-sample-triggers)
 
@@ -595,12 +667,10 @@
 (pattern! df-b [(degrees [1 1 1 1] :minor :F3)
                 (degrees [1 1 1 1] :minor :F3)
                 (degrees [1 1 1 1] :minor :F3)
-;;                (degrees [6 6 6 6] :minor :F3)
-        ;;        (degrees [7 7 7 7] :minor :F3)
+                ;;(degrees [6 6 6 6] :minor :F3)
+                ;;(degrees [7 7 7 7] :minor :F3)
                 (degrees [1 1 1 1] :minor :F4)
                 ])
-;;(def sparkle (sparkling-darkness))
-;;(ctl sparkle :freq (midi->hz (note :F4)) :amp 10)
 
 (one-time-beat-trigger 126 128 #(plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.25))
 
@@ -614,13 +684,8 @@
      (ctl drum-effects-g :amp 0.0)
      (ctl drums-g :amp 0.0)
 
-     (let [chord-bufs [sd-note1-b sd-note2-b sd-note3-b sd-note4-b sd-note5-b sd-note6-b]]
-       (dotimes [chord-idx (count chord-bufs)]
-         (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) dark-chords-score))))
-
-     (let [chord-bufs [w-note3-b w-note8-b w-note9-b w-note10-b]]
-       (dotimes [chord-idx (count chord-bufs)]
-         (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) darker-pinger-score))))
+     (chord-pattern [sd-note1-b sd-note2-b sd-note3-b sd-note4-b sd-note5-b sd-note6-b] dark-chords-score )
+     (chord-pattern [w-note3-b w-note8-b w-note9-b w-note10-b] darker-pinger-score)
      )
    (doseq [s apeg-deep-melody] (ctl s :amp 0.00 :saw-cutoff 100 :wave 0 :attack 1.0 :release 5.0)
           (n-overtime! s :saw-cutoff 100 2000 50)
@@ -659,19 +724,12 @@
   (doall (map #(set-beat % time/beat-1th) apeg-deep-melody-spair))
   (doall (map #(set-beat % time/beat-2th) slow-deep-chord-group))
 
-  (let [chord-pat pinger-score
-        chord-bufs [w-note3-b w-note8-b w-note9-b w-note10-b]]
-    (dotimes [chord-idx (count chord-bufs)]
-      (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat))))
+  (chord-pattern [w-note3-b w-note8-b w-note9-b w-note10-b] pinger-score)
 
   (let [_ (pattern! sd-attack-b  [0.06 0.12 0.12 0.12])
         _ (pattern! sd-release-b [1.0  1.0 1.0 1.0])
-        _ (pattern! sd-amp-b     [1.2  1.0 1.0 1.0])
-
-        chord-pat chords-score]
-    (let [chord-bufs [sd-note1-b sd-note2-b sd-note3-b sd-note4-b]]
-      (dotimes [chord-idx (count chord-bufs)]
-        (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))))
+        _ (pattern! sd-amp-b     [1.2  1.0 1.0 1.0])]
+    (chord-pattern [sd-note1-b sd-note2-b sd-note3-b sd-note4-b] chords-score))
   )
 
 (pattern! hats-buf [0])
@@ -686,143 +744,23 @@
   (doall (map #(set-beat % time/beat-2th) apeg-deep-melody))
   (doall (map #(set-beat % time/beat-1th) slow-deep-chord-group))
 
-  (let [chord-pat pinger-score
-        chord-bufs [sd-note1-b sd-note2-b sd-note3-b sd-note4-b]]
-    (dotimes [chord-idx (count chord-bufs)]
-      (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat))))
+  (chord-pattern [sd-note1-b sd-note2-b sd-note3-b sd-note4-b] pinger-score)
 
   (let [_ (pattern! sd-attack-b  [0.06 0.12 0.12 0.12])
         _ (pattern! sd-release-b [1.0  1.0 1.0 1.0])
-        _ (pattern! sd-amp-b     [1.2  1.0 1.0 1.0])
-
-        chord-pat chords-score]
-    (let [chord-bufs [w-note3-b w-note8-b w-note9-b w-note10-b]]
-      (dotimes [chord-idx (count chord-bufs)]
-        (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))))
+        _ (pattern! sd-amp-b     [1.2  1.0 1.0 1.0])]
+    (chord-pattern [w-note3-b w-note8-b w-note9-b w-note10-b] chords-score))
   )
 
-;;Experiments with new melody progression
-
-(def dark-chords-score
-  (let [_ [0 0 0 0]
-        [c21 c22 c23 c24 c25 c26 c27]        (chords-for :C2 :minor 3)
-        [f217 f227 f237 f247 f257 f267 f277] (chords-for :F2 :melodic-minor-asc 4)
-        [fm31 fm32 fm33 fm34 fm35 fm36 fm37] (chords-for :F3 :major 4)
-
-        [f31 f32 f33 f34 f35 f36 f37]        (chords-for :F3 :minor 3)
-        [f317 f327 f337 f347 f357 f367 f377] (chords-for :F3 :minor 4)
-
-        [f417 f427 f437 f447 f457 f467 f477] (chords-for :F4 :minor 4)
-
-        [f41 f42 f43 f44 f45 f46 f47]        (chords-for :F4 :minor 3)
-        [fu21 fu22 fu23 fu24 fu25 fu26 fu27]          (chords-with-inversion [1] :F2 :minor :up 3)
-        [fuu21 fuu22 fuu23 fuu24 fuu25 fuu26 fuu27]   (chords-with-inversion [1 2] :F2 :minor :up 3)
-        [f3ii21 f3ii22 f3ii23 f3ii24 f3ii25 f3ii26 f3ii27]   (chords-with-inversion [1 2] :F2 :minor :down 3)
-        [fii217 fii227 fii237 fii247 fii257 fii267 fii277]   (chords-with-inversion [1 2] :F2 :minor :down 4)
-        [fii21 fii22 fii23 fii24 fii25 fii26 fii27]   (chords-with-inversion [1 2] :F2 :minor :down 3)
-        [fi11 fi12 fi13 fi14 fi15 fi16 fi17]          (chords-with-inversion [1 2] :F2 :minor :down)
-        [fi21 fi22 fi23 fi24 fi25 fi26 fi27]          (chords-with-inversion [1]   :F2 :minor :down)
-        [f21 f22 f23 f24 f25 f26 f27]                 (chords-for :F2 :minor 3)
-        [fmm21 fmm22 fmm23 fmm24 fmm25 fmm26 fmm27]   (chords-with-inversion [1] :F2 :melodic-minor :down)
-        [fi31 fi32 fi33 fi34 fi35 fi36 fi37]          (chords-with-inversion [1] :F3 :minor :down)
-        [fii31 fii32 fii33 fii34 fii35 fii36 fii37]   (chords-with-inversion [1 2] :F3 :minor :down)
-
-        f317 (first (chords-for :F3 :minor 4))
-        f257 (first (chords-for :F2 :minor 4))
-
-        f31dim (chord :F3 :dim)
-        f42dim (chord :G2 :7sus4)
-        f43dim (chord :A3 :dim)
-        f44dim (chord :F3 :7sus4)
-        f45dim (chord :C3 :7sus4)
-        f46dim (chord :D3 :7sus4)
-        f47dim (chord :E3 :7sus4)
-
-        f3sus4   (chord :F3 :sus4)
-        f3susi4  (chord :F3 :sus4 1)
-        f3susii4 (chord :F3 :sus4 2)
-
-        f4sus4   (chord :F4 :sus4)
-        f4susi4  (chord :F4 :sus4 1)
-        f4susii4 (chord :F4 :sus4 2)
-
-        [fma21 fma22 fma23 fma24 fma25 fma26 fma27] (chords-with-inversion [] :F2 :melodic-minor-asc :up 3)
-        [fmd21 fmd22 fmd23 fmd24 fmd25 fmd26 fmd27] (chords-with-inversion [] :F2 :melodic-minor-desc :up 3)
-
-        all (chord-degree :ii :F3 :melodic-minor-asc)]
-    (let [_ (pattern! sd-attack-b  [0.2];;(repeat 2 [0.06 0.32 0.32 0.32 0.32 0.32 0.32 0.32]) (repeat 2 [0.06 0.32 0.32 0.32])
-                      )
-          _ (pattern! sd-release-b [1.0];; [1.0  1.0 1.0 1.0]
-                      )
-          _ (pattern! sd-amp-b     [1];;  (repeat 2 [1.1  0.9 0.9 0.9 0.9 0.9 0.9 0.9]) (repeat 2 [1.1 0.9 0.9 0.9])
-                      )
-          chord-pat
-          [
-           ;; f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31
-           ;; f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33
-           ;; f35 f35 f35 f35 f35 f35 f35 f35 f35 f35 f35 f35 f35 f35 f35 f35
-           ;; f357 f357 f357 f357 f357 f357 f357 f357 f337 f337 f337 f337 f337 f337 f337 f337
-
-           ;; f31 f31 f31 f31  f31 f31 f31 f31 f31 f31 f31 f31  f31 f31 f31 f31
-           ;; f33 f33 f33 f33  f33 f33 f33 f33  f33 f33 f33 f33 f33 f33 f33 f33
-           ;; f35 f35 f35 f35  f35 f35 f35 f35 f35 f35 f35 f35 f35 f35 f35 f35
-           ;; f357 f357 f357 f357 f357 f357 f357 f357 f367 f367 f367 f367 f367 f367 f367 f367
-           ;; f31 f31 f31 f31 ;;f31 f31  f31 f31 f31 f31 f31 f31 f31 f31  f31 f31 f31 f31
-           ;; f33 f33 f33 f33 ;;f33 f33  f33 f33 f33 f33  f33 f33 f33 f33 f33 f33 f33 f33
-           ;; f34 f34 f34 f34 ;;f35 f35  f35 f35 f35 f35 f35 f35 f35 f35 f35 f35 f35 f35
-           ;; f3sus4 f3sus4 ;; f357 f357 f357 f357 f357 f357 f367 f367 f367 f367 f367 f367 f367 f367
-
-           ;;(chord :F3 :5 1) (chord :F3 :5 1)
-           ;;(chord :F3 :m+5) (chord :F3 :m+5)
-
-           ;;(chord :F3 :m7+5 3) (chord :F3 :m7+5 3)
-           ;;(chord :F4 :m7+5) (chord :F4 :m7+5)
-
-           f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31
-           f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33
-           f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34
-           f36 f36 f36 f36 f36 f36 f36 f36
-           (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5)
-
-           f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31
-           f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33
-           f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34
-           f36 f36 f36 f36 f36 f36 f36 f36
-           (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5)
-           ]]
-      (let [chord-bufs [sd-note1-b sd-note2-b sd-note3-b sd-note4-b sd-note5-b sd-note6-b]]
-        (dotimes [chord-idx (count chord-bufs)]
-          (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))) chord-pat)))
-
-(def darker-pinger-score
-  (let [_ [0 0 0 0]
-        [c21 c22 c23 c24 c25 c26 c27]  (chords-for :C4 :minor 1)
-        [c31 c32 c33 c34 c35 c36 c37]  (chords-for :C4 :minor 1)
-        [f21 f22 f23 f24 f25 f26 f27]  (chords-for :F3 :minor 1)
-        [f31 f32 f33 f34 f35 f36 f37]  (chords-for :F3 :minor 1)
-        [f41 f42 f43 f44 f45 f46 f47]  (chords-for :F4 :minor 1)]
-    (let [chord-pat
-          [
-           c31 f21 f23 f34    f21 f21 f41 f21
-           ;;c31 f21 f23 f35    f31 f31 f41 f21
-           ;;c31 f21 f23 f35    f31 f31 f41 f31
-           ]
-          ]
-      (let [chord-bufs [w-note3-b w-note8-b w-note9-b w-note10-b]]
-        (dotimes [chord-idx (count chord-bufs)]
-                    (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))) chord-pat)))
-
-
-(map #(ctl % :saw-cutoff 1000 :amp 0.1) apeg-deep-melody)
+(map #(ctl % :saw-cutoff 1000 :amp 0.04) apeg-deep-melody)
 
 ;;Fade
-(let [cutout 200]
+(let [cutout 1000]
   (doall (map #(ctl % :saw-cutoff cutout :amp 0.03) apeg-deep-melody-spair))
   (doall (map #(ctl % :saw-cutoff cutout :amp 0.03) apeg-deep-melody))
   (doall (map #(ctl % :saw-cutoff cutout :amp 0.03) slow-deep-chord-group)))
 
 (comment
-  ;;
   ;;(ctl (foundation-output-group) :master-volume 1)
   (ctl drums-g :amp 0)
   (ctl drum-effects-g :amp 0)
