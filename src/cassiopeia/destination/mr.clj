@@ -12,18 +12,26 @@
 (ctl time/root-s :rate 8.)
 
 (do
-(defonce w-note6-b (buffer 256))
-(defonce note1-dur-b (buffer 256)))
-(defonce w-note8-b (buffer 256))
-(defonce w-note9-b (buffer 256))
-(defonce w-note10-b (buffer 256))
-(defonce w-note-b (buffer 256))
-(defonce w-note2-b (buffer 256))
-(defonce w-note3-b (buffer 256))
-(defonce w-note7-b (buffer 256))
-(defonce w-note5-b (buffer 256))
+(defonce w-note6-b (buffer 256)) (defonce note1-dur-b (buffer 256))) (defonce w-note8-b (buffer 256)) (defonce w-note9-b (buffer 256)) (defonce w-note10-b (buffer 256)) (defonce w-note-b (buffer 256)) (defonce w-note2-b (buffer 256)) (defonce w-note3-b (buffer 256)) (defonce w-note7-b (buffer 256)) (defonce w-note5-b (buffer 256)) (defonce s-note-b (buffer 256))
 
-(defonce s-note-b (buffer 256))
+(do
+  (definst dulcet-fizzle [amp 0 c 200 n-rate 0.001 note-b 0 beat-trg-bus (:beat time/beat-8th) beat-bus (:count time/beat-8th)]
+    (let [trg (in:kr beat-trg-bus)
+          cnt (in:kr beat-bus)
+          note (buf-rd:kr 1 note-b cnt)
+          freq (midicps note)
+          b (ringz (* 0.001 (rhpf (blip freq 3) (* 1.1 freq))) freq)
+          n (ringz (* 0.001 (lpf (pink-noise) 200)) freq)
+          s (* 0.001 (lpf (rhpf (saw (/ freq 2)) (* 2 freq)) (/ freq 2)))
+          src (mix [n s])]
+      (* amp (g-verb src))))
+  (kill dulcet-fizzle)
+
+  (defonce df-b (buffer 256))
+
+  (def f (dulcet-fizzle :amp 1.0 :note-b df-b))
+  ;;(ctl f :note (note :F4))
+  )
 
 (definst crackle-snail [notes-buf s-note-b
                beat-trg-bus (:beat time/beat-1th)
@@ -382,7 +390,6 @@
      (ctl kicker :attack 0.0 :sustain 0.2 :amp 1.0)
      )))
 
-
 (one-time-beat-trigger
  0 16
  (fn []
@@ -439,7 +446,6 @@
           (repeat 2 (repeat 8 (degrees [3] :minor :F1)))
           (repeat 2 (repeat 8 (degrees [3] :minor :F1)))
           [(degrees [1 1 1 1  5 4 3 1] :minor :F1)])
-
 
 ;;(ctl apeg-deep-melody :amp 0.05 :saw-cutoff 1500 :wave 3 :attack 0.01 :release 1.0)
 (map #(ctl % :wave 0 :amp 0.1) apeg-deep-melody-spair)
@@ -500,10 +506,7 @@
                     (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))) chord-pat)))
 
 
-;;(ctl (foundation-output-group) :master-volume 1)
-;;(stop)
-;;(kill grumblers-g)
-;;(remove-all-beat-triggers)
+;;(ctl (foundation-output-group) :master-volume 4)
 
 ;;(on-beat-trigger 256 #(echoey-buf pulse-s :amp 0.02))
 ;;(on-beat-trigger 64 #(echoey-buf godzilla-s :amp 0.3))
@@ -515,10 +518,12 @@
 
 ;;(sample-trigger #(spacy (dirt :kurt 3)) 7  32)
 ;;(sample-trigger #(spacy (dirt :kurt 2)) 15 32)
-;;(sample-trigger #(spacy (dirt :kurt 4)) 17 32)
+;;;;(sample-trigger #(spacy (dirt :kurt 4)) 17 32)
 ;;(sample-trigger #(spacy (dirt :kurt 5)) 1 32)
 ;;(sample-trigger #(spacy (dirt :kurt 6)) 9 32)
 ;;
+;;(remove-all-beat-triggers)
+;;(remove-all-sample-triggers)
 
 ;;(mono-player (dirt :pad 2) :amp 0.2)
 
@@ -527,8 +532,6 @@
                    (echoey-buf (dirt :kurt 6) :amp 0.1)
 ;;                   (echoey-buf :b (dirt :kurt 1))
                    ) 31 32)
-
-;;(remove-all-sample-triggers)
 
 ;;(spacy (dirt :cosmicg 2) :amp 0.5)
 ;;(on-beat-trigger 8 #(spacy (dirt :voodoo 0)))
@@ -545,14 +548,22 @@
 (spacy (dirt :pad 0) :amp 1.0)
 (pattern! hats-buf [1])
 
+(pattern! df-b [(degrees [1 1 1 1] :minor :F3)
+                (degrees [1 1 1 1] :minor :F3)
+                (degrees [1 1 1 1] :minor :F3)
+;;                (degrees [6 6 6 6] :minor :F3)
+        ;;        (degrees [7 7 7 7] :minor :F3)
+                (degrees [1 1 1 1] :minor :F4)
+                ])
 (one-time-beat-trigger
- 0 128
+ 126 128
  (fn [] ;;DARKER PROGRESSION
    (do
+     (doseq [s apeg-deep-melody] (ctl s :amp 0.00))
+
      (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.5)
      (ctl drum-effects-g :amp 0.0)
      (ctl drums-g :amp 0.0)
-     (doseq [s apeg-deep-melody] (ctl s :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0) (n-overtime! s :amp 0.02 0.04))
 
      (let [chord-bufs [sd-note1-b sd-note2-b sd-note3-b sd-note4-b sd-note5-b sd-note6-b]]
        (dotimes [chord-idx (count chord-bufs)]
@@ -562,10 +573,20 @@
        (dotimes [chord-idx (count chord-bufs)]
          (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) darker-pinger-score))))
      )
+   (doseq [s apeg-deep-melody] (ctl s :amp 0.00 :saw-cutoff 100 :wave 0 :attack 1.0 :release 5.0)
+          (n-overtime! s :saw-cutoff 100 2000 100)
+          (n-overtime! s :amp 0.00 0.04 0.005))
+;;   (doseq [s apeg-deep-melody] (ctl s :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0) (n-overtime! s :amp 0.00 0.04 0.005))
    ))
 
 ;;Drive home home chords + highlight melody
-(doseq [s main-melody] (ctl s :amp 0.09 :saw-cutoff 500 :wave 1 :attack 1.0 :release 5.0))
+(doseq [s main-melody] (ctl s :amp 0.09 :saw-cutoff 250 :wave 1 :attack 1.0 :release 5.0))
+
+;;Drum tension
+(pattern! hats-buf [1])
+(map #(ctl % :amp 1.0) white)
+(pattern! kick-seq-buf [1 0 0 0 1 0 0 0])
+(map #(ctl % :amp 1.0) kicker)
 
 (do
   (doseq [s main-melody] (ctl s :amp 0.0))
@@ -575,11 +596,13 @@
     )
   (ctl drum-effects-g :amp 1.0) (ctl drums-g :amp 1.0)
   (doseq [s apeg-deep-melody] (ctl s :amp 0.05 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0))
-;;  (pattern! hats-buf [1 0 0 0 0 0 0 0])
+  (def f (dulcet-fizzle :amp 2.0 :note-b df-b))
+
+  ;;  (pattern! hats-buf [1 0 0 0 0 0 0 0])
   )
 
-;;(doseq [s apeg-deep-melody] (ctl s :amp 0.05 :saw-cutoff 4000 :wave 0 :attack 1.0 :release 5.0))
-
+;;(ctl f :amp 2.4)
+;;(doseq [s apeg-deep-melody] (ctl s :amp 0.05 :saw-cutoff 2500 :wave 0 :attack 1.0 :release 5.0))
 ;;(pattern! hats-buf [1])
 
 (do
@@ -730,7 +753,12 @@
         [f31 f32 f33 f34 f35 f36 f37]  (chords-for :F3 :minor 1)
         [f41 f42 f43 f44 f45 f46 f47]  (chords-for :F4 :minor 1)]
     (let [chord-pat
-          [c31 f21 f23 f34    f21 f21 f41 f21]]
+          [
+           c31 f21 f23 f34    f21 f21 f41 f21
+           ;;c31 f21 f23 f35    f31 f31 f41 f21
+           ;;c31 f21 f23 f35    f31 f31 f41 f31
+           ]
+          ]
       (let [chord-bufs [w-note3-b w-note8-b w-note9-b w-note10-b]]
         (dotimes [chord-idx (count chord-bufs)]
                     (pattern! (nth chord-bufs chord-idx) (map #(if (> (count %1) chord-idx) (nth %1 chord-idx) 0) chord-pat)))) chord-pat)))
@@ -741,12 +769,12 @@
 (comment
   ;;(ctl (foundation-output-group) :master-volume 1)
 
-  (let [cutout 1]
-
+  (let [cutout 100]
     (doall (map #(ctl % :saw-cutoff cutout :amp 0.03) apeg-deep-melody-spair))
     (map #(ctl % :saw-cutoff cutout :amp 0.03) apeg-deep-melody)
     (map #(ctl % :saw-cutoff cutout :amp 0.03) slow-deep-chord-group))
   (ctl drums-g :amp 0)
+
   (ctl drum-effects-g :amp 0)
 
   (remove-all-beat-triggers)
