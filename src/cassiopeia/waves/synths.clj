@@ -336,7 +336,7 @@
   (ctl p :dark-freq 1)
   (buffer-write! freq-limit-buf (flatten (repeat 3 [5.9 5.9 0.5 0.5]))))
 
-(definst crackle-snail [notes-buf s-note-b
+(definst crackle-snail [notes-buf 0
                         beat-trg-bus (:beat time/beat-1th)
                         beat-bus     (:count time/beat-1th)
                         noise-level 0
