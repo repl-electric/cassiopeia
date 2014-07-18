@@ -34,46 +34,6 @@
 (def slow-deep-chord-bufs              [sd-note1-b sd-note2-b sd-note3-b sd-note4-b sd-note5-b sd-note6-b])
 (def apeg-swell-chord-bufs             [ws-note11-b ws-note12-b ws-note3-b ws-note13-b])
 
-(definst general-purpose-assembly-pi [amp 1 notes-buf 0 noise-level 0.05 beat-trg-bus (:beat time/beat-4th) beat-bus (:count time/beat-4th) attack-buf 0 release-buf 0 amp-buf 0 attack 0.4 release 0.9 saw-cutoff 300 noise-cutoff 100 wave 1]
-  (let [trg (in:kr beat-trg-bus)
-        cnt (in:kr beat-bus)
-        note (buf-rd:kr 1 notes-buf cnt)
-        attack (buf-rd:kr 1 attack-buf cnt)
-        release (buf-rd:kr 1 release-buf cnt)
-        b-amp (buf-rd:kr 1 amp-buf cnt)
-        gate-trg (and (> note 0) trg)
-        freq (midicps note)
-        noize (* noise-level (pink-noise))
-        wave (select:ar wave [(mix [(lpf (lf-saw freq) saw-cutoff) (lf-tri freq)])
-                              (lpf (saw freq) saw-cutoff)
-                              (lpf (pulse freq) saw-cutoff)
-                              (mix [(lpf (saw freq) saw-cutoff) (pulse freq)])
-                              (sum [(lpf (saw (/ freq 2)) saw-cutoff) (lf-tri freq)])])
-        src (mix [wave
-                  (lpf noize noise-cutoff)])
-        src (g-verb src 200 1 0.2)
-        e (env-gen (perc attack release) :gate gate-trg)
-        amp (+ (* amp 5) amp)]
-    (* (* b-amp amp) e src)))
-
-(definst general-purpose-assembly [amp 1 notes-buf 0 noise-level 0.05 beat-trg-bus (:beat time/beat-4th) beat-bus (:count time/beat-4th) attack 0.4 release 0.9 saw-cutoff 300 noise-cutoff 100 wave 1]
-  (let [trg (in:kr beat-trg-bus)
-        cnt (in:kr beat-bus)
-        note (buf-rd:kr 1 notes-buf cnt)
-        gate-trg (and (> note 0) trg)
-        freq (midicps note)
-        noize (* noise-level (pink-noise))
-        wave (select:ar wave [(mix [(lpf (lf-saw freq) saw-cutoff) (lf-tri freq)])
-                              (lpf (saw freq) saw-cutoff)
-                              (lpf (pulse freq) saw-cutoff)
-                              (mix [(lpf (saw freq) saw-cutoff) (pulse freq)])
-                              (sum [(lpf (saw (/ freq 2)) saw-cutoff) (lf-tri freq)])])
-        src (mix [wave (lpf noize noise-cutoff)])
-        src (g-verb src 200 1 0.2)
-        e (env-gen (perc attack release) :gate gate-trg)
-        amp (+ (* amp 5) amp)]
-    (* amp e src)))
-
 ;;START
 
 (do
