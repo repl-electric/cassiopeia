@@ -17,11 +17,15 @@
 (volume master-vol)
 (ctl time/root-s :rate 8.)
 
-(do (defbufs 256 [df-b note1-dur-b s-note-b w-note-b w-note2-b w-note3-b w-note5-b w-note6-b w-note7-b w-note8-b w-note9-b w-note10-b note1-b note2-b note3-b note4-b
+(do (defbufs 256 [df-b
+                  note1-dur-b
+                  s-note-b
+                  w-note-b w-note2-b w-note3-b w-note5-b w-note6-b w-note7-b w-note8-b w-note9-b w-note10-b
+                  note1-b note2-b note3-b note4-b
                   ws-note1-b ws-note2-b ws-note3-b ws-note4-b ws-note11-b ws-note12-b ws-note13-b
                   sd-note1-b sd-note2-b sd-note3-b sd-note4-b sd-note5-b sd-note6-b sd-attack-b sd-release-b sd-amp-b]))
 
-;;Chord groups
+;;Chord buf groups
 
 (def grumble-chord-bufs                [note1-b note2-b note3-b note4-b])
 (def apeg-deep-melody-spair-chord-bufs [ws-note1-b ws-note2-b ws-note3-b ws-note4-b])
