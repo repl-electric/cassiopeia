@@ -145,6 +145,8 @@
         amp (+ (* amp 5) amp)]
     (* amp e src)))
 
+;;START
+
 (do
   (def grumble-chord-group
     (do
