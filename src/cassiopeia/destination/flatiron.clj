@@ -13,6 +13,8 @@
             [clojure.math.numeric-tower :as math]
             [overtone.studio.fx :as fx]))
 
+(def master-vol 3.0)
+(volume master-vol)
 (ctl time/root-s :rate 8.)
 
 (do (defonce w-note6-b (buffer 256)) (defonce note1-dur-b (buffer 256))) (defonce w-note8-b (buffer 256)) (defonce w-note9-b (buffer 256)) (defonce w-note10-b (buffer 256)) (defonce w-note-b (buffer 256)) (defonce w-note2-b (buffer 256)) (defonce w-note3-b (buffer 256)) (defonce w-note7-b (buffer 256)) (defonce w-note5-b (buffer 256)) (defonce s-note-b (buffer 256))
@@ -820,7 +822,7 @@
   (doall (map #(ctl % :saw-cutoff cutout :amp 0.03) slow-deep-chord-group)))
 
 (comment
-  ;;(volume 3.0)
+  ;;
   ;;(ctl (foundation-output-group) :master-volume 1)
   (ctl drums-g :amp 0)
   (ctl drum-effects-g :amp 0)
@@ -830,7 +832,7 @@
   (stop)
   (kill wobbling)
 
-  (fadeout-master)
+  (fadeout-master master-vol)
   (recording-start "~/Desktop/flatiron21.wav")
   (recording-stop)
   )

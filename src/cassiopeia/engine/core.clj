@@ -103,7 +103,9 @@
   ([node rate]
      (n-overtime! node :amp 1 0 rate)))
 
-(defn fadeout-master [] (n-overtime! (foundation-output-group) :master-volume 1 0 0.05))
+(defn fadeout-master
+  [] (fadeout-master 1)
+  [current] (n-overtime! (foundation-output-group) :master-volume current 0 0.05))
 
 (def _ nil)
 (defn degrees
