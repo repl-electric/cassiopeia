@@ -330,15 +330,14 @@
 ;;           fu23 fu23 fu23 fu23 fu23 fu23 fu23 fu23
 ;;           fu24 fu24 fu24 fu24 fu24 fu24 fu24 fu24
 
-           fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21  fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21
+           fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21  f26 f26 f26 f26 f26 f26 f26 f26
            fu23 fu23 fu23 fu23 fu23 fu23 fu23 fu23
            fu24 fu24 fu24 fu24 fu24 fu24 (chord :F2 :sus4 2) (chord :F2 :sus4 2)
 
            fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21  fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21
+           ;;f26 f26 f26 f26 f26 f26 f26 f26  f26 f26 f26 f26 f26 f26 f26 f26
            fu23 fu23 fu23 fu23 fu23 fu23 fu23 fu23
            fu25 fu25 fu25 fu25 fu25 fu25  (chord :F2 :7sus4 2) (chord :F2 :7sus4 2)
-
-
            ]]
       (let [chord-bufs [sd-note1-b sd-note2-b sd-note3-b sd-note4-b]]
         (dotimes [chord-idx (count chord-bufs)]
