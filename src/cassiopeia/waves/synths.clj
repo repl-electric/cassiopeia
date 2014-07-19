@@ -16,13 +16,13 @@
 
 (defsynth echoey-buf
   "Play an existing buffer with a heavy echo"
-  [b 0 frames [256 :ir] out-bus 0 thresh 0.07 amp 1]
+  [b 0 frames [256 :ir] out-bus 0 thresh 0.07 amp 1 decay 6 delay 0.3]
   (let [in (play-buf 1 b (* (buf-rate-scale:kr b) 1.1))
         trg (:beat time/main-beat)
         chain (fft (local-buf frames) in)
         chain (pv-mag-freeze chain -0.1)
         output (* (ifft chain) 0.9)
-        output (+ output (comb-c:ar output 1 0.3 6))
+        output (+ output (comb-c:ar output 1.0 delay decay))
         inv-trg (- 1 trg)]
     (detect-silence:ar (+ inv-trg b) 0.001 10 FREE)
     (out out-bus (* amp output))))
