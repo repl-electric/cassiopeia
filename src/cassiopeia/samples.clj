@@ -79,6 +79,14 @@
 (defonce goodbye-s                  (load-local-sample "goodbye.wav"))
 (defonce beep-s                     (load-local-sample "beep.wav"))
 
+;;Richard Feynman
+(defonce rf-fx-s                     (load-local-sample "richard_feynman/fx.wav"))
+(defonce rf-trig-s                     (load-local-sample "richard_feynman/trig.wav"))
+(defonce rf-theorems-s                (load-local-sample "richard_feynman/theorems.wav"))
+(defonce rf-solve-s                (load-local-sample "richard_feynman/solve.wav"))
+(defonce rf-full-s                (load-local-sample "richard_feynman/full.wav"))
+(defonce rf-beat-it-s                (load-local-sample "richard_feynman/beat-it.wav"))
+
 ;;Triggers
 (defonce glitch1-s (freesound-sample 130301))
 (defonce glitch2-s (freesound-sample 130304))
