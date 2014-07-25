@@ -27,7 +27,6 @@
     (detect-silence:ar (+ inv-trg b) 0.001 10 FREE)
     (out out-bus (* amp output))))
 
-
 (defsynth grainy-buf [b 0 amp 1 c-dur 10 trate 2]
   (let [dur (/ 1.2 trate)
         src (t-grains:ar :num-channels 1
@@ -39,6 +38,7 @@
                          :pan (* 0.6 (white-noise:kr))
                          :amp amp)]
     (out 0 (* amp src))))
+
 (defsynth seqer
   "Plays a single channel audio buffer."
   [buf 0 rate 1 out-bus 0 beat-num 0 pattern 0  num-steps 8 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) amp 0.7
