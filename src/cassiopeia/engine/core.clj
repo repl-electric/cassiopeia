@@ -347,3 +347,9 @@
                (vec m)
                inversions))
             (chords-for note scale no-notes)))))
+
+
+(defn full-stop []
+  (remove-all-beat-triggers)
+  (remove-all-sample-triggers)
+  (stop))
