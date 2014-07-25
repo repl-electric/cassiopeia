@@ -11,7 +11,8 @@
   (:use cassiopeia.dirt)
   (:require [cassiopeia.engine.timing :as time]
             [clojure.math.numeric-tower :as math]
-            [overtone.studio.fx :as fx]))
+            [overtone.studio.fx :as fx]
+            [shadertone.tone :as t]))
 
 (def master-vol 3.0)
 (volume master-vol)
@@ -531,4 +532,10 @@
   (fadeout-master master-vol)
   (recording-start "~/Desktop/flatiron21.wav")
   (recording-stop)
+
+  (t/start-fullscreen "resources/shaders/manhattan.glsl"
+                      :textures [:overtone-audio :previous-frame
+                                ]
+                      )
+
   )
