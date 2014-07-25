@@ -68,7 +68,7 @@
   (defonce sd-g (group "slow deep chords"))
   (def slow-deep-chord-g
     ;;Needs 4
-    (chord-synth general-purpose-assembly-pi 4 [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.2 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th)
+    (chord-synth general-purpose-assembly-pi 4 [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th)
 )))
 
 (map #(map find-note-name %1) (map #(chord-degree %1 :F2 :major 4) [:i :ii :iii :iv :v :vi :vii]))
@@ -280,19 +280,19 @@
         [f21 f22 f23 f24 f25 f26 f27] (chords-for :F2 :minor 1)
         [f31 f32 f33 f34 f35 f36 f37] (chords-for :F3 :minor 1)
         [f41 f42 f43 f44 f45 f46 f47] (chords-for :F4 :minor 1)]
-    [ f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+    [f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
      f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+     f41 f43 f41 f44 f37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
      f41 f43 f41 f44 f37 c36 (flatten [(degrees [1] :minor :F4) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 f37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
      f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 c37 c36 [(degrees [1] :minor :F3) 0 0 0] (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 c37 c36 [(degrees [1] :minor :F3) 0 0 0] (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 f37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 f37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+     f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+     f41 f43 f41 f44 f37 c36 [(degrees [1] :minor :F3) 0 0 0] (flatten [(degrees [7] :minor :F3) 0 0 0])
+     f41 f43 f41 f44 f37 c36 [(degrees [1] :minor :F3) 0 0 0] (flatten [(degrees [7] :minor :F3) 0 0 0])
+     f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+     f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
 
-     f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])])
+     f41 f43 f41 f44 f37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+     f41 f43 f41 f44 f37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])])
 )
 
 (def pinger-score
@@ -322,6 +322,9 @@
 
            ;; f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
            ;; f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+
+           ;; f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+           ;; f41 f43 f41 f44 c47 c46 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
 
            ;; c41 f43 f41 f41 _   c36 (flatten [(degrees [7] :minor :F3) (degrees [1] :minor :F4) 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
            ;; c41 f41 f31 f41 c47 c46 (flatten [(degrees [7] :minor :F3) (degrees [1] :minor :F4) 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
@@ -411,7 +414,7 @@
    ))
 
 ;(grainy-buf :b (buffer-mix-to-mono rf-fx-s) :amp 0.3 :dur 5.0 :trate 1 :amp 0.9)
-(echoey-buf rf-theorems-s :amp 0.1)
+(echoey-buf rf-theorems-s :amp 0.04)
 
 (doseq [chord-g (:synths slow-deep-chord-g)]
   (ctl chord-g :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4)
@@ -546,7 +549,7 @@
 
 ;;Drive home home chords + highlight melody
 (doseq [s (:synths main-melody-chord-g)] (ctl s :amp 0.09 :saw-cutoff 450 :wave 1 :attack 1.0 :release 5.0))
-(doseq [s (:synths apeg-deep-melody-chord-g)] (ctl s :amp 0.03 :saw-cutoff 2900))
+(doseq [s (:synths apeg-deep-melody-chord-g)] (ctl s :amp 0.04 :saw-cutoff 2700))
 
 ;;Drum tension
 (pattern! hats-buf [1])
@@ -563,7 +566,7 @@
 
   (chord-pattern apeg-deep-melody-spair-chord-g pinger-growth-score-spair)
 
-  (ctl drum-effects-g :amp 0.6) (ctl drums-g :amp 1.0) (ctl fuzzy-kick-drums :amp 0.035)
+  (kill fuzzy-kick-drums) (ctl drum-effects-g :amp 0.6) (ctl drums-g :amp 1.0)
   (doseq [s (:synths apeg-deep-melody-chord-g)] (ctl s :amp 0.05 :saw-cutoff 2600 :wave 0 :attack 1.0 :release 5.0))
   (def f (dulcet-fizzle :amp 2.0 :note-buf df-b))
   ;;  (pattern! hats-buf [1 0 0 0 0 0 0 0])
@@ -615,12 +618,12 @@
 ;;Fade
 (let [cutout 2000]
   (ctl drum-effects-g :amp 0)
-  (doall (map #(ctl % :saw-cutoff cutout :amp 0.03) (:synths apeg-deep-melody-spair-chord-g)))
-  (doall (map #(ctl % :saw-cutoff cutout :amp 0.03) (:synths apeg-deep-melody-chord-g)))
-  (doall (map #(ctl % :saw-cutoff cutout :amp 0.03) (:synths slow-deep-chord-g))))
+  (doall (map #(ctl % :saw-cutoff cutout) (:synths apeg-deep-melody-spair-chord-g)))
+  (doall (map #(ctl % :saw-cutoff cutout) (:synths apeg-deep-melody-chord-g)))
+  (doall (map #(ctl % :saw-cutoff cutout) (:synths slow-deep-chord-g))))
 
 (echoey-buf rf-trig-s :amp 0.1 :decay 8 :delay 0.9)
-(spacy rf-full-s :amp 0.9)
+(spacy rf-full-s :amp 0.6)
 ;;(echoey-buf rf-full-s :amp 0.04)
 
 (comment

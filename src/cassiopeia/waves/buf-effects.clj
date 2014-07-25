@@ -97,7 +97,8 @@
                             amp-buf 0
                             duration-buf 0
                             voices 3
-                            beat-count-bus 0]
+                            beat-count-bus 0
+                            sin-dur 1]
   (let [cnt (in:kr beat-count-bus)
         dur (buf-rd:kr 1 duration-buf (mod cnt voices))
         custom-amp (buf-rd:kr 1 amp-buf (mod cnt pattern-size))
@@ -125,7 +126,7 @@
                             inter)
 
         sound (bi-pan-b2:ar forward backward (f-sin-osc:kr dur))
-        env (env-gen:kr (env-sine) bar-trg 1 0 dur)]
+        env (env-gen:kr (env-sine sin-dur) bar-trg 1 0 dur)]
         (out out-bus (* env amp custom-amp sound))))
 
 
@@ -166,9 +167,9 @@
 
 (defn sample->smooth
   ([samples] (sample->smooth samples 3 3))
-  ([samples voices pattern-size]
+  ([samples voices pattern-size] (sample->smooth samples voices pattern-size (take voices (lazy-nths samples))) )
+  ([samples voices pattern-size selected-samples]
      (let [g (group "smooth grouping")
-           selected-samples (take voices (lazy-nths samples))
            fraction-buf (buffer voices)
            amp-buf      (buffer pattern-size)
            duration-buf (buffer pattern-size)
@@ -222,16 +223,26 @@
 
   (def ss (sample->smooth [rf-solve-s rf-full-s rf-theorems-s rf-full-s rf-fx-s] voices pattern-size))
   (pattern! (:duration ss) (take voices (repeatedly #(rand-nth durations))))
-  (pattern! (:amp ss)      (take pattern-size (repeatedly #(ranged-rand 0.2 0.3))))
+  (pattern! (:amp ss)      (take pattern-size (repeatedly #(ranged-rand 0.1 0.2))))
   (pattern! (:fraction ss) (take pattern-size (repeatedly #(/ (rand 512) 512))))
 
-  (pattern! (:duration ss) [1 0 0 0 0 1 0 0 0])
-  (pattern! (:amp ss)      [0.3 0.2 0.2 0.2])
-  (pattern! (:fraction ss) [0.5 0 0.1 0 0 0.1 0.1 0.2])
+  (def example-samples
+    [rf-full-s rf-full-s rf-solve-s rf-fx-s rf-solve-s rf-full-s rf-full-s rf-full-s]
+    ;;[rf-full-s rf-theorems-s rf-full-s rf-full-s rf-theorems-s rf-fx-s rf-solve-s rf-full-s]
+    )
+  (def ss (sample->smooth [] voices pattern-size example-samples))
+  (pattern! (:duration ss) [1/2 0 0 0 1/2 0 0 0])
+  (pattern! (:duration ss) [1 0 0 0 1 0 0 0])
+  (pattern! (:amp ss)      [0.1 0 0 0 0.15 0 0 0])
+  ;;(pattern! (:amp ss)    [0.1 0.1 0.1 0.1 0.1 0.1 0.1 0])
+  (pattern! (:fraction ss) [0.8845941 0.3484526 0.02742675 0.82377213 0.7945769 0.772626 0.45249504 0.35252455])
 
-  ;;(pattern! (:fraction ss) [0.8 0.8 0.1 0.1])
+  (pattern! (:fraction ss) [0.2470634 0.5662428 0.63178784 0.9357417 0.66654444 0.0969285 0.40005338 0.675227])
 
-  (def gs (sample->percussive [rf-solve-s rf-full-s rf-theorems-s rf-full-s rf-fx-s] voices pattern-size))
+  ;; (ctl (:group ss) :sin-dur 1)
+
+  (def gs (sample->percussive
+           [rf-solve-s rf-full-s rf-theorems-s rf-full-s rf-fx-s] voices pattern-size))
   (buffer-write! (:duration gs) (take voices (repeatedly #(rand-nth durations))))
   (buffer-write! (:amp gs)      (take pattern-size (repeatedly #(ranged-rand 0.3 0.5))))
   (buffer-write! (:fraction gs) (take voices (repeatedly #(/ (rand 512) 512))))
@@ -257,6 +268,4 @@
   ;;id:5 buf:fx.wav
   ;;id:6 buf:full.wav
   ;;id:7 buf:full.wav
-
-  (recording-start "~/Desktop/accident.wav")
-  (recording-stop))
+)
