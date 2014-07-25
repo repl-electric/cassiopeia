@@ -87,8 +87,7 @@
    fattack {:default 0.001 :min 0.00001 :max 2 :step 0.0001}
    fdecay {:default 0.282 :min 0.00001 :max 2 :step 0.0001}
    amp {:default 0.8 :min 0.01 :max 1 :step 0.01}
-   beat-bus 0
-   beat-trg-bus 0
+   beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat)
    note-buf 0
    num-steps 0
    beat-num 0
@@ -142,11 +141,11 @@
   "We take the sting out of the overtone kick2 drum giving a softer more mellow kick"
   [amp 0.8 mod-freq  5 mod-index 5 sustain 0.4 noise 0.025 attack 0.005
    beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) note-buf 0 seq-buf 0 beat-num 0 num-steps 8 out-bus 0]
-  (let [cnt      (mod (in:kr beat-bus) num-steps)
+  (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         note (buf-rd:kr 1 note-buf beat-num)
         bar-trg (and (buf-rd:kr 1 seq-buf cnt)
-                     (= beat-num cnt)
+;;                     (= beat-num cnt)
                      beat-trg)
         freq (midicps note)
 
@@ -223,7 +222,7 @@
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
         bar-trg (and (buf-rd:kr 1 seq-buf cnt)
-                     (= beat-num (mod cnt num-steps))
+                     ;;(= beat-num cntsteps)
                      beat-trg)
         w (* 0.01 (white-noise:ar))
         e (env-gen (perc :attack attack :release release) :gate bar-trg)]
