@@ -271,29 +271,47 @@
 (map #(ctl % :amp 0.4) (:synths apeg-deep-melody-spair2-chord-g))
 (map #(ctl % :amp 0.4) (:synths apeg-deep-melody-spair-chord-g))
 
-(def pinger-score-highlighted
-  (let [_ [0 0 0 0]
-        [c21 c22 c23 c24 c25 c26 c27] (chords-for :C2 :minor 1)
-        [c31 c32 c33 c34 c35 c36 c37] (chords-for :C3 :minor 1)
-        [c41 c42 c43 c44 c45 c46 c47] (chords-for :C4 :minor 1)
-        [c41 c42 c43 c44 c45 c46 c47] (chords-for :C4 :minor 1)
-        [f21 f22 f23 f24 f25 f26 f27] (chords-for :F2 :minor 1)
-        [f31 f32 f33 f34 f35 f36 f37] (chords-for :F3 :minor 1)
-        [f41 f42 f43 f44 f45 f46 f47] (chords-for :F4 :minor 1)]
-    [f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 f37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 f37 c36 (flatten [(degrees [1] :minor :F4) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 f37 c36 [(degrees [1] :minor :F3) 0 0 0] (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 f37 c36 [(degrees [1] :minor :F3) 0 0 0] (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+(do
+  (def pinger-score-highlighted
+    (let [_ [0 0 0 0]
+          [c21 c22 c23 c24 c25 c26 c27] (chords-for :C2 :minor 1)
+          [c31 c32 c33 c34 c35 c36 c37] (chords-for :C3 :minor 1)
+          [c41 c42 c43 c44 c45 c46 c47] (chords-for :C4 :minor 1)
+          [c41 c42 c43 c44 c45 c46 c47] (chords-for :C4 :minor 1)
+          [f21 f22 f23 f24 f25 f26 f27] (chords-for :F2 :minor 1)
+          [f31 f32 f33 f34 f35 f36 f37] (chords-for :F3 :minor 1)
+          [f41 f42 f43 f44 f45 f46 f47] (chords-for :F4 :minor 1)
 
-     f41 f43 f41 f44 f37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
-     f41 f43 f41 f44 f37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])])
-)
+          [f413 f423 f433 f443 f453 f463 f473] (chords-for :F3 :minor 2)
+          ]
+      [
+        f41 f43 f41 f44 f37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3) )
+        f41 f43 f41 f44 f37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3) )
+
+        f41 f43 f41 f44 c37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))
+        f41 f43 f41 f44 c37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))
+
+        f41 f43 f41 f44 f37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))
+        f41 f43 f41 f44 f37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))
+
+        f41 f43 f41 f44 c43 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))
+        f41 f43 f41 c44 c47 c46 (as-chord (degrees [3] :minor :C4)) (as-chord (degrees [5] :minor :F3))
+
+       ;;-
+
+       f41 f43 f41 f44 f37 c36 [(degrees [1] :minor :F3)] (as-chord (degrees [7] :minor :F3))
+       f41 f43 f41 f44 f37 c36 [(degrees [1] :minor :F3)] (as-chord (degrees [7] :minor :F3))
+
+       f41 f43 f41 f44 f41 c36 [(degrees [1] :minor :F3)] (as-chord (degrees [7] :minor :F3))
+       f41 f43 f41 f44 f41 c36 [(degrees [1] :minor :F3)] (as-chord (degrees [7] :minor :F3))
+
+       f41 f43 f41 f44 c43 c36 [(degrees [7] :minor :F3)] (as-chord (degrees [7] :minor :F3))
+       f41 f43 f41 f44 c43 c36 [(degrees [7] :minor :F3)] (as-chord (degrees [7] :minor :F3))
+
+       f41 f43 f41 f44 c41 c36 [(degrees [1] :minor :F3)] (as-chord (degrees [7] :minor :F3))
+       f41 f43 f41 c44 c47 c36 f453 f413])
+    )
+  (chord-pattern apeg-deep-melody-chord-g pinger-score-highlighted))
 
 (def pinger-score
   (let [_ [0 0 0 0]
@@ -309,14 +327,18 @@
         ]
     (let [chord-pat
           [
-           f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+           f41 f43 f41 f44 c37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))
            ;; f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+
            ;; f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
            ;; f41 f43 f41 f44 f37 c36 (flatten [(degrees [1] :minor :F4) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+
            ;; f41 f43 f41 f44 f37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
            ;; f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
+
            ;; f41 f43 f41 f44 c37 c36 [(degrees [1] :minor :F3) 0 0 0] (flatten [(degrees [7] :minor :F3) 0 0 0])
            ;; f41 f43 f41 f44 c37 c36 [(degrees [1] :minor :F3) 0 0 0] (flatten [(degrees [7] :minor :F3) 0 0 0])
+
            ;; f41 f43 f41 f44 f37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
            ;; f41 f43 f41 f44 f37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
 
@@ -384,8 +406,8 @@
 ;;(kill seqer)
 
 (def fuzzy-kick-drums (doall (map #(seqer [:head drum-effects-g]
-                                          :rate-start 0.2 :rate-limit 0.3
-                                          :beat-num %1 :pattern effects2-seq-buf :amp 0.035 :num-steps 8 :buf kick-fuzzy-s) (range 0 16))))
+                                          :rate-start 0.1 :rate-limit 0.2
+                                          :beat-num %1 :pattern effects2-seq-buf :amp 0.030 :num-steps 8 :buf kick-fuzzy-s) (range 0 8))))
 
 (kill drum-effects-g)
 (kill drums-g)
@@ -394,14 +416,20 @@
  15 16
  (fn []
    (do
-     (pattern! hats-buf      [0 0 0 0 1 0 0 0   0 0 1 0 0 0 0 0])
-     (pattern! kick-seq-buf  [1 0 0 1 0 0 0 0   1 0 0 0 0 0 0 0])
+     (pattern! hats-buf
+               (repeat 3 [0 0 0 0 1 0 0 0   0 0 1 0 0 0 0 0])
+                         [0 0 0 0 1 0 0 0   0 0 1 0 1 0 0 0]
+               )
+     (pattern! kick-seq-buf
+               (repeat 3 [1 0 0 1 0 0 0 0   1 0 0 0 0 0 0 0])
+                         [1 0 0 1 0 0 0 0   1 0 0 0 1 0 1 0]
+               )
 
-     (def white (doall (map #(whitenoise-hat [:head drums-g] :amp 1.0 :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 24 :release 0.1 :attack 0.0 :beat-num %1) (range 0 24))))
+     (def white (doall (map #(whitenoise-hat [:head drums-g] :amp 1.0 :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :release 0.1 :attack 0.0 :beat-num %1) (range 0 1))))
      (ctl white :attack 0.04 :release 0.01 :amp 2)
      (ctl white :attack 0.002 :release 0.04 :amp 2)
 
-     (def kicker (doall (map #(space-kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 32 :beat-num %1 :noise 0.05 :amp 4.2 :mod-index 0.1 :mod-freq 4.0 :mode-freq 0.2) (range 0 32))))
+     (def kicker (doall (map #(space-kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 16 :beat-num %1 :noise 0.05 :amp 4.2 :mod-index 0.1 :mod-freq 4.0 :mode-freq 0.2) (range 0 1))))
      (ctl kicker :attack 0.0 :sustain 0.2 :amp 1.0)
      )))
 
@@ -421,7 +449,7 @@
   (n-overtime! chord-g :amp 0.0 0.04 0.001)
   )
 
-(def hand-drums (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.25 :num-steps 16 :buf hand-drum-s :rate-start 1.0 :rate-limit 1.0) (range 0 16))))
+(def hand-drums (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.23 :num-steps 16 :buf hand-drum-s :rate-start 1.0 :rate-limit 1.0) (range 0 16))))
 
 (comment
   (map #(ctl %1 :saw-cutoff 1000 :noise-level 0.5 :amp 0.09 :attack 0.3 :release 6.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) (:synths slow-deep-chord-g))
@@ -504,7 +532,7 @@
 ;;(on-beat-trigger 16 #(echoey-buf (dirt :wind) :amp 0.1))
 ;;(on-beat-trigger 8 #(echoey-buf (dirt :wind) :amp 0.1))
 
-;;(sample-trigger #(do (echoey-buf (dirt :kurt 6) :amp 0.11)) 31 32)
+;;(sample-trigger #(do (echoey-buf (dirt :kurt 6) :amp 0.12)) 31 32)
 ;;(remove-all-sample-triggers)
 
 (do ;;shh drums
@@ -523,18 +551,16 @@
                 ])
 
 (one-time-beat-trigger 126 128 #(do
-                                  ;;                                  (chord-pattern apeg-deep-melody-chord-g pinger-score-alternative)
+                                  ;;(chord-pattern apeg-deep-melody-chord-g pinger-score-alternative)
                                   (chord-pattern apeg-deep-melody-chord-g pinger-score-highlighted)
-
                                   (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.25)))
 
 (one-time-beat-trigger
  126 128
  (fn [] ;;DARKER PROGRESSION
    (do
-     (doseq [s (:synths apeg-deep-melody-chord-g)] (ctl s :amp 0.00))
-
      (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.5)
+     (doseq [s (:synths apeg-deep-melody-chord-g)] (ctl s :amp 0.00))
      (ctl drum-effects-g :amp 0.0)
      (ctl drums-g :amp 0.0)
 
@@ -580,9 +606,9 @@
 
   (chord-pattern slow-deep-chord-g pinger-score)
 
-  (let [_ (pattern! sd-attack-b  [0.06 0.12 0.12 0.12])
-        _ (pattern! sd-release-b [1.0  0.6 0.4 0.2])
-        _ (pattern! sd-amp-b     [1.2  1.0 1.0 1.0])]
+  (let [_ (pattern! sd-attack-b  [0.06 0.12 0.12 0.1])
+        _ (pattern! sd-release-b [1.0 0.6 0.4 0.2])
+        _ (pattern! sd-amp-b     [1.2 0.9 0.9 0.8])]
     (chord-pattern apeg-deep-melody-chord-g chords-score)))
 
 (do
@@ -590,12 +616,16 @@
   (doall (map #(set-beat % time/beat-1th) (:synths apeg-deep-melody-spair-chord-g)))
   (doall (map #(set-beat % time/beat-2th) (:synths slow-deep-chord-g)))
 
-  (doall (map #(ctl % :amp 0.3) (:synths apeg-deep-melody-spair2-chord-g)))
-  (chord-pattern apeg-deep-melody-spair-chord-g pinger-growth-score-spair)
-  (chord-pattern apeg-deep-melody-spair2-chord-g pinger-score-alternative)
-  (chord-pattern apeg-deep-melody-chord-g darker-pinger-score)
+  (doall (map #(ctl % :amp 0.03) (:synths main-melody-chord-g)))
 
-  (chord-pattern apeg-deep-melody-chord-g pinger-score-highlighted)
+  (doall (map #(n-overtime! % :saw-cutoff 0.0 1000 50) (:synths apeg-deep-melody-spair2-chord-g)))
+  (doall (map #(n-overtime! % :saw-cutoff 0.0 2700 50) (:synths apeg-deep-melody-spair-chord-g)))
+  (doall (map #(n-overtime! % :saw-cutoff 0.0 1000 50) (:synths main-melody-chord-g)))
+
+  (chord-pattern apeg-deep-melody-spair-chord-g  pinger-growth-score-spair)
+  (chord-pattern apeg-deep-melody-spair2-chord-g pinger-score-alternative)
+  (chord-pattern main-melody-chord-g             pinger-score-spair)
+  (chord-pattern apeg-deep-melody-chord-g        pinger-score-highlighted)
 
   (let [_ (pattern! sd-attack-b  [0.06 0.12 0.12 0.12])
         _ (pattern! sd-release-b [1.0  1.0 1.0 1.0])
@@ -620,6 +650,7 @@
   (ctl drum-effects-g :amp 0)
   (doall (map #(ctl % :saw-cutoff cutout) (:synths apeg-deep-melody-spair-chord-g)))
   (doall (map #(ctl % :saw-cutoff cutout) (:synths apeg-deep-melody-chord-g)))
+  (doall (map #(ctl % :saw-cutoff cutout) (:synths main-melody-chord-g)))
   (doall (map #(ctl % :saw-cutoff cutout) (:synths slow-deep-chord-g))))
 
 (echoey-buf rf-trig-s :amp 0.1 :decay 8 :delay 0.9)
