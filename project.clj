@@ -6,6 +6,8 @@
 :dependencies [[org.clojure/clojure "1.5.1"]
                [overtone "0.9.1"]
 
+               [mud "0.1.0-SNAPSHOT"]
+
                [korg-nano-kontrol2 "0.1.0-SNAPSHOT"]
                [launchpad "0.1.0-SNAPSHOT"]
                [monome "0.1.0-SNAPSHOT"]
