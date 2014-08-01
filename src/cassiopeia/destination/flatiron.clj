@@ -383,7 +383,7 @@
   (crackle-snail :noise-level 0.1 :amp 0.6 :note-buf s-note-b)
   (pattern! s-note-b [(degrees [1] :minor :F1) (degrees [3] :minor :F1) 0 (degrees [4] :minor :F1) (degrees [1] :minor :F1) 0 0 0] (repeat 24 [0])))
 
-(do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf effects3-seq-buf]))
+(do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf effects3-seq-buf bass-notes-buf effects3-seq-buf]))
 
 (pattern! bass-notes-buf
           (repeat 8 (degrees [1] :minor :F1))
@@ -409,9 +409,15 @@
                                           :rate-start 0.1 :rate-limit 0.2
                                           :beat-num %1 :pattern effects2-seq-buf :amp 0.030 :num-steps 8 :buf kick-fuzzy-s) (range 0 8))))
 
+(pattern! effects3-seq-buf
+                    [0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0]
+          (repeat 2 [0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0])
+                    [0 0 0 0 0 0 0 0   0 0 0 0 1 0 1 0])
+(def soft-kick-drums (doall (map #(seqer [:head drum-effects-g]
+                                          :rate-start 0.8 :rate-limit 0.9
+                                          :beat-num %1 :pattern effects3-seq-buf :amp 0.5 :num-steps 8 :buf soft-kick-s) (range 0 8))))
 (kill drum-effects-g)
 (kill drums-g)
-
 
 (one-time-beat-trigger
  15 16
@@ -430,10 +436,15 @@
      (defonce kick-amp (buffer 256))
      (pattern! kick-amp  [1.5 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1]
                (repeat 2 [1.2 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1])
-                         [1.2 1 1 1 1 1 1 1   1.2 1 1 1 1.2 1 1.2 1])
+                         [1.2 1 1 1 1 1 1 1   1.2 1 1 1 1.2 1 1.3 1])
 
      (pattern! hats-amp  (repeat 3 [2 2 2 2 2.1 2 2 2   2 2 2 2 2 2 2 2])
                                    [2 2 2 2 2.1 2 2 2   2 2 2.4 2 2.4 2 2 2])
+
+
+     (def soft-kick-drums (doall (map #(seqer [:head drum-effects-g]
+                                              :rate-start 1.0 :rate-limit 1.0
+                                              :beat-num %1 :pattern effects3-seq-buf :amp 0.58 :num-steps 8 :buf soft-kick-s) (range 0 8))))
 
      (def white (doall (map #(whitenoise-hat [:head drums-g] :amp-buf hats-amp :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :release 0.1 :attack 0.0 :beat-num %1) (range 0 1))))
      (ctl white :amp-buf hats-amp)
@@ -447,7 +458,6 @@
      (ctl kicker :amp-buf kick-amp)
      (ctl kicker :attack 0.0 :sustain 0.2 :amp 1.0)
      )))
-
 
 (one-time-beat-trigger
  0 16
@@ -465,7 +475,7 @@
   (n-overtime! chord-g :amp 0.0 0.04 0.001)
   )
 
-(def hand-drums (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.23 :num-steps 16 :buf hand-drum-s :rate-start 1.0 :rate-limit 1.0) (range 0 16))))
+(def hand-drums (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.23 :num-steps 16 :buf hand-drum-s :rate-start 0.9 :rate-limit 1.0) (range 0 16))))
 
 (comment
   (map #(ctl %1 :saw-cutoff 1000 :noise-level 0.5 :amp 0.09 :attack 0.3 :release 6.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) (:synths slow-deep-chord-g))
@@ -570,10 +580,9 @@
                 (degrees [1 1 1 1] :minor :F4)
                 ])
 
-(one-time-beat-trigger 126 128 #(do
-                                  ;;(chord-pattern apeg-deep-melody-chord-g pinger-score-alternative)
-                                  (chord-pattern apeg-deep-melody-chord-g pinger-score-highlighted)
-                                  (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.25)))
+(one-time-beat-trigger 126 128 (fn [& _]
+                                 (chord-pattern apeg-deep-melody-chord-g pinger-score-highlighted)
+                                 (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.25)))
 
 (one-time-beat-trigger
  126 128
@@ -617,7 +626,8 @@
 
   (chord-pattern apeg-deep-melody-spair-chord-g pinger-growth-score-spair)
 
-  (kill fuzzy-kick-drums) (ctl drum-effects-g :amp 0.3) (ctl drums-g :amp 1.0)
+  ;;(kill fuzzy-kick-drums)
+  (ctl drum-effects-g :amp 0.3) (ctl drums-g :amp 1.)
   (ctl (:synths apeg-deep-melody-chord-g) :amp 0.05 :saw-cutoff 2600 :wave 0 :attack 1.0 :release 5.0)
   (def f (dulcet-fizzle :amp 2.0 :note-buf df-b))
   )
@@ -635,6 +645,7 @@
         _ (pattern! sd-amp-b     [1.2 0.9 0.9 0.8])]
     (chord-pattern apeg-deep-melody-chord-g chords-score)))
 
+(ctl soft-kick-drums :amp 1.3)
 (pattern! kick-seq-buf
           (repeat 3 (concat [1 0 0 0 1 0 0 0] [1 0 0 0 1 0 0 0]))
                             [1 0 0 0 1 0 0 0] [1 0 0 0 1 0 1 0])
@@ -656,14 +667,13 @@
                             (ctl (:synths main-melody-chord-g) :amp 0.03)
                             (ctl (:synths apeg-deep-melody-spair2-chord-g) :amp 0.03)
                             (chord-pattern main-melody-chord-g pinger-score-spair)
-                            (doall (map #(n-overtime! % :saw-cutoff 0.0 1000 50) (:synths apeg-deep-melody-spair2-chord-g)))
+                            (doall (map #(n-overtime! % :saw-cutoff 0.0 600 50) (:synths apeg-deep-melody-spair2-chord-g)))
                             (doall (map #(n-overtime! % :saw-cutoff 0.0 2500 50) (:synths apeg-deep-melody-spair-chord-g)))
-                            (doall (map #(n-overtime! % :saw-cutoff 0.0 1000 50) (:synths main-melody-chord-g)))
+                            (doall (map #(n-overtime! % :saw-cutoff 0.0 2000 50) (:synths main-melody-chord-g)))
 
                             (chord-pattern apeg-deep-melody-spair-chord-g  pinger-growth-score-spair)
                             (chord-pattern apeg-deep-melody-spair2-chord-g pinger-score-alternative)
-
-                            (chord-pattern apeg-deep-melody-chord-g        pinger-score-highlighted)
+                            (chord-pattern apeg-deep-melody-chord-g        darker-pinger-score)
 
                             (let [_ (pattern! sd-attack-b  [0.06 0.12 0.12 0.12])
                                   _ (pattern! sd-release-b [1.0  1.0 1.0 1.0])
