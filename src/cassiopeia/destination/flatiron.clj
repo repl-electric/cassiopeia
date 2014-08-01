@@ -55,6 +55,9 @@
   (def main-melody-chord-g
     (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1))
 
+  (def main-melody2-chord-g
+    (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1))
+
   (comment
     (map #(ctl %1 :saw-cutoff 800) slow-deep-chord-group)
     (map #(ctl %1 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) slow-deep-chord-group)
@@ -166,6 +169,8 @@
                    (degrees [5] :minor :F3) (degrees [5] :minor :F3) (degrees [5] :minor :F3) (degrees [5] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3)
                    ]]
     (chord-pattern main-melody-chord-g chord-pat)))
+
+(chord-pattern main-melody2-chord-g apeg-swell)
 
 (def chords-score
   (let [_ [0 0 0 0]
@@ -468,7 +473,7 @@
    ))
 
 ;(grainy-buf :b (buffer-mix-to-mono rf-fx-s) :amp 0.3 :dur 5.0 :trate 1 :amp 0.9)
-(echoey-buf rf-theorems-s :amp 0.04)
+(echoey-buf rf-theorems-s :amp 0.05)
 
 (doseq [chord-g (:synths slow-deep-chord-g)]
   (ctl chord-g :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4)
@@ -605,8 +610,8 @@
    ))
 
 ;;Drive home home chords + highlight melody
-(ctl (:synths main-melody-chord-g) :amp 0.09 :saw-cutoff 450 :wave 1 :attack 1.0 :release 5.0)
-(ctl (:synths apeg-deep-melody-chord-g) :amp 0.04 :saw-cutoff 2600)
+(ctl (:synths main-melody-chord-g) :amp 0.1 :saw-cutoff 450 :wave 1 :attack 1.0 :release 5.0)
+(ctl (:synths apeg-deep-melody-chord-g) :amp 0.037 :saw-cutoff 2600)
 
 ;;Drum tension
 (pattern! hats-buf [1])
@@ -649,6 +654,7 @@
 (pattern! kick-seq-buf
           (repeat 3 (concat [1 0 0 0 1 0 0 0] [1 0 0 0 1 0 0 0]))
                             [1 0 0 0 1 0 0 0] [1 0 0 0 1 0 1 0])
+(def f (dulcet-fizzle :amp 2.0 :note-buf df-b))
 
 (one-time-beat-trigger 126 128
                        (fn [& _]
@@ -681,6 +687,16 @@
                               (chord-pattern slow-deep-chord-g chords-score))
                             ))))
 
+
+;;More fizzle
+
+;;(doall (map #(n-overtime! % :saw-cutoff 2600.0 0 50) (:synths apeg-deep-melody-chord-g)))
+
+(chord-pattern main-melody2-chord-g  darker-pinger-score)
+(ctl (:synths main-melody2-chord-g) :amp 0.03 :saw-cutoff 1000)
+(ctl (:synths main-melody-chord-g) :saw-cutoff 300 :amp 0.03)
+(chord-pattern main-melody-chord-g apeg-swell)
+
 (pattern! hats-buf [0])
 (pattern! hats-buf [1])
 (pattern! hats-buf [0 0 0 0 1 0 0 0   0 0 1 0 0 0 0 0])
@@ -700,7 +716,7 @@
   (doall (map #(ctl % :saw-cutoff cutout) (:synths main-melody-chord-g)))
   (doall (map #(ctl % :saw-cutoff cutout) (:synths slow-deep-chord-g))))
 
-(echoey-buf rf-full-s :amp 0.35 :decay 1 :delay 0.1)
+(echoey-buf rf-full-s :amp 0.3 :decay 1 :delay 0.1)
 ;;(spacy rf-full-s :amp 0.6)
 ;;(echoey-buf rf-full-s :amp 0.04)
 
