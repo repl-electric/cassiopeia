@@ -139,11 +139,12 @@
 
 (defsynth space-kick2
   "We take the sting out of the overtone kick2 drum giving a softer more mellow kick"
-  [amp 0.8 mod-freq  5 mod-index 5 sustain 0.4 noise 0.025 attack 0.005
+  [amp 1 amp-buf 0 mod-freq  5 mod-index 5 sustain 0.4 noise 0.025 attack 0.005
    beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) note-buf 0 seq-buf 0 beat-num 0 num-steps 8 out-bus 0]
   (let [cnt      (in:kr beat-bus)
         beat-trg (in:kr beat-trg-bus)
-        note (buf-rd:kr 1 note-buf beat-num)
+        amp (* amp (buf-rd:kr 1 amp-buf cnt))
+        note (buf-rd:kr 1 note-buf cnt)
         bar-trg (and (buf-rd:kr 1 seq-buf cnt)
 ;;                     (= beat-num cnt)
                      beat-trg)
@@ -217,9 +218,13 @@
         src (tanh (g-verb (sum [src1 src2 src3]) room-size rev-time))]
     (out out-bus (* amp src))))
 
-(defsynth whitenoise-hat [out-bus 0 seq-buf 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) num-steps 0 beat-num 0 amp 1
+(defsynth whitenoise-hat [out-bus 0
+                          amp-buf 0
+                          seq-buf 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) num-steps 0 beat-num 0
+                          amp 1
                           release 1 attack 0]
   (let [cnt      (in:kr beat-bus)
+        amp      (* amp (buf-rd:kr 1 amp-buf cnt))
         beat-trg (in:kr beat-trg-bus)
         bar-trg (and (buf-rd:kr 1 seq-buf cnt)
                      ;;(= beat-num cntsteps)

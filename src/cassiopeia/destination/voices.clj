@@ -179,7 +179,7 @@ as it floats alone, away from the international space station.
                             amp-buf 0
                             duration-buf 0
                             voices 3
-                            beat-ecount-bus 0]
+                            beat-count-bus 0]
   (let [cnt (in:kr beat-count-bus)
         dur (buf-rd:kr 1 duration-buf (mod cnt voices))
         custom-amp (buf-rd:kr 1 amp-buf (mod cnt pattern-size))
@@ -270,7 +270,8 @@ as it floats alone, away from the international space station.
 (buffer-write! smooth-amp-buf       (take pattern-size (repeatedly #(ranged-rand 1 3))))
 (buffer-write! smooth-post-frac-buf (take pattern-size (repeatedly #(/ (rand 512) 512))))
 
-(def ss (make-smooth [constant-blues-s death-s dreamers-of-the-dreams-s] voices))
+(def ss (make-smooth [rf-beat-it-s] voices))
+
 
 (def perc-post-frac-buf (resize-pattern perc-post-frac-buf perc-g pattern-size :pattern-buf))
 (def perc-amp-buf       (resize-pattern perc-amp-buf perc-g pattern-size :amp-buf))
