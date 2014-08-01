@@ -18,8 +18,6 @@
 (volume master-vol)
 (ctl time/root-s :rate 8.)
 
-;;START
-
 (do
   (defbufs 256 [df-b note1-dur-b sd-attack-b sd-release-b sd-amp-b s-note-b])
 
@@ -223,7 +221,7 @@
 
            fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21
            fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21 fuu21
-           ;;f26 f26 f26 f26 f26 f26 f26 f26   f26 f26 f26 f26 f26 f26 f26 f26
+           ;;f26 f26 f26 f26 f26 f26 f26 f26   ;;f26 f26 f26 f26 f26 f26 f26 f26
            fu23 fu23 fu23 fu23 fu23 fu23 fu23 fu23
            fu25 fu25 fu25 fu25 fu25 fu25  (chord :F2 :7sus4 2) (chord :F2 :7sus4 2)
            ]]
@@ -379,7 +377,7 @@
         [f41 f42 f43 f44 f45 f46 f47] (chords-for :F4 :minor 1)
         chord-pat [f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])]]
     (chord-pattern apeg-deep-melody-spair-chord-g chord-pat)))
-
+)
 (do
   (kill crackle-snail)
   (crackle-snail :noise-level 0.1 :amp 0.6 :note-buf s-note-b)
@@ -428,13 +426,28 @@
                          [1 0 0 1 0 0 0 0   1 0 0 0 1 0 1 0]
                )
 
-     (def white (doall (map #(whitenoise-hat [:head drums-g] :amp 1.0 :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :release 0.1 :attack 0.0 :beat-num %1) (range 0 1))))
-     (ctl white :attack 0.04 :release 0.01 :amp 2)
-     (ctl white :attack 0.002 :release 0.04 :amp 2)
+     (defonce hats-amp (buffer 256))
+     (defonce kick-amp (buffer 256))
+     (pattern! kick-amp  [1.5 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1]
+               (repeat 2 [1.2 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1])
+                         [1.2 1 1 1 1 1 1 1   1.2 1 1 1 1.2 1 1.2 1])
 
-     (def kicker (doall (map #(space-kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 16 :beat-num %1 :noise 0.05 :amp 4.2 :mod-index 0.1 :mod-freq 4.0 :mode-freq 0.2) (range 0 1))))
+     (pattern! hats-amp  (repeat 3 [2 2 2 2 2.1 2 2 2   2 2 2 2 2 2 2 2])
+                                   [2 2 2 2 2.1 2 2 2   2 2 2.4 2 2.4 2 2 2])
+
+     (def white (doall (map #(whitenoise-hat [:head drums-g] :amp-buf hats-amp :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :release 0.1 :attack 0.0 :beat-num %1) (range 0 1))))
+     (ctl white :amp-buf hats-amp)
+     (ctl white :attack 0.04 :release 0.01 :amp 1)
+     (ctl white :attack 0.002 :release 0.04 :amp 1)
+
+     (def kicker (doall (map #(space-kick2 [:head drums-g]
+
+                                           :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 16 :beat-num %1 :noise 0.05 :amp 4.2 :mod-index 0.1 :mod-freq 4.0 :mode-freq 0.2) (range 0 1))))
+
+     (ctl kicker :amp-buf kick-amp)
      (ctl kicker :attack 0.0 :sustain 0.2 :amp 1.0)
      )))
+
 
 (one-time-beat-trigger
  0 16
@@ -480,6 +493,10 @@
 (pattern! hats-buf
           [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0] [0 0 1 1 0 0 1 0]
           [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0] [0 0 1 1 0 0 1 0])
+
+(pattern! hats-amp
+          [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0] [0 0 1 1 0 0 1 0]
+          [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0] [0 0 1.5 1.5 0 0 1 0])
 
 (pattern! hats-buf
           [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0]
@@ -540,7 +557,7 @@
 
 (do ;;shh drums
   (ctl drum-effects-g :amp 0.0)
-  (ctl drums-g :amp 1.0))
+  (ctl drums-g :amp 0.0))
 
 (spacy (dirt :pad 0) :amp 1.0)
 (pattern! hats-buf [1])
@@ -563,8 +580,10 @@
  (fn [] ;;DARKER PROGRESSION
    (do
      (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.5)
-     (doseq [s (:synths apeg-deep-melody-chord-g)] (ctl s :amp 0.00))
+     (ctl (:synths apeg-deep-melody-chord-g) :amp 0.00)
      (ctl drum-effects-g :amp 0.0)
+
+     ;;(pattern! hats-amp [0]) (pattern! kick-amp [0])
      (ctl drums-g :amp 0.0)
 
      (chord-pattern slow-deep-chord-g dark-chords-score )
@@ -577,17 +596,20 @@
    ))
 
 ;;Drive home home chords + highlight melody
-(doseq [s (:synths main-melody-chord-g)] (ctl s :amp 0.09 :saw-cutoff 450 :wave 1 :attack 1.0 :release 5.0))
-(doseq [s (:synths apeg-deep-melody-chord-g)] (ctl s :amp 0.04 :saw-cutoff 2700))
+(ctl (:synths main-melody-chord-g) :amp 0.09 :saw-cutoff 450 :wave 1 :attack 1.0 :release 5.0)
+(ctl (:synths apeg-deep-melody-chord-g) :amp 0.04 :saw-cutoff 2600)
 
 ;;Drum tension
 (pattern! hats-buf [1])
-(map #(ctl % :amp 1.0) white)
+(pattern! hats-amp [1])
+(ctl white :amp 1.0)
+
 (pattern! kick-seq-buf [1 0 0 0 1 0 0 0])
-(map #(ctl % :amp 1.0) kicker)
+(ctl kicker :amp 1.0)
+(pattern! kick-amp [1])
 
 (do
-  (doseq [s (:synths main-melody-chord-g)] (ctl s :amp 0.0))
+  (ctl (:synths main-melody-chord-g) :amp 0.0)
   (doseq [s (:synths apeg-deep-melody-spair-chord-g)]
     (ctl s :amp 0.00 :saw-cutoff 2000 :wave 2 :attack 1.0 :release 5.0)
     (n-overtime! s :amp 0 0.04 0.01)
@@ -595,14 +617,13 @@
 
   (chord-pattern apeg-deep-melody-spair-chord-g pinger-growth-score-spair)
 
-  (kill fuzzy-kick-drums) (ctl drum-effects-g :amp 0.6) (ctl drums-g :amp 1.0)
-  (doseq [s (:synths apeg-deep-melody-chord-g)] (ctl s :amp 0.05 :saw-cutoff 2600 :wave 0 :attack 1.0 :release 5.0))
+  (kill fuzzy-kick-drums) (ctl drum-effects-g :amp 0.3) (ctl drums-g :amp 1.0)
+  (ctl (:synths apeg-deep-melody-chord-g) :amp 0.05 :saw-cutoff 2600 :wave 0 :attack 1.0 :release 5.0)
   (def f (dulcet-fizzle :amp 2.0 :note-buf df-b))
-  ;;  (pattern! hats-buf [1 0 0 0 0 0 0 0])
   )
 
 (do
-  (doall (map #(ctl % :amp 0) (:synths apeg-deep-melody-spair-chord-g)))
+  (ctl (:synths apeg-deep-melody-spair-chord-g) :amp 0)
   (doall (map #(set-beat % time/beat-2th) (:synths apeg-deep-melody-spair-chord-g)))
   (doall (map #(set-beat % time/beat-2th) (:synths apeg-deep-melody-chord-g)))
   (doall (map #(set-beat % time/beat-1th) (:synths slow-deep-chord-g)))
@@ -616,7 +637,7 @@
 
 (pattern! kick-seq-buf
           (repeat 3 (concat [1 0 0 0 1 0 0 0] [1 0 0 0 1 0 0 0]))
-          [1 0 0 0 0 0 0 0] [1 0 0 0 1 0 1 0])
+                            [1 0 0 0 1 0 0 0] [1 0 0 0 1 0 1 0])
 
 (one-time-beat-trigger 126 128
                        (fn [& _]
@@ -632,11 +653,11 @@
                             (doall (map #(set-beat % time/beat-1th) (:synths apeg-deep-melody-spair-chord-g)))
                             (doall (map #(set-beat % time/beat-2th) (:synths slow-deep-chord-g)))
 
-                            (doall (map #(ctl % :amp 0.03) (:synths main-melody-chord-g)))
-                            (doall (map #(ctl % :amp 0.03) (:synths apeg-deep-melody-spair2-chord-g)))
+                            (ctl (:synths main-melody-chord-g) :amp 0.03)
+                            (ctl (:synths apeg-deep-melody-spair2-chord-g) :amp 0.03)
                             (chord-pattern main-melody-chord-g pinger-score-spair)
                             (doall (map #(n-overtime! % :saw-cutoff 0.0 1000 50) (:synths apeg-deep-melody-spair2-chord-g)))
-                            (doall (map #(n-overtime! % :saw-cutoff 0.0 2600 50) (:synths apeg-deep-melody-spair-chord-g)))
+                            (doall (map #(n-overtime! % :saw-cutoff 0.0 2500 50) (:synths apeg-deep-melody-spair-chord-g)))
                             (doall (map #(n-overtime! % :saw-cutoff 0.0 1000 50) (:synths main-melody-chord-g)))
 
                             (chord-pattern apeg-deep-melody-spair-chord-g  pinger-growth-score-spair)
@@ -669,7 +690,7 @@
   (doall (map #(ctl % :saw-cutoff cutout) (:synths main-melody-chord-g)))
   (doall (map #(ctl % :saw-cutoff cutout) (:synths slow-deep-chord-g))))
 
-(echoey-buf rf-full-s :amp 0.1 :decay 2 :delay 0.2)
+(echoey-buf rf-full-s :amp 0.35 :decay 1 :delay 0.1)
 ;;(spacy rf-full-s :amp 0.6)
 ;;(echoey-buf rf-full-s :amp 0.04)
 
