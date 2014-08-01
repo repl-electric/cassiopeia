@@ -15,16 +15,16 @@ float averageForRadius(vec2 co, float radius) {
   return average;
 }
 
-vec4 buildNoise(float pos)
+vec4 buildNoise(float pos, float direction)
 {
   vec2 position = pos-gl_FragCoord.xy / iResolution.xy;
   position = position + vec2(1/iResolution.x, iResolution.y);
   vec4 colour = vec4(0.,0.,0.,0.);
-  float random = rand(vec2(position.x + iGlobalTime/100.0, position.y));
-  random = (random * 1.5) - 1.0;
+  float random = rand(vec2(position.x/direction + iGlobalTime/100.0, position.y));
+  random = random - 0.9;
   float randomMultiplier = 1.0 - position.x * 0.0;
   colour += random * randomMultiplier;
-  float multiplier = (position.x / 0.01);
+  float multiplier = (position.x / 0.08); // 0.5+(0.5*sin(iGlobalTime*0.2)));
 
   if(pos == 0.0){
     colour += multiplier;
@@ -36,7 +36,7 @@ vec4 buildNoise(float pos)
 }
 
 void main(void){
-  vec4 leftNoise  = buildNoise(0);
-  vec4 rightNoise = buildNoise(1);
+  vec4 leftNoise  = buildNoise(0.,1);
+  vec4 rightNoise = buildNoise(1.,-1);
   gl_FragColor = 1.0-(rightNoise * leftNoise);
 }
