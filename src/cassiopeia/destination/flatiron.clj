@@ -474,9 +474,9 @@
 (def hand-drums (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.23 :num-steps 16 :buf hand-drum-s :rate-start 0.9 :rate-limit 1.0) (range 0 16))))
 
 (comment
-  (map #(ctl %1 :saw-cutoff 1000 :noise-level 0.5 :amp 0.09 :attack 0.3 :release 6.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) (:synths slow-deep-chord-g))
-  (map #(ctl %1 :t 0.005 :amp 0.4) (:synths grumble-chord-g))
-  (map #(ctl %1 :saw-cutoff 900) (:synths slow-deep-chord-g)))
+  (ctl (:synths slow-deep-chord-g) :saw-cutoff 1000 :noise-level 0.5 :amp 0.09 :attack 0.3 :release 6.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)))
+  (ctl (:synths grumble-chord-g) :t 0.005 :amp 0.4)
+  (ctl (:synths slow-deep-chord-g) :saw-cutoff 900) ))
 
 (pattern! hats-buf      [0 0 0 0 1 0 0 0   0 0 1 0 0 0 0 0])
 (pattern! kick-seq-buf  [1 0 0 1 0 0 0 0   1 0 0 0 0 0 0 0])
@@ -514,7 +514,7 @@
           (n-overtime! % :amp 0 0.019)) (:synths apeg-deep-melody-chord-g))
 
 ;;(ctl apeg-deep-melody-chord-g :amp 0.06 :saw-cutoff 1000 :wave 1 :attack 1.0 :release 5.0)
-;;(set-beat apeg-deep-melody-chord-g time/beat-1th)
+;;(ctl-beat apeg-deep-melody-chord-g time/beat-1th)
 
 (pattern! (nth (:bufs apeg-deep-melody-chord-g) 1)
           [0 (degrees [7] :minor :F3) (degrees [6] :minor :F3) 0]
@@ -617,9 +617,9 @@
 
 (do
   (ctl (:synths apeg-deep-melody-spair-chord-g) :amp 0)
-  (doall (map #(set-beat % time/beat-2th) (:synths apeg-deep-melody-spair-chord-g)))
-  (doall (map #(set-beat % time/beat-2th) (:synths apeg-deep-melody-chord-g)))
-  (doall (map #(set-beat % time/beat-1th) (:synths slow-deep-chord-g)))
+  (ctl-beat (:synths apeg-deep-melody-spair-chord-g) time/beat-2th) ))
+  (ctl-beat (:synths apeg-deep-melody-chord-g) time/beat-2th)
+  (ctl-beat (:synths slow-deep-chord-g) time/beat-1th)
 
   (chord-pattern slow-deep-chord-g pinger-score)
 
@@ -637,24 +637,24 @@
 
 (one-time-beat-trigger 126 128
                        (fn [& _]
-                         (doall (map #(set-beat % time/beat-1th) (:synths apeg-deep-melody-chord-g)))
-                         (doall (map #(set-beat % time/beat-1th) (:synths apeg-deep-melody-spair-chord-g)))
-                         (doall (map #(set-beat % time/beat-2th) (:synths slow-deep-chord-g)))
+                         (ctl-beat (:synths apeg-deep-melody-chord-g) time/beat-1th)
+                         (ctl-beat (:synths apeg-deep-melody-spair-chord-g) time/beat-1th)
+                         (ctl-beat (:synths slow-deep-chord-g) time/beat-2th)
 
                          (one-time-beat-trigger
                           127 128
                           (fn [& _]
                             ;;   (plain-space-organ :tone (/ (midi->hz (note :F2)) 2) :duration 3 :amp 0.2)
-                            (doall (map #(set-beat % time/beat-1th) (:synths apeg-deep-melody-chord-g)))
-                            (doall (map #(set-beat % time/beat-1th) (:synths apeg-deep-melody-spair-chord-g)))
-                            (doall (map #(set-beat % time/beat-2th) (:synths slow-deep-chord-g)))
+                            (ctl-beat (:synths apeg-deep-melody-chord-g) time/beat-1th)
+                            (ctl-beat (:synths apeg-deep-melody-spair-chord-g) time/beat-1th)
+                            (ctl-beat (:synths slow-deep-chord-g) time/beat-2th)
 
                             (ctl (:synths main-melody-chord-g) :amp 0.03)
                             (ctl (:synths apeg-deep-melody-spair2-chord-g) :amp 0.03)
                             (chord-pattern main-melody-chord-g pinger-score-spair)
-                            (doall (map #(n-overtime! % :saw-cutoff 0.0 1000 50) (:synths apeg-deep-melody-spair2-chord-g)))
-                            (doall (map #(n-overtime! % :saw-cutoff 0.0 2600 50) (:synths apeg-deep-melody-spair-chord-g)))
-                            (doall (map #(n-overtime! % :saw-cutoff 0.0 1000 50) (:synths main-melody-chord-g)))
+                            (n-overtime! (:synths apeg-deep-melody-spair2-chord-g) :saw-cutoff 0.0 1000 50)
+                            (n-overtime! (:synths apeg-deep-melody-spair-chord-g)  :saw-cutoff 0.0 2600 50)
+                            (n-overtime! (:synths main-melody-chord-g)             :saw-cutoff 0.0 1000 50)
 
                             (chord-pattern apeg-deep-melody-spair-chord-g  pinger-growth-score-spair)
                             (chord-pattern apeg-deep-melody-spair2-chord-g pinger-score-alternative)
@@ -684,10 +684,10 @@
 ;;Fade
 (let [cutout 2700]
   (ctl drum-effects-g :amp 0)
-  (doall (map #(ctl % :saw-cutoff cutout) (:synths apeg-deep-melody-spair-chord-g)))
-  (doall (map #(ctl % :saw-cutoff cutout) (:synths apeg-deep-melody-chord-g)))
-  (doall (map #(ctl % :saw-cutoff cutout) (:synths main-melody-chord-g)))
-  (doall (map #(ctl % :saw-cutoff cutout) (:synths slow-deep-chord-g))))
+  (ctl (:synths apeg-deep-melody-spair-chord-g) :saw-cutoff cutout)
+  (ctl (:synths apeg-deep-melody-chord-g) :saw-cutoff cutout)
+  (ctl (:synths main-melody-chord-g) :saw-cutoff cutout)
+  (ctl (:synths slow-deep-chord-g) :saw-cutoff cutout)
 
 (echoey-buf rf-full-s :amp 0.2 :decay 1.5 :delay 0.1)
 ;;(spacy rf-full-s :amp 0.6)
