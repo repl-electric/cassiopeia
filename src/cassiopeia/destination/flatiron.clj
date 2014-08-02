@@ -3,17 +3,8 @@
 .-. .   .-. .-. .-. .-. .-. .  .
 |-  |   |-|  |   |  |(  | | |\\|
 '   `-' ` '  '  `-' ' ' `-' ' ``"
-  (:use overtone.live)
-  (:use cassiopeia.engine.core)
-  (:use cassiopeia.waves.synths)
-  (:use cassiopeia.samples)
-  (:use cassiopeia.engine.buffers)
-  (:use cassiopeia.dirt)
-  (:use cassiopeia.waves.buf-effects)
-  (:require [cassiopeia.engine.timing :as time]
-            [clojure.math.numeric-tower :as math]
-            [overtone.studio.fx :as fx]
-            [shadertone.tone :as t]))
+  (:use [overtone.live] [cassiopeia.engine.core] [cassiopeia.waves.synths] [cassiopeia.samples] [cassiopeia.engine.buffers] [cassiopeia.dirt] [cassiopeia.waves.buf-effects])
+  (:require [cassiopeia.engine.timing :as time] [clojure.math.numeric-tower :as math] [overtone.studio.fx :as fx] [shadertone.tone :as t]))
 
 (def master-vol 3.0)
 (volume master-vol)
