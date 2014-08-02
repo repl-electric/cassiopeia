@@ -679,6 +679,9 @@
 
 ;;More fizzle
 ;;(doall (map #(n-overtime! % :saw-cutoff 2600.0 0 50) (:synths apeg-deep-melody-chord-g)))
+
+;;(on-beat-trigger 64 #(do (plain-space-organ :tone (/ (midi->hz (note :F2)) 2) :duration 3 :amp 0.2)))
+
 (do
   (chord-pattern main-melody2-chord-g  darker-pinger-score)
   (ctl (:synths main-melody2-chord-g) :amp 0.03 :saw-cutoff 1000)
