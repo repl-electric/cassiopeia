@@ -469,7 +469,7 @@
  (fn []
    (doseq [s (:synths apeg-deep-melody-chord-g)]
      (ctl s :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0)
-     (n-overtime! s :amp 0.0 0.019 0.0003))
+     (n-overtime! s :amp 0.0 0.019 0.0002))
    ))
 
 ;(grainy-buf :b (buffer-mix-to-mono rf-fx-s) :amp 0.3 :dur 5.0 :trate 1 :amp 0.9)
