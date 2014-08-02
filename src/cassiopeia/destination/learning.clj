@@ -1,11 +1,11 @@
 (ns cassiopeia.destination.mr
   (:use overtone.live)
-  (:use cassiopeia.engine.core)
+  (:use mud.core)
   (:use cassiopeia.waves.synths)
   (:use cassiopeia.samples)
   (:use cassiopeia.engine.buffers)
   (:use cassiopeia.dirt)
-  (:require [cassiopeia.engine.timing :as time]
+  (:require [mud.timing :as time]
             [clojure.math.numeric-tower :as math]
             [overtone.studio.fx :as fx]))
 

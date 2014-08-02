@@ -1,11 +1,11 @@
 (ns cassiopeia.destination.pop2
   (:use overtone.live)
-  (:use cassiopeia.engine.core)
+  (:use mud.core)
   (:use cassiopeia.waves.synths)
   (:use cassiopeia.samples)
   (:use cassiopeia.engine.buffers)
   ;;  (:use dirt)
-  (:require [cassiopeia.engine.timing :as time]))
+  (:require [mud.timing :as time]))
 
 (ctl time/root-s :rate 7)
 

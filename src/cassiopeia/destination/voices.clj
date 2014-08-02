@@ -15,7 +15,7 @@ as it floats alone, away from the international space station.
   (:use cassiopeia.engine.samples)
   (:use cassiopeia.samples)
   (:use cassiopeia.warm-up)
-  (:require [cassiopeia.engine.timing :as tim]
+  (:require [mud.timing :as tim]
             [cassiopeia.engine.monome-sequencer :as mon]))
 
 (defonce voice-g (group "the voices"))

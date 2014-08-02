@@ -1,5 +1,5 @@
 (ns cassiopeia.engine.mixers
-  (:require [cassiopeia.engine.timing :as timing])
+  (:require [mud.timing :as timing])
   (:use [overtone.live]
         [overtone.helpers.lib :only [uuid]]))
 

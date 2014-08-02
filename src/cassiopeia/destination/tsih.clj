@@ -7,14 +7,14 @@
  An eruptive variable star, whose brightness changes irregularly between
  +2.15 mag and +3.40 mag
 "
-(:require [cassiopeia.engine.timing :as time]
+(:require [mud.timing :as time]
           [overtone.studio.fx :as fx]
           [cassiopeia.engine.mixers :as mix]
           [overtone.inst.synth :as s]
           [shadertone.tone :as t])
 (:use [overtone.live]
       [cassiopeia.scratch]
-      [cassiopeia.engine.core]
+      [mud.core]
       [cassiopeia.samples]
       [cassiopeia.view-screen]
       [cassiopeia.waves.synths]))

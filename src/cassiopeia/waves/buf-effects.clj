@@ -1,6 +1,6 @@
 (ns cassiopeia.waves.buf-effects
   (:use overtone.live)
-  (:require [cassiopeia.engine.timing :as time]))
+  (:require [mud.timing :as time]))
 
 (defsynth schroeder-reverb
   [rate 1 buf 0]
@@ -203,7 +203,7 @@
 
 (comment
   (use 'cassiopeia.samples)
-  (use 'cassiopeia.engine.core)
+  (use 'mud.core)
   (def voices 8)
   (def pattern-size (rand-nth [1 2 4 8 16 32 64 128 256]))
   (def durations [1/8 1/4 1/2 1])

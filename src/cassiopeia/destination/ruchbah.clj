@@ -14,7 +14,7 @@
   (:use overtone.live)
   (:use cassiopeia.samples)
   (:use cassiopeia.warm-up)
-  (:require [cassiopeia.engine.timing :as timing]
+  (:require [mud.timing :as timing]
             [overtone.inst.synth :as s]
             [overtone.studio.fx :as fx]
             [cassiopeia.engine.sequencer :as sequencer]

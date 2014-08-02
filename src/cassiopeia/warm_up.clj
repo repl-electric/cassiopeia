@@ -23,7 +23,7 @@
    [monome.kit.sampler :as samp]
    [cassiopeia.engine.monome-sequencer :as monome-sequencer]
 
-   [cassiopeia.engine.timing :as timing]
+   [mud.timing :as timing]
    [cassiopeia.engine.sequencer :as sequencer]
    [cassiopeia.engine.mixers :as mixers]))
 

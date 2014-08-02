@@ -1,7 +1,7 @@
 (ns cassiopeia.waves.synths
   (:use overtone.live)
-  (:use cassiopeia.engine.core)
-  (:require [cassiopeia.engine.timing :as time]
+  (:use mud.core)
+  (:require [mud.timing :as time]
             [overtone.studio.fx :as fx]
             [cassiopeia.engine.mixers :as mix]
             [overtone.inst.synth :as s]))

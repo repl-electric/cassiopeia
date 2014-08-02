@@ -1,7 +1,7 @@
 (ns cassiopeia.sound-test
 "Check the settings of audio equipment to sync correct volume levels."
-(:use [overtone.live] [cassiopeia.waves.synths] [cassiopeia.engine.core] [cassiopeia.waves.soprano] [cassiopeia.view-screen] [cassiopeia.engine.core] [cassiopeia.engine.scheduled-sampler] [cassiopeia.samples] [cassiopeia.dirt] [cassiopeia.engine.samples])
-(:require [cassiopeia.engine.timing :as time] [overtone.studio.fx :as fx]  [shadertone.tone :as t] [cassiopeia.engine.buffers :as b]))
+(:use [overtone.live] [cassiopeia.waves.synths] [mud.core] [cassiopeia.waves.soprano] [cassiopeia.view-screen] [mud.core] [cassiopeia.engine.scheduled-sampler] [cassiopeia.samples] [cassiopeia.dirt] [cassiopeia.engine.samples])
+(:require [mud.timing :as time] [overtone.studio.fx :as fx]  [shadertone.tone :as t] [cassiopeia.engine.buffers :as b]))
 
 (ctl time/root-s :rate 4)
 

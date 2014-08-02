@@ -2,9 +2,9 @@
   "Here lies demons and a splatter gun of ideas and experiments."
   (:use overtone.live)
   (:use cassiopeia.waves.synths)
-  (:use cassiopeia.engine.core)
+  (:use mud.core)
   (:use cassiopeia.waves.soprano)
-  (require [cassiopeia.engine.timing :as time]
+  (require [mud.timing :as time]
            [overtone.studio.fx :as fx]))
 
 (do

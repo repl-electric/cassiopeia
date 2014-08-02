@@ -15,7 +15,7 @@
         [cassiopeia.warm-up]
         [cassiopeia.samples]
         [overtone.synth.sampled-piano])
-  (:require [cassiopeia.engine.timing :as timing]
+  (:require [mud.timing :as timing]
             [launchpad.sequencer :as lp-sequencer]
             [launchpad.plugin.beat :as lp-beat]
             [cassiopeia.engine.mixers :as m]

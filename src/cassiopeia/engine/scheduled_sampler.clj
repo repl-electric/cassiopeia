@@ -3,7 +3,7 @@
    http://www.github.com/meta-ex"
   (:use [overtone.live])
   (:use [cassiopeia.samples])
-  (:require [cassiopeia.engine.timing :as tim]
+  (:require [mud.timing :as tim]
             [overtone.helpers.synth :as synth-helpers]))
 
 (defsynth mono-beat-bus-samp-trig [buf 0 rate 1.0 start-pos 0.0 loop? 0 amp 1 out-bus 0 beat-b (:id (:beat tim/main-beat)) beat-cnt-b (:id (:count tim/main-beat)) mod-size 16]

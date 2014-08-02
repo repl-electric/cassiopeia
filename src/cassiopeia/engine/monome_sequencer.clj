@@ -2,7 +2,7 @@
   (:use [overtone.core]
         [overtone.helpers.lib :only [uuid]])
   (:require [monome.fonome :as fon]
-            [cassiopeia.engine.timing :as time]
+            [mud.timing :as time]
             [cassiopeia.engine.sequencer :as seq]))
 
 (defonce m-sequencers (atom {}))
