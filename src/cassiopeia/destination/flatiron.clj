@@ -459,9 +459,9 @@
 (def hand-drums (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.23 :num-steps 16 :buf hand-drum-s :rate-start 0.9 :rate-limit 1.0) (range 0 16))))
 
 (comment
-  (ctl (:synths slow-deep-chord-g) :saw-cutoff 1000 :noise-level 0.5 :amp 0.09 :attack 0.3 :release 6.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)))
+  (ctl (:synths slow-deep-chord-g) :saw-cutoff 1000 :noise-level 0.5 :amp 0.09 :attack 0.3 :release 6.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th))
   (ctl (:synths grumble-chord-g)   :t 0.005 :amp 0.4)
-  (ctl (:synths slow-deep-chord-g) :saw-cutoff 900) ))
+  (ctl (:synths slow-deep-chord-g) :saw-cutoff 900))
 
 (pattern! hats-buf      [0 0 0 0 1 0 0 0   0 0 1 0 0 0 0 0])
 (pattern! kick-seq-buf  [1 0 0 1 0 0 0 0   1 0 0 0 0 0 0 0])
@@ -569,7 +569,7 @@
      )
    (doseq [s (:synths apeg-deep-melody-chord-g)] (ctl s :amp 0.00 :saw-cutoff 100 :wave 0 :attack 1.0 :release 5.0)
           (n-overtime! s :saw-cutoff 100 2000 50)
-          (n-overtime! s :amp 0.00 0.04 0.005))
+         (n-overtime! s :amp 0.00 0.04 0.005))
    ))
 
 ;;Drive home home chords + highlight melody
@@ -602,7 +602,7 @@
 
 (do
   (ctl (:synths apeg-deep-melody-spair-chord-g) :amp 0)
-  (ctl-beat (:synths apeg-deep-melody-spair-chord-g) time/beat-2th) ))
+  (ctl-beat (:synths apeg-deep-melody-spair-chord-g) time/beat-2th)
   (ctl-beat (:synths apeg-deep-melody-chord-g) time/beat-2th)
   (ctl-beat (:synths slow-deep-chord-g) time/beat-1th)
 
@@ -670,7 +670,7 @@
   (ctl (:synths apeg-deep-melody-spair-chord-g) :saw-cutoff cutout)
   (ctl (:synths apeg-deep-melody-chord-g) :saw-cutoff cutout)
   (ctl (:synths main-melody-chord-g) :saw-cutoff cutout)
-  (ctl (:synths slow-deep-chord-g) :saw-cutoff cutout)
+  (ctl (:synths slow-deep-chord-g) :saw-cutoff cutout))
 
 (echoey-buf rf-full-s :amp 0.2 :decay 1.5 :delay 0.1)
 ;;(spacy rf-full-s :amp 0.6)
