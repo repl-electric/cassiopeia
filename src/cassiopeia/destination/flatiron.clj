@@ -406,6 +406,9 @@
 (kill drum-effects-g)
 (kill drums-g)
 
+(defonce hats-amp (buffer 256))
+(defonce kick-amp (buffer 256))
+
 (one-time-beat-trigger
  15 16
  (fn []
@@ -417,8 +420,6 @@
                (repeat 3 [1 0 0 1 0 0 0 0   1 0 0 0 0 0 0 0])
                          [1 0 0 1 0 0 0 0   1 0 0 0 1 0 1 0])
 
-     (defonce hats-amp (buffer 256))
-     (defonce kick-amp (buffer 256))
      (pattern! kick-amp  [1.5 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1]
                (repeat 2 [1.2 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1])
                          [1.2 1 1 1 1 1 1 1   1.2 1 1 1 1.2 1 1.3 1])
@@ -557,7 +558,7 @@
  126 128
  (fn [] ;;DARKER PROGRESSION
    (do
-     (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.5)
+     (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.45)
      (ctl (:synths apeg-deep-melody-chord-g) :amp 0.00)
      (ctl drum-effects-g :amp 0.0)
 
@@ -573,7 +574,7 @@
    ))
 
 ;;Drive home home chords + highlight melody
-(ctl (:synths main-melody-chord-g) :amp 0.1 :saw-cutoff 400 :wave 1 :attack 1.0 :release 5.0)
+(ctl (:synths main-melody-chord-g) :amp 0.1 :saw-cutoff 200 :wave 1 :attack 1.0 :release 5.0)
 (ctl (:synths apeg-deep-melody-chord-g) :amp 0.038 :saw-cutoff 2500)
 
 ;;Drum tension
@@ -581,6 +582,8 @@
 (pattern! hats-amp [1])
 (ctl white :amp 1.0)
 
+(pattern! kick-seq-buf (repeat 7 [1 0 0 0 1 0 0 0]) [1 0 0 0 1 0 1 0]
+                       (repeat 7 [1 0 0 0 1 0 0 0]) [1 0 0 0 0 0 1 0])
 (pattern! kick-seq-buf [1 0 0 0 1 0 0 0])
 (ctl kicker :amp 1.0)
 (pattern! kick-amp [1])
@@ -596,6 +599,8 @@
 
   ;;(kill fuzzy-kick-drums)
   (ctl drum-effects-g :amp 0.3) (ctl drums-g :amp 1.)
+
+  (pattern! effects-seq-buf  (repeat 12 [1 0])  [1 0 0 0])
   (ctl (:synths apeg-deep-melody-chord-g) :amp 0.05 :saw-cutoff 2600 :wave 0 :attack 1.0 :release 5.0)
   (def f (dulcet-fizzle :amp 2.0 :note-buf df-b))
   )
@@ -708,6 +713,7 @@
   (kill buf->smooth-inst)
 
   (on-beat-trigger 64 #(do (spin-for (rand-int voices) durations (:duration gs))))
+  (on-beat-trigger 64 #(do (spin-for (rand-int voices) durations (:duration ss))))
 
   (remove-all-beat-triggers)
 
@@ -719,12 +725,16 @@
   (def example-smooth-samples [rf-fx-s rf-solve-s rf-theorems-s rf-full-s rf-solve-s rf-fx-s rf-full-s rf-solve-s])
   (def example-samples        [rf-full-s rf-full-s rf-solve-s rf-fx-s rf-solve-s rf-full-s rf-full-s rf-full-s])
   (def ss (sample->smooth [] voices pattern-size example-smooth-samples))
-  (pattern! (:duration gs) [1/128])
-  (pattern! (:duration ss) [1/32])
+  (pattern! (:duration ss) [1/128])
+  (pattern! (:duration ss) [1/12])
   (pattern! (:duration ss) [1/2 0 0 0 1/2 0 0 0])
   (pattern! (:duration ss) [1/12 0 0 0 0 0 0 0])
-  (pattern! (:duration ss) [1/4 0 1/4 0 1/4 0 1/4])
-  (pattern! (:amp ss)      [0.1 0.1 0.1 0.13 0.1 0.1 0.1])
+  (pattern! (:duration ss) [1/8 0 0 0 1/12 0 0 0])
+  (pattern! (:amp ss)      [0.19 0.1 0.1 0.1 0.13 0.1 0.1 0.1
+                            0.39 0.1 0.1 0.1 0.13 0.1 0.1 0.1
+                            0.39 0.1 0.1 0.1 0.13 0.1 0.1 0.1
+                            0.99 0.1 0.1 0.1 0.53 0.1 0.1 0.1
+                            ])
   (pattern! (:fraction ss) [0.82283354 0.45919186 0.54692537 0.0045858636 0.034107555 0.6987561 0.07871687 0.24623081])
   (pattern! (:fraction ss) [0.8845941 0.3484526 0.02742675 0.82377213 0.7945769 0.772626 0.45249504 0.35252455])
   (pattern! (:fraction ss) [0.2470634 0.5662428 0.63178784 0.9357417 0.66654444 0.0969285 0.40005338 0.675227])
@@ -746,9 +756,9 @@
   (pattern! (:amp gs)      [0.55 0.4 0.4 0.4 0.3 0.3 0.5 0.5])
   (pattern! (:fraction gs)
             [0.70 0 0 0 0.1 0.9 0.9 0.50]
-            [0 0 0 0 0 0 0 0 0]
-            [0.9 0.9 0 0 0 0 0 0 0]
-            [0.4 0.4 0.4 0.4 0.4 0.4 0.4 0.4 0.4])
+            [0 0 0 0 0 0 0 0]
+            [0.9 0.9 0 0 0 0 0 0]
+            [0.4 0.4 0.4 0.4 0.4 0.4 0.4 0.4])
   (pattern! (:fraction gs) [1 0.9 0.1 0.1 0.1 0.1 0.1 0.1])
   (pattern! (:fraction gs) [0.14313303 0.641848 0.79618585 0.3601217 0.8650944 0.5890187 0.2760824 0.116221964])
   )
