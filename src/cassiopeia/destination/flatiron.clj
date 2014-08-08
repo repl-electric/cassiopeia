@@ -391,20 +391,8 @@
 
 ;;(kill seqer)
 ;;(kill fuzzy-kick-drums)
-
-(def fuzzy-kick-drums (doall (map #(seqer [:head drum-effects-g]
-                                          :rate-start 0.1 :rate-limit 0.2
-                                          :beat-num %1 :pattern effects2-seq-buf :amp 0.030 :num-steps 8 :buf kick-fuzzy-s) (range 0 8))))
-
-(pattern! effects3-seq-buf
-                    [0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0]
-          (repeat 2 [0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0])
-                    [0 0 0 0 0 0 0 0   0 0 0 0 1 0 1 0])
-(def soft-kick-drums (doall (map #(seqer [:head drum-effects-g]
-                                          :rate-start 0.8 :rate-limit 0.9
-                                          :beat-num %1 :pattern effects3-seq-buf :amp 0.5 :num-steps 8 :buf soft-kick-s) (range 0 8))))
-(kill drum-effects-g)
-(kill drums-g)
+;;(kill drum-effects-g)
+;;(kill drums-g)
 
 (defonce hats-amp (buffer 256))
 (defonce kick-amp (buffer 256))
@@ -535,7 +523,7 @@
 ;;(on-beat-trigger 16 #(echoey-buf (dirt :wind) :amp 0.1))
 ;;(on-beat-trigger 8 #(echoey-buf (dirt :wind) :amp 0.1))
 
-;;(sample-trigger #(do (echoey-buf (dirt :kurt 6) :amp 0.12)) 31 32)
+;;(sample-trigger 31 32 #(do (echoey-buf (dirt :kurt 6) :amp 0.13)))
 ;;(remove-all-sample-triggers)
 ;;(remove-all-beat-triggers)
 
@@ -575,7 +563,7 @@
 
 ;;Drive home home chords + highlight melody
 (ctl (:synths main-melody-chord-g) :amp 0.1 :saw-cutoff 200 :wave 1 :attack 1.0 :release 5.0)
-(ctl (:synths apeg-deep-melody-chord-g) :amp 0.038 :saw-cutoff 2500)
+(ctl (:synths apeg-deep-melody-chord-g) :amp 0.038 :saw-cutoff 2000)
 
 ;;Drum tension
 (pattern! hats-buf [1])
@@ -597,6 +585,9 @@
 
   (chord-pattern apeg-deep-melody-spair-chord-g pinger-growth-score-spair)
 
+;;  (ctl (:synths apeg-deep-melody-spair-fast-chord-g) :amp 0.03)
+  ;;(chord-pattern apeg-deep-melody-spair-fast-chord-g pinger-growth-score-spair)
+
   ;;(kill fuzzy-kick-drums)
   (ctl drum-effects-g :amp 0.3) (ctl drums-g :amp 1.)
 
@@ -611,6 +602,9 @@
   (ctl-beat (:synths apeg-deep-melody-chord-g) time/beat-2th)
   (ctl-beat (:synths slow-deep-chord-g) time/beat-1th)
 
+  ;;(spacy rf-theorems-s :amp 0.9 :delay 2 :amp 0.4)
+  ;;(on-beat-trigger 128 #(let [s (rand-nth [rf-theorems-s rf-trig-s rf-solve-s])] (echoey-buf s :decay (rand 10.0) :delay (rand 10.0) :amp 0.1)))
+
   (chord-pattern slow-deep-chord-g pinger-score)
 
   (let [_ (pattern! sd-attack-b  [0.06 0.12 0.12 0.1])
@@ -624,6 +618,9 @@
             (repeat 3 (concat [1 0 0 0 1 0 0 0] [1 0 0 0 1 0 0 0]))
             [1 0 0 0 1 0 0 0] [1 0 0 0 1 0 1 0])
   (def f (dulcet-fizzle :amp 2.0 :note-buf df-b)))
+
+(ctl kicker :amp 1.5)
+(ctl white  :amp 1.5)
 
 (one-time-beat-trigger 126 128
                        (fn [& _]
@@ -682,29 +679,6 @@
 ;;(echoey-buf rf-full-s :amp 0.04)
 
 (comment
-  ;;(ctl (foundation-output-group) :master-volume 3)
-  (ctl drums-g :amp 0)
-  (ctl drum-effects-g :amp 0)
-
-  (stop-all-chord-synth-buffers)
-  (remove-all-beat-triggers)
-
-  (remove-all-sample-triggers)
-  (full-stop)
-
-  (kill heart-wobble)
-
-  (fadeout-master master-vol)
-  (recording-start "~/Desktop/flatiron21.wav")
-  (recording-stop)
-
-  (t/start-fullscreen "resources/shaders/manhattan.glsl"
-                      :textures [:overtone-audio :previous-frame
-                                ]
-                      )
-  )
-
-(comment
   (def voices 8)
   (def durations [1/8 1/4 1/2 1])
   (def pattern-size 8)
@@ -729,12 +703,8 @@
   (pattern! (:duration ss) [1/12])
   (pattern! (:duration ss) [1/2 0 0 0 1/2 0 0 0])
   (pattern! (:duration ss) [1/12 0 0 0 0 0 0 0])
-  (pattern! (:duration ss) [1/8 0 0 0 1/12 0 0 0])
-  (pattern! (:amp ss)      [0.19 0.1 0.1 0.1 0.13 0.1 0.1 0.1
-                            0.39 0.1 0.1 0.1 0.13 0.1 0.1 0.1
-                            0.39 0.1 0.1 0.1 0.13 0.1 0.1 0.1
-                            0.99 0.1 0.1 0.1 0.53 0.1 0.1 0.1
-                            ])
+  (pattern! (:duration ss) [1/32 0 0 0 1/4 0 0 0])
+  (pattern! (:amp ss)      [0.15 0.1 0.1 0.1 0.15 0.1 0.1 0.1])
   (pattern! (:fraction ss) [0.82283354 0.45919186 0.54692537 0.0045858636 0.034107555 0.6987561 0.07871687 0.24623081])
   (pattern! (:fraction ss) [0.8845941 0.3484526 0.02742675 0.82377213 0.7945769 0.772626 0.45249504 0.35252455])
   (pattern! (:fraction ss) [0.2470634 0.5662428 0.63178784 0.9357417 0.66654444 0.0969285 0.40005338 0.675227])
@@ -751,9 +721,9 @@
   (buffer-write! (:fraction gs) (take voices (repeatedly #(/ (rand 512) 512))))
 
   ;;(pattern! (:duration gs) [1/32])
-  (pattern! (:duration gs) [1/12 1/12 1/12 1/12 1/12 0 1/12 1/12])
+  (pattern! (:duration gs) [1/64 1/2 1/2 1/2 1/64 1/2 1/2 1/2])
   (pattern! (:duration gs) [1/3 1/4 1/2 1/2 1/4 0 1/4 1/4])
-  (pattern! (:amp gs)      [0.55 0.4 0.4 0.4 0.3 0.3 0.5 0.5])
+  (pattern! (:amp gs)      [0.35 0.25 0.25 0.25 0.25 0.25 0.25 0.25])
   (pattern! (:fraction gs)
             [0.70 0 0 0 0.1 0.9 0.9 0.50]
             [0 0 0 0 0 0 0 0]
@@ -762,3 +732,22 @@
   (pattern! (:fraction gs) [1 0.9 0.1 0.1 0.1 0.1 0.1 0.1])
   (pattern! (:fraction gs) [0.14313303 0.641848 0.79618585 0.3601217 0.8650944 0.5890187 0.2760824 0.116221964])
   )
+
+(comment
+  ;;(ctl (foundation-output-group) :master-volume 3)
+  (ctl drums-g :amp 0)
+  (ctl drum-effects-g :amp 0)
+
+  (remove-all-beat-triggers)
+  (remove-all-sample-triggers)
+  (stop-all-chord-synth-buffers)
+  (full-stop)
+
+  (kill heart-wobble)
+
+  (fadeout-master master-vol)
+  (recording-start "~/Desktop/flatiron-v6-01.wav")
+  (recording-stop)
+
+  (t/start-fullscreen "resources/shaders/manhattan.glsl"
+                      :textures [:overtone-audio :previous-frame]))
