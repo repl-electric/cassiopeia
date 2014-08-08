@@ -359,15 +359,19 @@
         [f41 f42 f43 f44 f45 f46 f47] (chords-for :F4 :minor 1)
         chord-pat [f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])]]
     (chord-pattern apeg-deep-melody-spair-chord-g chord-pat)))
+
+(pattern! effects-seq-buf  (repeat 12 1)  [1 0 0 0])
 )
 (do
   (kill crackle-snail)
   (crackle-snail :noise-level 0.1 :amp 0.6 :note-buf s-note-b)
   (pattern! s-note-b [(degrees [1] :minor :F1) (degrees [3] :minor :F1) 0 (degrees [4] :minor :F1) (degrees [1] :minor :F1) 0 0 0] (repeat 24 [0])))
 
+(ctl (:synths grumble-chord-g)   :t 0.005 :amp 0.4)
+
 (comment
   (ctl (:synths slow-deep-chord-g) :saw-cutoff 1000 :noise-level 0.5 :amp 0.09 :attack 0.3 :release 6.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th))
-  (ctl (:synths grumble-chord-g)   :t 0.005 :amp 0.4)
+
   (ctl (:synths slow-deep-chord-g) :saw-cutoff 900))
 
 (do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf effects3-seq-buf bass-notes-buf effects3-seq-buf]))
@@ -438,7 +442,7 @@
    ))
 
 ;(grainy-buf :b (buffer-mix-to-mono rf-fx-s) :amp 0.3 :dur 5.0 :trate 1 :amp 0.9)
-(echoey-buf rf-theorems-s :amp 0.055)
+(echoey-buf rf-theorems-s :amp 0.058)
 
 (doseq [chord-g (:synths slow-deep-chord-g)]
   (ctl chord-g :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4)
@@ -465,7 +469,7 @@
 ;;(on-beat-trigger 256 #(echoey-buf ooo-s :amp 0.1))
 ;;(spacy (dirt :cosmicg 2) :amp 0.1)
 
-;;(on-beat-trigger 64 #(echoey-buf (dirt :wind) :amp 0.1))
+
 ;;(sample-trigger 31 32 #(do (echoey-buf (dirt :kurt 6) :amp 0.13)))
 ;;(remove-all-sample-triggers)
 ;;(remove-all-beat-triggers)
@@ -503,6 +507,10 @@
          (n-overtime! s :amp 0.00 0.04 0.005))
    ))
 
+;;(remove-all-sample-triggers)
+;;(remove-all-beat-triggers)
+
+;;(on-beat-trigger 64 #(echoey-buf (dirt :wind) :amp 0.1))
 ;;Drive home home chords + highlight melody
 (ctl (:synths main-melody-chord-g) :amp 0.1 :saw-cutoff 200 :wave 1 :attack 1.0 :release 5.0)
 (ctl (:synths apeg-deep-melody-chord-g) :amp 0.038 :saw-cutoff 2600 :wave 1)
@@ -598,7 +606,7 @@
 
 ;;More fizzle
 ;;(doall (map #(n-overtime! % :saw-cutoff 2600.0 0 50) (:synths apeg-deep-melody-chord-g)))
-;;(on-beat-trigger 64 #(do (plain-space-organ :tone (/ (midi->hz (note :F2)) 2) :duration 3 :amp 0.2)))
+(on-beat-trigger 64 #(do (plain-space-organ :tone (/ (midi->hz (note :F2)) 2) :duration 3 :amp 0.2)))
 
 (do
   (chord-pattern main-melody2-chord-g  darker-pinger-score)
@@ -609,7 +617,7 @@
 (remove-all-beat-triggers)
 
 ;;Fade
-(let [cutout 2700]
+(let [cutout 2600]
   (ctl drum-effects-g :amp 0)
   (ctl (:synths apeg-deep-melody-spair-chord-g) :saw-cutoff cutout)
   (ctl (:synths apeg-deep-melody-chord-g) :saw-cutoff cutout)
@@ -649,8 +657,8 @@
   (pattern! (:amp ss)      [0.18 0.18 0.18 0.18 0.18 0.18 0.18 0.18])
   (pattern! (:fraction ss) [0.82283354 0.45919186 0.54692537 0.0045858636 0.034107555 0.6987561 0.07871687 0.24623081])
 
-  (pattern! (:fraction ss) [0.8845941 0.3484526 0.02742675 0.82377213 0.7945769 0.772626 0.45249504 0.35252455])
-  (pattern! (:fraction ss) [0.2470634 0.5662428 0.63178784 0.9357417 0.66654444 0.0969285 0.40005338 0.675227])
+  ;; (pattern! (:fraction ss) [0.8845941 0.3484526 0.02742675 0.82377213 0.7945769 0.772626 0.45249504 0.35252455])
+  ;;(pattern! (:fraction ss) [0.2470634 0.5662428 0.63178784 0.9357417 0.66654444 0.0969285 0.40005338 0.675227])
 
   ;; (ctl (:group ss) :sin-dur 1)
 
@@ -666,13 +674,9 @@
   ;;(pattern! (:duration gs) [1/32])
   (pattern! (:duration gs) [1/64 1/2 1/2 1/2 1/64 1/2 1/2 1/2])
   (pattern! (:duration gs) [1/3 1/4 1/2 1/2 1/4 0 1/4 1/4])
-  (pattern! (:amp gs)      [0.2 0.18 0.18 0.18 0.18 0.18 0.18 0.18])
-  (pattern! (:fraction gs)  [0.70 0 0 0 0.1 0.9 0.9 0.50]
-                            [0 0 0 0 0 0 0 0]
-                            [0.9 0.9 0 0 0 0 0 0]
-                            [0.4 0.4 0.4 0.4 0.4 0.4 0.4 0.4]
-  )
-   (pattern! (:fraction gs) [1 0.9 0.1 0.1 0.1 0.1 0.1 0.1])
+  (pattern! (:amp gs)      [0.4 0.1 0.1 0.1 0.1 0.1 0.1 0.1])
+
+  (pattern! (:fraction gs) [1 0.9 0.1 0.1 0.1 0.1 0.1 0.1])
   (pattern! (:fraction gs) [0.14313303 0.641848 0.79618585 0.3601217 0.8650944 0.5890187 0.2760824 0.116221964])
   )
 
