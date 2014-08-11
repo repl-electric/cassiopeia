@@ -696,5 +696,7 @@
   (recording-start "~/Desktop/flatiron-v6-01.wav")
   (recording-stop)
 
-  (t/start-fullscreen "resources/shaders/manhattan.glsl"
-                      :textures [:overtone-audio :previous-frame]))
+  (t/start-fullscreen "resources/shaders/nomad.glsl"
+                      :textures [:overtone-audio :previous-frame
+                                 "resources/textures/tex16.png"])
+  )
