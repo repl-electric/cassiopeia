@@ -35,27 +35,28 @@ vec4 buildNoise(float pos, float direction)
   return mix(colour, vec4(0.0,0.,0.,0.), 0.5);
 }
 
-// Created by inigo quilez - iq/2014
+// Based on inigo quilez Hex - iq/2014
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
-// { 2d cell id, distance to border, distnace to center )
+
 vec4 hexagon( vec2 p )
 {
+  int edges = 3;
+  float edgeWidth = 1.0;//0.4;
   vec2 q = vec2( p.x*2.0*0.5773503, p.y + p.x*0.5773503 );
 
   vec2 pi = floor(q);
   vec2 pf = fract(q);
 
-  float v = mod(pi.x + pi.y, 3.0);
+  float v = mod(pi.x + pi.y, edges);
 
   float ca = step(1.0,v);
   float cb = step(2.0,v);
   vec2  ma = step(pf.xy,pf.yx);
 
-  // distance to borders
-  float e = dot( ma, 1.0-pf.yx + ca*(pf.x+pf.y-1.0) + cb*(pf.yx-2.0*pf.xy) );
+  // Borders
+  float e = dot( ma, edgeWidth-pf.yx + ca*(pf.x+pf.y-1.0) + cb*(pf.yx-2.0*pf.xy) );
 
-  // distance to center
-  p = vec2( q.x + floor(0.5+p.y/1.5), 4.0*p.y/3.0 )*0.5 + 0.5;
+  // Center circle dots
   float f = length( (fract(p) - 0.5)*vec2(1.0,0.85) );
 
   return vec4( pi + ca - cb*ma, e, f );
@@ -79,9 +80,8 @@ vec4 hex( void )
   vec2 uv = gl_FragCoord.xy/iResolution.xy;
   vec2 pos = (-iResolution.xy + 2.0*gl_FragCoord.xy)/iResolution.y;
 
-  float scale = 1.0;
-  float speed = 0;
-
+  float scale = 10.0;
+  float speed = sin(iGlobalTime * 0.0001);
 
   // gray
   vec4 h = hexagon(scale*pos + 0.1);
@@ -100,7 +100,7 @@ vec4 hex( void )
   colb *= 1.0 + 0.15*sin(40.0*h.z);
   colb *= 0.75 + 0.5*h.z*n;
 
-  h = hexagon(scale*(pos+0.1*vec2(-1.3,1.0)) + speed*iGlobalTime);
+  h = hexagon(scale* (pos+0.1*vec2(-1.3,1.0)) + speed*iGlobalTime);
   col *= 1.0-0.8*smoothstep(0.45,0.451,noise( vec3(0.3*h.xy+iGlobalTime*0.1,iGlobalTime) ));
 
   col = mix( col, colb, smoothstep(0.45,0.451,n) );
