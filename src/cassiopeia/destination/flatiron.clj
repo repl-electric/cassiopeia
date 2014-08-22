@@ -682,6 +682,8 @@
   )
 
 (comment
+  (def beats (buffer->tap kick-seq-buf (:count time/beat-1th)))
+
   ;;(ctl (foundation-output-group) :master-volume 3)
   (ctl drums-g :amp 0)
   (ctl drum-effects-g :amp 0)
@@ -697,7 +699,11 @@
   (recording-start "~/Desktop/flatiron-v6-01.wav")
   (recording-stop)
 
-  (t/start-fullscreen "resources/shaders/nomad.glsl"
-                      :textures [:overtone-audio :previous-frame
-                                 "resources/textures/tex16.png"])
-  )
+  (t/stop)
+  (t/start "resources/shaders/nomad.glsl"
+           :textures [:overtone-audio :previous-frame
+                      "resources/textures/tex16.png"]
+           :user-data {"iMeasureCount" (atom {:synth beats :tap "measure-count"})
+                       "iBeat"         (atom {:synth beats :tap "beat"})
+                       "iBeatCount"    (atom {:synth beats :tap "beat-count"})})
+)
