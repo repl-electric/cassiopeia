@@ -81,10 +81,10 @@ vec4 hex( void )
   vec2 pos = (-iResolution.xy + 2.0*gl_FragCoord.xy)/iResolution.y;
 
   float scale = 10.0;
-  float speed = sin(iGlobalTime * 0.0001);
+  float speed = sin(iGlobalTime * 0);
 
   // gray
-  vec4 h = hexagon(scale*pos + 0.1);
+  vec4 h = hexagon(scale*pos + 0.01);
   float n = noise( vec3(0.3*h.xy+iGlobalTime*0.1,iGlobalTime) );
   vec3 col = 0.15 + 0.15*hash1(h.xy+1.2)*vec3(1.0);
   col *= smoothstep( 0.10, 0.11, h.z );
@@ -93,14 +93,14 @@ vec4 hex( void )
   col *= 0.75 + 0.5*h.z*n;
 
   // red
-  h = hexagon(scale*pos + speed*iGlobalTime);
+  h = hexagon(scale*pos + 0.01);
   n = noise( vec3(0.3*h.xy+iGlobalTime*0.1,iGlobalTime) );
   vec3 colb = 0.9 + 0.8*sin( hash1(h.xy)*1.5 + 2.0 + vec3(0.0,1.0,1.0) );
   colb *= smoothstep( 0.10, 0.11, h.z );
   colb *= 1.0 + 0.15*sin(40.0*h.z);
   colb *= 0.75 + 0.5*h.z*n;
 
-  h = hexagon(scale* (pos+0.1*vec2(-1.3,1.0)) + speed*iGlobalTime);
+  h = hexagon(scale*(pos+0.1*vec2(-1.3,1.0)) + 0.5);
   col *= 1.0-0.8*smoothstep(0.45,0.451,noise( vec3(0.3*h.xy+iGlobalTime*0.1,iGlobalTime) ));
 
   col = mix( col, colb, smoothstep(0.45,0.451,n) );
