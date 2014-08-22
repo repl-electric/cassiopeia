@@ -1,5 +1,12 @@
+// Hex parts based on nigo quilez work - iq/2014
+// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+
 float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(2.9898,78.233))) * 58.5453);
+}
+
+float rand2(vec2 co){
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
 float averageForRadius(vec2 co, float radius) {
@@ -15,28 +22,35 @@ float averageForRadius(vec2 co, float radius) {
   return average;
 }
 
-vec4 buildNoise(float pos, float direction)
+vec4 buildNoise(float direction)
 {
+  float pos;
+  if(direction == -1.0){
+    pos = 1.;
+  }
+  else{
+    pos = 0.;
+  }
+
+  float noiseGrowth = 0.;
+  float speed = 0.01;
   vec2 position = pos-gl_FragCoord.xy / iResolution.xy;
   position = position + vec2(1/iResolution.x, iResolution.y);
   vec4 colour = vec4(0.,0.,0.,0.);
-  float random = rand(vec2(position.x/direction + iGlobalTime/100.0, position.y));
-  random = random - 0.9;
+  float random = rand(vec2(position.x/direction + iGlobalTime*speed, position.y));
+  random = random - noiseGrowth;
   float randomMultiplier =position.x/direction * 10.1;
   colour += random * randomMultiplier;
   float multiplier = (position.x / 0.05);
 
-  if(pos == 0.0){
-    colour += multiplier;
-  }
-  else{
+  if(direction == -1.0){
     colour -= multiplier;
   }
-  return mix(colour, vec4(0.0,0.,0.,0.), 0.5);
+  else{
+    colour += multiplier;
+  }
+  return mix(colour, vec4(0.,0.,0.,0.), 0.5);
 }
-
-// Based on inigo quilez Hex - iq/2014
-// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
 vec4 hexagon( vec2 p )
 {
@@ -74,6 +88,23 @@ float noise( in vec3 x )
   return mix( rg.x, rg.y, f.z );
 }
 
+vec4 rings(void)
+{
+  vec2 pos = gl_FragCoord.xy / iResolution.x;
+  float ring = 0.0;
+  float expansion = 0.4;
+  float speed = 0.1;
+  float size = 2.0;
+
+  for (float i=0.0; i<expansion; i+=0.001) {
+    float seed = floor((iGlobalTime-i)/speed);
+    vec2 point = vec2(rand2(vec2(seed, 0.5)), rand2(vec2(0.5, seed)));
+    if (abs(sqrt(pow(pos.x-point.x,size)+pow(pos.y-point.y,size))-i/20.0) < 0.001) {
+      ring += 0.002/i;
+    }
+  }
+  return vec4(vec3(ring, ring, ring),1.0);
+}
 
 vec4 hex( void )
 {
@@ -109,7 +140,19 @@ vec4 hex( void )
 }
 
 void main(void){
-  vec4 leftNoise  = buildNoise(0.,1);
-  vec4 rightNoise = buildNoise(1.,-1);
-  gl_FragColor = 1-(rightNoise * leftNoise) * hex();
+  float noiseWeight = 0.0;
+  float hexWeight   = 0.0;
+  float ringsWeight = 1.0;
+
+  vec4 leftNoise  = vec4(0.);
+  vec4 rightNoise = vec4(0.);
+
+  if(noiseWeight == 1.0){
+    leftNoise  = buildNoise(1);
+    rightNoise = buildNoise(-1);
+  }
+
+  gl_FragColor = (1-(leftNoise * rightNoise))*noiseWeight +
+    hex() * hexWeight +
+    rings() * ringsWeight;
 }
