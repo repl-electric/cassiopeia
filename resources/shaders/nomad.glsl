@@ -97,17 +97,21 @@ vec4 rings(void)
 {
   vec2 pos = gl_FragCoord.xy / iResolution.x;
   float ring = 0.0;
-  float expansion = 0.4;
-  float speed = 0.1;
+  float expansion = 0.5;
+  float speed = 0.0000001;
   float size = 2.0;
 
-  for (float i=0.0; i<expansion; i+=0.001) {
-    float seed = floor((iGlobalTime-i)/speed);
-    vec2 point = vec2(rand2(vec2(seed, 0.5)), rand2(vec2(0.5, seed)));
-    if (abs(sqrt(pow(pos.x-point.x,size)+pow(pos.y-point.y,size))-i/20.0) < 0.001) {
-      ring += 0.002/i;
+  //    if(iBeat == 1){
+    for (float i=0.0; i<expansion; i+=0.001) {
+      float seed = iGlobalTime*speed-i;
+      vec2 point = vec2(rand2(vec2(seed, 0.5)), rand2(vec2(0.5, seed)));
+
+      if (abs(sqrt(pow(pos.x-point.x,size)+pow(pos.y-point.y-0.1,size))/1.0) < 0.01) {
+        ring += (0.002/i) * (iBeat + iMeasureCount * 0.09);
+      }
     }
-  }
+    //    }
+
   return vec4(vec3(ring, ring, ring),1.0);
 }
 
