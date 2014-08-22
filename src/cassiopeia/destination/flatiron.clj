@@ -360,6 +360,7 @@
         chord-pat [f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])]]
     (chord-pattern apeg-deep-melody-spair-chord-g chord-pat)))
 
+(defonce effects-seq-buf (buffer 256))
 (pattern! effects-seq-buf  (repeat 12 1)  [1 0 0 0])
 )
 (do
