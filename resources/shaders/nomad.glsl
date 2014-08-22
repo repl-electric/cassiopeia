@@ -93,26 +93,31 @@ float noise( in vec3 x )
   return mix( rg.x, rg.y, f.z );
 }
 
-vec4 rings(void)
+vec4 populationDensity(vec2 pos)
 {
-  vec2 pos = gl_FragCoord.xy / iResolution.x;
-  float ring = 0.0;
-  float expansion = 0.5;
-  float speed = 0.0000001;
-  float size = 2.0;
+  float person = 0.0;
+  float personGirth = 2.0;
+  float maximumCapacity = 0.5;
+  float walkingSpeed = 0.0000002;
+  float populationSize = 0.001;
+  float urgencyRate = 0.002;
+
+  walkingSpeed *=  sin(iBeat+0.5);
+  //incrementSize =+ iOvertoneVolume*0.01;
 
   //    if(iBeat == 1){
-    for (float i=0.0; i<expansion; i+=0.001) {
-      float seed = iGlobalTime*speed-i;
-      vec2 point = vec2(rand2(vec2(seed, 0.5)), rand2(vec2(0.5, seed)));
+    for (float i=0.0; i<maximumCapacity; i+=populationSize) {
+      float seed = iGlobalTime*walkingSpeed-i;
+      //      vec2 point = vec2(rand2(vec2(sin(iGlobalTime*0.0000001), seed)), rand2(vec2(seed, seed)));
+      vec2 point = vec2(rand2(vec2(seed, 0.5)), rand2(vec2(0.5,seed)));
 
-      if (abs(sqrt(pow(pos.x-point.x,size)+pow(pos.y-point.y-0.1,size))/1.0) < 0.01) {
-        ring += (0.002/i) * (iBeat + iMeasureCount * 0.09);
+      if (abs(sqrt(pow(pos.x-point.x,personGirth)+pow(pos.y-point.y-0.1,personGirth))/1.0) < 0.01) {
+        person += (urgencyRate/i) * (iBeat + iMeasureCount * 0.09);
       }
     }
     //    }
 
-  return vec4(vec3(ring, ring, ring),1.0);
+    return vec4(vec3(iMeasureCount*0.01+person, iBeatCount*0.01+person, iOvertoneVolume*0.01+person),1.0);
 }
 
 vec4 hex( void )
@@ -149,6 +154,8 @@ vec4 hex( void )
 }
 
 void main(void){
+  vec2 pos = gl_FragCoord.xy / iResolution.x;
+
   float noiseWeight = 0.0;
   float hexWeight   = 0.0;
   float ringsWeight = 1.0;
@@ -163,5 +170,5 @@ void main(void){
 
   gl_FragColor = (1-(leftNoise * rightNoise))*noiseWeight +
     hex() * hexWeight +
-    rings() * ringsWeight;
+    populationDensity(pos) * ringsWeight;
 }
