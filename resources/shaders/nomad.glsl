@@ -1,6 +1,11 @@
 // Hex parts based on nigo quilez work - iq/2014
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
+uniform float iOvertoneVolume;
+uniform float iBeat;
+uniform float iBeatCount;
+uniform float iMeasureCount;
+
 float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(2.9898,78.233))) * 58.5453);
 }
