@@ -128,9 +128,7 @@ vec4 populationDensity(vec2 pos)
     return vec4(vec3(iMeasureCount*0.01+person, iBeatCount*0.01+person, iOvertoneVolume*0.01+person),1.0);
 }
 
-vec4 hex( void )
-{
-  vec2 uv = gl_FragCoord.xy/iResolution.xy;
+vec4 hex(vec2 uv){
   vec2 pos = (-iResolution.xy + 2.0*gl_FragCoord.xy)/iResolution.y;
 
   float scale = 10.0;
@@ -162,11 +160,11 @@ vec4 hex( void )
 }
 
 void main(void){
-  vec2 pos = gl_FragCoord.xy / iResolution.x;
+  vec2 uv = gl_FragCoord.xy / iResolution.x;
 
   float noiseWeight = 0.0;
   float hexWeight   = 0.0;
-  float ringsWeight = 1.0;
+  float populationWeight = 0.0;
 
   vec4 leftNoise  = vec4(0.);
   vec4 rightNoise = vec4(0.);
@@ -176,7 +174,7 @@ void main(void){
     rightNoise = buildNoise(-1);
   }
 
-  gl_FragColor = (1-(leftNoise * rightNoise))*noiseWeight +
-    hex() * hexWeight +
-    populationDensity(pos) * ringsWeight;
+  gl_FragColor = (1-(leftNoise * rightNoise)) * noiseWeight +
+    hex(uv) * hexWeight +
+    populationDensity(uv) * populationWeight;
 }
