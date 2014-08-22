@@ -104,12 +104,20 @@ vec4 populationDensity(vec2 pos)
 
   walkingSpeed *=  sin(iBeat+0.5);
   //incrementSize =+ iOvertoneVolume*0.01;
+  float direction = 1.0;
+
+  if(iMeasureCount > 3.0){
+    direction = -1.0;
+  }
+  else{
+    direction = 1.0;
+  }
 
   //    if(iBeat == 1){
     for (float i=0.0; i<maximumCapacity; i+=populationSize) {
       float seed = iGlobalTime*walkingSpeed-i;
       //      vec2 point = vec2(rand2(vec2(sin(iGlobalTime*0.0000001), seed)), rand2(vec2(seed, seed)));
-      vec2 point = vec2(rand2(vec2(seed, 0.5)), rand2(vec2(0.5,seed)));
+      vec2 point = vec2(rand2(vec2(direction*seed, direction*0.5)), rand2(vec2(direction*0.5, direction*seed)));
 
       if (abs(sqrt(pow(pos.x-point.x,personGirth)+pow(pos.y-point.y-0.1,personGirth))/1.0) < 0.01) {
         person += (urgencyRate/i) * (iBeat + iMeasureCount * 0.09);
