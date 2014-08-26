@@ -113,7 +113,9 @@
         beat (buf-rd:kr 1 beat-buf cnt)
         _  (tap "beat"          60 (a2k beat))
         _  (tap "beat-count"    60 (a2k (mod cnt beat-size)))
-        _  (tap "measure-count" 60 (a2k (/ (mod cnt (* measure beat-size)) measure)))])
+        _  (tap "measure-count"       60 (a2k (/ (mod cnt (* measure beat-size)) measure)))
+        _  (tap "beat-total-count" 60 (a2k (mod cnt (* measure beat-size))))
+        ])
   (out 0 0))
 
 (defsynth kick2

@@ -682,7 +682,7 @@
   )
 
 (comment
-  (def beats (buffer->tap kick-seq-buf (:count time/beat-1th)))
+  (def beats (buffer->tap kick-seq-buf (:count time/beat-1th) :measure 8))
 
   ;;(ctl (foundation-output-group) :master-volume 3)
   (ctl drums-g :amp 0)
@@ -703,7 +703,8 @@
   (t/start "resources/shaders/nomad.glsl"
            :textures [:overtone-audio :previous-frame
                       "resources/textures/tex16.png"]
-           :user-data {"iMeasureCount" (atom {:synth beats :tap "measure-count"})
+           :user-data {"iMeasureCount"  (atom {:synth beats :tap "measure-count"})
+                       "iBeatTotalCount" (atom {:synth beats :tap "beat-total-count"})
                        "iBeat"         (atom {:synth beats :tap "beat"})
                        "iBeatCount"    (atom {:synth beats :tap "beat-count"})})
 )
