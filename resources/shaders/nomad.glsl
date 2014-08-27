@@ -1,3 +1,7 @@
+//NoMAD
+//Noise and People.
+//Created by Joseph Wil <joe@josephwil,net>
+//
 // Hex parts based on nigo quilez work - iq/2014
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
@@ -6,6 +10,8 @@ uniform float iBeat;
 uniform float iBeatCount;
 uniform float iBeatTotalCount;
 uniform float iMeasureCount;
+
+#define RANDOM_LETTERS 1
 
 float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(2.9898,78.233))) * 58.5453);
@@ -97,14 +103,14 @@ float noise( in vec3 x )
 vec4 populationDensity(vec2 pos)
 {
   float person = 0.0;
-  float personGirth = 2.0;
+  float personGirth = 4.0;
   float maximumCapacity = 0.5;
-  float walkingSpeed = 0.0000002;
-  float populationSize = 0.001;
+  float walkingSpeed = 0.00000008;
+  float populationSize = 0.01;
   float urgencyRate = 0.002;
 
-  walkingSpeed *=  sin(iBeat+0.5);
-  //incrementSize =+ iOvertoneVolume*0.01;
+  //walkingSpeed *=  sin(iBeat+0.5);
+  //  incrementSize =+ iOvertoneVolume*0.01;
   float direction = 1.0;
 
   if(iMeasureCount > 3.0){
@@ -116,11 +122,11 @@ vec4 populationDensity(vec2 pos)
 
   //    if(iBeat == 1){
     for (float i=0.0; i<maximumCapacity; i+=populationSize) {
-      float seed = iGlobalTime*walkingSpeed-i;
+      float seed = iGlobalTime*walkingSpeed+i;
       //      vec2 point = vec2(rand2(vec2(sin(iGlobalTime*0.0000001), seed)), rand2(vec2(seed, seed)));
       vec2 point = vec2(rand2(vec2(direction*seed, direction*0.5)), rand2(vec2(direction*0.5, direction*seed)));
 
-      if (abs(sqrt(pow(pos.x-point.x,personGirth)+pow(pos.y-point.y-0.1,personGirth))/1.0) < 0.01) {
+      if (abs(sqrt(pow(pos.x-point.x,personGirth)+pow(pos.y-point.y-0.1,personGirth))/1.0) < 0.0001) {
         person += (urgencyRate/i) * (iBeat + iMeasureCount * 0.09);
       }
     }
@@ -174,10 +180,10 @@ vec3 hsvToRgb(float mixRate, float colorStrength){
 vec4 addGlow(vec2 v, float glow)
 {
   if(iBeat == 1.0){
-    glow += 0.0009;
+    glow += 0.0003;
   }
 
-  glow += iOvertoneVolume * 0.01;
+  glow += iOvertoneVolume * 0.001;
 
   float res = glow / length(v - (gl_FragCoord.xy/iResolution.x));
   return res * vec4(hsvToRgb(0.5, 0.9),1.0);
@@ -190,13 +196,19 @@ vec4 buildCell(vec2 uv, vec2 point){
   float movementScale = 0.02;
 
   if(iBeatTotalCount >= 64.0){
-    point.y -= sin(1/iBeatCount+(1/iGlobalTime))*movementScale;
+      point.y -= sin(1/iBeatCount+(1/iGlobalTime))*movementScale;
   }
   else{
-    point.y += sin(1/iBeatCount+(1/iGlobalTime))*movementScale;
+      point.y += sin(1/iBeatCount+(1/iGlobalTime))*movementScale;
   }
 
-  point.x += cos(iBeatTotalCount)*0.01;
+  if(RANDOM_LETTERS == 1){
+    float rate = 0.000001;
+    point.x = 0.9*sin(rand(vec2(iGlobalTime*rate, iGlobalTime*rate)));
+    point.y = 0.9*sin(rand(vec2(point.x+iGlobalTime*rate, point.y*iGlobalTime*rate)));
+  }
+
+  //  point.x += cos(iBeatTotalCount)*0.01;
 
   float cell = abs(sqrt(pow(uv.x-point.x,4.0)+pow(uv.y-point.y, 4.0)));
 
@@ -206,84 +218,57 @@ vec4 buildCell(vec2 uv, vec2 point){
     person -= 0.9;
   }
   vec4 helloPoint = vec4(vec3(person),1.0);
-  helloPoint += addGlow(point, 0.0008);
+  helloPoint += addGlow(point, 0.003);
 
   return helloPoint;
 }
 
-vec4 bouncingPerson(vec2 uv){
+vec4 letter(mat3 letter, vec2 offset, vec2 uv){
+  vec2 point = vec2(0,0);
+  vec4 helloPoint = vec4(0,0,0,0);
+  vec3 xPos = vec3(0., 0.03, 0.06);
+  vec3 yPos = vec3(0.06, 0.03, 0);
   float letterSpace = 0.1;
-  float topX = 0.45;
 
-  vec2 rStart = vec2(0.17+letterSpace*0, 0.45);
-  vec2 eStart = vec2(0.17+letterSpace*2, 0.45);
-  vec2 pStart = vec2(0.17+letterSpace*4, 0.45);
-  vec2 lStart = vec2(0.17+letterSpace*6, 0.45);
+  for(int y=0; y < 3; y++){
+    for(int x=0; x < 3; x++){
+      if(letter[y][x] == 1){
+        point = vec2(xPos[x]+offset.x, offset.y+yPos[y]);
+        helloPoint += buildCell(uv, point);
+      }
+    }
+  }
+  return helloPoint;
+}
 
-  vec2 point = vec2(pStart.x+0., pStart.y+0.05);
-  vec4 helloPoint = buildCell(uv, point);
+vec4 bouncingPerson(vec2 uv){
+  float letterSpace = 0.06;
+  vec4 helloPoint = vec4(0.0);
 
-  //R
-  point = vec2(rStart.x+0., rStart.y+0.1);
-  helloPoint += buildCell(uv, point);
-  point = vec2(rStart.x+0.05, rStart.y+0.1);
-  helloPoint += buildCell(uv, point);
-  point = vec2(rStart.x+0.10, rStart.y+0.1);
-  helloPoint += buildCell(uv, point);
-  point = vec2(rStart.x+0., rStart.y+0.05);
-  helloPoint += buildCell(uv, point);
-  point = vec2(rStart.x+0., rStart.y+0.);
-  helloPoint += buildCell(uv, point);
-  point = vec2(rStart.x+0.1, rStart.y+0.05);
-  helloPoint += buildCell(uv, point);
-  point = vec2(rStart.x+0.05, rStart.y+0.05);
-  helloPoint += buildCell(uv, point);
-  point = vec2(rStart.x+0.12, rStart.y+0.0);
-  helloPoint += buildCell(uv, point);
+  mat3 letterR = mat3(1, 1, 1,  1, 1, 0,  1, 0, 1);
+  mat3 letterE = mat3(1, 1, 1,  1, 1, 0,  1, 1, 1);
+  mat3 letterP = mat3(1, 1, 1,  1, 1, 1,  1, 0, 0);
+  mat3 letterL = mat3(1, 0, 0,  1, 0, 0,  1, 1, 1);
+  mat3 letterC = mat3(1, 1, 1,  1, 0, 0,  1, 1, 1);
+  mat3 letterT = mat3(1, 1, 1,  0, 1, 0,  0, 1, 0);
+  mat3 letterI = mat3(0, 1, 0,  0, 1, 0,  0, 1, 0);
 
-  //E
-  point = vec2(eStart.x+0., eStart.y+0.1);
-  helloPoint += buildCell(uv, point);
-  point = vec2(eStart.x+0.,  eStart.y+0.);
-  helloPoint += buildCell(uv, point);
-  point = vec2(eStart.x+0.10,  eStart.y+0.);
-  helloPoint += buildCell(uv, point);
-  point = vec2(eStart.x+0.05,  eStart.y+0.1);
-  helloPoint += buildCell(uv, point);
-  point = vec2(eStart.x+0.05,  eStart.y+0.05);
-  helloPoint += buildCell(uv, point);
-  point = vec2(eStart.x+0.05,  eStart.y+0.);
-  helloPoint += buildCell(uv, point);
-  point = vec2(eStart.x+0.,  eStart.y+0.05);
-  helloPoint += buildCell(uv, point);
-  point = vec2(eStart.x+0.10,  eStart.y+0.10);
-  helloPoint += buildCell(uv, point);
+  helloPoint += letter(letterR, vec2(0.3+letterSpace*0, 0.55), uv);
+  helloPoint += letter(letterE, vec2(0.3+letterSpace*2, 0.55), uv);
+  helloPoint += letter(letterP, vec2(0.3+letterSpace*4, 0.55), uv);
+  helloPoint += letter(letterL, vec2(0.3+letterSpace*6, 0.55), uv);
 
-  //P
-  point = vec2(pStart.x+0., pStart.y+0.10);
-  helloPoint += buildCell(uv, point);
-  point = vec2(pStart.x+0.,  pStart.y+0.);
-  helloPoint += buildCell(uv, point);
-  point = vec2(pStart.x+0.05,  pStart.y+0.1);
-  helloPoint += buildCell(uv, point);
-  point = vec2(pStart.x+0.1,  pStart.y+0.1);
-  helloPoint += buildCell(uv, point);
-  point = vec2(pStart.x+0.1,  pStart.y+0.05);
-  helloPoint += buildCell(uv, point);
-  point = vec2(pStart.x+0.05, pStart.y+0.05);
-  helloPoint += buildCell(uv, point);
-
-  //L
-  point = vec2(lStart.x+0., lStart.y+0.1);
-  helloPoint += buildCell(uv, point);
-  point = vec2(lStart.x+0., lStart.y+0.05);
-  helloPoint += buildCell(uv, point);
-  point = vec2(lStart.x+0., lStart.y+0.);
-  helloPoint += buildCell(uv, point);
-  point = vec2(lStart.x+0.05, lStart.y+0.);
-  helloPoint += buildCell(uv, point);
-  point = vec2(lStart.x+0.10, lStart.y+0.);
-  helloPoint += buildCell(uv, point);
+  //Squeeze a little extra performance when letters are not visible
+  if(RANDOM_LETTERS == 0){
+    helloPoint += letter(letterE, vec2(0.05+letterSpace*0, 0.40), uv);
+    helloPoint += letter(letterL, vec2(0.05+letterSpace*2, 0.4), uv);
+    helloPoint += letter(letterE, vec2(0.05+letterSpace*4, 0.4), uv);
+    helloPoint += letter(letterC, vec2(0.05+letterSpace*6, 0.4), uv);
+    helloPoint += letter(letterT, vec2(0.05+letterSpace*8, 0.4), uv);
+    helloPoint += letter(letterR, vec2(0.05+letterSpace*10, 0.4), uv);
+    helloPoint += letter(letterI, vec2(0.05+letterSpace*12, 0.4), uv);
+    helloPoint += letter(letterC, vec2(0.05+letterSpace*14, 0.4), uv);
+  }
 
   return helloPoint;
 }
@@ -293,7 +278,7 @@ void main(void){
 
   float noiseWeight = 0.0;
   float hexWeight   = 0.0;
-  float populationWeight = 0.0;
+  float populationWeight = 1.0;
   float spellWeight = 1.0;
 
   vec4 leftNoise  = vec4(0.);

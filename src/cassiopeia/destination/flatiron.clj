@@ -392,7 +392,7 @@
                            (repeat (* 8 7) 0) [0 0 0 0 0 1 1 1])
 
 (defonce kick-fuzzy-s (freesound-sample 168415))
-(def ballon-perc-s (freesound-sample 168301))
+(defonce ballon-perc-s (freesound-sample 168301))
 
 ;;(kill seqer)
 ;;(kill fuzzy-kick-drums)
