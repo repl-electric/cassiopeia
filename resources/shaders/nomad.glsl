@@ -12,6 +12,8 @@ uniform float iBeatTotalCount;
 uniform float iMeasureCount;
 
 #define RANDOM_LETTERS 1
+#define TOTAL_BEATS 128.0
+#define STATIC_LETTERS 1
 
 float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(2.9898,78.233))) * 58.5453);
@@ -192,27 +194,44 @@ vec4 addGlow(vec2 v, float glow)
 vec4 buildCell(vec2 uv, vec2 point){
   float person = 1.0;
   float inc;
-
-  float movementScale = 0.02;
+  float movementScale = .0000001;
 
   if(iBeatTotalCount >= 64.0){
-      point.y -= sin(1/iBeatCount+(1/iGlobalTime))*movementScale;
+    // point.y = rand2(vec2(point.x,point.y*iGlobalTime*movementScale));
   }
   else{
-      point.y += sin(1/iBeatCount+(1/iGlobalTime))*movementScale;
+    // point.y = 1-rand2(vec2(point.y,point.x*iGlobalTime*movementScale));
   }
 
-  if(RANDOM_LETTERS == 1){
-    float rate = 0.000001;
-    point.x = 0.9*sin(rand(vec2(iGlobalTime*rate, iGlobalTime*rate)));
-    point.y = 0.9*sin(rand(vec2(point.x+iGlobalTime*rate, point.y*iGlobalTime*rate)));
+  if(STATIC_LETTERS == 1){
+    float rate = 0.3;
+    //point.x = 0.5+0.5*sin(point.x*iGlobalTime*rate);
+    //point.y = 0.5+0.5*sin(point.y+iGlobalTime*rate);
+
+    float invBeatTotal = TOTAL_BEATS-iBeatTotalCount;
+
+      if(iBeatTotalCount > 64.0){
+        point.y -= 0.2+0.5*sin(iBeatTotalCount*0.09/point.x)*1/invBeatTotal-0.2;
+      }
+      else{
+        point.y -= (0.2+0.5*sin(invBeatTotal*0.09/point.x))*1/iBeatTotalCount;
+      }
+
+  }else{
+
+    if(iBeatTotalCount > 64.0){
+      point.y -= 0.2+0.5*sin(iBeatTotalCount*0.1/point.x);
+    }
+    else{
+      point.y -= 0.2+0.5*sin((TOTAL_BEATS-iBeatTotalCount)*0.1/point.x);
+    }
   }
 
-  //  point.x += cos(iBeatTotalCount)*0.01;
+  //point.x += cos(iBeatTotalCount)*0.01;
 
   float cell = abs(sqrt(pow(uv.x-point.x,4.0)+pow(uv.y-point.y, 4.0)));
 
-  if ( cell > 0.0001){
+  if (cell > 0.0001){
     person -= 1.0;
   }else if (cell < 0.001){
     person -= 0.9;
@@ -245,29 +264,49 @@ vec4 bouncingPerson(vec2 uv){
   float letterSpace = 0.06;
   vec4 helloPoint = vec4(0.0);
 
-  mat3 letterR = mat3(1, 1, 1,  1, 1, 0,  1, 0, 1);
-  mat3 letterE = mat3(1, 1, 1,  1, 1, 0,  1, 1, 1);
-  mat3 letterP = mat3(1, 1, 1,  1, 1, 1,  1, 0, 0);
-  mat3 letterL = mat3(1, 0, 0,  1, 0, 0,  1, 1, 1);
-  mat3 letterC = mat3(1, 1, 1,  1, 0, 0,  1, 1, 1);
-  mat3 letterT = mat3(1, 1, 1,  0, 1, 0,  0, 1, 0);
-  mat3 letterI = mat3(0, 1, 0,  0, 1, 0,  0, 1, 0);
+  mat3 complete = mat3(1, 1, 1,  1, 1, 1,  1, 1, 1);
+  mat3 letterR  = mat3(1, 1, 1,  1, 1, 0,  1, 0, 1);
+  mat3 letterE  = mat3(1, 1, 1,  1, 1, 0,  1, 1, 1);
+  mat3 letterP  = mat3(1, 1, 1,  1, 1, 1,  1, 0, 0);
+  mat3 letterL  = mat3(1, 0, 0,  1, 0, 0,  1, 1, 1);
+
+  mat3 letterC  = mat3(1, 1, 1,  1, 0, 0,  1, 1, 1);
+  mat3 letterT  = mat3(1, 1, 1,  0, 1, 0,  0, 1, 0);
+  mat3 letterI  = mat3(0, 1, 0,  0, 1, 0,  0, 1, 0);
+
+  mat3 invertedR = complete - letterR;
+  mat3 invertedE = complete - letterE;
+  mat3 invertedP = complete - letterP;
+  mat3 invertedL = complete - letterL;
+
 
   helloPoint += letter(letterR, vec2(0.3+letterSpace*0, 0.55), uv);
-  helloPoint += letter(letterE, vec2(0.3+letterSpace*2, 0.55), uv);
-  helloPoint += letter(letterP, vec2(0.3+letterSpace*4, 0.55), uv);
-  helloPoint += letter(letterL, vec2(0.3+letterSpace*6, 0.55), uv);
 
-  //Squeeze a little extra performance when letters are not visible
+  if(iOvertoneVolume > 0.1){
+    helloPoint += letter(letterE, vec2(0.3+letterSpace*2, 0.55), uv);
+    helloPoint += letter(letterP, vec2(0.3+letterSpace*4, 0.55), uv);
+    helloPoint += letter(letterL, vec2(0.3+letterSpace*6, 0.55), uv);
+  }
+
   if(RANDOM_LETTERS == 0){
-    helloPoint += letter(letterE, vec2(0.05+letterSpace*0, 0.40), uv);
-    helloPoint += letter(letterL, vec2(0.05+letterSpace*2, 0.4), uv);
-    helloPoint += letter(letterE, vec2(0.05+letterSpace*4, 0.4), uv);
-    helloPoint += letter(letterC, vec2(0.05+letterSpace*6, 0.4), uv);
-    helloPoint += letter(letterT, vec2(0.05+letterSpace*8, 0.4), uv);
-    helloPoint += letter(letterR, vec2(0.05+letterSpace*10, 0.4), uv);
-    helloPoint += letter(letterI, vec2(0.05+letterSpace*12, 0.4), uv);
-    helloPoint += letter(letterC, vec2(0.05+letterSpace*14, 0.4), uv);
+    float liveUntil =  1/iGlobalTime*4;
+    //Save processing if we have already faded out
+    if(liveUntil > 0.1){
+      helloPoint += letter(invertedR, vec2(0.3+letterSpace*0, 0.55), uv) * liveUntil;
+      helloPoint += letter(invertedE, vec2(0.3+letterSpace*2, 0.55), uv) * liveUntil;
+      helloPoint += letter(invertedP, vec2(0.3+letterSpace*4, 0.55), uv) * liveUntil;
+      helloPoint += letter(invertedL, vec2(0.3+letterSpace*6, 0.55), uv) * liveUntil;
+    }
+    else{
+      helloPoint += letter(letterE, vec2(0.05+letterSpace*0, 0.40), uv);
+      helloPoint += letter(letterL, vec2(0.05+letterSpace*2, 0.4), uv);
+      helloPoint += letter(letterE, vec2(0.05+letterSpace*4, 0.4), uv);
+      helloPoint += letter(letterC, vec2(0.05+letterSpace*6, 0.4), uv);
+      helloPoint += letter(letterT, vec2(0.05+letterSpace*8, 0.4), uv);
+      helloPoint += letter(letterR, vec2(0.05+letterSpace*10, 0.4), uv);
+      helloPoint += letter(letterI, vec2(0.05+letterSpace*12, 0.4), uv);
+      helloPoint += letter(letterC, vec2(0.05+letterSpace*14, 0.4), uv);
+    }
   }
 
   return helloPoint;
@@ -278,7 +317,7 @@ void main(void){
 
   float noiseWeight = 0.0;
   float hexWeight   = 0.0;
-  float populationWeight = 1.0;
+  float populationWeight = 0.0;
   float spellWeight = 1.0;
 
   vec4 leftNoise  = vec4(0.);
