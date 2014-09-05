@@ -337,8 +337,18 @@ void main(void){
     spelling = bouncingPerson(uv);
   }
 
+  vec4 hexWorld = vec4(0.);
+  if(hexWeight == 1.0){
+    hexWorld = hex(uv);
+  }
+
+  vec4 population = vec4(0.);
+  if(populationWeight == 1.0){
+    population = populationDensity(uv);
+  }
+
   gl_FragColor = (spelling * spellWeight) +
     ((1-(leftNoise * rightNoise)) * noiseWeight) +
-    hex(uv) * hexWeight +
-    populationDensity(uv) * populationWeight;
+    hexWorld * hexWeight +
+    population * populationWeight;
 }
