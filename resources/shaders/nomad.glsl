@@ -13,7 +13,7 @@ uniform float iMeasureCount;
 
 #define RANDOM_LETTERS 1
 #define TOTAL_BEATS 128.0
-#define STATIC_LETTERS 1
+#define STATIC_LETTERS 0
 #define SHOW_GLOW 1
 
 float rand(vec2 co){
@@ -182,14 +182,24 @@ vec3 hsvToRgb(float mixRate, float colorStrength){
 
 vec4 addGlow(vec2 uv, vec2 v, float glow)
 {
+  vec4 glowing = vec4(0.0);
+
   if(iBeat == 1.0){
-    glow += 0.0003;
+    glow += 0.0005;
   }
 
-  glow += iOvertoneVolume * 0.001;
+  if(iOvertoneVolume < 0.01){
+    glow = -1.0;
+    glowing = vec4(-1.);
+  }
+  else{
+    //    glow =+ iOvertoneVolume * 0.005;
 
-  float res = glow / length(v - uv);
-  return res * vec4(hsvToRgb(0.5, 0.9),1.0);
+    float res = glow / length(v - uv);
+    glowing = res * vec4(hsvToRgb(0.5, 0.9),1.0);
+  }
+
+  return glowing;
 }
 
 vec4 buildCell(vec2 uv, vec2 point){
@@ -198,10 +208,10 @@ vec4 buildCell(vec2 uv, vec2 point){
   float movementScale = .0000001;
 
   if(iBeatTotalCount >= 64.0){
-    // point.y = rand2(vec2(point.x,point.y*iGlobalTime*movementScale));
+    //point.y = rand2(vec2(point.x,point.y*iGlobalTime*movementScale));
   }
   else{
-    // point.y = 1-rand2(vec2(point.y,point.x*iGlobalTime*movementScale));
+    //point.y = 1-rand2(vec2(point.y,point.x*iGlobalTime*movementScale));
   }
 
   if(STATIC_LETTERS == 1){
@@ -212,23 +222,23 @@ vec4 buildCell(vec2 uv, vec2 point){
     float invBeatTotal = TOTAL_BEATS-iBeatTotalCount;
 
       if(iBeatTotalCount > 64.0){
-        point.y -= 0.2+0.5*sin(iBeatTotalCount*0.09/point.x)*1/invBeatTotal-0.2;
+        point.y -= 0.2+0.5*sin(iBeatTotalCount*0.009/point.x)*1/invBeatTotal-0.2;
       }
       else{
-        point.y -= (0.2+0.5*sin(invBeatTotal*0.09/point.x))*1/iBeatTotalCount;
+        point.y -= (0.2+0.5*sin(invBeatTotal*0.009/point.x))*1/iBeatTotalCount;
       }
 
   }else{
 
     if(iBeatTotalCount > 64.0){
-      point.y -= 0.2+0.5*sin(iBeatTotalCount*0.1/point.x);
+      point.y -= 0.2+0.5*sin(iBeatTotalCount*0.04/point.x);
     }
     else{
-      point.y -= 0.2+0.5*sin((TOTAL_BEATS-iBeatTotalCount)*0.1/point.x);
+      point.y -= 0.2+0.5*sin((TOTAL_BEATS-iBeatTotalCount)*0.04/point.x);
     }
   }
 
-  //point.x += cos(iBeatTotalCount)*0.01;
+  //point.x += sin(iBeatTotalCount*0.1)*0.5;
 
   float cell = abs(sqrt(pow(uv.x-point.x,4.0)+pow(uv.y-point.y, 4.0)));
 
@@ -278,38 +288,38 @@ vec4 bouncingPerson(vec2 uv){
   mat3 letterT  = mat3(1, 1, 1,  0, 1, 0,  0, 1, 0);
   mat3 letterI  = mat3(0, 1, 0,  0, 1, 0,  0, 1, 0);
 
-  mat3 invertedR = complete - letterR;
-  mat3 invertedE = complete - letterE;
-  mat3 invertedP = complete - letterP;
-  mat3 invertedL = complete - letterL;
 
-
-  helloPoint += letter(letterR, vec2(0.3+letterSpace*0, 0.55), uv);
+  helloPoint += letter(letterR, vec2(0.3+letterSpace*0, 0.45), uv);
 
   if(iOvertoneVolume > 0.1){
-    helloPoint += letter(letterE, vec2(0.3+letterSpace*2, 0.55), uv);
-    helloPoint += letter(letterP, vec2(0.3+letterSpace*4, 0.55), uv);
-    helloPoint += letter(letterL, vec2(0.3+letterSpace*6, 0.55), uv);
+    helloPoint += letter(letterE, vec2(0.3+letterSpace*2, 0.45), uv);
+   helloPoint += letter(letterP, vec2(0.3+letterSpace*4, 0.45), uv);
+    helloPoint += letter(letterL, vec2(0.3+letterSpace*6, 0.45), uv);
   }
 
   if(RANDOM_LETTERS == 0){
     float liveUntil =  1/iGlobalTime*4;
     //Save processing if we have already faded out
     if(liveUntil > 0.1){
-      helloPoint += letter(invertedR, vec2(0.3+letterSpace*0, 0.55), uv) * liveUntil;
-      helloPoint += letter(invertedE, vec2(0.3+letterSpace*2, 0.55), uv) * liveUntil;
-      helloPoint += letter(invertedP, vec2(0.3+letterSpace*4, 0.55), uv) * liveUntil;
-      helloPoint += letter(invertedL, vec2(0.3+letterSpace*6, 0.55), uv) * liveUntil;
+      mat3 invertedR = complete - letterR;
+      mat3 invertedE = complete - letterE;
+      mat3 invertedP = complete - letterP;
+      mat3 invertedL = complete - letterL;
+
+      helloPoint += letter(invertedR, vec2(0.3+letterSpace*0, 0.45), uv) * liveUntil;
+      helloPoint += letter(invertedE, vec2(0.3+letterSpace*2, 0.45), uv) * liveUntil;
+      helloPoint += letter(invertedP, vec2(0.3+letterSpace*4, 0.45), uv) * liveUntil;
+      helloPoint += letter(invertedL, vec2(0.3+letterSpace*6, 0.45), uv) * liveUntil;
     }
     else{
-      helloPoint += letter(letterE, vec2(0.05+letterSpace*0, 0.40), uv);
-      helloPoint += letter(letterL, vec2(0.05+letterSpace*2, 0.4), uv);
-      helloPoint += letter(letterE, vec2(0.05+letterSpace*4, 0.4), uv);
-      helloPoint += letter(letterC, vec2(0.05+letterSpace*6, 0.4), uv);
-      helloPoint += letter(letterT, vec2(0.05+letterSpace*8, 0.4), uv);
-      helloPoint += letter(letterR, vec2(0.05+letterSpace*10, 0.4), uv);
-      helloPoint += letter(letterI, vec2(0.05+letterSpace*12, 0.4), uv);
-      helloPoint += letter(letterC, vec2(0.05+letterSpace*14, 0.4), uv);
+      helloPoint += letter(letterE, vec2(0.05+letterSpace*0, 0.30), uv);
+      helloPoint += letter(letterL, vec2(0.05+letterSpace*2, 0.3), uv);
+      helloPoint += letter(letterE, vec2(0.05+letterSpace*4, 0.3), uv);
+      helloPoint += letter(letterC, vec2(0.05+letterSpace*6, 0.3), uv);
+      helloPoint += letter(letterT, vec2(0.05+letterSpace*8, 0.3), uv);
+      helloPoint += letter(letterR, vec2(0.05+letterSpace*10, 0.3), uv);
+      helloPoint += letter(letterI, vec2(0.05+letterSpace*12, 0.3), uv);
+      helloPoint += letter(letterC, vec2(0.05+letterSpace*14, 0.3), uv);
     }
   }
 
