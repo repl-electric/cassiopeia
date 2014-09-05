@@ -14,6 +14,7 @@ uniform float iMeasureCount;
 #define RANDOM_LETTERS 1
 #define TOTAL_BEATS 128.0
 #define STATIC_LETTERS 1
+#define SHOW_GLOW 1
 
 float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(2.9898,78.233))) * 58.5453);
@@ -179,7 +180,7 @@ vec3 hsvToRgb(float mixRate, float colorStrength){
   return mix(vec3(1.0), c, mixRate) * colorStrength;
 }
 
-vec4 addGlow(vec2 v, float glow)
+vec4 addGlow(vec2 uv, vec2 v, float glow)
 {
   if(iBeat == 1.0){
     glow += 0.0003;
@@ -187,7 +188,7 @@ vec4 addGlow(vec2 v, float glow)
 
   glow += iOvertoneVolume * 0.001;
 
-  float res = glow / length(v - (gl_FragCoord.xy/iResolution.x));
+  float res = glow / length(v - uv);
   return res * vec4(hsvToRgb(0.5, 0.9),1.0);
 }
 
@@ -237,7 +238,10 @@ vec4 buildCell(vec2 uv, vec2 point){
     person -= 0.9;
   }
   vec4 helloPoint = vec4(vec3(person),1.0);
-  helloPoint += addGlow(point, 0.003);
+
+  if(SHOW_GLOW==1){
+    helloPoint += addGlow(uv, point, 0.003);
+  }
 
   return helloPoint;
 }
