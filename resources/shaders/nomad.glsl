@@ -262,17 +262,32 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
 
   //point.x += sin(iBeatTotalCount*0.1)*0.5;
   }
-  float cell = abs(sqrt(pow(uv.x-point.x,4.0)+pow(uv.y-point.y, 4.0)));
 
-  if (cell > 0.0001){
+  float p;
+  float cellBoundries;
+  float glowFactor;
+
+  //round cells
+  p = 2.0;
+  cellBoundries = 0.0;
+  glowFactor = 0.009;
+
+  //square cells
+  //  p = 4.0;
+  //  cellBoundries = 0.0001;
+  //  glowFactor = 0.003;
+
+  float cell = abs(sqrt(pow(uv.x-point.x,p)+pow(uv.y-point.y, p)));
+
+  if (cell > cellBoundries){
     person -= 1.0;
-  }else if (cell < 0.0001){
+  }else if (cell < cellBoundries){
     person -= 0.9;
   }
   vec4 helloPoint = vec4(vec3(person),1.0);
 
   if(SHOW_GLOW==1){
-    helloPoint += addGlow(uv, point, 0.003);
+    helloPoint += addGlow(uv, point, glowFactor);
   }
 
   return helloPoint;
@@ -289,7 +304,7 @@ vec4 letter(mat3 letter, vec2 offset, vec2 uv){
     for(int x=0; x < 3; x++){
       if(letter[y][x] == 1){
         point = vec2(xPos[x]+offset.x, offset.y+yPos[y]);
-        helloPoint += buildCell(uv, point, 0);
+        helloPoint += buildCell(uv, point, STATIC_LETTERS);
       }
     }
   }
