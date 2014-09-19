@@ -202,10 +202,12 @@ vec4 addGlow(vec2 uv, vec2 v, float glow)
   return glowing;
 }
 
-vec4 buildCell(vec2 uv, vec2 point){
+vec4 buildCell(vec2 uv, vec2 point, int still){
   float person = 1.0;
   float inc;
   float movementScale = .0000001;
+
+  if(still==0){
 
   if(iBeatTotalCount >= 64.0){
     //point.y = rand2(vec2(point.x,point.y*iGlobalTime*movementScale));
@@ -239,7 +241,7 @@ vec4 buildCell(vec2 uv, vec2 point){
   }
 
   //point.x += sin(iBeatTotalCount*0.1)*0.5;
-
+  }
   float cell = abs(sqrt(pow(uv.x-point.x,4.0)+pow(uv.y-point.y, 4.0)));
 
   if (cell > 0.0001){
@@ -267,7 +269,7 @@ vec4 letter(mat3 letter, vec2 offset, vec2 uv){
     for(int x=0; x < 3; x++){
       if(letter[y][x] == 1){
         point = vec2(xPos[x]+offset.x, offset.y+yPos[y]);
-        helloPoint += buildCell(uv, point);
+        helloPoint += buildCell(uv, point, 0);
       }
     }
   }
@@ -326,6 +328,20 @@ vec4 bouncingPerson(vec2 uv){
   return helloPoint;
 }
 
+vec4 theCell(vec2 uv){
+  vec4 x  = vec4(0.,0.,0.,0.);
+  float t = 0.0;
+
+  int rowCount = 4;
+  int cellRate = 1;
+  for(int i = 0; i < iBeatTotalCount/4; i+= 4){
+    t = i/rowCount;
+    vec2 thing = vec2(rand(vec2(0.45+0.03 * mod(i, rowCount), 0.03*t+0.05)), rand(vec2(0.4, i)));
+    x += buildCell(uv, thing , 0);
+  }
+
+  return x;
+}
 void main(void){
   vec2 uv = gl_FragCoord.xy / iResolution.x;
 
@@ -357,8 +373,9 @@ void main(void){
     population = populationDensity(uv);
   }
 
-  gl_FragColor = (spelling * spellWeight) +
+
+
+  gl_FragColor =  theCell(uv) + lineDistort((spelling * spellWeight) +
     ((1-(leftNoise * rightNoise)) * noiseWeight) +
-    hexWorld * hexWeight +
-    population * populationWeight;
+    hexWorld * hexWeight + population * populationWeight, uv);
 }
