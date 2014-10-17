@@ -450,6 +450,8 @@
   (n-overtime! chord-g :amp 0.0 0.04 0.0008)
   )
 
+(reset! circle-count 4.0)
+
 (def hand-drums (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.23 :num-steps 16 :buf hand-drum-s :rate-start 0.9 :rate-limit 1.0) (range 0 16))))
 
 (pattern! hats-buf
@@ -493,6 +495,7 @@
  126 128
  (fn [] ;;DARKER PROGRESSION
    (do
+     (swap! circle-destruction * 0.5)
      (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.45)
      (ctl (:synths apeg-deep-melody-chord-g) :amp 0.00)
      (ctl drum-effects-g :amp 0.0)
@@ -700,11 +703,31 @@
   (recording-stop)
 
   (t/stop)
-  (t/start "resources/shaders/nomad.glsl"
+
+  (do
+    (defonce circle-count (atom 1.0))
+    (defonce accelerator (atom 0.00000001))
+    (defonce circle-scale (atom 2.5))
+    (defonce color (atom 0.1))
+    (defonce circle-destruction (atom (* 0.5 3.14159265)));
+    )
+
+  (reset! circle-destruction 0.000001)
+
+  (t/start-fullscreen "resources/shaders/nyc.glsl"
            :textures [:overtone-audio :previous-frame
                       "resources/textures/tex16.png"]
-           :user-data {"iMeasureCount"  (atom {:synth beats :tap "measure-count"})
+           :user-data {"iMeasureCount"   (atom {:synth beats :tap "measure-count"})
                        "iBeatTotalCount" (atom {:synth beats :tap "beat-total-count"})
-                       "iBeat"         (atom {:synth beats :tap "beat"})
-                       "iBeatCount"    (atom {:synth beats :tap "beat-count"})})
+                       "iGlobalBeatCount" (atom {:synth beats :tap "global-beat-count"})
+                       "iBeat"           (atom {:synth beats :tap "beat"})
+                       "iBeatCount"      (atom {:synth beats :tap "beat-count"})
+
+                       "iScale" circle-scale
+                       "iColor" color
+                       "iAccelerator" accelerator
+                       "iCircleCount" circle-count
+                       "iHalfPi" circle-destruction
+
+                       })
 )
