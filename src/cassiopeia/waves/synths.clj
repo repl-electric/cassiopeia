@@ -111,6 +111,7 @@
 (defsynth buffer->tap [beat-buf 0 beat-bus 0 beat-size 16 measure 6]
   (let [cnt (in:kr beat-bus)
         beat (buf-rd:kr 1 beat-buf cnt)
+        _  (tap "global-beat-count" 60 (a2k cnt))
         _  (tap "beat"          60 (a2k beat))
         _  (tap "beat-count"    60 (a2k (mod cnt beat-size)))
         _  (tap "measure-count"       60 (a2k (/ (mod cnt (* measure beat-size)) measure)))
