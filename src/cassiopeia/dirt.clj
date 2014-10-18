@@ -6,7 +6,7 @@
   (:import java.io.FileNotFoundException))
 
 (defonce dirt-home (resolve-tilde-path "~/Workspace/music/Dirt/samples/"))
-(defonce samples-cache (atom {}))
+(defonce __samples-cache__ (atom {}))
 
 (defn- walk [^File dir]
   (let [children (.listFiles dir)
@@ -20,7 +20,7 @@
     (sample-player (dirt :amp 0))"
   ([sample-name] (dirt sample-name 1))
   ([sample-name n]
-     (if-let [sample (@samples-cache (str (name sample-name) ":" n))]
+     (if-let [sample (@__samples-cache__ (str (name sample-name) ":" n))]
        sample
        (let [sample-name (name sample-name)
              samples (->> (walk (file (str dirt-home sample-name "/")))
@@ -28,8 +28,8 @@
              n (if (>= n (count samples)) 0 n)
              sample-file (nth samples n)]
          (when sample-file
-           (swap! samples-cache assoc (str sample-name ":" n) (load-sample sample-file))
-           (@samples-cache (str sample-name ":" n)))))))
+           (swap! __samples-cache__ assoc (str sample-name ":" n) (load-sample sample-file))
+           (@__samples-cache__ (str sample-name ":" n)))))))
 
 (comment
   ;;Some example choices:
