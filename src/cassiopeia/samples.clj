@@ -72,6 +72,7 @@
 (defonce moore-s                    (load-local-sample "patrick-moore.wav"))
 (defonce signals-s                  (load-local-sample "signals-from-outerspace.wav"))
 (defonce the-sound-of-live-coding-s (load-local-sample "joe-typing-keyboard.wav"))
+(defonce star-gravity               (load-local-sample "stars_gravity.wav"))
 
 ;;HAL
 (defonce afraid-s                   (load-local-sample "afraid.wav"))
