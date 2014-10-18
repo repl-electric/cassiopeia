@@ -32,20 +32,21 @@
 (reset! cutout-w 0.0)
 (reset! heart-w 0.0)
 
-(t/stop)
-(t/start-fullscreen "resources/shaders/electric.glsl"
-                    :textures [:overtone-audio :previous-frame
-                               "resources/textures/repl-electric-t.png"
-                               "resources/textures/tex16.png"]
-                    :user-data {"iMixRate" color-l "iColorStrength" color-r "iRes" res
-                                "iSpace" space "iExpand" expand "iYinYan" yinyan
-                                "iCircleCount" no-circles "iStarDirection" stars-direction
-                                "iCutoutWeight"      cutout-w
-                                "iSpaceLightsWeight" stars-w
-                                "iDistortedWeight"   heart-w
-                                "iSpaceyWeight"      hyper-w
-                                "iCellularWeight"    cellular-w
-                                "iCellGrowth"        cellular-growth
-                                "iMeasureCount" (atom {:synth beats :tap "measure-count"})
-                                "iBeat"         (atom {:synth beats :tap "beat"})
-                                "iBeatCount"    (atom {:synth beats :tap "beat-count"})})
+(comment
+  (t/stop)
+  (t/start-fullscreen "resources/shaders/electric.glsl"
+                      :textures [:overtone-audio :previous-frame
+                                 "resources/textures/repl-electric-t.png"
+                                 "resources/textures/tex16.png"]
+                      :user-data {"iMixRate" color-l "iColorStrength" color-r "iRes" res
+                                  "iSpace" space "iExpand" expand "iYinYan" yinyan
+                                  "iCircleCount" no-circles "iStarDirection" stars-direction
+                                  "iCutoutWeight"      cutout-w
+                                  "iSpaceLightsWeight" stars-w
+                                  "iDistortedWeight"   heart-w
+                                  "iSpaceyWeight"      hyper-w
+                                  "iCellularWeight"    cellular-w
+                                  "iCellGrowth"        cellular-growth
+                                  "iMeasureCount" (atom {:synth beats :tap "measure-count"})
+                                  "iBeat"         (atom {:synth beats :tap "beat"})
+                                  "iBeatCount"    (atom {:synth beats :tap "beat-count"})}))
