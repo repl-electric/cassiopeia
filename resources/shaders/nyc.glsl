@@ -37,7 +37,7 @@ float fbm4( float x, float y )
 
 const float linesmooth = 0.0333;
 
-void main(void)
+vec4 circular(void)
 {
   vec2 mainuv = ( gl_FragCoord.xy / iResolution.xy );
 
@@ -83,5 +83,9 @@ void main(void)
   finalval = max( finalval, 0.0 ) + 0.0025;
   finalval = min( finalval, 1.0 );
 
-  gl_FragColor = vec4( vec3( pow( finalval, 1.0 / 2.0 ) ), 1.0 );
+  return vec4( vec3( pow( finalval, 1.0 / 2.0 ) ), 1.0 );
+}
+
+void main(void){ 
+  gl_FragColor = circular();
 }
