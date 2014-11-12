@@ -728,6 +728,5 @@
                        "iAccelerator" accelerator
                        "iCircleCount" circle-count
                        "iHalfPi" circle-destruction
-
                        })
 )

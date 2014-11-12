@@ -8,13 +8,21 @@ uniform float iCircleCount;
 uniform float iAccelerator;
 uniform float iColor;
 uniform float iScale;
-uniform float halfpi;
+uniform float iHalfPi;
 
 uniform float iGlobalBeatCount;
 
 const float pi = 3.14159265;
 //const float halfpi = 0.000001;
 const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
+
+float rand(vec2 co){
+  return fract(sin(dot(co.xy ,vec2(2.9898,78.233))) * 58.5453);
+}
+
+float rand2(vec2 co){
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
 
 mat2 mm2(in float a){float c = abs( cos(a) ), s = sin(a);return mat2(c,-s,s,c);}
 float saturate(float a){ return clamp( a, 0.0, 1.0 );}
@@ -32,6 +40,41 @@ float fbm4( float x, float y ){
 }
 
 const float linesmooth = 0.0333;
+
+vec4 populationDensity(vec2 pos)
+{
+  float person = 0.0;
+  float personGirth = 4.0;
+  float maximumCapacity = 0.5;
+  float walkingSpeed = 0.00000008;
+  float populationSize = 0.01;
+  float urgencyRate = 0.002;
+
+  //walkingSpeed *=  sin(iBeat+0.5);
+  //  incrementSize =+ iOvertoneVolume*0.01;
+  float direction = 1.0;
+
+  if(iMeasureCount > 3.0){
+    direction = -1.0;
+  }
+  else{
+    direction = 1.0;
+  }
+
+  //    if(iBeat == 1){
+  for (float i=0.0; i<maximumCapacity; i+=populationSize) {
+    float seed = iGlobalTime*walkingSpeed+i;
+    //      vec2 point = vec2(rand2(vec2(sin(iGlobalTime*0.0000001), seed)), rand2(vec2(seed, seed)));
+    vec2 point = vec2(rand2(vec2(direction*seed, direction*0.5)), rand2(vec2(direction*0.5, direction*seed)));
+
+    if (abs(sqrt(pow(pos.x-point.x,personGirth)+pow(pos.y-point.y-0.1,personGirth))/1.0) < 0.0001) {
+      person += (urgencyRate/i) * (iBeat + iMeasureCount * 0.09);
+    }
+  }
+  //    }
+
+  return vec4(vec3(iMeasureCount*0.01+person, iBeatCount*0.01+person, iOvertoneVolume*0.01+person),1.0);
+}
 
 vec4 circular(void){
   vec2 mainuv = (gl_FragCoord.xy / iResolution.xy);
@@ -63,12 +106,11 @@ vec4 circular(void){
   vec2 rotatedUVs = uv * mm2(cheese + fbm4(coreident * 0.005 , iGlobalTime * speed * texture2D(iChannel0, vec2(0, 0)).x) * pi * pi);
   rotatedUVs *= mm2(cheese - fbm4(coreident * 2.0 , iGlobalTime * speed * texture2D(iChannel0, vec2(0, 0)).x ) * pi * pi);
 
-  float arcpos = (pi + atan(rotatedUVs.y, rotatedUVs.x)) / halfpi;
   arcpos /= pi;
+  float arcpos = (pi + atan(rotatedUVs.y, rotatedUVs.x)) / cheese;
 
   arcpos = smoothstep(0.2, shading - coreident * 0.0001, fract(arcpos) * fract(-arcpos));
-
-  mainval *= fbm4(coreident, iGlobalBeatCount * 0.9) * arcpos;
+  mainval *= fbm4(coreident, iGlobalBeatCount * 0.1) * arcpos;
 
   float coresmooth = fract(core) * fract(-core);
   float corewidth  = fwidth(coresmooth);
@@ -82,7 +124,21 @@ vec4 circular(void){
   return vec4(vec3(pow(finalval, 1.0 / 2.0 )), 1.0);
 }
 
-void main(void){ 
-  vec4 circular = circular(); 
-  gl_FragColor = circular
+vec4 generateSnow(vec2 p, float speed){
+  float size = 2.;
+  float amount=0.3;
+  float xs = floor(gl_FragCoord.x / size);
+  float ys = floor(gl_FragCoord.y / size);
+  vec4 snow = vec4(rand(vec2(xs,ys*iGlobalBeatCount * speed))*amount);
+  return snow;
+}
+
+void main(void){
+  vec2 uv = gl_FragCoord.xy / iResolution.x;
+  float snowWeight = 0.4;
+  float snowSpeed = 0.00000001; //0.0000000001;
+
+  vec4 c;
+  c = circular() + (snowWeight * generateSnow(uv, snowSpeed)) +  populationDensity(uv);
+  gl_FragColor = c;
 }
