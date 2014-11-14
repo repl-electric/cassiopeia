@@ -9,6 +9,10 @@ uniform float iAccelerator;
 uniform float iColor;
 uniform float iScale;
 uniform float iHalfPi;
+uniform float iInOutSpeed;
+
+uniform float iSnowRatio;
+uniform float iFade;
 
 uniform float iGlobalBeatCount;
 
@@ -97,8 +101,11 @@ vec4 circular(void){
   vec2 uv = mainuv * scale - scale * 0.5;
   uv.x *= aspect;
 
-  float mainval = 1.0;
-  float inverseLength = saturate(length(uv));
+  float mainval = 1.0; //50-60 nice overpaint effect
+  float inverseLength = saturate(length(uv)) + clamp(iBeat, 0.0, 0.002);
+
+  //inverseLength = saturate(length(uv)) * (uv.x + uv.y);
+  //inverseLength = saturate(length(uv)) * rand(vec2(texture2D(iChannel0, vec2(0, 0)).x, texture2D(iChannel0, vec2(0, 0)).y));
 
   float core = inverseLength * circleScale;
   float coreident = ceil(core);
@@ -110,7 +117,7 @@ vec4 circular(void){
   arcpos /= pi;
 
   arcpos = smoothstep(0.2, shading - coreident * 0.0001, fract(arcpos) * fract(-arcpos));
-  mainval *= fbm4(coreident, iGlobalBeatCount * 0.1) * arcpos;
+  mainval *= fbm4(coreident, iGlobalBeatCount * iInOutSpeed) * arcpos;
 
   float coresmooth = fract(core) * fract(-core);
   float corewidth  = fwidth(coresmooth);
@@ -126,7 +133,6 @@ vec4 circular(void){
 
 vec4 generateSnow(vec2 p, float speed){
   float size = 2.;
-  //  float amount=0.3;
   float xs = floor(gl_FragCoord.x / size);
   float ys = floor(gl_FragCoord.y / size);
   //vec4 snow = vec4(rand(vec2(xs*iGlobalBeatCount*0.0000008, smoothstep(0.01, 0.02, iGlobalBeatCount))));
@@ -144,16 +150,24 @@ void main(void){
   float circularWeight = 0.0;
 
   if(iOvertoneVolume > 0.01){
-    snowSpeed = 0.000000001;
-    snowWeight = 0.5;
+    snowSpeed = 0.0000000001 + (iBeat * 0.00000000000009);
+    snowWeight = 0.0;
   }
   else{
     snowWeight = 0.0;
   }
 
+  if(populationWeight == 1.0){
+    snowSpeed = 0.00000001;
+    snowWeight = 0.4;
+  }
+
+  snowSpeed *= iSnowRatio;
+
   vec4 c;
-  c = (circularWeight*circular()) +
-    (snowWeight * generateSnow(uv, snowSpeed)) +
-    (populationWeight*populationDensity(uv));
+
+  //c = 1.0-(circularWeight*circular()) -  (1.0-(snowWeight * generateSnow(uv, snowSpeed))) - (populationWeight*populationDensity(uv));
+
+  c = (circularWeight*circular()) -  ((snowWeight * generateSnow(uv, snowSpeed))) + (populationWeight*populationDensity(uv));
   gl_FragColor = c;
 }

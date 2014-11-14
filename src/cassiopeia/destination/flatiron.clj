@@ -524,6 +524,8 @@
 (pattern! hats-amp [1])
 (ctl white :amp 1.0)
 
+(reset! accelerator 100.9)
+(reset! snow-ratio 0.0)
 (pattern! kick-seq-buf (repeat 7 [1 0 0 0 1 0 0 0]) [1 0 0 0 1 0 1 0]
                        (repeat 7 [1 0 0 0 1 0 0 0]) [1 0 0 0 0 0 1 0])
 (pattern! kick-seq-buf [1 0 0 0 1 0 0 0])
@@ -531,6 +533,7 @@
 (pattern! kick-amp [1])
 
 (do
+  (reset! circle-count 50.0)
   (ctl (:synths main-melody-chord-g) :amp 0.0)
   (doseq [s (:synths apeg-deep-melody-spair-chord-g)]
     (ctl s :amp 0.00 :saw-cutoff 2000 :wave 2 :attack 1.0 :release 5.0)
@@ -613,6 +616,7 @@
 (on-beat-trigger 64 #(do (plain-space-organ :tone (/ (midi->hz (note :F2)) 2) :duration 3 :amp 0.2)))
 
 (do
+  (reset! color 0.5)
   (chord-pattern main-melody2-chord-g  darker-pinger-score)
   (ctl (:synths main-melody2-chord-g) :amp 0.03 :saw-cutoff 1000)
   (ctl (:synths main-melody-chord-g) :saw-cutoff 300 :amp 0.03)
@@ -709,12 +713,40 @@
     (defonce accelerator (atom 0.00000001))
     (defonce circle-scale (atom 2.5))
     (defonce color (atom 0.1))
-    (defonce circle-destruction (atom (* 0.5 3.14159265)));
+    (defonce circle-destruction (atom (* 0.0001)))
+    (defonce circle-growth-speed (atom 0.1))
+    (defonce snow-ratio (atom 0.00000000001))
+    (defonce fade-ratio (atom 0.0))
     )
 
-  (reset! circle-destruction 0.000001)
+  (reset! fade-ratio 0.0)
 
-  (t/start-fullscreen "resources/shaders/nyc.glsl"
+
+  (on-beat-trigger 8 #(do (swap! fade-ratio - 0.01)))
+
+  (remove-on-beat-trigger)
+  (remove-all-beat-triggers)
+
+
+  (reset! snow-ratio 10.0) ;; Nice flow effect
+  (reset! circle-count 5.0)
+
+  (reset! accelerator 0.00000000001)
+  (reset! circle-destruction 0.000001) ;; Full circle
+
+
+  ((on-beat-trigger 8 #(do (swap! circle-destruction + 0.01)))
+
+   (remove-on-beat-trigger)
+   (remove-all-beat-triggers)
+)
+
+  (reset! color 0.001)
+  (reset! circle-destruction (* 0.5 Math/PI))
+  (reset! accelerator 0.00000001)
+;;  (reset! snow-ratio 0.01)
+
+  (t/start "resources/shaders/nyc.glsl"
            :textures [:overtone-audio :previous-frame
                       "resources/textures/tex16.png"]
            :user-data {"iMeasureCount"   (atom {:synth beats :tap "measure-count"})
@@ -728,5 +760,11 @@
                        "iAccelerator" accelerator
                        "iCircleCount" circle-count
                        "iHalfPi" circle-destruction
+                       "iInOutSpeed" circle-growth-speed
+                       "iSnowRatio" snow-ratio
+                       "iFade" fade-ratio
                        })
+
+  (t/stop)
+  (stop)
 )
