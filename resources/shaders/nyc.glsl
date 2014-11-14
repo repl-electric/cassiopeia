@@ -82,7 +82,36 @@ vec4 circular(void){
   return vec4(vec3(pow(finalval, 1.0 / 2.0 )), 1.0);
 }
 
-void main(void){ 
-  vec4 circular = circular(); 
-  gl_FragColor = circular
+vec4 generateSnow(vec2 p, float speed){
+  float size = 2.;
+  float amount=0.5;
+  float xs = floor(gl_FragCoord.x / size);
+  float ys = floor(gl_FragCoord.y / size);
+  //vec4 snow = vec4(rand(vec2(xs*iGlobalBeatCount*0.0000008, smoothstep(0.01, 0.02, iGlobalBeatCount))) * amount);
+  //  vec4 snow = vec4(rand(vec2(xs/iGlobalBeatCount*202, smoothstep(0.01, 0.02, iGlobalBeatCount))) * amount);
+  vec4 snow = vec4(rand(vec2(xs, ys*iGlobalBeatCount*speed))*amount);
+  return snow;
+}
+
+void main(void){
+  vec2 uv = gl_FragCoord.xy / iResolution.x;
+  float snowWeight = 0.9;
+  float snowSpeed = 0.000000000001; //0.00000001; //0.0000000001;
+
+  float populationWeight = 0.0;
+  float circularWeight = 1.0;
+
+  if(iOvertoneVolume > 0.01){
+    snowSpeed = 0.0000000001;
+    snowWeight = 0.4;
+  }
+  else{
+    snowWeight = 0.0;
+  }
+
+  vec4 c;
+  c = (circularWeight*circular()) +
+      (snowWeight * generateSnow(uv, snowSpeed)) +
+      populationWeight*populationDensity(uv);
+  gl_FragColor = c;
 }
