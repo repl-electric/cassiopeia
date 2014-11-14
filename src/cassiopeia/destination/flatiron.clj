@@ -715,7 +715,7 @@
     (defonce color (atom 0.1))
     (defonce circle-destruction (atom (* 0.0001)))
     (defonce circle-growth-speed (atom 0.1))
-    (defonce snow-ratio (atom 0.00000000001))
+    (defonce snow-ratio (atom 10.))
     (defonce fade-ratio (atom 0.0))
     )
 
@@ -754,7 +754,6 @@
                        "iGlobalBeatCount" (atom {:synth beats :tap "global-beat-count"})
                        "iBeat"           (atom {:synth beats :tap "beat"})
                        "iBeatCount"      (atom {:synth beats :tap "beat-count"})
-
                        "iScale" circle-scale
                        "iColor" color
                        "iAccelerator" accelerator
