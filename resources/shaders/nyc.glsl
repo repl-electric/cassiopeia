@@ -28,7 +28,12 @@ float rand2(vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
-mat2 mm2(in float a){float c = abs( cos(a) ), s = sin(a);return mat2(c,-s,s,c);}
+mat2 mm2(in float a){
+  float c = abs(cos(a));
+  float s = sin(a);
+  return mat2(c,-s,s,c);
+}
+
 float saturate(float a){ return clamp( a, 0.0, 1.0 );}
 // Fractional Brownian Motion code by IQ.
 float noise(float x, float y){return sin(1.5*x)*sin(1.5*y);}
@@ -36,10 +41,19 @@ float noise(float x, float y){return sin(1.5*x)*sin(1.5*y);}
 float fbm4( float x, float y ){
   vec2 p = vec2( x, y );
   float f = 0.0;
-  f += 0.5000*noise(p.x, p.y); p = m*p*2.02;
-  f += 0.2500*noise(p.x, p.y); p = m*p*2.03;
-  f += 0.1250*noise(p.x, p.y); p = m*p*2.01;
-  f += 0.0625*noise(p.x, p.y);
+
+  if(iBeat == 1.0){
+    f = 0.01;
+  }
+
+  f +=  0.5000*noise(p.x, p.y);
+  p = m*p*2.02* iMeasureCount * 0.0009;
+  f +=  0.2500*noise(p.x, p.y);
+  p = m*p*2.03* iMeasureCount * 0.0009;
+  f +=  0.1250*noise(p.x, p.y);
+  p = m*p*2.01* iMeasureCount * 0.0009;
+  f +=  0.0625*noise(p.x, p.y);
+
   return f/0.9375;
 }
 
@@ -110,13 +124,36 @@ vec4 circular(void){
   float core = inverseLength * circleScale;
   float coreident = ceil(core);
 
-  vec2 rotatedUVs = uv * mm2(cheese + fbm4(coreident * 0.005 , iGlobalTime * speed * texture2D(iChannel0, vec2(0, 0)).x) * pi * pi);
-  rotatedUVs *= mm2(cheese - fbm4(coreident * 2.0 , iGlobalTime * speed * texture2D(iChannel0, vec2(0, 0)).x ) * pi * pi);
+  speed = 1e-4 + clamp(iBeat,0.0,0.0000001);
 
-  float arcpos = (pi + atan(rotatedUVs.y, rotatedUVs.x)) / cheese;
+  float halfpi = cheese;
+
+  shading = clamp(iOvertoneVolume, 0.20025, 0.20025);
+
+  float musiz = texture2D(iChannel0, vec2(0.,0.)).x / 100.0 + iOvertoneVolume/1;
+
+  vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.005 , iGlobalTime * 0.005) * pi * pi );
+  rotatedUVs *= mm2( halfpi - fbm4( coreident * 2.0 , iGlobalTime * 0.05) * pi * pi )  * musiz;
+
+  //  * texture2D(iChannel0, vec2(0, 0)).x
+
+  //vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.005 , iGlobalTime * 0.07 * clamp(texture2D(iChannel0, vec2(0, 0)).x, 0.0, 0.2)) * pi * pi );
+  //  rotatedUVs *= mm2( halfpi - fbm4(coreident * 2.0 , iGlobalTime * 0.1 * clamp(texture2D(iChannel0, vec2(0, 0)).x, 0.0, 1.0) ) * pi * pi );
+
+  //  vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.5, iGlobalTime * 0.07 ) * pi * pi );
+  //rotatedUVs          *= mm2( halfpi - fbm4( coreident * 2.0, iGlobalTime * 0.1  ) * pi * pi );
+  float arcpos = ( pi + atan( rotatedUVs.y, rotatedUVs.x ) ) / halfpi;
   arcpos /= pi;
+  arcpos = smoothstep( 0.2, shading - coreident * 0.0001, fract( arcpos ) * fract( -arcpos ) );
 
-  arcpos = smoothstep(0.2, shading - coreident * 0.0001, fract(arcpos) * fract(-arcpos));
+
+  //  vec2 rotatedUVs = uv * mm2(cheese + fbm4(coreident * 0.005 , iGlobalBeatCount * speed * texture2D(iChannel0, vec2(0, 0)).x) * pi * pi);
+  // rotatedUVs *= mm2(cheese - fbm4(coreident * 2.0 , iGlobalBeatCount * speed * texture2D(iChannel0, vec2(0, 0)).x) * pi * pi);
+
+  //float arcpos = (pi + atan(rotatedUVs.y, rotatedUVs.x)) / cheese;
+  //arcpos /= pi;
+
+  //arcpos = smoothstep(0.2, shading - coreident * 0.0001, fract(arcpos) * fract(-arcpos));
   mainval *= fbm4(coreident, iGlobalBeatCount * iInOutSpeed) * arcpos;
 
   float coresmooth = fract(core) * fract(-core);
@@ -137,7 +174,7 @@ vec4 generateSnow(vec2 p, float speed){
   float ys = floor(gl_FragCoord.y / size);
   //vec4 snow = vec4(rand(vec2(xs*iGlobalBeatCount*0.0000008, smoothstep(0.01, 0.02, iGlobalBeatCount))));
   //  vec4 snow = vec4(rand(vec2(xs/iGlobalBeatCount*202, smoothstep(0.01, 0.02, iGlobalBeatCount))));
-   vec4 snow = vec4(rand(vec2(xs, ys*iGlobalBeatCount*speed)));
+  vec4 snow = vec4(rand(vec2(xs, ys * iGlobalBeatCount * speed)));
   return snow;
 }
 
@@ -155,6 +192,7 @@ void main(void){
   }
   else{
     snowWeight = 0.0;
+    circularWeight = 0.0;
   }
 
   if(populationWeight == 1.0){
