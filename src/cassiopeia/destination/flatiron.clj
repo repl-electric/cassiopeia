@@ -488,6 +488,7 @@
                 ])
 
 (one-time-beat-trigger 126 128 (fn [& _]
+                                 (reset! circle-count 2.0)
                                  (chord-pattern apeg-deep-melody-chord-g pinger-score-highlighted)
                                  (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.25)))
 
@@ -495,7 +496,8 @@
  126 128
  (fn [] ;;DARKER PROGRESSION
    (do
-     (swap! circle-destruction * 0.5)
+;;     (reset! circle-destruction (* 0.5 Math/PI))
+     (reset! circle-count 8.0)
      (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.45)
      (ctl (:synths apeg-deep-melody-chord-g) :amp 0.00)
      (ctl drum-effects-g :amp 0.0)
@@ -525,7 +527,7 @@
 (ctl white :amp 1.0)
 
 (reset! accelerator 100.9)
-(reset! snow-ratio 0.0)
+(reset! snow-ratio 10.0)
 (pattern! kick-seq-buf (repeat 7 [1 0 0 0 1 0 0 0]) [1 0 0 0 1 0 1 0]
                        (repeat 7 [1 0 0 0 1 0 0 0]) [1 0 0 0 0 0 1 0])
 (pattern! kick-seq-buf [1 0 0 0 1 0 0 0])
