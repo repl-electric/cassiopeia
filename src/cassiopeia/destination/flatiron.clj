@@ -711,14 +711,14 @@
   (t/stop)
 
   (do
-    (defonce circle-count (atom 1.0))
-    (defonce accelerator (atom 0.00000001))
-    (defonce circle-scale (atom 2.5))
-    (defonce color (atom 0.1))
-    (defonce circle-destruction (atom (* 0.0001)))
+    (defonce circle-count        (atom 1.0))
+    (defonce accelerator         (atom 0.00000001))
+    (defonce circle-scale        (atom 2.5))
+    (defonce color               (atom 0.1))
+    (defonce circle-destruction  (atom (* 0.0001)))
     (defonce circle-growth-speed (atom 0.1))
-    (defonce snow-ratio (atom 10.))
-    (defonce fade-ratio (atom 0.0))
+    (defonce snow-ratio          (atom 10.))
+    (defonce circle-destructure  (atom 1.0))
     )
 
   (reset! fade-ratio 0.0)
@@ -763,7 +763,7 @@
                        "iHalfPi" circle-destruction
                        "iInOutSpeed" circle-growth-speed
                        "iSnowRatio" snow-ratio
-                       "iFade" fade-ratio
+                       "iDestructure" circle-destructure
                        })
 
   (t/stop)
