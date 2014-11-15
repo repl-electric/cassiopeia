@@ -119,7 +119,7 @@ vec4 circular(void){
   float inverseLength;
 
   if(iDestructure == 1.0){
-    inverseLength = length(uv) + clamp(iBeat, 0.0, 0.002);
+    inverseLength = saturate(length(uv)) + clamp(iBeat, 0.0, 0.002);
   }
   else{
     inverseLength = saturate(length(uv)) * (uv.x + uv.y) *  iDestructure;
@@ -137,9 +137,9 @@ vec4 circular(void){
   shading = clamp(iOvertoneVolume, 0.20025, 0.20025);
 
   float musiz = texture2D(iChannel0, vec2(0.,0.)).x / 100.0 + iOvertoneVolume/1;
-
-  vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.005 , iGlobalTime * 0.005) * pi * pi );
-  rotatedUVs *= mm2( halfpi - fbm4( coreident * 2.0 , iGlobalTime * 0.05) * pi * pi )  * musiz;
+  //
+  //vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.005 , iGlobalTime * 0.005) * pi * pi );
+  //rotatedUVs *= mm2( halfpi - fbm4( coreident * 2.0 , iGlobalTime * 0.05) * pi * pi )  * musiz;
 
   //  * texture2D(iChannel0, vec2(0, 0)).x
 

@@ -434,6 +434,8 @@
      (ctl kicker :attack 0.0 :sustain 0.2 :amp 1.0)
      )))
 
+;;(reset! circle-scale 2.5)
+
 (one-time-beat-trigger
  0 16
  (fn []
@@ -449,8 +451,6 @@
   (ctl chord-g :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4)
   (n-overtime! chord-g :amp 0.0 0.04 0.0008)
   )
-
-(reset! circle-count 4.0)
 
 (def hand-drums (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.23 :num-steps 16 :buf hand-drum-s :rate-start 0.9 :rate-limit 1.0) (range 0 16))))
 
@@ -497,7 +497,8 @@
  (fn [] ;;DARKER PROGRESSION
    (do
 ;;     (reset! circle-destruction (* 0.5 Math/PI))
-     (reset! circle-count 8.0)
+     (reset! circle-count 4.0)
+
      (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.45)
      (ctl (:synths apeg-deep-melody-chord-g) :amp 0.00)
      (ctl drum-effects-g :amp 0.0)
@@ -535,7 +536,8 @@
 (pattern! kick-amp [1])
 
 (do
-  (reset! circle-count 50.0)
+  (reset! circle-destruction (* Math/PI 0.5))
+
   (ctl (:synths main-melody-chord-g) :amp 0.0)
   (doseq [s (:synths apeg-deep-melody-spair-chord-g)]
     (ctl s :amp 0.00 :saw-cutoff 2000 :wave 2 :attack 1.0 :release 5.0)
