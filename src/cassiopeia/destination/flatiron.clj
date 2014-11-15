@@ -694,7 +694,7 @@
 
 (comment
   (def beats (buffer->tap kick-seq-buf (:count time/beat-1th) :measure 8))
-
+  (kill beats)
   ;;(ctl (foundation-output-group) :master-volume 3)
   (ctl drums-g :amp 0)
   (ctl drum-effects-g :amp 0)
@@ -713,18 +713,19 @@
   (t/stop)
 
   (do
-    (defonce circle-count        (atom 1.0))
+    (defonce circle-count        (atom 4.0))
     (defonce accelerator         (atom 0.00000001))
-    (defonce circle-scale        (atom 2.5))
+    (defonce circle-scale        (atom 1.5))
     (defonce color               (atom 0.1))
-    (defonce circle-destruction  (atom (* 0.0001)))
+    (defonce circle-destruction  (atom 8.0))
     (defonce circle-growth-speed (atom 0.1))
     (defonce snow-ratio          (atom 10.))
     (defonce circle-destructure  (atom 1.0))
     )
 
-  (reset! fade-ratio 0.0)
-
+  (reset! circle-destructure 0.9)
+  (reset! circle-count 4.0)
+  (reset! circle-scale 1.5)
 
   (on-beat-trigger 8 #(do (swap! fade-ratio - 0.01)))
 
