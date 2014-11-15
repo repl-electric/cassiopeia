@@ -17,16 +17,11 @@ uniform float iDestructure;
 uniform float iGlobalBeatCount;
 
 const float pi = 3.14159265;
-//const float halfpi = 0.000001;
 const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
 
-float rand(vec2 co){
-  return fract(sin(dot(co.xy ,vec2(2.9898,78.233))) * 58.5453);
-}
-
-float rand2(vec2 co){
-  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
-}
+float rand(vec2 co){return fract(sin(dot(co.xy ,vec2(2.9898,78.233))) * 58.5453);}
+float rand2(vec2 co){ return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);}
+float noise(float x, float y){return sin(1.5*x)*sin(1.5*y);}
 
 mat2 mm2(in float a){
   float c = abs(cos(a));
@@ -36,7 +31,7 @@ mat2 mm2(in float a){
 
 float saturate(float a){ return clamp( a, 0.0, 1.0 );}
 // Fractional Brownian Motion code by IQ.
-float noise(float x, float y){return sin(1.5*x)*sin(1.5*y);}
+// http://en.wikipedia.org/wiki/Fractional_Brownian_motion
 
 float fbm4( float x, float y ){
   vec2 p = vec2( x, y );
