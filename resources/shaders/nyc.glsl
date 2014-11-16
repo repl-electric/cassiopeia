@@ -38,20 +38,13 @@ float noise(float x, float y){return sin(1.5*x)*sin(1.5*y);}
 mat2 mm2(in float a){
   float c = abs(cos(a));
   float s = sin(a);
-
-  float adjust = texture2D(iChannel0, vec2(0.,0.)).x;
-
-  if(a > 8.0 && a < 10.0)  {
-    if(adjust > 60.0){
-      adjust = 1.1;
-    }
-    else{
-      adjust = 1.0;
-    }
-  }
-  else{
-    adjust = 1.0;
-  }
+  vec2 uv = gl_FragCoord.xy / iResolution.x;
+  float FREQ_SCALE = (4096.0/4096.0);
+  float AMP_SCALE = 1.0/2.0;
+  float fi = FREQ_SCALE*uv.y;
+  float fid  = FREQ_SCALE/4096.0/2.0;
+  float adjust = AMP_SCALE * 0.5 *   (max(0.0, texture2D(iChannel0, vec2(fi,0.25)).x) +
+                                      max(0.0, texture2D(iChannel0, vec2(fi+fid,0.25)).x));
 
   return mat2(c * adjust, -s * adjust,s * adjust ,c * adjust);
 }
