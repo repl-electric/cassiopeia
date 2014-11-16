@@ -21,6 +21,10 @@ const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
 
 const float darkMode = 0.0;
 
+vec3 hsv2rgb(float h, float s, float v) {
+  return mix(vec3(1.), clamp((abs(fract(h+vec3(3.,2.,1.)/3.)*6.-3.)-1.),0.,1.),s)*v;
+}
+
 float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(2.9898,78.233))) * 58.5453);
 }
