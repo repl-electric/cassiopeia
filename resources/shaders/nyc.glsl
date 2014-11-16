@@ -19,14 +19,35 @@ uniform float iGlobalBeatCount;
 const float pi = 3.14159265;
 const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
 
-float rand(vec2 co){return fract(sin(dot(co.xy ,vec2(2.9898,78.233))) * 58.5453);}
-float rand2(vec2 co){ return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);}
-float noise(float x, float y){return sin(1.5*x)*sin(1.5*y);}
+const float darkMode = 0.0;
+
+float rand(vec2 co){
+  return fract(sin(dot(co.xy ,vec2(2.9898,78.233))) * 58.5453);
+}
+
+float rand2(vec2 co){
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
 
 mat2 mm2(in float a){
   float c = abs(cos(a));
   float s = sin(a);
-  return mat2(c,-s,s,c);
+
+  float adjust = texture2D(iChannel0, vec2(0.,0.)).x;
+
+  if(a > 8.0 && a < 10.0)  {
+    if(adjust > 60.0){
+      adjust = 1.1;
+    }
+    else{
+      adjust = 1.0;
+    }
+  }
+  else{
+    adjust = 1.0;
+  }
+
+  return mat2(c * adjust, -s * adjust,s * adjust ,c * adjust);
 }
 
 float saturate(float a){ return clamp( a, 0.0, 1.0 );}
@@ -38,18 +59,18 @@ float fbm4( float x, float y ){
   float f = 0.0;
 
   if(iBeat == 1.0){
-    f = 0.01;
+    f = .02;
   }
 
   f +=  0.5000*noise(p.x, p.y);
-  p = m*p*2.02* iMeasureCount * 0.0009;
+  p = m*p*2.02 + iMeasureCount * 0.0009;
   f +=  0.2500*noise(p.x, p.y);
-  p = m*p*2.03* iMeasureCount * 0.0009;
+  p = m*p*2.03 + iMeasureCount * 0.0009;
   f +=  0.1250*noise(p.x, p.y);
-  p = m*p*2.01* iMeasureCount * 0.0009;
+  p = m*p*2.01 + iMeasureCount * 0.0009;
   f +=  0.0625*noise(p.x, p.y);
 
-  return f/0.9375;
+  return f / (0.9375 + (iMeasureCount * 0.009 * 4));
 }
 
 const float linesmooth = 0.0333;
@@ -138,8 +159,8 @@ vec4 circular(void){
 
   //  * texture2D(iChannel0, vec2(0, 0)).x
 
-  vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.005 , iGlobalTime * speed * 0.07 * clamp(texture2D(iChannel0, vec2(0, 0)).x, 0.0, 0.2)) * pi * pi );
-   rotatedUVs *= mm2( halfpi - fbm4(coreident * 2.0 , iGlobalTime * speed* 0.1 * clamp(texture2D(iChannel0, vec2(0, 0)).x, 0.0, 1.0) ) * pi * pi );
+  vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.005 , iGlobalTime * 0.07 * clamp(texture2D(iChannel0, vec2(0, 0)).x, 0.0, 0.2)) * pi * pi );
+   rotatedUVs *= mm2( halfpi - fbm4(coreident * 2.0 , iGlobalTime *  0.1 * clamp(texture2D(iChannel0, vec2(0, 0)).x, 0.0, 1.0) ) * pi * pi );
 
   //  vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.5, iGlobalTime * 0.07 ) * pi * pi );
   //rotatedUVs          *= mm2( halfpi - fbm4( coreident * 2.0, iGlobalTime * 0.1  ) * pi * pi );
@@ -166,7 +187,7 @@ vec4 circular(void){
   finalval = max(finalval, 0.0) + 0.0025;
   finalval = min(finalval, 1.0);
 
-  return vec4(vec3(pow(finalval, 1.0 / 2.0 )), 1.0);
+  return vec4(vec3(pow(finalval, 1.0/2.0)) - iBeat * 0.1, 1.0);
 }
 
 vec4 generateSnow(vec2 p, float speed){
@@ -185,12 +206,12 @@ void main(void){
   float snowSpeed = 0.000000000001; //0.00000001; //0.0000000001;
   vec4 populationResult = vec4(0., 0., 0., 0.);
 
-  float populationWeight = 0.0;
-  float circularWeight = 0.0;
+  float populationWeight = 1.0;
+  float circularWeight = 1.0;
 
   if(iOvertoneVolume > 0.01){
     snowSpeed = 0.0000000001 + (iBeat * 0.00000000000009);
-    snowWeight = 0.0;
+    snowWeight = 0.3;
   }
   else{
     snowWeight = 0.0;
@@ -210,7 +231,11 @@ void main(void){
     populationResult = populationWeight*populationDensity(uv);
   }
 
-  c = 1.0-(circularWeight*circular()) -  (1.0-(snowWeight * generateSnow(uv, snowSpeed))) - populationResult;
-  //  c = (circularWeight*circular()) - ((snowWeight * generateSnow(uv, snowSpeed))) + populationResult;
+  if(darkMode == 1.0){
+    c = 1.0-(circularWeight*circular()) -  (1.0-(snowWeight * generateSnow(uv, snowSpeed))) - populationResult;
+  }
+  else{
+    c = (circularWeight*circular()) - ((snowWeight * generateSnow(uv, snowSpeed))) + populationResult;
+  }
   gl_FragColor = c;
 }
