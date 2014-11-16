@@ -723,9 +723,33 @@
     (defonce circle-destructure  (atom 1.0))
     )
 
-  (reset! circle-destructure 0.9)
-  (reset! circle-count 4.0)
-  (reset! circle-scale 1.5)
+  (do
+    ;;defaults
+    (reset! circle-destructure 1.0)
+    (reset! circle-count 4.0)
+    (reset! circle-scale 1.5)
+    (reset! circle-growth-speed 0.1)
+    (reset! color 0.1)
+    (reset! circle-destruction 8.0)
+    )
+
+  (do;; phase 2
+    (reset! circle-destructure 1.1)
+    (reset! circle-count 20.0)
+    (reset! circle-scale 10.5)
+    (reset! circle-growth-speed 0.1)
+    (reset! color 0.25)
+    (reset! circle-growth-speed 0.1)
+    (reset! circle-destruction (* 0.5 Math/PI))
+    )
+
+  (on-beat-trigger 16 #(do (reset! circle-destructure (rand 2.0))))
+
+  (on-beat-trigger 16 #(do (swap! circle-count + 1.0)))
+
+  (remove-on-beat-trigger)
+  (remove-all-beat-triggers)
+
 
   (on-beat-trigger 8 #(do (swap! fade-ratio - 0.01)))
 
@@ -736,8 +760,8 @@
   (reset! snow-ratio 10.0) ;; Nice flow effect
   (reset! circle-count 5.0)
 
-  (reset! accelerator 0.00000000001)
-  (reset! circle-destruction 0.000001) ;; Full circle
+  (reset! accelerator 1.)
+  (reset! circle-destruction 8.) ;; Full circle
 
 
   ((on-beat-trigger 8 #(do (swap! circle-destruction + 0.01)))
@@ -746,9 +770,11 @@
    (remove-all-beat-triggers)
 )
 
-  (reset! color 0.001)
-  (reset! circle-destruction (* 0.5 Math/PI))
-  (reset! accelerator 0.00000001)
+  (reset! color 0.1)
+
+  (reset! circle-destruction (* 1.9 Math/PI))
+  (reset! accelerator 0.1)
+
 ;;  (reset! snow-ratio 0.01)
 
   (t/start "resources/shaders/nyc.glsl"
