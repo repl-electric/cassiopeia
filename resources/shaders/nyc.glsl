@@ -118,13 +118,13 @@ vec4 circular(void){
   float speed = iAccelerator;
   float shading = 0.20025;
   //relate speed - shading
-  float cheese = iHalfPi;
+  float halfpi = iHalfPi;
 
   float circleScale = iCircleCount;
   if (iOvertoneVolume < 0.01) {
     circleScale = 0.0;
     speed = 0.0;
-    cheese = 0.000000001;
+    halfpi = 0.000000001;
   }
 
   vec2 uv = mainuv * scale - scale * 0.5;
@@ -147,8 +147,6 @@ vec4 circular(void){
 
   speed = 1e-4 + clamp(iBeat,0.0,0.0000001);
 
-  float halfpi = cheese;
-
   shading = clamp(iOvertoneVolume, 0.20025, 0.20025);
 
   float musiz = texture2D(iChannel0, vec2(0.,0.)).x / 100.0 + iOvertoneVolume/1;
@@ -168,10 +166,10 @@ vec4 circular(void){
   arcpos = smoothstep( 0.2, shading - coreident * 0.0001, fract( arcpos ) * fract( -arcpos ) );
 
 
-  //  vec2 rotatedUVs = uv * mm2(cheese + fbm4(coreident * 0.005 , iGlobalBeatCount * speed * texture2D(iChannel0, vec2(0, 0)).x) * pi * pi);
-  // rotatedUVs *= mm2(cheese - fbm4(coreident * 2.0 , iGlobalBeatCount * speed * texture2D(iChannel0, vec2(0, 0)).x) * pi * pi);
+  //  vec2 rotatedUVs = uv * mm2(halfpi + fbm4(coreident * 0.005 , iGlobalBeatCount * speed * texture2D(iChannel0, vec2(0, 0)).x) * pi * pi);
+  // rotatedUVs *= mm2(halfpi - fbm4(coreident * 2.0 , iGlobalBeatCount * speed * texture2D(iChannel0, vec2(0, 0)).x) * pi * pi);
 
-  //float arcpos = (pi + atan(rotatedUVs.y, rotatedUVs.x)) / cheese;
+  //float arcpos = (pi + atan(rotatedUVs.y, rotatedUVs.x)) / halfpi;
   //arcpos /= pi;
 
   //arcpos = smoothstep(0.2, shading - coreident * 0.0001, fract(arcpos) * fract(-arcpos));
@@ -270,7 +268,7 @@ vec4 flare(void)
 
   vec3 col = val INVERT vec3(red,green,blue);
   col = 1.-col; // WE DO NOT NEED TO CLAMP THIS LIKE THE NIMITZ SHADER DOES!
-  float rad= 0.2 * texture2D(iChannel0, vec2(0,0.25)).x; // MODIFY THIS TO CHANGE THE RADIUS OF THE SUNS CENTER
+  float rad = 0.2 * texture2D(iChannel0, vec2(0,0.25)).x; // MODIFY THIS TO CHANGE THE RADIUS OF THE SUNS CENTER
   col = mix(col,vec3(1.), rad - 266.667 * r); // REMOVE THIS TO SEE THE FLARING
 
   return vec4(col,1.0);
@@ -278,12 +276,14 @@ vec4 flare(void)
 
 void main(void){
   vec2 uv = gl_FragCoord.xy / iResolution.x;
-  float snowWeight = 0.3;
-  float snowSpeed = 0.000000000001; //0.00000001; //0.0000000001;
-  vec4 populationResult = vec4(0., 0., 0., 0.);
 
+  float snowWeight = 0.3;
+  float flareWeight = 0.01;
   float populationWeight = 1.0;
   float circularWeight = 1.0;
+
+  float snowSpeed = 0.000000000001; //0.00000001; //0.0000000001;
+  vec4 populationResult = vec4(0., 0., 0., 0.);
 
   if(iOvertoneVolume > 0.01){
     snowSpeed = 0.0000000001 + (iBeat * 0.00000000000009);
@@ -311,7 +311,7 @@ void main(void){
     c = 1.0-(circularWeight*circular()) -  (1.0-(snowWeight * generateSnow(uv, snowSpeed))) - populationResult;
   }
   else{
-    c = (circularWeight*circular()) - ((snowWeight * generateSnow(uv, snowSpeed))) + populationResult + flare() * 0.01;
+    c = (circularWeight*circular()) - ((snowWeight * generateSnow(uv, snowSpeed))) + populationResult + (flare() * flareWeight);
   }
   gl_FragColor = c;
 }
