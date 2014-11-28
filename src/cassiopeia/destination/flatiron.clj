@@ -700,8 +700,6 @@
   )
 
 (comment
-  (def beats (buffer->tap kick-seq-buf (:count time/beat-1th) :measure 8))
-  (kill beats)
   ;;(ctl (foundation-output-group) :master-volume 3)
   (ctl drums-g :amp 0)
   (ctl drum-effects-g :amp 0)
@@ -784,6 +782,8 @@
 
 ;;  (reset! snow-ratio 0.01)
 
+  (def beats (buffer->tap kick-seq-buf (:count time/beat-1th) :measure 8))
+  (kill beats)
   (t/start "resources/shaders/nyc.glsl"
            :textures [:overtone-audio :previous-frame
                       "resources/textures/tex16.png"]
