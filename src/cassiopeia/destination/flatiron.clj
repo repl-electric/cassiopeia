@@ -371,9 +371,16 @@
 (ctl (:synths grumble-chord-g)   :t 0.005 :amp 0.4)
 
 (comment
-  (ctl (:synths slow-deep-chord-g) :saw-cutoff 1000 :noise-level 0.5 :amp 0.09 :attack 0.3 :release 6.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th))
+  (ctl (:synths slow-deep-chord-g) :saw-cutoff 1000 :noise-level 0.5 :amp 0.09 :attack 0.3 :release 6.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-1th))
 
-  (ctl (:synths slow-deep-chord-g) :saw-cutoff 900))
+  (pattern! kick-seq-buf
+            (repeat 3 [1 0 0 0 1 0 0 0   0 0 0 0 1 0 0 0]) [1 0 0 0 1 0 0 0   1 0 1 0 1 0 1 0])
+
+  (pattern! hats-buf [0])
+
+  (ctl (:synths slow-deep-chord-g) :saw-cutoff 900)
+
+  (ctl (:synths slow-deep-chord-g) :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th)))
 
 (do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf effects3-seq-buf bass-notes-buf effects3-seq-buf]))
 
