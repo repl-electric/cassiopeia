@@ -92,7 +92,7 @@ vec4 populationDensity(vec2 pos)
   float urgencyRate = 0.002;
 
   //walkingSpeed *=  sin(iBeat+0.5);
-  //  incrementSize =+ iOvertoneVolume*0.01;
+  //incrementSize =+ iOvertoneVolume*0.01;
   float direction = 1.0;
 
   if(iMeasureCount > 3.0){
@@ -494,19 +494,68 @@ vec4 theCell(vec2 uv){
   return x;
 }
 
+vec4 theCellLife(vec2 uv){
+  vec4 x  = vec4(0.,0.,0.,0.);
+  float t=0.0;
+  float i=0;
+  float rowCount = 1;
+  vec2 point = vec2(0.5,0.5);
+  float person = 1.0;
+  float inc;
+  float movementScale = .0000001;
+  float rate = 0.3;
+  float invBeatTotal = TOTAL_BEATS-iBeatTotalCount;
+  float p;
+  float cellBoundries;
+  float glow;
+
+  p = 4.0;
+  cellBoundries = 0.0002 + iOvertoneVolume * 0.0003;
+
+  float f = texture2D(iChannel0, vec2((4096.0/4096.0)*uv.y,0.25)).x;
+  glow = 0.001 + (f* 0.003) + (iOvertoneVolume*0.02);
+
+  if(iOvertoneVolume > 0.01){
+
+  if(iBeatTotalCount > 64.0){
+    point.y -= 0.2+0.5*sin(iBeatTotalCount*0.009/point.x)*1/invBeatTotal-0.2;
+  }
+  else{
+    point.y -= (0.2+0.5*sin(invBeatTotal*0.009/point.x))*1/iBeatTotalCount;
+  }
+  }
+
+  float cell = abs(sqrt(pow(uv.x-point.x,p)+pow(uv.y-point.y, p)));
+
+  if (cell > cellBoundries){
+    person -= 1.0;
+  }else if (cell < cellBoundries){
+    person -= 0.9;
+  }
+  vec4 helloPoint = vec4(vec3(person),1.0);
+
+  vec4 glowing = vec4(0.0);
+  float res = glow / length(point - uv);
+  glowing = res * vec4(iMeasureCount*iOvertoneVolume, 0.,0.1, 1.0);
+
+  return glowing + helloPoint;
+}
+
 void main(void){
   vec2 uv = gl_FragCoord.xy / iResolution.x;
 
-  float snowWeight = 0.3;
-  float flareWeight = 1.01; //0.01;
-  float populationWeight = 1.0;
-  float circularWeight = 1.0;
-  float spellWeight = 1.0;
+  float snowWeight = 0.001;
+  float flareWeight = 0.0; //0.01;
+  float populationWeight = 0.0;
+  float circularWeight = 0.0;
+  float spellWeight = 0.0;
 
   float darkMode = 0.0;
 
   float snowSpeed = 0.000000000001; //0.00000001; //0.0000000001;
   vec4 populationResult = vec4(0., 0., 0., 0.);
+  vec4 circleResult = vec4(0., 0., 0., 0.);
+  vec4 flareResult = vec4(0., 0., 0., 0.);
 
   if(iOvertoneVolume > 0.01){
     snowSpeed = 0.0000000001 + (iBeat * 0.00000000000009);
@@ -531,15 +580,24 @@ void main(void){
 
   vec4 c;
 
+  if(circularWeight > 0.0){
+    circleResult = circularWeight*circular() - (snowWeight*generateSnow(uv, snowSpeed));
+  }
+
   if(populationWeight > 0.0){
     populationResult = populationWeight*populationDensity(uv);
+  }
+
+  if(flareWeight > 0.0){
+    flareResult = flare();
   }
 
   if(darkMode == 1.0){
     c = 1.0-(circularWeight*circular()) -  (1.0-(snowWeight * generateSnow(uv, snowSpeed))) - populationResult;
   }
   else{
-    c = (circularWeight*circular()) - ((snowWeight * generateSnow(uv, snowSpeed))) + populationResult + (flare() * flareWeight);
+    c = theCellLife(uv) + populationResult + circleResult + flareResult;
+
   }
   gl_FragColor = c;
 }
