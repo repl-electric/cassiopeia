@@ -536,7 +536,7 @@ vec4 theCellLife(vec2 uv){
 
   vec4 glowing = vec4(0.0);
   float res = glow / length(point - uv);
-  glowing = res * vec4(iMeasureCount*iOvertoneVolume, 0.,0.1, 1.0);
+  glowing = res * vec4(iMeasureCount*iOvertoneVolume, 0.9, 1/iGlobalTime, 1.0);
 
   return glowing + helloPoint;
 }
