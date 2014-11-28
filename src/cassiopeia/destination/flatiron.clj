@@ -457,9 +457,10 @@
 (echoey-buf rf-theorems-s :amp 0.058)
 
 (doseq [chord-g (:synths slow-deep-chord-g)]
-  (ctl chord-g :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4)
-  (n-overtime! chord-g :amp 0.0 0.04 0.0008)
-  )
+  (ctl chord-g :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4
+       :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th)
+       :attack 0.3 :release 6.0 :noise-level 0.05)
+  (n-overtime! chord-g :amp 0.0 0.04 0.0008))
 
 (def hand-drums (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.23 :num-steps 16 :buf hand-drum-s :rate-start 0.9 :rate-limit 1.0) (range 0 16))))
 
@@ -639,6 +640,7 @@
 
 ;;Fade
 (let [cutout 2600]
+  (reset! circle-destruction (rand 3.1))
   (ctl drum-effects-g :amp 0)
   (ctl (:synths apeg-deep-melody-spair-chord-g) :saw-cutoff cutout)
   (ctl (:synths apeg-deep-melody-chord-g) :saw-cutoff cutout)
@@ -741,9 +743,9 @@
     )
 
   (do;; phase 2
-    (reset! circle-destructure 1.1)
+    (reset! circle-destructure 1.0)
     (reset! circle-count 20.0)
-    (reset! circle-scale 10.5)
+    (reset! circle-scale 1.5)
     (reset! circle-growth-speed 0.1)
     (reset! color 0.25)
     (reset! circle-growth-speed 0.1)
