@@ -525,12 +525,13 @@ vec4 theCellLife(vec2 uv, vec2 point){
   }
   }
 
-  float cell = abs(sqrt(pow(uv.x-point.x,p)+pow(uv.y-point.y, p)));
+  float cell =  abs(sqrt(pow(uv.x-point.x,p)+pow(uv.y-point.y, p)));
+  //cell = cell  * (0.5+0.5*sin(iGlobalTime/0.55)) +  dot(vec2(uv.x-point.x,uv.y-point.y), vec2(uv.x-point.x, uv.y-point.y)) * (0.5+0.5*sin(iGlobalTime*0.55 + pi*2));
 
   if (cell > cellBoundries){
     person -= 1.0;
-  }else if (cell < cellBoundries){
-    person -= 0.9;
+  }else {
+     person -= 0.9 + cell*5;
   }
   vec4 helloPoint = vec4(vec3(person),1.0);
 
