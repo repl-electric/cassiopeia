@@ -4,6 +4,7 @@ uniform float iBeat;
 uniform float iBeatCount;
 uniform float iMeasureCount;
 
+uniform float iCubeCount;
 uniform float iCircleCount;
 uniform float iAccelerator;
 uniform float iColor;
@@ -494,12 +495,11 @@ vec4 theCell(vec2 uv){
   return x;
 }
 
-vec4 theCellLife(vec2 uv){
+vec4 theCellLife(vec2 uv, vec2 point){
   vec4 x  = vec4(0.,0.,0.,0.);
   float t=0.0;
   float i=0;
   float rowCount = 1;
-  vec2 point = vec2(0.5,0.5);
   float person = 1.0;
   float inc;
   float movementScale = .0000001;
@@ -509,7 +509,7 @@ vec4 theCellLife(vec2 uv){
   float cellBoundries;
   float glow;
 
-  p = 4.0;
+  p = 4.0; //interesting values @ 8
   cellBoundries = 0.0002 + iOvertoneVolume * 0.0003;
 
   float f = texture2D(iChannel0, vec2((4096.0/4096.0)*uv.y,0.25)).x;
@@ -549,6 +549,7 @@ void main(void){
   float populationWeight = 0.0;
   float circularWeight = 0.0;
   float spellWeight = 0.0;
+  float bouncingWeight = 0.0;
 
   float darkMode = 0.0;
 
@@ -556,6 +557,7 @@ void main(void){
   vec4 populationResult = vec4(0., 0., 0., 0.);
   vec4 circleResult = vec4(0., 0., 0., 0.);
   vec4 flareResult = vec4(0., 0., 0., 0.);
+  vec4 bouncingResult = vec4(0., 0., 0., 0.);
 
   if(iOvertoneVolume > 0.01){
     snowSpeed = 0.0000000001 + (iBeat * 0.00000000000009);
@@ -576,6 +578,10 @@ void main(void){
     spelling = bouncingPerson(uv);
   }
 
+  if(bouncingWeight > 0.0){
+    bouncingResult = bouncingPerson(uv);
+  }
+
   snowSpeed *= iSnowRatio;
 
   vec4 c;
@@ -589,14 +595,14 @@ void main(void){
   }
 
   if(flareWeight > 0.0){
-    flareResult = flare();
+    flareResult = 0.01*flare();
   }
 
   if(darkMode == 1.0){
     c = 1.0-(circularWeight*circular()) -  (1.0-(snowWeight * generateSnow(uv, snowSpeed))) - populationResult;
   }
   else{
-    c = theCellLife(uv) + populationResult + circleResult + flareResult;
+    c = theCellLife(uv) + populationResult + circleResult + flareResult + bouncingResult;
 
   }
   gl_FragColor = c;

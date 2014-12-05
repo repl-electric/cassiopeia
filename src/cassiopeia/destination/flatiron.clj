@@ -373,10 +373,11 @@
 (comment
   (ctl (:synths slow-deep-chord-g) :saw-cutoff 1000 :noise-level 0.5 :amp 0.09 :attack 0.3 :release 6.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-1th))
 
-  (pattern! kick-seq-buf
-            (repeat 3 [1 0 0 0 1 0 0 0   0 0 0 0 1 0 0 0]) [1 0 0 0 1 0 0 0   1 0 1 0 1 0 1 0])
+  (pattern! kick-seq-buf (repeat 3 [1 0 0 0 1 0 0 0   0 0 0 0 1 0 0 0]) [1 0 0 0 1 0 0 0   1 0 1 0 1 0 1 0])
 
-  (pattern! hats-buf [0])
+  (pattern! hats-buf  (repeat 7 [1 0 1 0]) [1 1 0 0])
+
+  (ctl white :attack 0.0001 :release 0.0 :amp 1)
 
   (ctl (:synths slow-deep-chord-g) :saw-cutoff 900)
 
@@ -730,6 +731,7 @@
     (defonce circle-growth-speed (atom 0.1))
     (defonce snow-ratio          (atom 10.))
     (defonce circle-destructure  (atom 1.0))
+    (defonce cube-count          (atom 1.0))
     )
 
   (do
@@ -804,6 +806,7 @@
                        "iInOutSpeed" circle-growth-speed
                        "iSnowRatio" snow-ratio
                        "iDestructure" circle-destructure
+                       "iCubeCount" cube-count
                        })
 
   (t/stop)
