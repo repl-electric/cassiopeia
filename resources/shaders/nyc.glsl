@@ -619,6 +619,7 @@ void main(void){
 
   if(bouncingWeight > 0.0){
     bouncingResult = bouncingPerson(uv);
+    bouncingResult = 2/bouncingResult;
   }
 
   snowSpeed *= iSnowRatio;
@@ -652,10 +653,10 @@ void main(void){
     c = cellSpellResult +
         populationResult +
         circleResult +
-        2/bouncingResult;
+        bouncingResult;
       //1-(10*flareResult - bouncingResult);
     //theCellLife(uv, vec2(0.5,0.5)) +
 
   }
-  gl_FragColor = c;
+  gl_FragColor = lineDistort(c, uv);
 }
