@@ -23,6 +23,8 @@ const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
 
 const float darkMode = 0.0;
 
+#define FLARE_SIZE 10
+
 #define RANDOM_LETTERS 0
 #define TOTAL_BEATS 128.0
 #define STATIC_LETTERS 0
@@ -210,6 +212,7 @@ vec4 generateSnow(vec2 p, float speed){
 
 #define ray_brightness 0.8
 #define gamma 0.1
+
 #define curvature 15.
 #define red   4.
 #define green 1.0
@@ -280,7 +283,7 @@ vec4 flare(void)
   float rad = 0.2 * texture2D(iChannel0, vec2(0,0.25)).x; // MODIFY THIS TO CHANGE THE RADIUS OF THE SUNS CENTER
   col = mix(col,vec3(1.), rad - 266.667 * r); // REMOVE THIS TO SEE THE FLARING
 
-  return 1-vec4(col,1.0);
+  return (vec4(col, 1) - vec4(1.8, 1.9, 1.9, 0));
 }
 
 
@@ -342,7 +345,6 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
   float movementScale = .0000001;
 
   if(still==0){
-
     if(iBeatTotalCount >= 64.0){
       //point.y = rand2(vec2(point.x,point.y*iGlobalTime*movementScale));
     }
@@ -367,7 +369,7 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
     }else{
 
       float y1;
-      int converge = 0;
+      int converge = 1;
       if(converge == 1){
         y1 = 0.5+0.5*sin(iBeatTotalCount*0.05);
       }
@@ -391,7 +393,7 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
   float glowFactor;
 
   //round cells
-  p = 2.0;
+  p = 2.;
   cellBoundries = 0.5;
   glowFactor = 0.04;
 
@@ -487,7 +489,6 @@ vec4 bouncingPerson(vec2 uv){
       helloPoint += letter(letterC, vec2(0.05+letterSpace*14, 0.3), uv);
     }
   }
-
   return helloPoint;
 }
 
@@ -527,10 +528,9 @@ vec4 theCellLife(vec2 uv, vec2 point){
   glow = 0.001 + (f * 0.003) + (iOvertoneVolume*0.02);
 
   vec2 pix = mod(gl_FragCoord.xy, vec2(90.0)) - vec2(30.0);
-
   //cell =  abs(sqrt(pow(uv.x-point.x,p)+pow(uv.y-point.y, p)));
 
-  float snail = 1.0;
+  float snail = 0.0;
 
   if(iOvertoneVolume > 0.01){
     if(snail == 0.0){
@@ -565,18 +565,19 @@ vec4 theCellLife(vec2 uv, vec2 point){
 
 vec4 cellSpell(vec2 uv){
   vec4 r = vec4(0.0);
-  float more = 1.0;
-  float cells = iCubeCount;
   vec2 position;
+  float cells=1.0;
 
-  cells = max(1.0, texture2D(iChannel0, vec2(0.0,0.25)).x - 20);
+  if(iOvertoneVolume > 0.04){
+    cells = max(1.0, texture2D(iChannel0, vec2(0.0,0.25)).x - 20 - 2*(1-iOvertoneVolume));
+  }
   //cells = clamp(cells, 1.0, 10);
-  cells = clamp(cells, 1.0, 50);
+  cells = clamp(cells, 1.0, 70);
     //  cells = texture2D(iChannel0, vec2(0.25, 0.25)).x;
 
   for(int i=0; i < cells; i++){
     if(i==0){
-      position = vec2(0.5, 0.55);
+      position = vec2(0.5, 0.5);
     }
     else{
       position = vec2(rand(vec2(1/iGlobalBeatCount*0.1,i/iGlobalTime*0.1)) * 0.5 + 0.25,
@@ -596,7 +597,7 @@ void main(void){
   float circularWeight = 0.0;
   float spellWeight = 0.0;
   float bouncingWeight = 0.0;
-  float cellSpellWeight = 0.0;
+  float cellSpellWeight = 1.0;
 
   float darkMode = 0.0;
 
@@ -637,7 +638,7 @@ void main(void){
   vec4 c;
 
   if(circularWeight > 0.0){
-    circleResult = circularWeight*circular() - (snowWeight*generateSnow(uv, snowSpeed));
+    circleResult = circularWeight*circular(); //- (snowWeight*generateSnow(uv, snowSpeed));
   }
 
   if(populationWeight > 0.0){
@@ -646,7 +647,8 @@ void main(void){
 
   if(flareWeight > 0.0){
     flareResult = 0.01*flare();
-    flareResult = 1-(10*flareResult - bouncingPerson(uv));
+    flareResult = 1-(FLARE_SIZE*flareResult - bouncingPerson(uv));
+    //    flareResult *= 0.1;
   }
 
   if(snowWeight > 0.0){
