@@ -23,8 +23,7 @@ const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
 
 const float darkMode = 0.0;
 
-
-#define RANDOM_LETTERS 1
+#define RANDOM_LETTERS 0
 #define TOTAL_BEATS 128.0
 #define STATIC_LETTERS 0
 #define SHOW_GLOW 1
@@ -275,12 +274,12 @@ vec4 flare(void)
   val = smoothstep(gamma*.02-.1,ray_brightness+(gamma*0.02-.1)+.001,val);
   val = sqrt(val); // WE DON'T REALLY NEED SQRT HERE, CHANGE TO 15. * val FOR PERFORMANCE
 
-  vec3 col = val INVERT vec3(red,green,blue);
+  vec3 col = val INVERT vec3(0.01,0.1,0.1);
   col = 1.-col; // WE DO NOT NEED TO CLAMP THIS LIKE THE NIMITZ SHADER DOES!
   float rad = 0.2 * texture2D(iChannel0, vec2(0,0.25)).x; // MODIFY THIS TO CHANGE THE RADIUS OF THE SUNS CENTER
   col = mix(col,vec3(1.), rad - 266.667 * r); // REMOVE THIS TO SEE THE FLARING
 
-  return vec4(col,1.0);
+  return 1-vec4(col,1.0);
 }
 
 
@@ -383,15 +382,17 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
 
   //round cells
   p = 2.0;
-  cellBoundries = 0.005;
-  glowFactor = 0.004;
+  cellBoundries = 0.5;
+  glowFactor = 0.04;
 
   //square cells
   //  p = 4.0;
   //  cellBoundries = 0.0001;
   //  glowFactor = 0.003;
 
-  float cell = abs(sqrt(pow(uv.x-point.x,p)+pow(uv.y-point.y, p)));
+  float cell = smoothstep(sqrt(pow(uv.x-point.x,p)+pow(uv.y-point.y, p)),
+                          0.01+sqrt(pow(uv.x-point.x,p)+pow(uv.y-point.y, p)),
+                          1.0);
 
   if (cell > cellBoundries){
     person -= 1.0;
@@ -513,31 +514,44 @@ vec4 theCellLife(vec2 uv, vec2 point){
   cellBoundries = 0.0002 + iOvertoneVolume * 0.0003;
 
   float f = texture2D(iChannel0, vec2((4096.0/4096.0)*uv.y,0.25)).x;
-  glow = 0.001 + (f* 0.003) + (iOvertoneVolume*0.02);
+  glow = 0.001 + (f * 0.003) + (iOvertoneVolume*0.02);
+
+  vec2 pix = mod(gl_FragCoord.xy, vec2(90.0)) - vec2(30.0);
+
+  //cell =  abs(sqrt(pow(uv.x-point.x,p)+pow(uv.y-point.y, p)));
+
+  float snail = 1.0;
 
   if(iOvertoneVolume > 0.01){
+    if(snail == 0.0){
+      if(iBeatTotalCount > 64.0){
+        point.y -= 0.2+0.5*sin(iBeatTotalCount*0.009/point.x)*1/invBeatTotal-0.2 *  rand2(vec2(point.y,point.x));
+      }
+      else{
+        point.y -= (0.2+0.5*sin(invBeatTotal*0.009/point.x))*1/iBeatTotalCount;
+      }
+    }
+    else{
+      point.y -= 0.2+0.5*sin(iBeatTotalCount*0.009/point.x)*1/invBeatTotal-0.2;
+    }
 
-  if(iBeatTotalCount > 64.0){
-    point.y -= 0.2+0.5*sin(iBeatTotalCount*0.009/point.x)*1/invBeatTotal-0.2;
-  }
-  else{
-    point.y -= (0.2+0.5*sin(invBeatTotal*0.009/point.x))*1/iBeatTotalCount;
-  }
   }
 
   float cell =  abs(sqrt(pow(uv.x-point.x,p)+pow(uv.y-point.y, p)));
-  //cell = cell  * (0.5+0.5*sin(iGlobalTime/0.55)) +  dot(vec2(uv.x-point.x,uv.y-point.y), vec2(uv.x-point.x, uv.y-point.y)) * (0.5+0.5*sin(iGlobalTime*0.55 + pi*2));
+  // cell = cell  * (0.5+0.5*sin(iGlobalTime/0.55)) +  dot(vec2(uv.x-point.x,uv.y-point.y), vec2(uv.x-point.x, uv.y-point.y)) * (0.5+0.5*sin(iGlobalTime*0.55 + pi*2));
 
   if (cell > cellBoundries){
     person -= 1.0;
   }else {
-     person -= 0.9 + cell*5;
+     person -= 0.9 - cell*100;
   }
-  vec4 helloPoint = vec4(vec3(person),1.0);
-
+  vec4 helloPoint = vec4(vec3(person), 1.0);
   vec4 glowing = vec4(0.0);
   float res = glow / length(point - uv);
-  glowing = res * vec4(iMeasureCount*iOvertoneVolume, 0.9, 1/iGlobalTime, 1.0);
+  glowing = res * vec4(iMeasureCount*iOvertoneVolume, 0.1, 1/iGlobalTime, 1.0);
+
+  return helloPoint + glowing * 0.3;
+}
 
 vec4 cellSpell(vec2 uv){
   vec4 r = vec4(0.0);
@@ -546,11 +560,13 @@ vec4 cellSpell(vec2 uv){
   vec2 position;
 
   cells = max(1.0, texture2D(iChannel0, vec2(0.0,0.25)).x - 20);
+  //cells = clamp(cells, 1.0, 10);
+  cells = clamp(cells, 1.0, 50);
     //  cells = texture2D(iChannel0, vec2(0.25, 0.25)).x;
 
   for(int i=0; i < cells; i++){
     if(i==0){
-      position = vec2(0.5, 0.58);
+      position = vec2(0.5, 0.55);
     }
     else{
       position = vec2(rand(vec2(1/iGlobalBeatCount*0.1,i/iGlobalTime*0.1)) * 0.5 + 0.25,
@@ -564,12 +580,13 @@ vec4 cellSpell(vec2 uv){
 void main(void){
   vec2 uv = gl_FragCoord.xy / iResolution.x;
 
-  float snowWeight = 0.001;
+  float snowWeight = 0.003;
   float flareWeight = 0.0; //0.01;
   float populationWeight = 0.0;
   float circularWeight = 0.0;
   float spellWeight = 0.0;
-  float bouncingWeight = 0.0;
+  float bouncingWeight = 1.0;
+  float cellSpellWeight = 0.0;
 
   float darkMode = 0.0;
 
@@ -578,6 +595,8 @@ void main(void){
   vec4 circleResult = vec4(0., 0., 0., 0.);
   vec4 flareResult = vec4(0., 0., 0., 0.);
   vec4 bouncingResult = vec4(0., 0., 0., 0.);
+  vec4 snowResult = vec4(.0,.0,.0,.0);
+  vec4 cellSpellResult = vec4(.0,.0,.0,.0);
 
   if(iOvertoneVolume > 0.01){
     snowSpeed = 0.0000000001 + (iBeat * 0.00000000000009);
@@ -589,7 +608,7 @@ void main(void){
   }
 
   if(populationWeight == 1.0){
-    snowSpeed = 0.00000001;
+    snowSpeed = 0.00000000001;
     snowWeight = 0.4;
   }
 
@@ -618,11 +637,24 @@ void main(void){
     flareResult = 0.01*flare();
   }
 
+  if(snowWeight > 0.0){
+    snowResult = (1.0-(snowWeight * generateSnow(uv, snowSpeed)));
+  }
+
+  if(cellSpellWeight > 0.0){
+    cellSpellResult = cellSpell(uv);
+  }
+
   if(darkMode == 1.0){
-    c = 1.0-(circularWeight*circular()) -  (1.0-(snowWeight * generateSnow(uv, snowSpeed))) - populationResult;
+    c = 1.0-(circularWeight*circular()) -  snowResult - populationResult;
   }
   else{
-    c =  cellSpell(uv) + populationResult + circleResult + flareResult + bouncingResult;
+    c = cellSpellResult +
+        populationResult +
+        circleResult +
+        2/bouncingResult;
+      //1-(10*flareResult - bouncingResult);
+    //theCellLife(uv, vec2(0.5,0.5)) +
 
   }
   gl_FragColor = c;
