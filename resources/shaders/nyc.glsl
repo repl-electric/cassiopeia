@@ -210,7 +210,6 @@ vec4 generateSnow(vec2 p, float speed){
 
 #define ray_brightness 0.8
 #define gamma 0.1
-#define ray_density 4.5
 #define curvature 15.
 #define red   4.
 #define green 1.0
@@ -260,6 +259,8 @@ float fbm( in vec2 p )
 
 vec4 flare(void)
 {
+  float ray_density = max(4.5, 0.9*texture2D(iChannel0, vec2(0.0,0.25)).x);
+
   float t = DIRECTION iGlobalTime*.3;
   vec2 uv = gl_FragCoord.xy / iResolution.xy-0.5;
   uv.x *= iResolution.x/iResolution.y;
@@ -274,8 +275,8 @@ vec4 flare(void)
   val = smoothstep(gamma*.02-.1,ray_brightness+(gamma*0.02-.1)+.001,val);
   val = sqrt(val); // WE DON'T REALLY NEED SQRT HERE, CHANGE TO 15. * val FOR PERFORMANCE
 
-  vec3 col = val INVERT vec3(0.01,0.1,0.1);
-  col = 1.-col; // WE DO NOT NEED TO CLAMP THIS LIKE THE NIMITZ SHADER DOES!
+  vec3 col = val INVERT vec3(0.2, 0.1 + 0.01*iBeat,0.1+iBeat*0.01);
+  //  col = 0.-col; // WE DO NOT NEED TO CLAMP THIS LIKE THE NIMITZ SHADER DOES!
   float rad = 0.2 * texture2D(iChannel0, vec2(0,0.25)).x; // MODIFY THIS TO CHANGE THE RADIUS OF THE SUNS CENTER
   col = mix(col,vec3(1.), rad - 266.667 * r); // REMOVE THIS TO SEE THE FLARING
 
@@ -365,11 +366,20 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
 
     }else{
 
-      if(iBeatTotalCount > 64.0){
-        point.y -= 0.2+0.5*sin(iBeatTotalCount*0.04/point.x);
+      float y1;
+      int converge = 0;
+      if(converge == 1){
+        y1 = 0.5+0.5*sin(iBeatTotalCount*0.05);
       }
       else{
-        point.y -= 0.2+0.5*sin((TOTAL_BEATS-iBeatTotalCount)*0.04/point.x);
+        y1 = 1;
+      }
+
+      if(iBeatTotalCount > 64.0){
+        point.y -= y1 * sin(iBeatTotalCount*0.04/point.x);
+      }
+      else{
+       point.y -= y1 * sin((TOTAL_BEATS-iBeatTotalCount)*0.04/point.x);
       }
     }
 
@@ -585,7 +595,7 @@ void main(void){
   float populationWeight = 0.0;
   float circularWeight = 0.0;
   float spellWeight = 0.0;
-  float bouncingWeight = 1.0;
+  float bouncingWeight = 0.0;
   float cellSpellWeight = 0.0;
 
   float darkMode = 0.0;
@@ -636,6 +646,7 @@ void main(void){
 
   if(flareWeight > 0.0){
     flareResult = 0.01*flare();
+    flareResult = 1-(10*flareResult - bouncingPerson(uv));
   }
 
   if(snowWeight > 0.0){
@@ -651,12 +662,10 @@ void main(void){
   }
   else{
     c = cellSpellResult +
-        populationResult +
-        circleResult +
-        bouncingResult;
-      //1-(10*flareResult - bouncingResult);
-    //theCellLife(uv, vec2(0.5,0.5)) +
-
+      populationResult +
+      circleResult +
+      bouncingResult +
+      flareResult;
   }
   gl_FragColor = lineDistort(c, uv);
 }
