@@ -539,7 +539,26 @@ vec4 theCellLife(vec2 uv, vec2 point){
   float res = glow / length(point - uv);
   glowing = res * vec4(iMeasureCount*iOvertoneVolume, 0.9, 1/iGlobalTime, 1.0);
 
-  return glowing + helloPoint;
+vec4 cellSpell(vec2 uv){
+  vec4 r = vec4(0.0);
+  float more = 1.0;
+  float cells = iCubeCount;
+  vec2 position;
+
+  cells = max(1.0, texture2D(iChannel0, vec2(0.0,0.25)).x - 20);
+    //  cells = texture2D(iChannel0, vec2(0.25, 0.25)).x;
+
+  for(int i=0; i < cells; i++){
+    if(i==0){
+      position = vec2(0.5, 0.58);
+    }
+    else{
+      position = vec2(rand(vec2(1/iGlobalBeatCount*0.1,i/iGlobalTime*0.1)) * 0.5 + 0.25,
+                      rand(vec2(i*0.1,i*0.1)) + 0.15);
+    }
+    r += theCellLife(uv, position);
+  }
+  return r;
 }
 
 void main(void){
@@ -603,7 +622,7 @@ void main(void){
     c = 1.0-(circularWeight*circular()) -  (1.0-(snowWeight * generateSnow(uv, snowSpeed))) - populationResult;
   }
   else{
-    c = theCellLife(uv) + populationResult + circleResult + flareResult + bouncingResult;
+    c =  cellSpell(uv) + populationResult + circleResult + flareResult + bouncingResult;
 
   }
   gl_FragColor = c;
