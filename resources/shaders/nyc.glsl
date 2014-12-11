@@ -16,6 +16,7 @@ uniform float iCircularWeight;
 uniform float iFlareWeight;
 uniform float iPopulationWeight;
 uniform float iBouncingWeight;
+uniform float iNyc;
 
 uniform bool iInvertColor;
 
@@ -48,6 +49,13 @@ float rand(vec2 co){
 
 float rand2(vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+vec3 hash3( vec2 p ){
+  vec3 q = vec3(dot(p,vec2(127.1,311.7)),
+              dot(p,vec2(269.5,183.3)),
+              dot(p,vec2(419.2,371.9)) );
+  return fract(sin(q)*43758.5453);
 }
 
 float noise(float x, float y){return sin(1.5*x)*sin(1.5*y);}
@@ -580,8 +588,8 @@ vec4 cellSpell(vec2 uv){
     cells = max(1.0, 2*texture2D(iChannel0, vec2(0.0,0.25)).x);
   }
   //cells = clamp(cells, 1.0, 10);
-  cells = clamp(cells, 1.0, 70);
     //  cells = texture2D(iChannel0, vec2(0.25, 0.25)).x;
+  cells = clamp(cells, 1.0, 50);
 
   for(int i=0; i < cells; i++){
     if(i==0){
@@ -596,6 +604,36 @@ vec4 cellSpell(vec2 uv){
   return r;
 }
 
+vec4 houghLines(void){
+    float l=sqrt(iResolution.x*iResolution.x+iResolution.y*iResolution.y);
+    float eps=2.6;
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    uv.x *= 3.1415*0.5;
+    uv.y *= 2.0;
+    uv.y -= 1.0;
+    uv.y *= iResolution.y;
+    vec3 color = vec3(0.0,0.0,0.0);
+    const float passes = 1.0;
+
+    for  (float i=0.0; i<passes; i++) {
+      vec3 rd=hash3(vec2(1.265*i/passes,2.0*i/passes)*26.351);
+      float rd_l=0.1+rd.x;
+      float rd_p=3.1415*(rd.y-0.3*texture2D(iChannel0,vec2(i/passes,0.0)).x);
+      float rd_speed=0.7+0.1*rd.z;
+      float fy=l*rd_l*cos(uv.x+rd_speed*iGlobalTime+rd_p);
+      if (uv.y >= fy - eps && uv.y <= fy + eps) {
+        color += vec3(0.22 - 0.12*abs(uv.y - fy)/eps,0.0,0.0);
+      }
+      if (color.r > .9) {
+        color.g=color.r-.5;
+      }
+      if (color.r > 1.0) color.r=1.0;
+      if (color.g > 1.0) color.g=1.0;
+    }
+
+    return vec4(color.xyz,1.0);
+  }
+
 void main(void){
   vec2 uv = gl_FragCoord.xy / iResolution.x;
 
@@ -603,16 +641,14 @@ void main(void){
   float flareWeight = iFlareWeight; //0.01;
   float populationWeight = iPopulationWeight;
   float circularWeight = iCircularWeight;
-  float spellWeight = 0.0;
   float bouncingWeight = iBouncingWeight;
-  float cellSpellWeight = 1.0;
-
+  float cellSpellWeight = 0.0;
   float darkMode = 0.0;
 
   float snowSpeed = 0.000000000001; //0.00000001; //0.0000000001;
   vec4 populationResult = vec4(0., 0., 0., 0.);
   vec4 circleResult = vec4(0., 0., 0., 0.);
-  vec4 flareResult = vec4(0., 0., 0., 0.);
+  vec4 flareResult = vec4(.0, .0, .0, .0);
   vec4 bouncingResult = vec4(0., 0., 0., 0.);
   vec4 snowResult = vec4(.0,.0,.0,.0);
   vec4 cellSpellResult = vec4(.0,.0,.0,.0);
@@ -631,17 +667,12 @@ void main(void){
     snowWeight = 0.4;
   }
 
-  vec4 spelling = vec4(0.);
-  if(spellWeight == 1.0){
-    spelling = bouncingPerson(uv);
-  }
-
   if(bouncingWeight > 0.0){
     bouncingResult = bouncingPerson(uv);
     bouncingResult = 2/bouncingResult;
 
-    if(iInvertColor==false){
-      bouncingResult = 1 - bouncingResult;
+    if(iInvertColor){
+      //bouncingResult = 1 - bouncingResult;
     }
     else{
       if(mod(iGlobalBeatCount,256) > 128){
@@ -663,9 +694,9 @@ void main(void){
   }
 
   if(flareWeight > 0.0){
-    flareResult = 0.01*flare();
-    flareResult = 1-(FLARE_SIZE*flareResult - bouncingPerson(uv));
-    //    flareResult *= 0.1;
+    flareResult = flareWeight*flare();
+    flareResult = 1-(0.4*flareResult - bouncingPerson(uv));
+    flareResult *= 0.2;
   }
 
   if(snowWeight > 0.0){

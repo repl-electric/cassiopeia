@@ -737,7 +737,8 @@
     (defonce flare-weight      (atom 0.0))
     (defonce population-weight (atom 0.0))
     (defonce cells-weight      (atom 0.0))
-    (defonce iInvertColor      (atom true))
+    (defonce nyc-weight        (atom 0.0))
+    (defonce invert-color      (atom true))
     )
 
   (do
@@ -818,7 +819,8 @@
                        "iFlareWeight"      flare-weight
                        "iPopulationWeight" population-weight
                        "iBouncingWeight"   cells-weight
-
+                       "iNycWeight" nyc-weight
+                       "iInvertColor" invert-color
                        })
 
   (t/stop)
