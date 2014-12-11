@@ -12,6 +12,13 @@ uniform float iScale;
 uniform float iHalfPi;
 uniform float iInOutSpeed;
 
+uniform float iCircularWeight;
+uniform float iFlareWeight;
+uniform float iPopulationWeight;
+uniform float iBouncingWeight;
+
+uniform bool iInvertColor;
+
 uniform float iSnowRatio;
 uniform float iDestructure;
 
@@ -569,8 +576,8 @@ vec4 cellSpell(vec2 uv){
   vec2 position;
   float cells=1.0;
 
-  if(iOvertoneVolume > 0.04){
-    cells = max(1.0, texture2D(iChannel0, vec2(0.0,0.25)).x - 20 - 2*(1-iOvertoneVolume));
+  if(iOvertoneVolume > 0.01){
+    cells = max(1.0, 2*texture2D(iChannel0, vec2(0.0,0.25)).x);
   }
   //cells = clamp(cells, 1.0, 10);
   cells = clamp(cells, 1.0, 70);
@@ -592,12 +599,12 @@ vec4 cellSpell(vec2 uv){
 void main(void){
   vec2 uv = gl_FragCoord.xy / iResolution.x;
 
-  float snowWeight = 0.003;
-  float flareWeight = 0.0; //0.01;
-  float populationWeight = 0.0;
-  float circularWeight = 0.0;
+  float snowWeight = 0.0;
+  float flareWeight = iFlareWeight; //0.01;
+  float populationWeight = iPopulationWeight;
+  float circularWeight = iCircularWeight;
   float spellWeight = 0.0;
-  float bouncingWeight = 0.0;
+  float bouncingWeight = iBouncingWeight;
   float cellSpellWeight = 1.0;
 
   float darkMode = 0.0;
@@ -632,8 +639,14 @@ void main(void){
   if(bouncingWeight > 0.0){
     bouncingResult = bouncingPerson(uv);
     bouncingResult = 2/bouncingResult;
-    if(mod(iGlobalBeatCount,256) > 128){
+
+    if(iInvertColor==false){
       bouncingResult = 1 - bouncingResult;
+    }
+    else{
+      if(mod(iGlobalBeatCount,256) > 128){
+        bouncingResult = 1 - bouncingResult;
+      }
     }
   }
 
@@ -667,11 +680,11 @@ void main(void){
     c = 1.0-(circularWeight*circular()) -  snowResult - populationResult;
   }
   else{
-    c = cellSpellResult +
-      populationResult +
-      circleResult +
-      bouncingResult +
-      flareResult;
+    c = (cellSpellResult +
+         populationResult +
+         circleResult +
+         bouncingResult +
+         flareResult);
   }
   gl_FragColor = lineDistort(c, uv);
 }

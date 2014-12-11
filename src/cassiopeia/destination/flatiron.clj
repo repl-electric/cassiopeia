@@ -732,6 +732,12 @@
     (defonce snow-ratio          (atom 10.))
     (defonce circle-destructure  (atom 1.0))
     (defonce cube-count          (atom 1.0))
+
+    (defonce circular-weight   (atom 0.0))
+    (defonce flare-weight      (atom 0.0))
+    (defonce population-weight (atom 0.0))
+    (defonce cells-weight      (atom 0.0))
+    (defonce iInvertColor      (atom true))
     )
 
   (do
@@ -807,6 +813,12 @@
                        "iSnowRatio" snow-ratio
                        "iDestructure" circle-destructure
                        "iCubeCount" cube-count
+
+                       "iCirclularWeight"  circular-weight
+                       "iFlareWeight"      flare-weight
+                       "iPopulationWeight" population-weight
+                       "iBouncingWeight"   cells-weight
+
                        })
 
   (t/stop)
