@@ -16,9 +16,10 @@ uniform float iCircularWeight;
 uniform float iFlareWeight;
 uniform float iPopulationWeight;
 uniform float iBouncingWeight;
-uniform float iNyc;
+uniform float iNycWeight;
 
-uniform bool iInvertColor;
+
+uniform float iInvertColor;
 
 uniform float iSnowRatio;
 uniform float iDestructure;
@@ -384,7 +385,10 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
     }else{
 
       float y1;
-      int converge = 1;
+      int converge;
+      if(iBouncingWeight == 2.0){
+        converge = 1;
+      }
       if(converge == 1){
         y1 = 0.5+0.5*sin(iBeatTotalCount*0.05);
       }
@@ -410,7 +414,12 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
   //round cells
   p = 2.;
   cellBoundries = 0.5;
-  glowFactor = 0.04;
+  if(iBouncingWeight <= 3.0){
+    glowFactor = 0.0139;
+  }
+  else{
+    glowFactor = 0.04;
+  }
 
   //square cells
   //  p = 4.0;
@@ -468,10 +477,8 @@ vec4 bouncingPerson(vec2 uv){
   mat3 letterT  = mat3(1, 1, 1,  0, 1, 0,  0, 1, 0);
   mat3 letterI  = mat3(0, 1, 0,  0, 1, 0,  0, 1, 0);
 
-
-  helloPoint += letter(letterR, vec2(0.3+letterSpace*0, top), uv);
-
   if(iOvertoneVolume > 0.1){
+    helloPoint += letter(letterR, vec2(0.3+letterSpace*0, top), uv);
     helloPoint += letter(letterE, vec2(0.3+letterSpace*2, top), uv);
 
     if(PANIC == 0){
@@ -479,6 +486,8 @@ vec4 bouncingPerson(vec2 uv){
       helloPoint += letter(letterL, vec2(0.3+letterSpace*6, top), uv);
     }
   }
+
+  if(iBouncingWeight<=3.0){
 
   if(RANDOM_LETTERS == 0){
     float liveUntil =  1/iGlobalTime*4;
@@ -504,6 +513,7 @@ vec4 bouncingPerson(vec2 uv){
       helloPoint += letter(letterI, vec2(0.05+letterSpace*12, 0.3), uv);
       helloPoint += letter(letterC, vec2(0.05+letterSpace*14, 0.3), uv);
     }
+  }
   }
   return helloPoint;
 }
@@ -584,12 +594,12 @@ vec4 cellSpell(vec2 uv){
   vec2 position;
   float cells=1.0;
 
-  if(iOvertoneVolume > 0.01){
-    cells = max(1.0, 2*texture2D(iChannel0, vec2(0.0,0.25)).x);
+  if(iNycWeight >= 2.0){
+    if(iOvertoneVolume > 0.01){
+      cells = max(1.0, 2*texture2D(iChannel0, vec2(0.0,0.25)).x);
+    }
+    cells = clamp(cells, 1.0, 60);
   }
-  //cells = clamp(cells, 1.0, 10);
-    //  cells = texture2D(iChannel0, vec2(0.25, 0.25)).x;
-  cells = clamp(cells, 1.0, 50);
 
   for(int i=0; i < cells; i++){
     if(i==0){
@@ -642,7 +652,7 @@ void main(void){
   float populationWeight = iPopulationWeight;
   float circularWeight = iCircularWeight;
   float bouncingWeight = iBouncingWeight;
-  float cellSpellWeight = 0.0;
+  float cellSpellWeight = iNycWeight;
   float darkMode = 0.0;
 
   float snowSpeed = 0.000000000001; //0.00000001; //0.0000000001;
@@ -671,11 +681,11 @@ void main(void){
     bouncingResult = bouncingPerson(uv);
     bouncingResult = 2/bouncingResult;
 
-    if(iInvertColor){
-      //bouncingResult = 1 - bouncingResult;
+    if(iInvertColor == 0.0){
+      bouncingResult = 1 - bouncingResult;
     }
-    else{
-      if(mod(iGlobalBeatCount,256) > 128){
+    else if(iInvertColor == 1.0){
+      if(mod(iGlobalBeatCount, 256) > 128){
         bouncingResult = 1 - bouncingResult;
       }
     }
@@ -686,11 +696,11 @@ void main(void){
   vec4 c;
 
   if(circularWeight > 0.0){
-    circleResult = circularWeight*circular(); //- (snowWeight*generateSnow(uv, snowSpeed));
+    circleResult = min(1.0, circularWeight) * circular(); //- (snowWeight*generateSnow(uv, snowSpeed));
   }
 
   if(populationWeight > 0.0){
-    populationResult = populationWeight*populationDensity(uv);
+    populationResult = min(1.0, populationWeight)*populationDensity(uv);
   }
 
   if(flareWeight > 0.0){

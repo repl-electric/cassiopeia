@@ -738,7 +738,7 @@
     (defonce population-weight (atom 0.0))
     (defonce cells-weight      (atom 0.0))
     (defonce nyc-weight        (atom 0.0))
-    (defonce invert-color      (atom true))
+    (defonce invert-color      (atom 1.0))
     )
 
   (do
@@ -815,7 +815,7 @@
                        "iDestructure" circle-destructure
                        "iCubeCount" cube-count
 
-                       "iCirclularWeight"  circular-weight
+                       "iCircularWeight"  circular-weight
                        "iFlareWeight"      flare-weight
                        "iPopulationWeight" population-weight
                        "iBouncingWeight"   cells-weight
