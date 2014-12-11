@@ -440,6 +440,7 @@ vec4 letter(mat3 letter, vec2 offset, vec2 uv){
 
 vec4 bouncingPerson(vec2 uv){
   float letterSpace = 0.06;
+  float top = 0.6;
   vec4 helloPoint = vec4(0.0);
 
   mat3 complete = mat3(1, 1, 1,  1, 1, 1,  1, 1, 1);
@@ -453,14 +454,14 @@ vec4 bouncingPerson(vec2 uv){
   mat3 letterI  = mat3(0, 1, 0,  0, 1, 0,  0, 1, 0);
 
 
-  helloPoint += letter(letterR, vec2(0.3+letterSpace*0, 0.45), uv);
+  helloPoint += letter(letterR, vec2(0.3+letterSpace*0, top), uv);
 
   if(iOvertoneVolume > 0.1){
-    helloPoint += letter(letterE, vec2(0.3+letterSpace*2, 0.45), uv);
+    helloPoint += letter(letterE, vec2(0.3+letterSpace*2, top), uv);
 
     if(PANIC == 0){
-      helloPoint += letter(letterP, vec2(0.3+letterSpace*4, 0.45), uv);
-      helloPoint += letter(letterL, vec2(0.3+letterSpace*6, 0.45), uv);
+      helloPoint += letter(letterP, vec2(0.3+letterSpace*4, top), uv);
+      helloPoint += letter(letterL, vec2(0.3+letterSpace*6, top), uv);
     }
   }
 
@@ -631,6 +632,9 @@ void main(void){
   if(bouncingWeight > 0.0){
     bouncingResult = bouncingPerson(uv);
     bouncingResult = 2/bouncingResult;
+    if(mod(iGlobalBeatCount,256) > 128){
+      bouncingResult = 1 - bouncingResult;
+    }
   }
 
   snowSpeed *= iSnowRatio;
