@@ -481,10 +481,10 @@ vec4 bouncingPerson(vec2 uv){
       mat3 invertedP = complete - letterP;
       mat3 invertedL = complete - letterL;
 
-      helloPoint += letter(invertedR, vec2(0.3+letterSpace*0, 0.45), uv) * liveUntil;
-      helloPoint += letter(invertedE, vec2(0.3+letterSpace*2, 0.45), uv) * liveUntil;
-      helloPoint += letter(invertedP, vec2(0.3+letterSpace*4, 0.45), uv) * liveUntil;
-      helloPoint += letter(invertedL, vec2(0.3+letterSpace*6, 0.45), uv) * liveUntil;
+      helloPoint += letter(invertedR, vec2(0.3+letterSpace*0, top), uv) * liveUntil;
+      helloPoint += letter(invertedE, vec2(0.3+letterSpace*2, top), uv) * liveUntil;
+      helloPoint += letter(invertedP, vec2(0.3+letterSpace*4, top), uv) * liveUntil;
+      helloPoint += letter(invertedL, vec2(0.3+letterSpace*6, top), uv) * liveUntil;
     }
     else{
       helloPoint += letter(letterE, vec2(0.05+letterSpace*0, 0.30), uv);
