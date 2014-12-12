@@ -621,7 +621,7 @@ vec4 cellSpell(vec2 uv){
     if(iOvertoneVolume > 0.01){
       cells = max(1.0, 2*texture2D(iChannel0, vec2(0.0,0.25)).x);
     }
-    cells = clamp(cells, 1.0, 60);
+    cells = clamp(cells, 1.0, 30);
   }
 
   for(int i=0; i < cells; i++){
