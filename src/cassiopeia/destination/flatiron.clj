@@ -392,6 +392,9 @@
           (repeat 2 (repeat 8 (degrees [3] :minor :F1)))
           [(degrees [1 1 1 1  5 4 3 1] :minor :F1)])
 
+(pattern! kick-amp  [1.5 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1] (repeat 2 [1.2 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1]) [1.2 1 1 1 1 1 1 1   1.2 1 1 1 1.2 1 1.3 1])
+(pattern! hats-amp  (repeat 3 [2 2 2 2 2.1 2 2 2   2 2 2 2 2 2 2 2]) [2 2 2 2 2.1 2 2 2   2 2 2.4 2 2.4 2 2 2])
+
 (pattern! effects2-seq-buf [1 1 0 0 0 0 0 0])
 (pattern! effects2-seq-buf [1 1 1  1 0 0  0 1 0  0 0 0  0 0 0])
 (pattern! effects2-seq-buf [1 0 0  1 1 1  0 0 0  1 0 0])
@@ -399,11 +402,7 @@
 (pattern! effects2-seq-buf (repeat (* 8 8) 0)
                            (repeat (* 8 7) 0) [0 0 0 0 0 1 1 1])
 
-(defonce kick-fuzzy-s (freesound-sample 168415))
-(defonce ballon-perc-s (freesound-sample 168301))
-
 ;;(kill seqer)
-;;(kill fuzzy-kick-drums)
 ;;(kill drum-effects-g)
 ;;(kill drums-g)
 
@@ -414,23 +413,12 @@
  15 16
  (fn []
    (do
-     (pattern! hats-buf
-               (repeat 3 [0 0 0 0 1 0 0 0   0 0 1 0 0 0 0 0])
+     (reset! nyc-weight 2.0)
+     (pattern! hats-buf (repeat 3 [0 0 0 0 1 0 0 0   0 0 1 0 0 0 0 0])
                          [0 0 0 0 1 0 0 0   0 0 1 0 1 0 0 0])
      (pattern! kick-seq-buf
                (repeat 3 [1 0 0 1 0 0 0 0   1 0 0 0 0 0 0 0])
-                         [1 0 0 1 0 0 0 0   1 0 0 0 1 0 1 0])
-
-     (pattern! kick-amp  [1.5 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1]
-               (repeat 2 [1.2 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1])
-                         [1.2 1 1 1 1 1 1 1   1.2 1 1 1 1.2 1 1.3 1])
-
-     (pattern! hats-amp  (repeat 3 [2 2 2 2 2.1 2 2 2   2 2 2 2 2 2 2 2])
-                                   [2 2 2 2 2.1 2 2 2   2 2 2.4 2 2.4 2 2 2])
-
-     (def soft-kick-drums (doall (map #(seqer [:head drum-effects-g]
-                                              :rate-start 1.0 :rate-limit 1.0
-                                              :beat-num %1 :pattern effects3-seq-buf :amp 0.58 :num-steps 8 :buf soft-kick-s) (range 0 8))))
+               [1 0 0 1 0 0 0 0   1 0 0 0 1 0 1 0])
 
      (def white (doall (map #(whitenoise-hat [:head drums-g] :amp-buf hats-amp :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :release 0.1 :attack 0.0 :beat-num %1) (range 0 1))))
      (ctl white :amp-buf hats-amp)
