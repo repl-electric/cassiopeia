@@ -700,7 +700,7 @@ void main(void){
     snowWeight = 0.4;
   }
 
-  if(bouncingWeight > 0.0){
+  if(bouncingWeight > 0.0 && iOvertoneVolume > 0.0){
     bouncingResult = bouncingPerson(uv);
     bouncingResult = 2/bouncingResult;
 
