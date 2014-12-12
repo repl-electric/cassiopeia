@@ -470,9 +470,8 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
 vec4 letter(mat3 letter, vec2 offset, vec2 uv){
   vec2 point = vec2(0,0);
   vec4 helloPoint = vec4(0,0,0,0);
-  vec3 xPos = vec3(0., 0.03, 0.06);
-  vec3 yPos = vec3(0.06, 0.03, 0);
-  float letterSpace = 0.1;
+  vec3 xPos = vec3(0.01, 0.03, 0.05);
+  vec3 yPos = vec3(0.05, 0.03, 0.01);
 
   for(int y=0; y < 3; y++){
     for(int x=0; x < 3; x++){
@@ -486,8 +485,9 @@ vec4 letter(mat3 letter, vec2 offset, vec2 uv){
 }
 
 vec4 bouncingPerson(vec2 uv){
-  float letterSpace = 0.06;
-  float top = 0.6;
+  float letterSpace = 0.05;
+  float top = 0.40;
+  float topLower = 0.2;
   vec4 helloPoint = vec4(0.0);
 
   mat3 complete = mat3(1, 1, 1,  1, 1, 1,  1, 1, 1);
@@ -527,14 +527,14 @@ vec4 bouncingPerson(vec2 uv){
       helloPoint += letter(invertedL, vec2(0.3+letterSpace*6, top), uv) * liveUntil;
     }
     else{
-      helloPoint += letter(letterE, vec2(0.05+letterSpace*0, 0.30), uv);
-      helloPoint += letter(letterL, vec2(0.05+letterSpace*2, 0.3), uv);
-      helloPoint += letter(letterE, vec2(0.05+letterSpace*4, 0.3), uv);
-      helloPoint += letter(letterC, vec2(0.05+letterSpace*6, 0.3), uv);
-      helloPoint += letter(letterT, vec2(0.05+letterSpace*8, 0.3), uv);
-      helloPoint += letter(letterR, vec2(0.05+letterSpace*10, 0.3), uv);
-      helloPoint += letter(letterI, vec2(0.05+letterSpace*12, 0.3), uv);
-      helloPoint += letter(letterC, vec2(0.05+letterSpace*14, 0.3), uv);
+      helloPoint += letter(letterE, vec2(0.1+letterSpace*0, topLower), uv);
+      helloPoint += letter(letterL, vec2(0.1+letterSpace*2, topLower), uv);
+      helloPoint += letter(letterE, vec2(0.1+letterSpace*4, topLower), uv);
+      helloPoint += letter(letterC, vec2(0.1+letterSpace*6, topLower), uv);
+      helloPoint += letter(letterT, vec2(0.1+letterSpace*8, topLower), uv);
+      helloPoint += letter(letterR, vec2(0.1+letterSpace*10, topLower), uv);
+      helloPoint += letter(letterI, vec2(0.1+letterSpace*12, topLower), uv);
+      helloPoint += letter(letterC, vec2(0.1+letterSpace*14, topLower), uv);
     }
   }
   }
@@ -571,7 +571,7 @@ vec4 theCellLife(vec2 uv, vec2 point){
   float glow;
 
   p = 4.0; //interesting values @ 8
-  cellBoundries = 0.0002 + iOvertoneVolume * 0.0003;
+  cellBoundries = 0.00005 + iOvertoneVolume * 0.0003;
 
   float f = texture2D(iChannel0, vec2((4096.0/4096.0)*uv.y,0.25)).x;
   glow = 0.001 + (f * 0.003) + (iOvertoneVolume*0.02);
@@ -626,7 +626,7 @@ vec4 cellSpell(vec2 uv){
 
   for(int i=0; i < cells; i++){
     if(i==0){
-      position = vec2(0.5, 0.5);
+      position = vec2(0.5, iResolution.x*0.00025);
     }
     else{
       position = vec2(rand(vec2(1/iGlobalBeatCount*0.1,i/iGlobalTime*0.1)) * 0.5 + 0.25,
