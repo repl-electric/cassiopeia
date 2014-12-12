@@ -692,7 +692,7 @@ void main(void){
   }
   else{
     snowWeight = 0.0;
-    circularWeight = 0.0;
+    //circularWeight = 0.0;
   }
 
   if(populationWeight == 1.0){
