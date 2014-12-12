@@ -32,6 +32,7 @@ const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
 
 const float darkMode = 0.0;
 
+#define WAVE 0
 #define FLARE_SIZE 10
 
 #define RANDOM_LETTERS 0
@@ -415,20 +416,19 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
     //point.x += sin(iBeatTotalCount*0.1)*0.5;
   }
 
+  if(WAVE ==1){
   if(uv.y < 1.0){
+    //float g = 0.2*texture2D(iChannel0, vec2(point.x,0.25)).x + 0.2*texture2D(iChannel0, vec2(point.x,0.75)).x;
+    //point.y = g + 0.45;
+    float d = smoothstep(0, 1.0, texture2D(iChannel0, vec2(point.x, 0.75)).x) * 0.8;
+    //    float q = smoothbump(0,1.0, texture2D(iChannel1, vec2(point.x, point.y)).x);
+    //d = smoothbump(0, 1.0, texture2D(iChannel0, vec2(point.x, 0.75)).x);
+    //d = smoothstep(0, 1.0, texture2D(iChannel0, vec2(uv.x, 0.75)).x);
 
-    vec2  uv     = gl_FragCoord.xy/iResolution.xy;
-    float wave   = texture2D(iChannel0,vec2(point.x,0.75)).x;
-    wave         = smoothbump(0.8,(9.0/iResolution.y), wave + uv.x - 0.5);
-
-    float g = 0.2*texture2D(iChannel0, vec2(point.x,0.25)).x + 0.2*texture2D(iChannel0, vec2(point.x,0.75)).x;
-
-    float d = smoothbump(0,1.0, texture2D(iChannel0, vec2(point.x,0.75)).x);
-    float q = smoothbump(0,1.0, texture2D(iChannel1, vec2(point.x, 0.75)).x);
-
-    point.y = 0.2*(d-q) + 0.45;
-    point.y = g + 0.45;
-
+    point.y = 0.1*(d)  + 0.5;
+    //point.y = d*0.09;
+    point.y = 1.0-point.y;
+  }
   }
   float p;
   float cellBoundries;
