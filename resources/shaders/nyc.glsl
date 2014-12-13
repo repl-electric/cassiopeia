@@ -425,7 +425,7 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
         converge = 1;
       }
       if(converge == 1){
-        y1 = 0.5+0.5*sin(iBeatTotalCount*0.05);
+        y1 = 0.5+0.5*sin(iGlobalTime*0.1);
       }
       else{
         y1 = 1;
