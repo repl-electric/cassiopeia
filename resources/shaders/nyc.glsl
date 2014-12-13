@@ -17,6 +17,7 @@ uniform float iFlareWeight;
 uniform float iPopulationWeight;
 uniform float iBouncingWeight;
 uniform float iNycWeight;
+uniform float iCircleDanceWeight;
 
 
 uniform float iInvertColor;
@@ -100,6 +101,31 @@ float fbm4( float x, float y ){
 }
 
 const float linesmooth = 0.0333;
+
+const float tau = 6.28318530717958647692;
+
+vec4 circleDance(void){
+  vec2 uv = (gl_FragCoord.xy - iResolution.xy*.5)/iResolution.x;
+
+  uv = vec2(abs(atan(uv.x,uv.y)/(.5*tau)),length(uv));
+  uv.x *= 1.0/80.0; //40 - BIG
+
+  float seperation = 0.5*(1.0-0.2);
+
+  vec3 wave = vec3(0.0);
+  const int n = 60;
+  for ( int i=0; i < n; i++ ){
+      float sound = texture2D( iChannel0, vec2(uv.x,.75) ).x;
+      // choose colour from spectrum
+      float a = 0.1*float(i)*tau/float(n)+.01;
+      vec3 phase = smoothstep(-1.0,.5,vec3(cos(a),cos(a-tau/3.0),cos(a-tau*2.0/3.0)));
+
+      wave += phase*smoothstep(4.0/500, 0.0, abs(uv.y - sound*.9));
+      uv.x += seperation/float(n);
+    }
+  wave *= 10.0/float(n);
+  return vec4(wave,1);
+}
 
 vec4 populationDensity(vec2 pos)
 {
@@ -676,6 +702,7 @@ void main(void){
   float circularWeight = iCircularWeight;
   float bouncingWeight = iBouncingWeight;
   float cellSpellWeight = iNycWeight;
+  float circleDanceWeight = iCircleDanceWeight;
   float darkMode = 0.0;
 
   float snowSpeed = 0.000000000001; //0.00000001; //0.0000000001;
@@ -750,5 +777,5 @@ void main(void){
          bouncingResult +
          flareResult);
   }
-  gl_FragColor = lineDistort(c, uv);
+  gl_FragColor = lineDistort(c, uv) + circleDance();
 }
