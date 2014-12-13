@@ -727,6 +727,7 @@
     (defonce cells-weight      (atom 0.0))
     (defonce nyc-weight        (atom 0.0))
     (defonce invert-color      (atom 1.0))
+    (defonce cell-dance-weight (atom 0.0))
     )
 
   (do
@@ -809,6 +810,7 @@
                        "iBouncingWeight"   cells-weight
                        "iNycWeight" nyc-weight
                        "iInvertColor" invert-color
+                       "iCircleDanceWeight" cell-dance-weight
                        })
 
   (t/stop)
