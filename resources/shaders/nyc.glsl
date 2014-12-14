@@ -718,6 +718,7 @@ void main(void){
   vec4 bouncingResult = vec4(0., 0., 0., 0.);
   vec4 snowResult = vec4(.0,.0,.0,.0);
   vec4 cellSpellResult = vec4(.0,.0,.0,.0);
+  vec4 circleDanceResult = vec4(0.0,0.0,0.0,0.0);
 
   if(iOvertoneVolume > 0.01){
     snowSpeed = 0.0000000001 + (iBeat * 0.00000000000009);
@@ -773,6 +774,10 @@ void main(void){
     cellSpellResult = cellSpell(uv);
   }
 
+  if(circleDanceWeight > 0.0){
+    circleDanceResult = circleDance();
+  }
+
   if(darkMode == 1.0){
     c = 1.0-(circularWeight*circular()) -  snowResult - populationResult;
   }
@@ -783,5 +788,5 @@ void main(void){
          bouncingResult +
          flareResult);
   }
-  gl_FragColor = lineDistort(c, uv) + circleDance();
+  gl_FragColor = lineDistort(c, uv) + circleDanceResult;
 }
