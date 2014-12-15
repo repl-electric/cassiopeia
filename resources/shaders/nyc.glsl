@@ -733,9 +733,9 @@ void main(void){
   }
 
   if(flareWeight > 0.0){
-    flareResult = flareWeight*flare();
-    flareResult = 1-(0.4*flareResult - bouncingPerson(uv));
-    flareResult *= 0.2;
+    flareResult = 0.01*flare();
+    flareResult = 1-(3*flareResult - bouncingPerson(uv));
+    flareResult *= 0.3;
   }
 
   if(snowWeight > 0.0){
