@@ -11,34 +11,7 @@
 (ctl time/root-s :rate 8.)
 
 (do
-  (defbufs 256 [df-b note1-dur-b sd-attack-b sd-release-b sd-amp-b s-note-b])
-
-  (defonce grumblers-g (group "the grumblers"))
-  (kill heart-wobble)
-  (def grumble-chord-g
-    (chord-synth heart-wobble 4 [:head grumblers-g] :amp 0 :dur-buf note1-dur-b :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :lag-time 0.0 :t 0.0))
-
-  (def grumble-chords
-    (do
-      (let [_ [0 0 0]
-            [F21 F22 F23 F24 F25 F26 F27] (map #(chord-degree %1 :F1 :minor 3) [:i :ii :iii :iv :v :vi :vii])
-            [F31 F32 F33 F34 F35 F36 F37] (map #(chord-degree %1 :F3 :minor 3) [:i :ii :iii :iv :v :vi :vii])
-            [F41 F42 F43 F44 F45 F46 F47] (map #(chord-degree %1 :F4 :minor 4) [:i :ii :iii :iv :v :vi :vii])
-            [Fa31 Fa32 Fa33 Fa34 Fa35 Fa36 Fa37] (map #(chord-degree %1 :F3 :minor 4) [:i :ii :iii :iv :v :vi :vii])
-            [Fa41 Fa42 Fa43 Fa44 Fa45 Fa46 Fa47] (map #(chord-degree %1 :F3 :major 4) [:i :ii :iii :iv :v :vi :vii])
-            [C41 C42 C43 C44 C45 C46 C47] (map #(chord-degree %1 :C4 :minor3) [:i :ii :iii :iv :v :vi :vii])
-            [C31 C32 C33 C34 C35 C36 C37] (map #(chord-degree %1 :C3 :minor3) [:i :ii :iii :iv :v :vi :vii])]
-
-        (pattern! note1-dur-b [12 12 12 1/2 12 12 12 1/2])
-        (let [chord-pat
-              (concat
-               (repeat 12 [0]) [F22 F21  _ _]
-               (repeat 12 [0]) [_ _  _ _])]
-          (chord-pattern  grumble-chord-g chord-pat))))
-    )
-
-  (def apeg-deep-melody-spair2-chord-g
-    (chord-synth general-purpose-assembly 4 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1))
+  (defbufs 256 [df-b sd-attack-b sd-release-b sd-amp-b s-note-b])
   (def apeg-deep-melody-spair-chord-g
     (chord-synth general-purpose-assembly 4 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1))
   (def apeg-deep-melody-chord-g
