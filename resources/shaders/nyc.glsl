@@ -175,12 +175,6 @@ vec4 circular(void){
   float halfpi = iHalfPi;
 
   float circleScale = iCircleCount;
-  if (iOvertoneVolume < 0.01) {
-    circleScale = 0.0;
-    speed = 0.0;
-    halfpi = 0.000000001;
-  }
-
   vec2 uv = mainuv * scale - scale * 0.5;
   uv.x *= aspect;
 
