@@ -351,11 +351,13 @@ vec4 addGlow(vec2 uv, vec2 v, float glow)
   }
 
   if(iOvertoneVolume < 0.01){
-    glow = -1.0;
+    //    glow = -1.0;
     glowing = vec4(-1.);
+    float res = glow / length(v - uv);
+    glowing = res * vec4(hsvToRgb(0.5, 0.9),1.0);
   }
   else{
-    //    glow =+ iOvertoneVolume * 0.005;
+    //glow =+ iOvertoneVolume * 0.005;
 
     float res = glow / length(v - uv);
     glowing = res * vec4(hsvToRgb(0.5, 0.9),1.0);
@@ -712,7 +714,7 @@ void main(void){
     snowWeight = 0.4;
   }
 
-  if(bouncingWeight > 0.0 && iOvertoneVolume > 0.0){
+  if(bouncingWeight > 0.0){
     bouncingResult = bouncingPerson(uv);
     bouncingResult = 2/bouncingResult;
 
