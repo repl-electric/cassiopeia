@@ -6,6 +6,8 @@
 (:use [overtone.live] [mud.core] [mud.chords] [cassiopeia.waves.synths] [cassiopeia.samples] [cassiopeia.engine.buffers] [cassiopeia.dirt] [cassiopeia.waves.buf-effects])
 (:require [mud.timing :as time] [clojure.math.numeric-tower :as math] [overtone.studio.fx :as fx] [shadertone.tone :as t]))
 
+(defn stop-everything! [] (remove-all-beat-triggers) (remove-all-sample-triggers) (stop-all-chord-synth-buffers) (full-stop))
+
 (def master-vol 3.0)
 (volume master-vol)
 (ctl time/root-s :rate 8.)
@@ -704,5 +706,6 @@
                        })
 
   (t/stop)
+  (stop-everything!)
   (stop)
 )
