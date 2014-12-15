@@ -167,13 +167,11 @@ vec4 populationDensity(vec2 pos)
 
 vec4 circular(void){
   vec2 mainuv = (gl_FragCoord.xy / iResolution.xy);
-
   float aspect = iResolution.x/iResolution.y;
   float finalval = iColor; // 0.1
   float scale = iScale;
   float speed = iAccelerator;
   float shading = 0.20025;
-  //relate speed - shading
   float halfpi = iHalfPi;
 
   float circleScale = iCircleCount;
@@ -205,15 +203,22 @@ vec4 circular(void){
 
   shading = clamp(iOvertoneVolume, 0.20025, 0.20025);
 
-  float musiz = texture2D(iChannel0, vec2(0.,0.)).x / 100.0 + iOvertoneVolume/1;
+  //float musiz = texture2D(iChannel0, vec2(0.,0.)).x / 100.0 + iOvertoneVolume/1;
   //
   //vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.005 , iGlobalTime * 0.005) * pi * pi );
   //rotatedUVs *= mm2( halfpi - fbm4( coreident * 2.0 , iGlobalTime * 0.05) * pi * pi )  * musiz;
-
   //  * texture2D(iChannel0, vec2(0, 0)).x
 
-  vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.005 , iGlobalTime * 0.07 * clamp(texture2D(iChannel0, vec2(0, 0)).x, 0.0, 0.2)) * pi * pi );
-   rotatedUVs *= mm2( halfpi - fbm4(coreident * 2.0 , iGlobalTime *  0.1 * clamp(texture2D(iChannel0, vec2(0, 0)).x, 0.0, 1.0) ) * pi * pi );
+  float speedFactor= 0.1;
+
+  if(iOvertoneVolume < 0.1){
+    speedFactor = speedFactor * 0.9;
+  }
+
+  vec2 rotatedUVs = uv * mm2(halfpi + fbm4(coreident * 0.005 , iGlobalTime * 0.07 *
+                                           clamp(texture2D(iChannel0, vec2(0.0, 0.7)).x, 0.01, 0.2)) * pi * pi );
+  rotatedUVs *= mm2( halfpi - fbm4(coreident * 2.0 , iGlobalTime *  speedFactor *
+                                   clamp(texture2D(iChannel0, vec2(0, .7)).x, 0.02, 1.0) ) * pi * pi );
 
   //  vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.5, iGlobalTime * 0.07 ) * pi * pi );
   //rotatedUVs          *= mm2( halfpi - fbm4( coreident * 2.0, iGlobalTime * 0.1  ) * pi * pi );
@@ -671,36 +676,6 @@ vec4 cellSpell(vec2 uv){
   }
   return r;
 }
-
-vec4 houghLines(void){
-    float l=sqrt(iResolution.x*iResolution.x+iResolution.y*iResolution.y);
-    float eps=2.6;
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    uv.x *= 3.1415*0.5;
-    uv.y *= 2.0;
-    uv.y -= 1.0;
-    uv.y *= iResolution.y;
-    vec3 color = vec3(0.0,0.0,0.0);
-    const float passes = 1.0;
-
-    for  (float i=0.0; i<passes; i++) {
-      vec3 rd=hash3(vec2(1.265*i/passes,2.0*i/passes)*26.351);
-      float rd_l=0.1+rd.x;
-      float rd_p=3.1415*(rd.y-0.3*texture2D(iChannel0,vec2(i/passes,0.0)).x);
-      float rd_speed=0.7+0.1*rd.z;
-      float fy=l*rd_l*cos(uv.x+rd_speed*iGlobalTime+rd_p);
-      if (uv.y >= fy - eps && uv.y <= fy + eps) {
-        color += vec3(0.22 - 0.12*abs(uv.y - fy)/eps,0.0,0.0);
-      }
-      if (color.r > .9) {
-        color.g=color.r-.5;
-      }
-      if (color.r > 1.0) color.r=1.0;
-      if (color.g > 1.0) color.g=1.0;
-    }
-
-    return vec4(color.xyz,1.0);
-  }
 
 void main(void){
   vec2 uv = gl_FragCoord.xy / iResolution.x;
