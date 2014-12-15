@@ -194,8 +194,7 @@ vec4 circular(void){
   float coreident = ceil(core);
 
   speed = 1e-4 + clamp(iBeat,0.0,0.0000001);
-
-  shading = clamp(iOvertoneVolume, 0.20025, 0.20025);
+  shading = 0.20025; //clamp(iOvertoneVolume, 0.20025, 0.20025);
 
   //float musiz = texture2D(iChannel0, vec2(0.,0.)).x / 100.0 + iOvertoneVolume/1;
   //
