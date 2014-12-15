@@ -29,47 +29,22 @@
 (do
 (def dark-chords-score
   (let [_ [0 0 0 0]
-        [c21 c22 c23 c24 c25 c26 c27]        (chords-for :C2 :minor 3)
-        [f217 f227 f237 f247 f257 f267 f277] (chords-for :F2 :melodic-minor-asc 4)
-        [fm31 fm32 fm33 fm34 fm35 fm36 fm37] (chords-for :F3 :major 4)
+        [f31 f32 f33 f34 f35 f36 f37] (chords-for :F3 :minor 3)
+        _ (pattern! sd-attack-b  [0.2])
+        _ (pattern! sd-release-b [1.0])
+        _ (pattern! sd-amp-b     [1])
 
-        [f31 f32 f33 f34 f35 f36 f37]        (chords-for :F3 :minor 3)
-        [f317 f327 f337 f347 f357 f367 f377] (chords-for :F3 :minor 4)
+        chord-pat (concat
+                   (repeat 16 f31)
+                   (repeat 16 f33)
+                   (repeat 16 f34)
+                   (repeat 8 f36) (repeat 8 (chord :F3 :m+5))
 
-        [f417 f427 f437 f447 f457 f467 f477] (chords-for :F4 :minor 4)
-
-        [f41 f42 f43 f44 f45 f46 f47]        (chords-for :F4 :minor 3)
-        [fu21 fu22 fu23 fu24 fu25 fu26 fu27]          (chords-with-inversion [1] :F2 :minor :up 3)
-        [fuu21 fuu22 fuu23 fuu24 fuu25 fuu26 fuu27]   (chords-with-inversion [1 2] :F2 :minor :up 3)
-        [f3ii21 f3ii22 f3ii23 f3ii24 f3ii25 f3ii26 f3ii27]   (chords-with-inversion [1 2] :F2 :minor :down 3)
-        [fii217 fii227 fii237 fii247 fii257 fii267 fii277]   (chords-with-inversion [1 2] :F2 :minor :down 4)
-        [fii21 fii22 fii23 fii24 fii25 fii26 fii27]   (chords-with-inversion [1 2] :F2 :minor :down 3)
-        [fi11 fi12 fi13 fi14 fi15 fi16 fi17]          (chords-with-inversion [1 2] :F2 :minor :down)
-        [fi21 fi22 fi23 fi24 fi25 fi26 fi27]          (chords-with-inversion [1]   :F2 :minor :down)
-        [f21 f22 f23 f24 f25 f26 f27]                 (chords-for :F2 :minor 3)
-        [fmm21 fmm22 fmm23 fmm24 fmm25 fmm26 fmm27]   (chords-with-inversion [1] :F2 :melodic-minor :down)
-        [fi31 fi32 fi33 fi34 fi35 fi36 fi37]          (chords-with-inversion [1] :F3 :minor :down)
-        [fii31 fii32 fii33 fii34 fii35 fii36 fii37]   (chords-with-inversion [1 2] :F3 :minor :down)
-        [fma21 fma22 fma23 fma24 fma25 fma26 fma27] (chords-with-inversion [] :F2 :melodic-minor-asc :up 3)
-        [fmd21 fmd22 fmd23 fmd24 fmd25 fmd26 fmd27] (chords-with-inversion [] :F2 :melodic-minor-desc :up 3)
-
-        all (chord-degree :ii :F3 :melodic-minor-asc)]
-    (let [_ (pattern! sd-attack-b  [0.2])
-          _ (pattern! sd-release-b [1.0])
-          _ (pattern! sd-amp-b     [1])
-          chord-pat
-          [f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31
-           f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33
-           f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34
-           f36 f36 f36 f36 f36 f36 f36 f36
-           (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5) (chord :F3 :m+5)
-
-           f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31 f31
-           f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33 f33
-           f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34 f34
-           f36 f36 f36 f36 f36 f36 f36 f36
-           (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5) (chord :F3 :m7+5)]]
-      (chord-pattern slow-deep-chord-g chord-pat))))
+                   (repeat 16 f31)
+                   (repeat 16 f33)
+                   (repeat 16 f34)
+                   (repeat 8 f36) (repeat 8 (chord :F3 :m7+5)))]
+        (chord-pattern slow-deep-chord-g chord-pat)))
 
 (def darker-pinger-score
   (let [_ [0 0 0 0]
@@ -114,8 +89,6 @@
                    (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3)
                    (degrees [5] :minor :F3) (degrees [5] :minor :F3) (degrees [5] :minor :F3) (degrees [5] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3) (degrees [4] :minor :F3)]]
     (chord-pattern main-melody-chord-g chord-pat)))
-
-(chord-pattern main-melody2-chord-g apeg-swell)
 
 (def chords-score
   (let [_ [0 0 0 0]
