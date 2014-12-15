@@ -277,7 +277,7 @@ vec4 generateSnow(vec2 p, float speed){
 #define DIRECTION +
 //#define DIRECTION -
 
-#define SIZE 0.1
+#define SIZE 0.05
 
 #define INVERT /
 //#define INVERT *
@@ -395,6 +395,12 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
   float person = 1.0;
   float inc;
   float movementScale = .0000001;
+  float speedFactor = 0.1;
+  int wavey = 0;
+   if(iOvertoneVolume < 0.1){
+     speedFactor = speedFactor * 0.1;
+     wavey = 0;
+   }
 
   if(still==0){
     if(iBeatTotalCount >= 64.0){
@@ -456,10 +462,10 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
     //point.y = d*0.09;
     point.y = 1.0-point.y;
   }
- else if(WAVE == 2){
+ else if(WAVE == 2 || wavey == 1){
     float poo = point.x;
       float f = smoothstep(0,1.0,(texture2D(iChannel0, vec2(0.0+1/2*point.x, 0.75)).x))+0.1;
-    float p = sin(f+iGlobalTime*0.1)*0.5+0.5;
+    float p = sin(f+iGlobalTime*speedFactor)*0.5+0.5;
      point.x = 0.5+ p*cos(mod((iGlobalTime+mod(iGlobalTime*0.2,360)*poo),360))*0.4;
     point.y = 0.3 + p*sin(mod(iGlobalTime+mod(iGlobalTime*0.2,360)*poo,360))*0.4;
   }
@@ -711,7 +717,7 @@ void main(void){
     bouncingResult = 2/bouncingResult;
 
     if(iInvertColor == 0.0){
-      bouncingResult = 1 - bouncingResult;
+      bouncingResult =  1.0-bouncingResult;
     }
     else if(iInvertColor == 1.0){
       if(mod(iGlobalBeatCount, 256) > 128){
