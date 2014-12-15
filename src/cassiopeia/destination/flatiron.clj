@@ -20,17 +20,6 @@
   (def main-melody-chord-g
     (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1))
 
-  (def main-melody2-chord-g
-    (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1))
-
-  (comment
-    (map #(ctl %1 :saw-cutoff 800) slow-deep-chord-group)
-    (map #(ctl %1 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-4th)) slow-deep-chord-group)
-    (map #(ctl %1 :saw-cutoff 800 :release 6 :noise 100.2 :attack 0.4 :amp 0.05) slow-deep-chord-group)
-    (doseq [chord-g slow-deep-chord-group] (ctl chord-g :saw-cutoff 1000 :amp 0.03 :attack 0.1 :noise-level 0.05 :release 1.0 :beat-trg-bus (:beat time/beat-2th) :wave 2 :beat-bus (:count time/beat-2th)))
-    )
-
-  ;;(kill general-purpose-assembly-pi)
   (defonce sd-g (group "slow deep chords"))
   (def slow-deep-chord-g
     ;;Needs 4
@@ -557,6 +546,9 @@
 
 (one-time-beat-trigger 126 128
                        (fn [& _]
+                         (def apeg-deep-melody-spair2-chord-g
+                           (chord-synth general-purpose-assembly 4 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1))
+
                          (ctl-beat (:synths apeg-deep-melody-chord-g) time/beat-1th)
                          (ctl-beat (:synths apeg-deep-melody-spair-chord-g) time/beat-1th)
                          (ctl-beat (:synths slow-deep-chord-g) time/beat-2th)
@@ -592,6 +584,8 @@
 (on-beat-trigger 64 #(do (plain-space-organ :tone (/ (midi->hz (note :F2)) 2) :duration 3 :amp 0.2)))
 
 (do
+  (chord-pattern main-melody2-chord-g apeg-swell)
+  (def main-melody2-chord-g (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1))
   (reset! color 0.5)
   (chord-pattern main-melody2-chord-g  darker-pinger-score)
   (ctl (:synths main-melody2-chord-g) :amp 0.03 :saw-cutoff 1000)
