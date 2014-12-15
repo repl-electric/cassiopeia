@@ -74,6 +74,10 @@ mat2 mm2(in float a){
   float adjust = AMP_SCALE * 0.5 *   (max(0.0, texture2D(iChannel0, vec2(fi,0.25)).x) +
                                       max(0.0, texture2D(iChannel0, vec2(fi+fid,0.25)).x));
 
+  if(iOvertoneVolume == 0.0){
+    adjust = 1;
+  }
+
   return mat2(c * adjust, -s * adjust,s * adjust ,c * adjust);
 }
 
