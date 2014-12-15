@@ -348,7 +348,7 @@ vec4 addGlow(vec2 uv, vec2 v, float glow)
   vec4 glowing = vec4(0.0);
 
   if(iBeat == 1.0){
-    glow += 0.0005;
+    glow += 0.00005;
   }
 
   if(iOvertoneVolume < 0.01){
