@@ -306,9 +306,9 @@ float fbm( in vec2 p )
 
 vec4 flare(void)
 {
-  float ray_density = max(4.5, 0.9*texture2D(iChannel0, vec2(0.0,0.25)).x);
+  float ray_density = clamp(texture2D(iChannel0, vec2(0.0,0.25)).x, 4.5,20.5);
 
-  float t = DIRECTION iGlobalTime*.3;
+  float t = DIRECTION iGlobalTime*.01;
   vec2 uv = gl_FragCoord.xy / iResolution.xy-0.5;
   uv.x *= iResolution.x/iResolution.y;
   uv*= curvature* SIZE;
@@ -322,9 +322,9 @@ vec4 flare(void)
   val = smoothstep(gamma*.02-.1,ray_brightness+(gamma*0.02-.1)+.001,val);
   val = sqrt(val); // WE DON'T REALLY NEED SQRT HERE, CHANGE TO 15. * val FOR PERFORMANCE
 
-  vec3 col = val INVERT vec3(0.2, 0.1 + 0.01*iBeat,0.1+iBeat*0.01);
+  vec3 col = val INVERT vec3(0.2, 0.1,0.1);
   //  col = 0.-col; // WE DO NOT NEED TO CLAMP THIS LIKE THE NIMITZ SHADER DOES!
-  float rad = 0.2 * texture2D(iChannel0, vec2(0,0.25)).x; // MODIFY THIS TO CHANGE THE RADIUS OF THE SUNS CENTER
+  float rad = clamp(texture2D(iChannel0, vec2(0,0.25)).x, 1,1.1); // MODIFY THIS TO CHANGE THE RADIUS OF THE SUNS CENTER
   col = mix(col,vec3(1.), rad - 266.667 * r); // REMOVE THIS TO SEE THE FLARING
 
   return (vec4(col, 1) - vec4(1.8, 1.9, 1.9, 0));
@@ -432,11 +432,12 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
         y1 = 1;
       }
 
-      if(iBeatTotalCount > 64.0){
         point.y -= y1 * sin(iBeatTotalCount*0.04/point.x);
+      if(mod(iGlobalTime, TOTAL_BEATS) > 64.0){
       }
       else{
        point.y -= y1 * sin((TOTAL_BEATS-iBeatTotalCount)*0.04/point.x);
+        point.y -= y1 * sin((TOTAL_BEATS-iGlobalTime)*speedFactor/point.x);
       }
     }
 
