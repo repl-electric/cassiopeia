@@ -360,14 +360,11 @@
                 ])
 
 (one-time-beat-trigger 126 128 (fn [& _]
-                                 (reset! cells-weight 1.0)
+                                 (reset! cells-weight 2.0)
                                  (reset! invert-color 1.0)
                                  (remove-all-beat-triggers)
                                  (reset! cell-dance-weight 0.0)
 
-;;                                 (reset! nyc-weight 0.0)
-;;                                 (reset! population-weight 0.0)
-                                 ;;(reset! circle-count 2.0) color invert here?.....
                                  (chord-pattern apeg-deep-melody-chord-g pinger-score-highlighted)
                                  (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.25)))
 
