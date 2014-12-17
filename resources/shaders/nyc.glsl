@@ -466,9 +466,9 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
   }
  else if(WAVE == 2 || wavey == 1){
     float poo = point.x;
-      float f = smoothstep(0,1.0,(texture2D(iChannel0, vec2(0.0+1/2*point.x, 0.75)).x))+0.1;
+    float f = smoothstep(0,1.0,(texture2D(iChannel0, vec2(0.0+1/2*point.x, 0.75)).x))+0.1;
     float p = sin(f+iGlobalTime*speedFactor)*0.5+0.5;
-     point.x = 0.5+ p*cos(mod((iGlobalTime+mod(iGlobalTime*0.2,360)*poo),360))*0.4;
+    point.x = 0.5+ p*cos(mod((iGlobalTime+mod(iGlobalTime*0.2,360)*poo),360))*0.4;
     point.y = 0.3 + p*sin(mod(iGlobalTime+mod(iGlobalTime*0.2,360)*poo,360))*0.4;
   }
 
