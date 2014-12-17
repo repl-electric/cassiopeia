@@ -18,7 +18,6 @@
     (chord-synth general-purpose-assembly 4 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1))
   (def apeg-deep-melody-chord-g
     (chord-synth general-purpose-assembly 4 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1))
-
   (def main-melody-chord-g
     (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1))
 
@@ -26,6 +25,7 @@
   (def slow-deep-chord-g
     ;;Needs 4
     (chord-synth general-purpose-assembly-pi 4 [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th)))
+  (def apeg-start (first (:bufs apeg-deep-melody-chord-g)))
   )
 
 (do
@@ -160,13 +160,11 @@
           ]
       [f41 f43 f41 f44 f37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3) )
        f41 f43 f41 f44 f37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3) )
-
        f41 f43 f41 f44 c37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))
        f41 f43 f41 f44 c37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))
 
        f41 f43 f41 f44 f37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))
        f41 f43 f41 f44 f37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))
-
        f41 f43 f41 f44 c43 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))
        f41 f43 f41 c44 c47 c46 (as-chord (degrees [3] :minor :C4)) (as-chord (degrees [5] :minor :F3))
 
@@ -174,13 +172,11 @@
 
        f41 f43 f41 f44 f37 c36 [(degrees [1] :minor :F3)] (as-chord (degrees [7] :minor :F3))
        f41 f43 f41 f44 f37 c36 [(degrees [1] :minor :F3)] (as-chord (degrees [7] :minor :F3))
-
        f41 f43 f41 f44 f41 c36 [(degrees [1] :minor :F3)] (as-chord (degrees [7] :minor :F3))
        f41 f43 f41 f44 f41 c36 [(degrees [1] :minor :F3)] (as-chord (degrees [7] :minor :F3))
 
        f41 f43 f41 f44 c43 c36 [(degrees [7] :minor :F3)] (as-chord (degrees [7] :minor :F3))
        f41 f43 f41 f44 c43 c36 [(degrees [7] :minor :F3)] (as-chord (degrees [7] :minor :F3))
-
        f41 f43 f41 f44 c41 c36 [(degrees [1] :minor :F3)] (as-chord (degrees [7] :minor :F3))
        f41 f43 f41 c44 c47 c36 f453 f413])
     )
@@ -188,15 +184,9 @@
 
 (def pinger-score
   (let [_ [0 0 0 0]
-        [c21 c22 c23 c24 c25 c26 c27] (chords-for :C2 :minor 1)
         [c31 c32 c33 c34 c35 c36 c37] (chords-for :C3 :minor 1)
-        [c41 c42 c43 c44 c45 c46 c47] (chords-for :C4 :minor 1)
-        [c41 c42 c43 c44 c45 c46 c47] (chords-for :C4 :minor 1)
-        [f21 f22 f23 f24 f25 f26 f27] (chords-for :F2 :minor 1)
         [f31 f32 f33 f34 f35 f36 f37] (chords-for :F3 :minor 1)
         [f41 f42 f43 f44 f45 f46 f47] (chords-for :F4 :minor 1)
-
-        [f31i f32i f33i f34i f35i f36i f37i] (chords-with-inversion [1 2] :F3 :minor 1)
         ]
     (let [chord-pat
           [
@@ -224,9 +214,6 @@
 
 (def pinger-growth-score-spair
   (let [_ [0 0 0 0]
-        [c21 c22 c23 c24 c25 c26 c27] (chords-for :C2 :minor 1)
-        [c31 c32 c33 c34 c35 c36 c37] (chords-for :C3 :minor 1)
-        [f21 f22 f23 f24 f25 f26 f27] (chords-for :F2 :minor 1)
         [f31 f32 f33 f34 f35 f36 f37] (chords-for :F3 :minor 1)
         [f41 f42 f43 f44 f45 f46 f47] (chords-for :F4 :minor 1)]
     (let [chord-pat
@@ -239,9 +226,7 @@
 
 (def pinger-score-spair
   (let [_ [0 0 0 0]
-        [c21 c22 c23 c24 c25 c26 c27] (chords-for :C2 :minor 1)
         [c31 c32 c33 c34 c35 c36 c37] (chords-for :C3 :minor 1)
-        [f21 f22 f23 f24 f25 f26 f27] (chords-for :F2 :minor 1)
         [f31 f32 f33 f34 f35 f36 f37] (chords-for :F3 :minor 1)
         [f41 f42 f43 f44 f45 f46 f47] (chords-for :F4 :minor 1)
         chord-pat [f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])]]
@@ -255,7 +240,7 @@
   (crackle-snail :noise-level 0.1 :amp 0.6 :note-buf s-note-b)
   (pattern! s-note-b [(degrees [1] :minor :F1) (degrees [3] :minor :F1) 0 (degrees [4] :minor :F1) (degrees [1] :minor :F1) 0 0 0] (repeat 24 [0])))
 
-(ctl (:synths grumble-chord-g)   :t 0.005 :amp 0.4)
+;;(ctl (:synths grumble-chord-g)   :t 0.5 :amp 0.)
 
 (comment
   (ctl (:synths slow-deep-chord-g) :saw-cutoff 1000 :noise-level 0.5 :amp 0.09 :attack 0.3 :release 6.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-1th))
@@ -279,6 +264,9 @@
           (repeat 2 (repeat 8 (degrees [3] :minor :F1)))
           [(degrees [1 1 1 1  5 4 3 1] :minor :F1)])
 
+(defonce hats-amp (buffer 256))
+(defonce kick-amp (buffer 256))
+
 (pattern! kick-amp  [1.5 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1] (repeat 2 [1.2 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1]) [1.2 1 1 1 1 1 1 1   1.2 1 1 1 1.2 1 1.3 1])
 (pattern! hats-amp  (repeat 3 [2 2 2 2 2.1 2 2 2   2 2 2 2 2 2 2 2]) [2 2 2 2 2.1 2 2 2   2 2 2.4 2 2.4 2 2 2])
 
@@ -293,8 +281,6 @@
 ;;(kill drum-effects-g)
 ;;(kill drums-g)
 
-(defonce hats-amp (buffer 256))
-(defonce kick-amp (buffer 256))
 
 (one-time-beat-trigger
  15 16
@@ -302,10 +288,10 @@
    (do
      (reset! nyc-weight 2.0)
      (pattern! hats-buf (repeat 3 [0 0 0 0 1 0 0 0   0 0 1 0 0 0 0 0])
-                         [0 0 0 0 1 0 0 0   0 0 1 0 1 0 0 0])
+                                  [0 0 0 0 1 0 0 0   0 0 1 0 1 0 0 0])
      (pattern! kick-seq-buf
                (repeat 3 [1 0 0 1 0 0 0 0   1 0 0 0 0 0 0 0])
-               [1 0 0 1 0 0 0 0   1 0 0 0 1 0 1 0])
+                         [1 0 0 1 0 0 0 0   1 0 0 0 1 0 1 0])
 
      (def white (doall (map #(whitenoise-hat [:head drums-g] :amp-buf hats-amp :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :release 0.1 :attack 0.0 :beat-num %1) (range 0 1))))
      (ctl white :amp-buf hats-amp)
@@ -374,7 +360,14 @@
                 ])
 
 (one-time-beat-trigger 126 128 (fn [& _]
-                                 (reset! circle-count 2.0)
+                                 (reset! cells-weight 1.0)
+                                 (reset! invert-color 1.0)
+                                 (remove-all-beat-triggers)
+                                 (reset! cell-dance-weight 0.0)
+
+;;                                 (reset! nyc-weight 0.0)
+;;                                 (reset! population-weight 0.0)
+                                 ;;(reset! circle-count 2.0) color invert here?.....
                                  (chord-pattern apeg-deep-melody-chord-g pinger-score-highlighted)
                                  (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.25)))
 
@@ -423,6 +416,7 @@
 
 (do
   (reset! circle-destruction (* Math/PI 0.5))
+  (reset! invert-color 1.0)
 
   (ctl (:synths main-melody-chord-g) :amp 0.0)
   (doseq [s (:synths apeg-deep-melody-spair-chord-g)]
@@ -460,7 +454,7 @@
     (chord-pattern apeg-deep-melody-chord-g chords-score)))
 
 (do
-  (ctl soft-kick-drums :amp 1.3)
+;;  (ctl soft-kick-drums :amp 1.3)
   (pattern! kick-seq-buf
             (repeat 3 (concat [1 0 0 0 1 0 0 0] [1 0 0 0 1 0 0 0]))
             [1 0 0 0 1 0 0 0] [1 0 0 0 1 0 1 0])
@@ -509,8 +503,9 @@
 (on-beat-trigger 64 #(do (plain-space-organ :tone (/ (midi->hz (note :F2)) 2) :duration 3 :amp 0.2)))
 
 (do
-  (chord-pattern main-melody2-chord-g apeg-swell)
   (def main-melody2-chord-g (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1))
+  (chord-pattern main-melody2-chord-g apeg-swell)
+
   (reset! color 0.5)
   (chord-pattern main-melody2-chord-g  darker-pinger-score)
   (ctl (:synths main-melody2-chord-g) :amp 0.03 :saw-cutoff 1000)
@@ -522,11 +517,18 @@
 ;;Fade
 (let [cutout 2600]
   (reset! circle-destruction (rand 3.1))
+  (kill buf->perc-inst)
+  (kill buf->smooth-inst)
+  (remove-all-beat-triggers)
+
+  (ctl drums-g :amp 0)
   (ctl drum-effects-g :amp 0)
   (ctl (:synths apeg-deep-melody-spair-chord-g) :saw-cutoff cutout)
   (ctl (:synths apeg-deep-melody-chord-g) :saw-cutoff cutout)
   (ctl (:synths main-melody-chord-g) :saw-cutoff cutout)
-  (ctl (:synths slow-deep-chord-g) :saw-cutoff cutout))
+  (ctl (:synths main-melody2-chord-g) :saw-cutoff cutout)
+  (ctl (:synths slow-deep-chord-g) :saw-cutoff cutout)
+  )
 
 (echoey-buf rf-full-s :amp 0.2 :decay 1.5 :delay 0.1)
 ;;(spacy rf-full-s :amp 0.6)
