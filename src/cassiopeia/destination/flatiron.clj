@@ -286,7 +286,6 @@
  15 16
  (fn []
    (do
-     (reset! nyc-weight 2.0)
      (pattern! hats-buf (repeat 3 [0 0 0 0 1 0 0 0   0 0 1 0 0 0 0 0])
                                   [0 0 0 0 1 0 0 0   0 0 1 0 1 0 0 0])
      (pattern! kick-seq-buf
@@ -372,8 +371,9 @@
  126 128
  (fn [] ;;DARKER PROGRESSION
    (do
-;;     (reset! circle-destruction (* 0.5 Math/PI))
-     (reset! circle-count 4.0)
+     (reset! cells-weight 4.0)
+     (reset! circular-weight 1.0)
+     (reset! invert-color 1.0)
 
      (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.45)
      (ctl (:synths apeg-deep-melody-chord-g) :amp 0.00)
@@ -413,7 +413,7 @@
 
 (do
   (reset! circle-destruction (* Math/PI 0.5))
-  (reset! invert-color 1.0)
+  (reset! invert-color 0.0)
 
   (ctl (:synths main-melody-chord-g) :amp 0.0)
   (doseq [s (:synths apeg-deep-melody-spair-chord-g)]
@@ -459,6 +459,11 @@
 
 (ctl kicker :amp 1.5)
 (ctl white  :amp 1.5)
+
+(reset! cells-weight 4.0)
+(reset! invert-color 0.0)
+
+(on-beat-trigger 16 #(do (reset! circle-destruction (rand 1.0))))
 
 (one-time-beat-trigger 126 128
                        (fn [& _]
@@ -511,6 +516,7 @@
 
 (remove-all-beat-triggers)
 
+((on-beat-trigger 16  #(do (swap! circle-destruction (rand 6.0))))
 ;;Fade
 (let [cutout 2600]
   (reset! circle-destruction (rand 3.1))
