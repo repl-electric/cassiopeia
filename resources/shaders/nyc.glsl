@@ -174,7 +174,7 @@ vec4 circular(void){
   float shading = 0.20025;
   float halfpi = iHalfPi;
 
-  float circleScale = iCircleCount;
+  float circleScale = min(60, iCircleCount);
   vec2 uv = mainuv * scale - scale * 0.5;
   uv.x *= aspect;
 
