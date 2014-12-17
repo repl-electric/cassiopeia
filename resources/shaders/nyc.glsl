@@ -399,9 +399,9 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
   float movementScale = .0000001;
   float speedFactor = 0.1;
   int wavey = 0;
-   if(iOvertoneVolume < 0.1){
+   if(iOvertoneVolume < 0.01){
      speedFactor = speedFactor * 0.1;
-     wavey = 0;
+     wavey = 1;
    }
 
   if(still==0){
