@@ -4,11 +4,8 @@ uniform float iBeat;
 uniform float iBeatCount;
 uniform float iMeasureCount;
 
-//uniform float iCubeCount;
 uniform float iCircleCount;
-uniform float iAccelerator;
 uniform float iColor;
-uniform float iScale;
 uniform float iHalfPi;
 uniform float iInOutSpeed;
 
@@ -19,9 +16,7 @@ uniform float iBouncingWeight;
 uniform float iNycWeight;
 uniform float iCircleDanceWeight;
 
-
 uniform float iInvertColor;
-
 uniform float iSnowRatio;
 uniform float iDestructure;
 
@@ -33,7 +28,9 @@ const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
 
 const float darkMode = 0.0;
 
-#define WAVE 0
+#define CIRCLE_ACCELERATOR 0.00000001
+#define CIRCLE_SCALE 1.5
+#define WAVE 2
 #define FLARE_SIZE 10
 
 #define RANDOM_LETTERS 0
@@ -169,8 +166,8 @@ vec4 circular(void){
   vec2 mainuv = (gl_FragCoord.xy / iResolution.xy);
   float aspect = iResolution.x/iResolution.y;
   float finalval = iColor; // 0.1
-  float scale = iScale;
-  float speed = iAccelerator;
+  float scale = CIRCLE_SCALE;
+  float speed = CIRCLE_ACCELERATOR;
   float shading = 0.20025;
   float halfpi = iHalfPi;
 
@@ -358,7 +355,6 @@ vec4 addGlow(vec2 uv, vec2 v, float glow)
   }
   else{
     //glow =+ iOvertoneVolume * 0.005;
-
     float res = glow / length(v - uv);
     glowing = res * vec4(hsvToRgb(0.5, 0.9),1.0);
   }
@@ -563,6 +559,7 @@ vec4 bouncingPerson(vec2 uv){
     if(PANIC == 0){
       helloPoint += letter(letterP, vec2(0.3+letterSpace*4, top), uv);
       helloPoint += letter(letterL, vec2(0.3+letterSpace*6, top), uv);
+    }
     }
   }
 
