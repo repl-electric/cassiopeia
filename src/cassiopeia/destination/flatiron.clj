@@ -104,8 +104,8 @@
                      (repeat 8 fuu21)
                      ;;f26 f26 f26 f26 f26 f26 f26 f26   ;;f26 f26 f26 f26 f26 f26 f26 f26
                      (repeat 8 fu23)
-                     [fu25 fu25 fu25 fu25 fu25 fu25  (chord :F2 :7sus4 2) (chord :F2 :7sus4 2)])])
-    chords-score))
+                     [fu25 fu25 fu25 fu25 fu25 fu25  (chord :F2 :7sus4 2) (chord :F2 :7sus4 2)])]
+      chord-pat)))
 
 (def pinger-score-alternative
   (let [_ [0 0 0 0]
