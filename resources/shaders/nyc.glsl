@@ -4,7 +4,7 @@ uniform float iBeat;
 uniform float iBeatCount;
 uniform float iMeasureCount;
 
-uniform float iCubeCount;
+//uniform float iCubeCount;
 uniform float iCircleCount;
 uniform float iAccelerator;
 uniform float iColor;
@@ -696,7 +696,6 @@ vec4 cellSpell(vec2 uv){
 void main(void){
   vec2 uv = gl_FragCoord.xy / iResolution.x;
 
-  float snowWeight = 0.0;
   float flareWeight = iFlareWeight; //0.01;
   float populationWeight = iPopulationWeight;
   float circularWeight = iCircularWeight;
@@ -710,23 +709,8 @@ void main(void){
   vec4 circleResult = vec4(0., 0., 0., 0.);
   vec4 flareResult = vec4(.0, .0, .0, .0);
   vec4 bouncingResult = vec4(0., 0., 0., 0.);
-  vec4 snowResult = vec4(.0,.0,.0,.0);
   vec4 cellSpellResult = vec4(.0,.0,.0,.0);
   vec4 circleDanceResult = vec4(0.0,0.0,0.0,0.0);
-
-  if(iOvertoneVolume > 0.01){
-    snowSpeed = 0.0000000001 + (iBeat * 0.00000000000009);
-    snowWeight = 0.3;
-  }
-  else{
-    snowWeight = 0.0;
-    //circularWeight = 0.0;
-  }
-
-  if(populationWeight == 1.0){
-    snowSpeed = 0.00000000001;
-    snowWeight = 0.4;
-  }
 
   if(bouncingWeight > 0.0){
     bouncingResult = bouncingPerson(uv);
@@ -742,12 +726,10 @@ void main(void){
     }
   }
 
-  snowSpeed *= iSnowRatio;
-
   vec4 c;
 
   if(circularWeight > 0.0){
-    circleResult = min(1.0, circularWeight) * circular(); //- (snowWeight*generateSnow(uv, snowSpeed));
+    circleResult = min(1.0, circularWeight) * circular();
   }
 
   if(populationWeight > 0.0){
@@ -760,10 +742,6 @@ void main(void){
     flareResult *= 0.3;
   }
 
-  if(snowWeight > 0.0){
-    snowResult = (1.0-(snowWeight * generateSnow(uv, snowSpeed)));
-  }
-
   if(cellSpellWeight > 0.0){
     cellSpellResult = cellSpell(uv);
   }
@@ -773,7 +751,7 @@ void main(void){
   }
 
   if(darkMode == 1.0){
-    c = 1.0-(circularWeight*circular()) -  snowResult - populationResult;
+    //    c = 1.0-(circularWeight*circular()) -  snowResult - populationResult;
   }
   else{
     c = (cellSpellResult +
