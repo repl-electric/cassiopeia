@@ -464,12 +464,12 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
     //point.y = d*0.09;
     point.y = 1.0-point.y;
   }
- else if(WAVE == 2 || wavey == 1){
+ else if(iBouncingWeight == 5.0 || wavey == 1){
     float poo = point.x;
-    float f = smoothstep(0,1.0,(texture2D(iChannel0, vec2(0.0+1/2*point.x, 0.75)).x))+0.1;
-    float p = sin(f+iGlobalTime*speedFactor)*0.5+0.5;
-    point.x = 0.5+ p*cos(mod((iGlobalTime+mod(iGlobalTime*0.2,360)*poo),360))*0.4;
-    point.y = 0.3 + p*sin(mod(iGlobalTime+mod(iGlobalTime*0.2,360)*poo,360))*0.4;
+    //float f = smoothstep(0,1.0,(texture2D(iChannel0, vec2(0.0+1/2*point.x, 0.75)).x))+0.1;
+    float p = sin(iGlobalTime*speedFactor)*0.001;
+    point.x = 0.5+ p*cos(mod((iGlobalTime+mod(iGlobalTime*0.2,360)*poo),360))*0.1;
+    point.y = 0.38 + p*sin(mod(iGlobalTime+mod(iGlobalTime*0.2,360)*poo,360))*0.1;
   }
 
   float p;
@@ -483,7 +483,12 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
     glowFactor = 0.0139;
   }
   else{
-    glowFactor = 0.04;
+    if(iBouncingWeight >= 5.0){
+      glowFactor = iBouncingWeight * 0.15;
+    }
+    else{
+      glowFactor = 0.04;
+    }
   }
 
   //square cells
@@ -543,8 +548,17 @@ vec4 bouncingPerson(vec2 uv){
   mat3 letterI  = mat3(0, 1, 0,  0, 1, 0,  0, 1, 0);
 
   if(iOvertoneVolume > 0.1){
-    helloPoint += letter(letterR, vec2(0.3+letterSpace*0, top), uv);
-    helloPoint += letter(letterE, vec2(0.3+letterSpace*2, top), uv);
+
+    if(iBouncingWeight>= 5.0){
+        helloPoint += buildCell(uv, vec2(0.5, 0.5), 0);
+        //        helloPoint += buildCell(uv, vec2(0.5, 0.5), 0);
+      //      helloPoint += buildCell(uv, vec2(0.1, 0.8), 0);
+
+      //helloPoint += letter(letterR, vec2(0.3+letterSpace*0, top), uv);
+    }
+    else{
+      helloPoint += letter(letterR, vec2(0.3+letterSpace*0, top), uv);
+      helloPoint += letter(letterE, vec2(0.3+letterSpace*2, top), uv);
 
     if(PANIC == 0){
       helloPoint += letter(letterP, vec2(0.3+letterSpace*4, top), uv);
