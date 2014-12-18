@@ -627,25 +627,6 @@
     (defonce cell-dance-weight (atom 0.0))
     )
 
-  (do
-    ;;defaults
-    (reset! circle-destructure 1.0)
-    (reset! circle-count 4.0)
-    (reset! circle-scale 1.5)
-    (reset! circle-growth-speed 0.1)
-    (reset! color 0.1)
-    (reset! circle-destruction 8.0)
-    )
-
-  (do;; phase 2
-    (reset! circle-destructure 1.0)
-    (reset! circle-count 20.0)
-    (reset! circle-scale 1.5)
-    (reset! circle-growth-speed 0.1)
-    (reset! color 0.25)
-    (reset! circle-growth-speed 0.1)
-    (reset! circle-destruction (* 0.5 Math/PI))
-    )
 
   (on-beat-trigger 16 #(do (reset! circle-destructure (rand 2.0))))
 
