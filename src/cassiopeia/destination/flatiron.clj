@@ -11,6 +11,10 @@
 (defn chord-score [& score] (mapcat (fn [s] (if (sequential? (ffirst s)) (apply concat s) s)) score))
 (defn chord-pattern! [& args] (apply chord-pattern args))
 
+(alter-var-root (var ctl) (fn [f] (fn [& args] (if (and (map? (first args)) (:synths (first args)))
+                                               (apply f (:synths (first args)) (rest args))
+                                               (apply f args)))))
+
 (def master-vol 3.0)
 (volume master-vol)
 (ctl time/root-s :rate 0.0)
@@ -300,7 +304,7 @@
 (one-time-beat-trigger
  0 16
  (fn []
-   (ctl (:synths apeg-deep-melody-chord-g) :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0)
+   (ctl apeg-deep-melody-chord-g :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0)
    (n-overtime! (:synths apeg-deep-melody-chord-g) :amp 0.0 0.019 0.0002)
    ))
 
@@ -308,7 +312,7 @@
 ;;(echoey-buf rf-theorems-s :amp 0.58)
 
 (do
-  (ctl (:synths slow-deep-chord-g) :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4
+  (ctl slow-deep-chord-g :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4
        :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th)
        :attack 0.3 :release 6.0 :noise-level 0.05)
   (n-overtime! (:synths slow-deep-chord-g) :amp 0.0 0.04 0.0008))
@@ -345,7 +349,7 @@
      ;;(reset! cells-weight 4.0)(reset! circular-weight 1.0)(reset! invert-color 1.0)
 
      (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.45)
-     (ctl (:synths apeg-deep-melody-chord-g) :amp 0.00)
+     (ctl apeg-deep-melody-chord-g :amp 0.00)
      (ctl drum-effects-g :amp 0.0)
 
      (ctl drums-g :amp 0.0)
@@ -361,8 +365,8 @@
 
 ;;(on-beat-trigger 64 #(echoey-buf (dirt :wind) :amp 0.1))
 ;;Drive home home chords + highlight melody
-(ctl (:synths main-melody-chord-g) :amp 0.1 :saw-cutoff 50 :wave 1 :attack 1.0 :release 5.0)
-(ctl (:synths apeg-deep-melody-chord-g) :amp 0.038 :saw-cutoff 2800 :wave 1)
+(ctl main-melody-chord-g :amp 0.1 :saw-cutoff 50 :wave 1 :attack 1.0 :release 5.0)
+(ctl apeg-deep-melody-chord-g :amp 0.038 :saw-cutoff 2800 :wave 1)
 
 ;;Drum tension
 (pattern! kick-seq-buf [1 0 0 0 1 0 0 0])
@@ -371,22 +375,22 @@
 
 (do
   ;;(reset! circle-destruction (* Math/PI 0.5)) (reset! invert-color 0.0)
-  (ctl (:synths main-melody-chord-g) :amp 0.0)
-  (ctl (:synths apeg-deep-melody-spair-chord-g) :amp 0.00 :saw-cutoff 2000 :wave 2 :attack 1.0 :release 5.0)
+  (ctl main-melody-chord-g :amp 0.0)
+  (ctl apeg-deep-melody-spair-chord-g :amp 0.00 :saw-cutoff 2000 :wave 2 :attack 1.0 :release 5.0)
   (n-overtime! (:synths apeg-deep-melody-spair-chord-g) :amp 0 0.04 0.01)
 
   (chord-pattern apeg-deep-melody-spair-chord-g pinger-growth-score-spair)
   (ctl drum-effects-g :amp 0.3) (ctl drums-g :amp 1.)
 
   (pattern! effects-seq-buf  (repeat 12 [1 0])  [1 0 0 0])
-  (ctl (:synths apeg-deep-melody-chord-g) :amp 0.05 :saw-cutoff 2600 :wave 0 :attack 1.0 :release 5.0)
+  (ctl apeg-deep-melody-chord-g :amp 0.05 :saw-cutoff 2600 :wave 0 :attack 1.0 :release 5.0)
   (def f (dulcet-fizzle :amp 2.0 :note-buf df-b))
   )
 
 (do
   ;;(on-beat-trigger 8 #(do (swap! circle-destruction + (rand 1.0))))
 
-  (ctl (:synths apeg-deep-melody-spair-chord-g) :amp 0)
+  (ctl apeg-deep-melody-spair-chord-g :amp 0)
   (ctl-beat (:synths apeg-deep-melody-spair-chord-g) time/beat-2th)
   (ctl-beat (:synths apeg-deep-melody-chord-g) time/beat-2th)
   (ctl-beat (:synths slow-deep-chord-g) time/beat-1th)
@@ -425,8 +429,8 @@
                             (ctl-beat (:synths apeg-deep-melody-spair-chord-g) time/beat-1th)
                             (ctl-beat (:synths slow-deep-chord-g) time/beat-2th)
 
-                            (ctl (:synths main-melody-chord-g) :amp 0.03)
-                            (ctl (:synths apeg-deep-melody-spair2-chord-g) :amp 0.03)
+                            (ctl main-melody-chord-g :amp 0.03)
+                            (ctl apeg-deep-melody-spair2-chord-g :amp 0.03)
                             (chord-pattern main-melody-chord-g pinger-score-spair)
                             (n-overtime! (:synths apeg-deep-melody-spair2-chord-g) :saw-cutoff 0.0 1000 50)
                             (n-overtime! (:synths apeg-deep-melody-spair-chord-g)  :saw-cutoff 0.0 2600 50)
@@ -451,8 +455,8 @@
 
   (reset! color 0.5)
   (chord-pattern main-melody2-chord-g  darker-pinger-score)
-  (ctl (:synths main-melody2-chord-g) :amp 0.03 :saw-cutoff 1000)
-  (ctl (:synths main-melody-chord-g) :saw-cutoff 300 :amp 0.03)
+  (ctl main-melody2-chord-g :amp 0.03 :saw-cutoff 1000)
+  (ctl main-melody-chord-g :saw-cutoff 300 :amp 0.03)
   (chord-pattern main-melody-chord-g apeg-swell))
 
 
@@ -463,11 +467,11 @@
   (remove-all-beat-triggers)
   (ctl drums-g :amp 0)
   (ctl drum-effects-g :amp 0)
-  (ctl (:synths apeg-deep-melody-spair-chord-g) :saw-cutoff cutout)
-  (ctl (:synths apeg-deep-melody-chord-g) :saw-cutoff cutout)
-  (ctl (:synths main-melody-chord-g) :saw-cutoff cutout)
-  (ctl (:synths main-melody2-chord-g) :saw-cutoff cutout)
-  (ctl (:synths slow-deep-chord-g) :saw-cutoff cutout)
+  (ctl apeg-deep-melody-spair-chord-g :saw-cutoff cutout)
+  (ctl apeg-deep-melody-chord-g :saw-cutoff cutout)
+  (ctl main-melody-chord-g :saw-cutoff cutout)
+  (ctl main-melody2-chord-g :saw-cutoff cutout)
+  (ctl slow-deep-chord-g :saw-cutoff cutout)
   )
 
 ;;(echoey-buf rf-full-s :amp 0.2 :decay 1.5 :delay 0.1)
