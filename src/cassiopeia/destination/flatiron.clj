@@ -141,10 +141,6 @@
      ]
     ))
 
-;;(chord-pattern apeg-deep-melody-spair2-chord-g pinger-score-alternative)
-;;(map #(ctl % :amp 0.4) (:synths apeg-deep-melody-spair2-chord-g))
-;;(map #(ctl % :amp 0.4) (:synths apeg-deep-melody-spair-chord-g))
-
 (do
   (def pinger-score-highlighted
     (let [_ [0 0 0 0]
@@ -235,25 +231,6 @@
 (defonce effects-seq-buf (buffer 256))
 (pattern! effects-seq-buf  (repeat 12 1)  [1 0 0 0])
 )
-(do
-  (kill crackle-snail)
-  (crackle-snail :noise-level 0.1 :amp 0.6 :note-buf s-note-b)
-  (pattern! s-note-b [(degrees [1] :minor :F1) (degrees [3] :minor :F1) 0 (degrees [4] :minor :F1) (degrees [1] :minor :F1) 0 0 0] (repeat 24 [0])))
-
-;;(ctl (:synths grumble-chord-g)   :t 0.5 :amp 0.)
-
-(comment
-  (ctl (:synths slow-deep-chord-g) :saw-cutoff 1000 :noise-level 0.5 :amp 0.09 :attack 0.3 :release 6.0 :beat-trg-bus (:beat time/beat-4th) :beat-bus (:count time/beat-1th))
-
-  (pattern! kick-seq-buf (repeat 3 [1 0 0 0 1 0 0 0   0 0 0 0 1 0 0 0]) [1 0 0 0 1 0 0 0   1 0 1 0 1 0 1 0])
-
-  (pattern! hats-buf  (repeat 7 [1 0 1 0]) [1 1 0 0])
-
-  (ctl white :attack 0.0001 :release 0.0 :amp 1)
-
-  (ctl (:synths slow-deep-chord-g) :saw-cutoff 900)
-
-  (ctl (:synths slow-deep-chord-g) :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th)))
 
 (do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf effects3-seq-buf bass-notes-buf effects3-seq-buf]))
 
@@ -277,11 +254,6 @@
 (pattern! effects2-seq-buf (repeat (* 8 8) 0)
                            (repeat (* 8 7) 0) [0 0 0 0 0 1 1 1])
 
-;;(kill seqer)
-;;(kill drum-effects-g)
-;;(kill drums-g)
-
-
 (one-time-beat-trigger
  15 16
  (fn []
@@ -299,13 +271,9 @@
 
      (def kicker (doall (map #(space-kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 16 :beat-num %1 :noise 0.05 :amp 4.2 :mod-index 0.1 :mod-freq 4.0 :mode-freq 0.2) (range 0 1))))
      (ctl kicker :amp-buf kick-amp)
-     (ctl kicker :attack 0.0 :sustain 0.2 :amp 1.0)
-     )))
-
-;;(reset! circle-scale 2.5)
+     (ctl kicker :attack 0.0 :sustain 0.2 :amp 1.0))))
 
 ;;START
-
 (one-time-beat-trigger
  0 16
  (fn []
@@ -315,7 +283,10 @@
    ))
 
 ;(grainy-buf :b (buffer-mix-to-mono rf-fx-s) :amp 0.3 :dur 5.0 :trate 1 :amp 0.9)
-(echoey-buf rf-theorems-s :amp 0.058)
+(echoey-buf rf-theorems-s :amp 0.58)
+(reset! circular-weight 0.0)
+(reset! cells-weight 0.0)
+(reset! circle-weight 1.0)
 
 (doseq [chord-g (:synths slow-deep-chord-g)]
   (ctl chord-g :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4
@@ -323,7 +294,7 @@
        :attack 0.3 :release 6.0 :noise-level 0.05)
   (n-overtime! chord-g :amp 0.0 0.04 0.0008))
 
-(def hand-drums (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.23 :num-steps 16 :buf hand-drum-s :rate-start 0.9 :rate-limit 1.0) (range 0 16))))
+(def hand-drums (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.23 :num-steps 16 :buf hand-drum-s :rate-start 0.9 :rate-limit 1.0) (range 0 16))))`
 
 (pattern! hats-buf
           [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0] [0 0 1 1 0 0 1 0]
@@ -379,7 +350,6 @@
      (ctl (:synths apeg-deep-melody-chord-g) :amp 0.00)
      (ctl drum-effects-g :amp 0.0)
 
-     ;;(pattern! hats-amp [0]) (pattern! kick-amp [0])
      (ctl drums-g :amp 0.0)
 
      (chord-pattern slow-deep-chord-g dark-chords-score )
@@ -387,11 +357,8 @@
      )
    (doseq [s (:synths apeg-deep-melody-chord-g)] (ctl s :amp 0.00 :saw-cutoff 100 :wave 0 :attack 1.0 :release 5.0)
           (n-overtime! s :saw-cutoff 100 2000 50)
-         (n-overtime! s :amp 0.00 0.04 0.005))
-   ))
+         (n-overtime! s :amp 0.00 0.04 0.005))))
 
-;;(remove-all-sample-triggers)
-;;(remove-all-beat-triggers)
 
 ;;(on-beat-trigger 64 #(echoey-buf (dirt :wind) :amp 0.1))
 ;;Drive home home chords + highlight melody
@@ -418,15 +385,9 @@
   (ctl (:synths main-melody-chord-g) :amp 0.0)
   (doseq [s (:synths apeg-deep-melody-spair-chord-g)]
     (ctl s :amp 0.00 :saw-cutoff 2000 :wave 2 :attack 1.0 :release 5.0)
-    (n-overtime! s :amp 0 0.04 0.01)
-    )
+    (n-overtime! s :amp 0 0.04 0.01))
 
   (chord-pattern apeg-deep-melody-spair-chord-g pinger-growth-score-spair)
-
-;;  (ctl (:synths apeg-deep-melody-spair-fast-chord-g) :amp 0.03)
-  ;;(chord-pattern apeg-deep-melody-spair-fast-chord-g pinger-growth-score-spair)
-
-  ;;(kill fuzzy-kick-drums)
   (ctl drum-effects-g :amp 0.3) (ctl drums-g :amp 1.)
 
   (pattern! effects-seq-buf  (repeat 12 [1 0])  [1 0 0 0])
@@ -435,13 +396,13 @@
   )
 
 (do
+  ;;(reset! cells-weight 0.0)
+  ;;(on-beat-trigger 8 #(do (swap! circle-destruction + (rand 1.0))))
+
   (ctl (:synths apeg-deep-melody-spair-chord-g) :amp 0)
   (ctl-beat (:synths apeg-deep-melody-spair-chord-g) time/beat-2th)
   (ctl-beat (:synths apeg-deep-melody-chord-g) time/beat-2th)
   (ctl-beat (:synths slow-deep-chord-g) time/beat-1th)
-
-  ;;(spacy rf-theorems-s :amp 0.9 :delay 2 :amp 0.5)
-  ;;(on-beat-trigger 128 #(let [s (rand-nth [rf-theorems-s rf-trig-s rf-solve-s])] (echoey-buf s :decay (rand 10.0) :delay (rand 10.0) :amp 0.1)))
 
   (chord-pattern slow-deep-chord-g pinger-score)
 
@@ -451,7 +412,6 @@
     (chord-pattern apeg-deep-melody-chord-g chords-score)))
 
 (do
-;;  (ctl soft-kick-drums :amp 1.3)
   (pattern! kick-seq-buf
             (repeat 3 (concat [1 0 0 0 1 0 0 0] [1 0 0 0 1 0 0 0]))
             [1 0 0 0 1 0 0 0] [1 0 0 0 1 0 1 0])
@@ -477,7 +437,6 @@
                          (one-time-beat-trigger
                           127 128
                           (fn [& _]
-                            ;;   (plain-space-organ :tone (/ (midi->hz (note :F2)) 2) :duration 3 :amp 0.2)
                             (ctl-beat (:synths apeg-deep-melody-chord-g) time/beat-1th)
                             (ctl-beat (:synths apeg-deep-melody-spair-chord-g) time/beat-1th)
                             (ctl-beat (:synths slow-deep-chord-g) time/beat-2th)
@@ -532,22 +491,24 @@
   (ctl (:synths main-melody2-chord-g) :saw-cutoff cutout)
   (ctl (:synths slow-deep-chord-g) :saw-cutoff cutout)
   )
-
 (echoey-buf rf-full-s :amp 0.2 :decay 1.5 :delay 0.1)
 ;;(spacy rf-full-s :amp 0.6)
 ;;(echoey-buf rf-full-s :amp 0.04)
 
 (comment
-  (def voices 8)
-  (def durations [1/8 1/4 1/2 1])
-  (def pattern-size 8)
+  (do
+    (def voices 8)
+    (def durations [1/8 1/4 1/2 1])
+    (def pattern-size 8)
+    (def perc-samples [rf-full-s rf-full-s rf-theorems-s rf-fx-s rf-theorems-s rf-theorems-s rf-full-s rf-full-s])
+    (def smooth-samples [rf-fx-s rf-solve-s rf-theorems-s rf-full-s rf-solve-s rf-fx-s rf-full-s rf-solve-s])
+    )
 
   (kill buf->perc-inst)
   (kill buf->smooth-inst)
 
   (on-beat-trigger 64 #(do (spin-for (rand-int voices) durations (:duration gs))))
   (on-beat-trigger 64 #(do (spin-for (rand-int voices) durations (:duration ss))))
-
   (remove-all-beat-triggers)
 
   (def ss (sample->smooth [rf-solve-s rf-full-s rf-theorems-s rf-full-s rf-fx-s] voices pattern-size))
@@ -555,32 +516,27 @@
   (pattern! (:amp ss)      (take pattern-size (repeatedly #(ranged-rand 0.1 0.2))))
   (pattern! (:fraction ss) (take pattern-size (repeatedly #(/ (rand 512) 512))))
 
-  (def example-smooth-samples [rf-fx-s rf-solve-s rf-theorems-s rf-full-s rf-solve-s rf-fx-s rf-full-s rf-solve-s])
-  (def example-samples        [rf-full-s rf-full-s rf-solve-s rf-fx-s rf-solve-s rf-full-s rf-full-s rf-full-s])
-  (def ss (sample->smooth [] voices pattern-size example-smooth-samples))
+  (def ss (sample->smooth [] voices pattern-size smooth-samples))
   (pattern! (:duration ss) [1/128])
-  (pattern! (:duration ss) [1/12])
-  (pattern! (:duration ss) [1/2 0 0 0 1/2 0 0 0])
+  (pattern! (:duration ss) [1/4])
+  (pattern! (:duration ss) [1/4 0 0 0 1/4 0 0 0])
   (pattern! (:duration ss) [1/12 0 0 0 0 0 0 0])
-  (pattern! (:duration ss) [1 0 0 0 1/4 0 0 0])
+  (pattern! (:duration ss) [1/12 0 0 0 1/4 0 0 0])
+  (pattern! (:duration ss) [1/2])
+
   (pattern! (:amp ss)      [0.18 0.18 0.18 0.18 0.18 0.18 0.18 0.18])
+
   (pattern! (:fraction ss) [0.82283354 0.45919186 0.54692537 0.0045858636 0.034107555 0.6987561 0.07871687 0.24623081])
-
-  ;; (pattern! (:fraction ss) [0.8845941 0.3484526 0.02742675 0.82377213 0.7945769 0.772626 0.45249504 0.35252455])
-  ;;(pattern! (:fraction ss) [0.2470634 0.5662428 0.63178784 0.9357417 0.66654444 0.0969285 0.40005338 0.675227])
-
-  ;; (ctl (:group ss) :sin-dur 1)
-
-  (def example-perc-samples [rf-full-s rf-full-s rf-theorems-s rf-fx-s rf-theorems-s rf-theorems-s rf-full-s rf-full-s])
+  (pattern! (:fraction ss) [0.8845941 0.3484526 0.02742675 0.82377213 0.7945769 0.772626 0.45249504 0.35252455])
+  (pattern! (:fraction ss) [0.2470634 0.5662428 0.63178784 0.9357417 0.66654444 0.0969285 0.40005338 0.675227])
 
   (def gs (sample->percussive [rf-solve-s rf-full-s rf-theorems-s rf-full-s rf-fx-s] voices pattern-size))
-  (def gs (sample->percussive example-perc-samples voices pattern-size))
+  (def gs (sample->percussive perc-samples voices pattern-size))
 
   (buffer-write! (:duration gs) (take voices (repeatedly #(rand-nth durations))))
   (buffer-write! (:amp gs)      (take pattern-size (repeatedly #(ranged-rand 0.3 0.5))))
   (buffer-write! (:fraction gs) (take voices (repeatedly #(/ (rand 512) 512))))
 
-  ;;(pattern! (:duration gs) [1/32])
   (pattern! (:duration gs) [1/64 1/2 1/2 1/2 1/64 1/2 1/2 1/2])
   (pattern! (:duration gs) [1/3 1/4 1/2 1/2 1/4 0 1/4 1/4])
   (pattern! (:amp gs)      [0.4 0.1 0.1 0.1 0.1 0.1 0.1 0.1])
@@ -590,24 +546,8 @@
   )
 
 (comment
-  ;;(ctl (foundation-output-group) :master-volume 3)
-  (ctl drums-g :amp 0)
-  (ctl drum-effects-g :amp 0)
-
-  (remove-all-beat-triggers)
-  (remove-all-sample-triggers)
-  (stop-all-chord-synth-buffers)
-  (full-stop)
-
-  (kill heart-wobble)
-
-  (fadeout-master master-vol)
-  (recording-start "~/Desktop/flatiron-v6-01.wav")
-  (recording-stop)
-
-  (t/stop)
-
-  (do
+  (do ;;init graphics
+    (def beats (buffer->tap kick-seq-buf (:count time/beat-1th) :measure 8))
     (defonce circle-count        (atom 4.0))
     (defonce accelerator         (atom 0.00000001))
     (defonce circle-scale        (atom 1.5))
@@ -627,43 +567,7 @@
     (defonce cell-dance-weight (atom 0.0))
     )
 
-
-  (on-beat-trigger 16 #(do (reset! circle-destructure (rand 2.0))))
-
-  (on-beat-trigger 16 #(do (swap! circle-count + 1.0)))
-
-  (remove-on-beat-trigger)
-  (remove-all-beat-triggers)
-
-
-  (on-beat-trigger 8 #(do (swap! fade-ratio - 0.01)))
-
-  (remove-on-beat-trigger)
-  (remove-all-beat-triggers)
-
-
-  (reset! snow-ratio 10.0) ;; Nice flow effect
-  (reset! circle-count 5.0)
-
-  (reset! accelerator 1.)
-  (reset! circle-destruction 8.) ;; Full circle
-
-
-  ((on-beat-trigger 8 #(do (swap! circle-destruction + 0.01)))
-
-   (remove-on-beat-trigger)
-   (remove-all-beat-triggers)
-)
-
-  (reset! color 0.1)
-
-  (reset! circle-destruction (* 1.9 Math/PI))
-  (reset! accelerator 0.1)
-
-;;  (reset! snow-ratio 0.01)
-
-  (def beats (buffer->tap kick-seq-buf (:count time/beat-1th) :measure 8))
-  (kill beats)
+  ;;(kill beats)
   (t/start "resources/shaders/nyc.glsl"
            :textures [:overtone-audio :previous-frame
                       "resources/textures/tex16.png"]
