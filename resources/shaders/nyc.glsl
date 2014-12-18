@@ -1,4 +1,4 @@
-//NYC
+//NYC by Joseph Wilk <joe@josephwilk.net>
 uniform float iOvertoneVolume;
 uniform float iBeat;
 uniform float iBeatCount;
