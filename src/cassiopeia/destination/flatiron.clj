@@ -15,14 +15,14 @@
   (def apeg-deep-melody-spair-chord-g
     (chord-synth general-purpose-assembly 4 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1))
   (def apeg-deep-melody-chord-g
-    (chord-synth general-purpose-assembly 4 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1))
+    (chord-synth general-purpose-assembly 4 :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th)))
   (def main-melody-chord-g
     (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1))
 
   (defonce sd-g (group "slow deep chords"))
   (def slow-deep-chord-g
     ;;Needs 4
-    (chord-synth general-purpose-assembly-pi 4 [:head sd-g] :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b :saw-cutoff 0 :attack 0.3 :release 6.0 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th)))
+    (chord-synth general-purpose-assembly-pi 4 [:head sd-g] :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.3 :release 6.0 :noise-level 0.05 :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b))
   (def apeg-start (first (:bufs apeg-deep-melody-chord-g)))
   )
 
@@ -273,19 +273,13 @@
      )))
 
 ;;START
-(one-time-beat-trigger
- 0 16
- (fn []
-   (ctl apeg-deep-melody-chord-g :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0)
-   (n-overtime! apeg-deep-melody-chord-g :amp 0.0 0.019 0.0002)))
+(one-time-beat-trigger 0 16 #(n-overtime! apeg-deep-melody-chord-g :amp 0.0 0.019 0.0002))
 
 ;(grainy-buf :b (buffer-mix-to-mono rf-fx-s) :amp 0.3 :dur 5.0 :trate 1 :amp 0.9)
 ;;(echoey-buf rf-theorems-s :amp 0.58)
 
 (do
-  (ctl slow-deep-chord-g :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4
-       :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th)
-       :attack 0.3 :release 6.0 :noise-level 0.05)
+  (ctl slow-deep-chord-g :wave 4)
   (n-overtime! slow-deep-chord-g :amp 0.0 0.04 0.0008))
 
 (def hand-drums (efficient-seqer [:head drum-effects-g] :pattern effects-seq-buf :amp 0.25 :num-steps 16 :buf hand-drum-s :rate-start 0.9 :rate-limit 1.0))
