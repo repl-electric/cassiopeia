@@ -563,7 +563,7 @@ vec4 bouncingPerson(vec2 uv){
     }
   }
 
-  if(iBouncingWeight<=3.0){
+  if(iBouncingWeight<=3.0 && iCircularWeight == 0.0){
 
   if(RANDOM_LETTERS == 0){
     float liveUntil =  1/iGlobalTime*4;
@@ -743,7 +743,7 @@ void main(void){
     cellSpellResult = cellSpell(uv);
   }
 
-  if(circleDanceWeight > 0.0){
+  if(circleDanceWeight > 0.0 && bouncingWeight == 0.0 && circularWeight == 0.0){
     circleDanceResult = circleDance();
   }
 
