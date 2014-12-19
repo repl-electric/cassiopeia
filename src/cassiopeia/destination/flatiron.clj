@@ -89,7 +89,6 @@
 
            (repeat 8 fuu21)
            (repeat 8 fuu21)
-           ;;f26 f26 f26 f26 f26 f26 f26 f26   ;;f26 f26 f26 f26 f26 f26 f26 f26
            (repeat 8 fu23)
            [fu25 fu25 fu25 fu25 fu25 fu25  (chord :F2 :7sus4 2) (chord :F2 :7sus4 2)])]
       chord-pat)))
@@ -228,8 +227,7 @@
   (let [_ [0 0 0 0]
         [c31 c32 c33 c34 c35 c36 c37] (chords-for :C3 :minor 1)
         [f31 f32 f33 f34 f35 f36 f37] (chords-for :F3 :minor 1)
-        [f41 f42 f43 f44 f45 f46 f47] (chords-for :F4 :minor 1)
-        chord-pat]
+        [f41 f42 f43 f44 f45 f46 f47] (chords-for :F4 :minor 1)]
     [f41 f43 f41 f44 c37 c36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])]))
 
 (chord-pattern! main-melody-chord-g apeg-swell)
@@ -279,7 +277,7 @@
  0 16
  (fn []
    (ctl apeg-deep-melody-chord-g :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0)
-   (n-overtime! (:synths apeg-deep-melody-chord-g) :amp 0.0 0.019 0.0002)
+   (n-overtime! apeg-deep-melody-chord-g :amp 0.0 0.019 0.0002)
    ))
 
 ;(grainy-buf :b (buffer-mix-to-mono rf-fx-s) :amp 0.3 :dur 5.0 :trate 1 :amp 0.9)
@@ -289,9 +287,9 @@
   (ctl slow-deep-chord-g :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4
        :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th)
        :attack 0.3 :release 6.0 :noise-level 0.05)
-  (n-overtime! (:synths slow-deep-chord-g) :amp 0.0 0.04 0.0008))
+  (n-overtime! slow-deep-chord-g :amp 0.0 0.04 0.0008))
 
-(def hand-drums (doall (map #(seqer [:head drum-effects-g] :beat-num %1 :pattern effects-seq-buf :amp 0.23 :num-steps 16 :buf hand-drum-s :rate-start 0.9 :rate-limit 1.0) (range 0 16))))
+(def hand-drums (efficient-seqer [:head drum-effects-g] :pattern effects-seq-buf :amp 0.25 :num-steps 16 :buf hand-drum-s :rate-start 0.9 :rate-limit 1.0))
 
 (pattern! hats-buf
           [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0] [0 0 1 0 0 0 1 0] [0 0 1 1 0 0 1 0]
@@ -351,7 +349,7 @@
   ;;(reset! circle-destruction (* Math/PI 0.5)) (reset! invert-color 0.0)
   (ctl main-melody-chord-g :amp 0.0)
   (ctl apeg-deep-melody-spair-chord-g :amp 0.00 :saw-cutoff 2000 :wave 2 :attack 1.0 :release 5.0)
-  (n-overtime! (:synths apeg-deep-melody-spair-chord-g) :amp 0 0.04 0.01)
+  (n-overtime! apeg-deep-melody-spair-chord-g :amp 0 0.04 0.01)
 
   (chord-pattern apeg-deep-melody-spair-chord-g pinger-growth-score-spair)
   (ctl drum-effects-g :amp 0.3) (ctl drums-g :amp 1.)
@@ -406,9 +404,9 @@
                             (ctl main-melody-chord-g :amp 0.03)
                             (ctl apeg-deep-melody-spair2-chord-g :amp 0.03)
                             (chord-pattern main-melody-chord-g pinger-score-spair)
-                            (n-overtime! (:synths apeg-deep-melody-spair2-chord-g) :saw-cutoff 0.0 1000 50)
-                            (n-overtime! (:synths apeg-deep-melody-spair-chord-g)  :saw-cutoff 0.0 2600 50)
-                            (n-overtime! (:synths main-melody-chord-g)             :saw-cutoff 0.0 1000 50)
+                            (n-overtime! apeg-deep-melody-spair2-chord-g :saw-cutoff 0.0 1000 50)
+                            (n-overtime! apeg-deep-melody-spair-chord-g  :saw-cutoff 0.0 2600 50)
+                            (n-overtime! main-melody-chord-g             :saw-cutoff 0.0 1000 50)
 
                             (chord-pattern apeg-deep-melody-spair-chord-g  pinger-growth-score-spair)
                             (chord-pattern apeg-deep-melody-chord-g        pinger-score-highlighted)
