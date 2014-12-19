@@ -251,8 +251,6 @@
 (pattern! kick-amp  [1.5 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1] (repeat 2 [1.2 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1]) [1.2 1 1 1 1 1 1 1   1.2 1 1 1 1.2 1 1.3 1])
 (pattern! hats-amp  (repeat 3 [2 2 2 2 2.1 2 2 2   2 2 2 2 2 2 2 2]) [2 2 2 2 2.1 2 2 2   2 2 2.4 2 2.4 2 2 2])
 
-(pattern! effects-seq-buf  (repeat 12 1)  [1 0 0 0])
-
 (one-time-beat-trigger
  15 16
  (fn []
@@ -282,6 +280,8 @@
   (ctl slow-deep-chord-g :wave 4)
   (n-overtime! slow-deep-chord-g :amp 0.0 0.04 0.0008))
 
+(do (defonce effects-seq-buf (buffer 256)) (defonce drum-effects-g (group "drum-effects-group")))
+(pattern! effects-seq-buf  (repeat 12 1)  [1 0 0 0])
 (def hand-drums (efficient-seqer [:head drum-effects-g] :pattern effects-seq-buf :amp 0.25 :num-steps 16 :buf hand-drum-s :rate-start 0.9 :rate-limit 1.0))
 
 (pattern! hats-buf
@@ -421,7 +421,6 @@
   (ctl main-melody2-chord-g :amp 0.03 :saw-cutoff 1000)
   (ctl main-melody-chord-g :saw-cutoff 300 :amp 0.03)
   (chord-pattern main-melody-chord-g apeg-swell))
-
 
 ;;Fade
 (let [cutout 2000]
