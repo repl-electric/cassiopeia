@@ -8,7 +8,7 @@
 
 (def master-vol 3.0)
 (volume master-vol)
-(ctl time/root-s :rate 0.0)
+(ctl-global-clock 0.0)
 
 (do
   (defbufs 256 [df-b sd-attack-b sd-release-b sd-amp-b s-note-b])
@@ -266,7 +266,7 @@
      (def white (doall (map #(whitenoise-hat [:head drums-g] :amp-buf hats-amp :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :release 0.1 :attack 0.0 :beat-num %1) (range 0 1))))
      (ctl white :amp-buf hats-amp)
      (ctl white :attack 0.04 :release 0.01 :amp 1)
-     (ctl white :attack 0.002 :release 0.04 :amp 1)
+     (ctl white :attack 0.002 :release 0.04 :amp 2)
 
      (def kicker (doall (map #(space-kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 16 :beat-num %1 :noise 0.05 :amp 4.2 :mod-index 0.1 :mod-freq 4.0 :mode-freq 0.2) (range 0 1))))
      (ctl kicker :amp-buf kick-amp :attack 0.0 :sustain 0.2 :amp 1.0)
@@ -277,8 +277,7 @@
  0 16
  (fn []
    (ctl apeg-deep-melody-chord-g :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0)
-   (n-overtime! apeg-deep-melody-chord-g :amp 0.0 0.019 0.0002)
-   ))
+   (n-overtime! apeg-deep-melody-chord-g :amp 0.0 0.019 0.0002)))
 
 ;(grainy-buf :b (buffer-mix-to-mono rf-fx-s) :amp 0.3 :dur 5.0 :trate 1 :amp 0.9)
 ;;(echoey-buf rf-theorems-s :amp 0.58)
@@ -350,7 +349,7 @@
   (n-overtime! apeg-deep-melody-spair-chord-g :amp 0 0.04 0.01)
 
   (chord-pattern apeg-deep-melody-spair-chord-g pinger-growth-score-spair)
-  (ctl drum-effects-g :amp 0.3) (ctl drums-g :amp 1.)
+  (ctl drum-effects-g :amp 0.3) (ctl drums-g :amp 1.0)
 
   (pattern! effects-seq-buf  (repeat 12 [1 0])  [1 0 0 0])
   (ctl apeg-deep-melody-chord-g :amp 0.05 :saw-cutoff 2600 :wave 0 :attack 1.0 :release 5.0)
