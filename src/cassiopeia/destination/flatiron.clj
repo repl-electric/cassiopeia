@@ -3,17 +3,8 @@
 .-. .   .-. .-. .-. .-. .-. .  .
 |-  |   |-|  |   |  |(  | | |\\|
 '   `-' ` '  '  `-' ' ' `-' ' ``"
-(:use [overtone.live] [mud.core] [mud.chords] [cassiopeia.waves.synths] [cassiopeia.samples] [cassiopeia.engine.buffers] [cassiopeia.dirt] [cassiopeia.waves.buf-effects])
+(:use [overtone.live] [mud.core] [mud.chords] [cassiopeia.waves.synths] [cassiopeia.samples] [cassiopeia.engine.buffers] [cassiopeia.dirt] [cassiopeia.waves.buf-effects] [cassiopeia.engine.expediency])
 (:require [mud.timing :as time] [clojure.math.numeric-tower :as math] [overtone.studio.fx :as fx] [shadertone.tone :as t]))
-
-(defn stop-everything! [] (remove-all-beat-triggers) (remove-all-sample-triggers) (stop-all-chord-synth-buffers) (full-stop))
-(defn as-chord [note] (flatten [note 0 0 0]))
-(defn chord-score [& score] (mapcat (fn [s] (if (sequential? (ffirst s)) (apply concat s) s)) score))
-(defn chord-pattern! [& args] (apply chord-pattern args))
-
-(alter-var-root (var ctl) (fn [f] (fn [& args] (if (and (map? (first args)) (:synths (first args)))
-                                               (apply f (:synths (first args)) (rest args))
-                                               (apply f args)))))
 
 (def master-vol 3.0)
 (volume master-vol)
