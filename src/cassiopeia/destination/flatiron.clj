@@ -17,7 +17,7 @@
   (def apeg-deep-melody-chord-g
     (chord-synth general-purpose-assembly 4 :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th)))
   (def main-melody-chord-g
-    (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.1 :release 0.1))
+    (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :wave 1 :attack 1.0 :release 5.0))
 
   (defonce sd-g (group "slow deep chords"))
   (def slow-deep-chord-g
@@ -327,8 +327,7 @@
 
 
 ;;(on-beat-trigger 64 #(echoey-buf (dirt :wind) :amp 0.1))
-;;Drive home home chords + highlight melody
-(ctl main-melody-chord-g :amp 0.1 :saw-cutoff 50 :wave 1 :attack 1.0 :release 5.0)
+(ctl main-melody-chord-g :amp 0.1 :saw-cutoff 50)
 (ctl apeg-deep-melody-chord-g :amp 0.038 :saw-cutoff 2800 :wave 1)
 
 ;;Drum tension
