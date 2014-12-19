@@ -53,18 +53,13 @@
         [f21 f22 f23 f24 f25 f26 f27]  (chords-for :F2 :minor 1)
         [f31 f32 f33 f34 f35 f36 f37]  (chords-for :F3 :minor 1)
         [f41 f42 f43 f44 f45 f46 f47]  (chords-for :F4 :minor 1)]
-    (let [chord-pat
-          (concat
-           (apply concat
-             (repeat 6 [c41 f31 f33 f34  f31 f31 f41 f31  c41 f31 f33 f34  f31 f31 f41 f31]))
-                       [c37 f31 f33 f34  f31 f31 f41 f31  c37 f31 f33 f34  f31 f31 f41 f31]
-                       [c41 f31 f33 f34  f31 f31 f41 f31  c34 f31 f33 f31  f31 f31 f41 f31]
-           (apply concat
-             (repeat 6 [c41 f31 f33 f34  f31 f31 f41 f31  c41 f31 f33 f34  f31 f31 f41 f31]))
-                       [c37 f31 f33 f34  f31 f31 f41 f31  c37 f31 f33 f34  f31 f31 f41 f31]
-                       [c41 f31 f33 f41  f27 f31 f31 f31  c31 f31 f33 f41  f31 f31 f41 f31])]
-      chord-pat
-      )))
+    (chord-score (repeat 6 [c41 f31 f33 f34  f31 f31 f41 f31  c41 f31 f33 f34  f31 f31 f41 f31])
+                           [c37 f31 f33 f34  f31 f31 f41 f31  c37 f31 f33 f34  f31 f31 f41 f31]
+                           [c41 f31 f33 f34  f31 f31 f41 f31  c34 f31 f33 f31  f31 f31 f41 f31]
+
+                 (repeat 6 [c41 f31 f33 f34  f31 f31 f41 f31  c41 f31 f33 f34  f31 f31 f41 f31])
+                           [c37 f31 f33 f34  f31 f31 f41 f31  c37 f31 f33 f34  f31 f31 f41 f31]
+                           [c41 f31 f33 f41  f27 f31 f31 f31  c31 f31 f33 f41  f31 f31 f41 f31])))
 
 (def apeg-swell
   (let [_ [nil nil nil]
