@@ -437,6 +437,7 @@
   (ctl drums-g :amp 0)
   (ctl drum-effects-g :amp 0)
   (ctl apeg-deep-melody-spair-chord-g :saw-cutoff cutout)
+  (ctl apeg-deep-melody-spair2-chord-g :saw-cutoff)
   (ctl apeg-deep-melody-chord-g :saw-cutoff cutout)
   (ctl main-melody-chord-g :saw-cutoff cutout)
   (ctl main-melody2-chord-g :saw-cutoff cutout)
