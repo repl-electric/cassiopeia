@@ -310,10 +310,8 @@
 
 (one-time-beat-trigger 126 128 (fn [& _]
                                  ;;(reset! cells-weight 2.0) (reset! invert-color 1.0) (remove-all-beat-triggers)(reset! cell-dance-weight 0.0)
-
                                  (chord-pattern apeg-deep-melody-chord-g pinger-score-highlighted)
                                  (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.25)))
-
 (one-time-beat-trigger
  126 128
  (fn [] ;;DARKER PROGRESSION
@@ -363,9 +361,9 @@
   ;;(on-beat-trigger 8 #(do (swap! circle-destruction + (rand 1.0))))
 
   (ctl apeg-deep-melody-spair-chord-g :amp 0)
-  (ctl-beat (:synths apeg-deep-melody-spair-chord-g) time/beat-2th)
-  (ctl-beat (:synths apeg-deep-melody-chord-g) time/beat-2th)
-  (ctl-beat (:synths slow-deep-chord-g) time/beat-1th)
+  (ctl-time apeg-deep-melody-spair-chord-g time/beat-2th)
+  (ctl-time apeg-deep-melody-chord-g time/beat-2th)
+  (ctl-time slow-deep-chord-g time/beat-1th)
 
   (chord-pattern slow-deep-chord-g pinger-score)
 
@@ -385,9 +383,9 @@
 
 (one-time-beat-trigger 126 128
                        (fn [& _]
-                         (ctl-beat (:synths apeg-deep-melody-chord-g) time/beat-1th)
-                         (ctl-beat (:synths apeg-deep-melody-spair-chord-g) time/beat-1th)
-                         (ctl-beat (:synths slow-deep-chord-g) time/beat-2th)
+                         (ctl-time apeg-deep-melody-chord-g time/beat-1th)
+                         (ctl-time apeg-deep-melody-spair-chord-g time/beat-1th)
+                         (ctl-time slow-deep-chord-g time/beat-2th)
 
                          (one-time-beat-trigger
                           127 128
@@ -397,9 +395,9 @@
 
                             (chord-pattern apeg-deep-melody-spair2-chord-g pinger-score-alternative)
 
-                            (ctl-beat (:synths apeg-deep-melody-chord-g) time/beat-1th)
-                            (ctl-beat (:synths apeg-deep-melody-spair-chord-g) time/beat-1th)
-                            (ctl-beat (:synths slow-deep-chord-g) time/beat-2th)
+                            (ctl-time apeg-deep-melody-chord-g time/beat-1th)
+                            (ctl-time apeg-deep-melody-spair-chord-g time/beat-1th)
+                            (ctl-time slow-deep-chord-g time/beat-2th)
 
                             (ctl main-melody-chord-g :amp 0.03)
                             (ctl apeg-deep-melody-spair2-chord-g :amp 0.03)
