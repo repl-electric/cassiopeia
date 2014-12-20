@@ -713,7 +713,7 @@ void main(void){
   vec4 cellSpellResult = vec4(.0,.0,.0,.0);
   vec4 circleDanceResult = vec4(0.0,0.0,0.0,0.0);
 
-  if(bouncingWeight > 0.0){
+  if(bouncingWeight > 0.0 && iOvertoneVolume > 0.001){
     bouncingResult = bouncingPerson(uv);
     bouncingResult = 2/bouncingResult;
 
