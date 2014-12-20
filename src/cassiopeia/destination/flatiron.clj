@@ -12,11 +12,11 @@
 
   (def apeg-deep-melody-spair-chord-g (chord-synth general-purpose-assembly 4 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1))
   (def apeg-deep-melody-chord-g (chord-synth general-purpose-assembly 4 :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th)))
+  (def apeg-start (first (:bufs apeg-deep-melody-chord-g)))
   (def main-melody-chord-g (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :wave 1 :attack 1.0 :release 5.0))
 
   (defonce sd-g (group "slow deep chords"))
   (def slow-deep-chord-g (chord-synth general-purpose-assembly-pi 4 [:head sd-g] :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.3 :release 6.0 :noise-level 0.05 :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b))
-  (def apeg-start (first (:bufs apeg-deep-melody-chord-g)))
 
   (chord-pattern! main-melody-chord-g apeg-swell)
   (chord-pattern! slow-deep-chord-g chords-score)
@@ -32,7 +32,6 @@
             (repeat 2 (repeat 8 (degrees [3] :minor :F1)))
             (repeat 2 (repeat 8 (degrees [3] :minor :F1)))
             [(degrees [1 1 1 1  5 4 3 1] :minor :F1)])
-
 )
 
 (one-time-beat-trigger
@@ -41,7 +40,8 @@
    (do
      (pattern! hats-buf (repeat 3 [0 0 0 0  1 0 0 0   0 0 1 0  0 0 0 0])
                                   [0 0 0 0  1 0 0 0   0 0 1 0  1 0 0 0])
-     (pattern! kick-seq-buf [])
+     (pattern! kick-seq-buf (repeat 3 [1 0 0 0   0 0 0 0   1 0 0 0   0 0 0 0 ])
+                                      [1 0 0 0   0 0 0 0   1 0 0 0   1 0 1 0])
 
      (def white (doall (map #(whitenoise-hat [:head drums-g] :amp-buf hats-amp :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :release 0.1 :attack 0.0 :beat-num %1) (range 0 1))))
      (ctl white :amp-buf hats-amp)
@@ -118,7 +118,7 @@
 (ctl white :amp 1.0)
 
 (do
-  ;;(reset! circle-destruction (* Math/PI 0.5)) (reset! invert-color 0.0)
+  (do (reset! circle-slice (* Math/PI 0.5)) (reset! invert-color 0.0))
   (ctl main-melody-chord-g :amp 0.0)
   (ctl apeg-deep-melody-spair-chord-g :amp 0.00 :saw-cutoff 2000 :wave 2 :attack 1.0 :release 5.0)
   (n-overtime! apeg-deep-melody-spair-chord-g :amp 0 0.04 0.01)
@@ -157,6 +157,7 @@
 
 (one-time-beat-trigger 126 128
                        (fn [& _]
+                         (reset! cells-weight 5.0)
                          (ctl-time apeg-deep-melody-chord-g time/beat-1th)
                          (ctl-time apeg-deep-melody-spair-chord-g time/beat-1th)
                          (ctl-time slow-deep-chord-g time/beat-2th)
@@ -275,11 +276,12 @@
 (comment
   (do ;;init graphics
     (def beats (buffer->tap kick-seq-buf (:count time/beat-1th) :measure 8))
+
     (defonce circle-count        (atom 4.0))
     (defonce color               (atom 0.1))
-    (defonce circle-destruction  (atom 8.0))
+    (defonce circle-slice        (atom 8.0))
     (defonce circle-growth-speed (atom 0.1))
-    (defonce circle-destructure  (atom 1.0))
+    (defonce circle-deform       (atom 1.0))
 
     (defonce circular-weight   (atom 0.0))
     (defonce flare-weight      (atom 0.0))
@@ -287,7 +289,7 @@
     (defonce cells-weight      (atom 0.0))
     (defonce nyc-weight        (atom 0.0))
     (defonce invert-color      (atom 1.0))
-    (defonce cell-dance-weight (atom 0.0)))
+    (defonce cell-dance-weight (atom 1.0)))
 
   ;;(kill beats)
   (t/start "resources/shaders/nyc.glsl"
@@ -300,9 +302,9 @@
                        "iBeatCount"      (atom {:synth beats :tap "beat-count"})
                        "iColor" color
                        "iCircleCount" circle-count
-                       "iHalfPi" circle-destruction
+                       "iHalfPi" circle-slice
                        "iInOutSpeed" circle-growth-speed
-                       "iDestructure" circle-destructure
+                       "iDeformCircles" circle-deform
                        "iCircularWeight"  circular-weight
                        "iFlareWeight"      flare-weight
                        "iPopulationWeight" population-weight
