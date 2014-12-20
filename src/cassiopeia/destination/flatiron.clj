@@ -12,17 +12,12 @@
   (pattern! sd-release-b [1.0  1.0 1.0 1.0])
   (pattern! sd-amp-b     [1.2  1.0 1.0 1.0])
 
-  (def apeg-deep-melody-spair-chord-g
-    (chord-synth general-purpose-assembly 4 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1))
-  (def apeg-deep-melody-chord-g
-    (chord-synth general-purpose-assembly 4 :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th)))
-  (def main-melody-chord-g
-    (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :wave 1 :attack 1.0 :release 5.0))
+  (def apeg-deep-melody-spair-chord-g (chord-synth general-purpose-assembly 4 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1))
+  (def apeg-deep-melody-chord-g (chord-synth general-purpose-assembly 4 :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th)))
+  (def main-melody-chord-g (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :wave 1 :attack 1.0 :release 5.0))
 
   (defonce sd-g (group "slow deep chords"))
-  (def slow-deep-chord-g
-    ;;Needs 4
-    (chord-synth general-purpose-assembly-pi 4 [:head sd-g] :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.3 :release 6.0 :noise-level 0.05 :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b))
+  (def slow-deep-chord-g (chord-synth general-purpose-assembly-pi 4 [:head sd-g] :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.3 :release 6.0 :noise-level 0.05 :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b))
   (def apeg-start (first (:bufs apeg-deep-melody-chord-g)))
 
   (chord-pattern! main-melody-chord-g apeg-swell)
