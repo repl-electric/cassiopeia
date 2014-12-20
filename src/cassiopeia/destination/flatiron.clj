@@ -1,8 +1,6 @@
 (ns cassiopeia.destination.flatiron " .-. .   .-. .-. .-. .-. .-. .  .
 	                              |-  |   |-|  |   |  |(  | | |\\|
-                                      '   `-' ` '  '  `-' ' ' `-' ' ``"
-(:use [overtone.live] [mud.core] [mud.chords] [cassiopeia.waves.synths] [cassiopeia.samples] [cassiopeia.engine.buffers] [cassiopeia.dirt] [cassiopeia.waves.buf-effects] [cassiopeia.engine.expediency] [cassiopeia.destination.flatiron.scores])
-(:require [mud.timing :as time] [clojure.math.numeric-tower :as math] [overtone.studio.fx :as fx] [shadertone.tone :as t]))
+                                      '   `-' ` '  '  `-' ' ' `-' ' ``"(:use [overtone.live] [mud.core] [mud.chords] [cassiopeia.waves.synths] [cassiopeia.samples] [cassiopeia.engine.buffers] [cassiopeia.dirt] [cassiopeia.waves.buf-effects] [cassiopeia.engine.expediency] [cassiopeia.destination.flatiron.scores])(:require [mud.timing :as time] [clojure.math.numeric-tower :as math] [overtone.studio.fx :as fx] [shadertone.tone :as t]))
 
 (do (def master-vol 3.0)(volume master-vol))
 
