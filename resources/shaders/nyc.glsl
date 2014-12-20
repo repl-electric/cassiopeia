@@ -18,7 +18,7 @@ uniform float iCircleDanceWeight;
 
 uniform float iInvertColor;
 uniform float iSnowRatio;
-uniform float iDestructure;
+uniform float iDeformCircles;
 
 uniform float iGlobalBeatCount;
 uniform float iBeatTotalCount;
@@ -178,11 +178,11 @@ vec4 circular(void){
   float mainval = 1.0; //50-60 nice overpaint effect
   float inverseLength;
 
-  if(iDestructure == 1.0){
+  if(iDeformCircles == 1.0){
     inverseLength = saturate(length(uv)) + clamp(iBeat, 0.0, 0.002);
   }
   else{
-    inverseLength = saturate(length(uv)) * (uv.x + uv.y) *  iDestructure;
+    inverseLength = saturate(length(uv)) * (uv.x + uv.y) * iDeformCircles;
   }
 
   //inverseLength = saturate(length(uv)) * rand(vec2(texture2D(iChannel0, vec2(0, 0)).x, texture2D(iChannel0, vec2(0, 0)).y));
