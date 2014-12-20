@@ -426,7 +426,7 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
 
       float y1;
       int converge;
-      if(iBouncingWeight == 2.0){
+      if(iBouncingWeight == 2.0 && iCircularWeight == 0.0){
         converge = 1;
       }
       if(converge == 1){
@@ -532,7 +532,7 @@ vec4 bouncingPerson(vec2 uv){
   float top = 0.40;
   float topLower = 0.2;
   vec4 helloPoint = vec4(0.0);
-
+  float bounceWeight = iBouncingWeight;
   mat3 complete = mat3(1, 1, 1,  1, 1, 1,  1, 1, 1);
   mat3 letterR  = mat3(1, 1, 1,  1, 1, 0,  1, 0, 1);
   mat3 letterE  = mat3(1, 1, 1,  1, 1, 0,  1, 1, 1);
@@ -543,9 +543,13 @@ vec4 bouncingPerson(vec2 uv){
   mat3 letterT  = mat3(1, 1, 1,  0, 1, 0,  0, 1, 0);
   mat3 letterI  = mat3(0, 1, 0,  0, 1, 0,  0, 1, 0);
 
+  if(iCircularWeight != 0.0 && bounceWeight < 3.0){
+    bounceWeight = 3.0;
+  }
+
   if(iOvertoneVolume > 0.1){
 
-    if(iBouncingWeight>= 5.0){
+    if( bounceWeight >= 5.0){
         helloPoint += buildCell(uv, vec2(0.5, 0.5), 0);
         //        helloPoint += buildCell(uv, vec2(0.5, 0.5), 0);
       //      helloPoint += buildCell(uv, vec2(0.1, 0.8), 0);
@@ -563,7 +567,7 @@ vec4 bouncingPerson(vec2 uv){
     }
   }
 
-  if(iBouncingWeight<=3.0 && iCircularWeight == 0.0){
+  if(bounceWeight <= 3.0){
 
   if(RANDOM_LETTERS == 0){
     float liveUntil =  1/iGlobalTime*4;
