@@ -99,7 +99,7 @@
 (ctl white :amp 0)
 
 (do
-  (do (reset! circle-slice (* Math/PI 0.5)) (reset! invert-color 0.0))
+  (overtime! circle-slice (* 0.5 Math/PI)) (reset! invert-color 0.0) (reset! cells-weight 4.0)
   (ctl main-melody-chord-g :amp 0.0)
   (ctl apeg-deep-melody-spair-chord-g :amp 0.00 :saw-cutoff 2000 :wave 2 :attack 1.0 :release 5.0)
   (n-overtime! apeg-deep-melody-spair-chord-g :amp 0 0.04 0.01)
