@@ -572,8 +572,8 @@ vec4 bouncingPerson(vec2 uv){
 
       helloPoint += letter(letterE, vec2(0.1+letterSpace*0, topLower), uv);
       helloPoint += letter(letterT, vec2(0.1+letterSpace*8, topLower), uv);
-      helloPoint += letter(letterC, vec2(0.1+letterSpace*6, topLower), uv);
       if(spellingConvergePoint < 0.3){
+        helloPoint += letter(letterC, vec2(0.1+letterSpace*6, topLower), uv);
         helloPoint += letter(letterL, vec2(0.1+letterSpace*2, topLower), uv);
         helloPoint += letter(letterI, vec2(0.1+letterSpace*12, topLower), uv);
         helloPoint += letter(letterE, vec2(0.1+letterSpace*4, topLower), uv);
