@@ -567,13 +567,13 @@ vec4 bouncingPerson(vec2 uv){
 
     float spellingConvergePoint = 0.0;
       if(iBouncingWeight == 2.0 && iCircularWeight == 0.0){
-        spellingCovergePoint = 0.5+0.5*sin(iGlobalTime*0.1);
+        spellingConvergePoint = 0.5+0.5*sin(iGlobalTime*0.1);
       }
 
       helloPoint += letter(letterE, vec2(0.1+letterSpace*0, topLower), uv);
       helloPoint += letter(letterT, vec2(0.1+letterSpace*8, topLower), uv);
       helloPoint += letter(letterC, vec2(0.1+letterSpace*6, topLower), uv);
-      if(spellingCovergePoint < 0.3){
+      if(spellingConvergePoint < 0.3){
         helloPoint += letter(letterL, vec2(0.1+letterSpace*2, topLower), uv);
         helloPoint += letter(letterI, vec2(0.1+letterSpace*12, topLower), uv);
         helloPoint += letter(letterE, vec2(0.1+letterSpace*4, topLower), uv);
