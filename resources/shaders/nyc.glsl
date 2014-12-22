@@ -489,8 +489,8 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
   //  cellBoundries = 0.0001;
   //  glowFactor = 0.003;
 
-  float cell = smoothstep(sqrt(pow(uv.x-point.x,p)+pow(uv.y-point.y, p)),
-                          0.01+sqrt(pow(uv.x-point.x,p)+pow(uv.y-point.y, p)),
+  float cell = smoothstep(sqrt(pow(uv.x-point.x, p) + pow(uv.y-point.y, p)),
+                          0.01+xy,
                           1.0);
 
   if (cell > cellBoundries){
