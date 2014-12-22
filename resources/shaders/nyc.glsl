@@ -380,33 +380,22 @@ vec4 addGlow(vec2 uv, vec2 v, float glow){
 
 vec4 buildCell(vec2 uv, vec2 point, int still){
   float person = 1.0;
-  float inc;
   float movementScale = .0000001;
   float speedFactor = 0.1;
   int wavey = 0;
-   if(iOvertoneVolume < 0.01){
-     speedFactor = speedFactor * 0.1;
-     wavey = 1;
-   }
+  if(iOvertoneVolume < 0.01){
+    speedFactor = speedFactor * 0.1;
+    wavey = 1;
+  }
 
   if(still==0){
-    if(iBeatTotalCount >= 64.0){
-      //point.y = rand2(vec2(point.x,point.y*iGlobalTime*movementScale));
-    }
-    else{
-      //point.y = 1-rand2(vec2(point.y,point.x*iGlobalTime*movementScale));
-    }
-
-    float y1;
+    float y1 = 1.0;
     int converge;
     if(iBouncingWeight == 2.0 && iCircularWeight == 0.0){
       converge = 1;
     }
     if(converge == 1){
       y1 = 0.5+0.5*sin(iGlobalTime*0.1);
-    }
-    else{
-      y1 = 1;
     }
 
     if(mod(iGlobalTime, TOTAL_BEATS) > 64.0){
@@ -419,7 +408,7 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
     //point.x += sin(iBeatTotalCount*0.1)*0.5;
   }
 
-  if(WAVE ==1){
+  if(WAVE==1){
     //float g = 0.2*texture2D(iChannel0, vec2(point.x,0.25)).x + 0.2*texture2D(iChannel0, vec2(point.x,0.75)).x;
     //point.y = g + 0.45;
     float d = smoothstep(0, 1.0, texture2D(iChannel0, vec2(point.x, 0.75)).x) * 0.8;
@@ -439,13 +428,27 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
     point.y = iResolution.y*0.0004 + p*sin(mod(iGlobalTime+mod(iGlobalTime*0.2,360)*poo,360))*0.1;
   }
 
+  //round cells
   float p;
   float cellBoundries;
-  float glowFactor;
-
-  //round cells
   p = 2.;
   cellBoundries = 0.5;
+
+  float xy = sqrt(pow(uv.x-point.x, p) + pow(uv.y-point.y, p));
+  float cell = smoothstep(xy, 0.01+xy, 1.0);
+
+  if (cell > cellBoundries){
+    person =  0.0;
+  }else if (cell < cellBoundries){
+    person = 0.1;
+  }
+
+  vec4 helloPoint = vec4(vec3(person), 1.0);
+
+  if(person != 0.1){
+
+  float glowFactor;
+
   if(iBouncingWeight <= 3.0){
     glowFactor = 0.0139;
   }
@@ -463,18 +466,9 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
   //  cellBoundries = 0.0001;
   //  glowFactor = 0.003;
 
-  float xy = sqrt(pow(uv.x-point.x, p) + pow(uv.y-point.y, p));
-  float cell = smoothstep(xy, 0.01+xy, 1.0);
-
-  if (cell > cellBoundries){
-    person -= 1.0;
-  }else if (cell < cellBoundries){
-    person -= 0.9;
-  }
-  vec4 helloPoint = vec4(vec3(person), 1.0);
-
   if(SHOW_GLOW==1){
     helloPoint += addGlow(uv, point, glowFactor);
+  }
   }
 
   return helloPoint;
