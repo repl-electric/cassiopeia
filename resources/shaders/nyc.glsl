@@ -574,7 +574,6 @@ vec4 theCellLife(vec2 uv, vec2 point){
   float i=0;
   float rowCount = 1;
   float person = 1.0;
-  float inc;
   float movementScale = .0000001;
   float rate = 0.3;
   float invBeatTotal = TOTAL_BEATS-iBeatTotalCount;
@@ -651,24 +650,17 @@ vec4 cellSpell(vec2 uv){
 
 void main(void){
   vec2 uv = gl_FragCoord.xy / iResolution.x;
-
-  float flareWeight = iFlareWeight; //0.01;
-  float populationWeight = iPopulationWeight;
-  float circularWeight = iCircularWeight;
-  float bouncingWeight = iBouncingWeight;
-  float cellSpellWeight = iNycWeight;
-  float circleDanceWeight = iCircleDanceWeight;
   float darkMode = 0.0;
 
   float snowSpeed = 0.000000000001; //0.00000001; //0.0000000001;
-  vec4 populationResult = vec4(0., 0., 0., 0.);
-  vec4 circleResult = vec4(0., 0., 0., 0.);
-  vec4 flareResult = vec4(.0, .0, .0, .0);
-  vec4 bouncingResult = vec4(0., 0., 0., 0.);
-  vec4 cellSpellResult = vec4(.0,.0,.0,.0);
+  vec4 populationResult  = vec4(0., 0., 0., 0.);
+  vec4 circleResult      = vec4(0., 0., 0., 0.);
+  vec4 flareResult       = vec4(.0, .0, .0, .0);
+  vec4 bouncingResult    = vec4(0., 0., 0., 0.);
+  vec4 cellSpellResult   = vec4(.0,.0,.0,.0);
   vec4 circleDanceResult = vec4(0.0,0.0,0.0,0.0);
 
-  if(bouncingWeight > 0.0 && iOvertoneVolume > 0.01){
+  if(iBouncingWeight > 0.0 && iOvertoneVolume > 0.01){
     bouncingResult = bouncingPerson(uv);
     bouncingResult = 2/bouncingResult;
 
@@ -684,25 +676,25 @@ void main(void){
 
   vec4 c;
 
-  if(circularWeight > 0.0){
-    circleResult = min(1.0, circularWeight) * circular();
+  if(iCircularWeight > 0.0){
+    circleResult = min(1.0, iCircularWeight) * circular();
   }
 
-  if(populationWeight > 0.0){
-    populationResult = min(1.0, populationWeight)*populationDensity(uv);
+  if(iPopulationWeight > 0.0){
+    populationResult = min(1.0, iPopulationWeight)*populationDensity(uv);
   }
 
-  if(flareWeight > 0.0){
+  if(iFlareWeight > 0.0){
     flareResult = 0.01*flare();
     flareResult = 1-(3*flareResult - bouncingPerson(uv));
     flareResult *= 0.3;
   }
 
-  if(cellSpellWeight > 0.0){
+  if(iNycWeight > 0.0){
     cellSpellResult = cellSpell(uv);
   }
 
-  if(circleDanceWeight > 0.0 && bouncingWeight == 0.0 && circularWeight == 0.0){
+  if(iCircleDanceWeight > 0.0 && iBouncingWeight == 0.0 && iCircularWeight == 0.0){
     circleDanceResult = circleDance();
   }
 
