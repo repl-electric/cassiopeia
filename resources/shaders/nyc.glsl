@@ -402,7 +402,6 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
       point.y -= y1 * sin(iGlobalTime*0.1/point.x);
     }
     else{
-      // point.y -= y1 * sin((TOTAL_BEATS-iBeatTotalCount)*0.04/point.x);
       point.y -= y1 * sin((TOTAL_BEATS-iGlobalTime)*0.1/point.x);
     }
     //point.x += sin(iBeatTotalCount*0.1)*0.5;
