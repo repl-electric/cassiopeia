@@ -366,23 +366,16 @@ float smoothbump(float center, float width, float x) {
   return c;
 }
 
-vec4 addGlow(vec2 uv, vec2 v, float glow)
-{
-  vec4 glowing = vec4(0.0);
+vec4 colorCycle = vec4(hsvToRgb(0.5, 0.9), 1.0);
+
+vec4 addGlow(vec2 uv, vec2 v, float glow){
   float res = glow / length(v - uv);
 
   if(iBeat == 1.0){
     glow += 0.00005;
   }
 
-  if(iOvertoneVolume < 0.01){
-    glowing = res * vec4(hsvToRgb(0.5, 0.9), 1.0);
-  }
-  else{
-    glowing = res * (vec4(hsvToRgb(0.5, 0.9), 1.0));
-  }
-
-  return glowing;
+  return res * colorCycle;
 }
 
 vec4 buildCell(vec2 uv, vec2 point, int still){
