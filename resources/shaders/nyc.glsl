@@ -511,7 +511,7 @@ vec4 bouncingPerson(vec2 uv){
     bounceWeight = 3.0;
   }
 
-  if(iOvertoneVolume > 0.1){
+  if(iOvertoneVolume > 0.01){
     if(bounceWeight >= 5.0){//single center cell
       helloPoint += buildCell(uv, vec2(0.5, 0.5), 0);
     }
