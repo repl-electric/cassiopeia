@@ -339,26 +339,6 @@ vec3 hsvToRgb(float mixRate, float colorStrength){
   return mix(vec3(1.0), c, mixRate) * colorStrength;
 }
 
-vec4 addGlow(vec2 uv, vec2 v, float glow)
-{
-  vec4 glowing = vec4(0.0);
-
-  if(iBeat == 1.0){
-    glow += 0.00005;
-  }
-
-  if(iOvertoneVolume < 0.01){
-    float res = glow / length(v - uv);
-    glowing = res * vec4(hsvToRgb(0.5, 0.9),1.0);
-  }
-  else{
-    float res = glow / length(v - uv);
-    glowing = res * (vec4(hsvToRgb(0.5, 0.9),1.0));
-  }
-
-  return glowing;
-}
-
 vec4 lineDistort(vec4 cTextureScreen, vec2 uv1){
   float sCount = 900.;
   float nIntensity=0.1;
@@ -386,6 +366,25 @@ float smoothbump(float center, float width, float x) {
   return c;
 }
 
+vec4 addGlow(vec2 uv, vec2 v, float glow)
+{
+  vec4 glowing = vec4(0.0);
+  float res = glow / length(v - uv);
+
+  if(iBeat == 1.0){
+    glow += 0.00005;
+  }
+
+  if(iOvertoneVolume < 0.01){
+    glowing = res * vec4(hsvToRgb(0.5, 0.9), 1.0);
+  }
+  else{
+    glowing = res * (vec4(hsvToRgb(0.5, 0.9), 1.0));
+  }
+
+  return glowing;
+}
+
 vec4 buildCell(vec2 uv, vec2 point, int still){
   float person = 1.0;
   float inc;
@@ -405,43 +404,25 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
       //point.y = 1-rand2(vec2(point.y,point.x*iGlobalTime*movementScale));
     }
 
-    if(STATIC_LETTERS == 1){
-      float rate = 0.3;
-      //point.x = 0.5+0.5*sin(point.x*iGlobalTime*rate);
-      //point.y = 0.5+0.5*sin(point.y+iGlobalTime*rate);
-
-      float invBeatTotal = TOTAL_BEATS-iBeatTotalCount;
-
-      if(iBeatTotalCount > 64.0){
-        point.y -= 0.2+0.5*sin(iBeatTotalCount*0.009/point.x)*1/invBeatTotal-0.2;
-      }
-      else{
-        point.y -= (0.2+0.5*sin(invBeatTotal*0.009/point.x))*1/iBeatTotalCount;
-      }
-
-    }else{
-
-      float y1;
-      int converge;
-      if(iBouncingWeight == 2.0 && iCircularWeight == 0.0){
-        converge = 1;
-      }
-      if(converge == 1){
-        y1 = 0.5+0.5*sin(iGlobalTime*0.1);
-      }
-      else{
-        y1 = 1;
-      }
-
-      if(mod(iGlobalTime, TOTAL_BEATS) > 64.0){
-        point.y -= y1 * sin(iGlobalTime*0.1/point.x);
-      }
-      else{
-        //       point.y -= y1 * sin((TOTAL_BEATS-iBeatTotalCount)*0.04/point.x);
-        point.y -= y1 * sin((TOTAL_BEATS-iGlobalTime)*0.1/point.x);
-      }
+    float y1;
+    int converge;
+    if(iBouncingWeight == 2.0 && iCircularWeight == 0.0){
+      converge = 1;
+    }
+    if(converge == 1){
+      y1 = 0.5+0.5*sin(iGlobalTime*0.1);
+    }
+    else{
+      y1 = 1;
     }
 
+    if(mod(iGlobalTime, TOTAL_BEATS) > 64.0){
+      point.y -= y1 * sin(iGlobalTime*0.1/point.x);
+    }
+    else{
+      // point.y -= y1 * sin((TOTAL_BEATS-iBeatTotalCount)*0.04/point.x);
+      point.y -= y1 * sin((TOTAL_BEATS-iGlobalTime)*0.1/point.x);
+    }
     //point.x += sin(iBeatTotalCount*0.1)*0.5;
   }
 
@@ -489,16 +470,15 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
   //  cellBoundries = 0.0001;
   //  glowFactor = 0.003;
 
-  float cell = smoothstep(sqrt(pow(uv.x-point.x, p) + pow(uv.y-point.y, p)),
-                          0.01+xy,
-                          1.0);
+  float xy = sqrt(pow(uv.x-point.x, p) + pow(uv.y-point.y, p));
+  float cell = smoothstep(xy, 0.01+xy, 1.0);
 
   if (cell > cellBoundries){
     person -= 1.0;
   }else if (cell < cellBoundries){
     person -= 0.9;
   }
-  vec4 helloPoint = vec4(vec3(person),1.0);
+  vec4 helloPoint = vec4(vec3(person), 1.0);
 
   if(SHOW_GLOW==1){
     helloPoint += addGlow(uv, point, glowFactor);
@@ -545,7 +525,7 @@ vec4 bouncingPerson(vec2 uv){
   }
 
   if(iOvertoneVolume > 0.1){
-    if( bounceWeight >= 5.0){
+    if(bounceWeight >= 5.0){//single center cell
       helloPoint += buildCell(uv, vec2(0.5, 0.5), 0);
     }
     else{
