@@ -516,38 +516,38 @@ vec4 bouncingPerson(vec2 uv){
       helloPoint += buildCell(uv, vec2(0.5, 0.5), 0);
     }
     else{
-      helloPoint += letter(letterR, vec2(0.3+letterSpace*0, top), uv);
-      helloPoint += letter(letterE, vec2(0.3+letterSpace*2, top), uv);
+      helloPoint += letter(letterR, vec2(0.32+letterSpace*0, top), uv);
+      helloPoint += letter(letterE, vec2(0.32+letterSpace*2, top), uv);
 
     if(PANIC == 0){
-      helloPoint += letter(letterP, vec2(0.3+letterSpace*4, top), uv);
-      helloPoint += letter(letterL, vec2(0.3+letterSpace*6, top), uv);
+      helloPoint += letter(letterP, vec2(0.32+letterSpace*4, top), uv);
+      helloPoint += letter(letterL, vec2(0.32+letterSpace*6, top), uv);
     }
     }
   }
 
   if(bounceWeight <= 3.0){
-
   if(RANDOM_LETTERS == 0){
     float liveUntil =  1/iGlobalTime*4;
     //Save processing if we have already faded out
 
     float spellingConvergePoint = 0.0;
-      if(iBouncingWeight == 2.0 && iCircularWeight == 0.0){
-        spellingConvergePoint = 0.5+0.5*sin(iGlobalTime*0.1);
-      }
-
-      helloPoint += letter(letterE, vec2(0.1+letterSpace*0, topLower), uv);
-      helloPoint += letter(letterT, vec2(0.1+letterSpace*8, topLower), uv);
-      if(spellingConvergePoint < 0.3){
-        helloPoint += letter(letterC, vec2(0.1+letterSpace*6, topLower), uv);
-        helloPoint += letter(letterL, vec2(0.1+letterSpace*2, topLower), uv);
-        helloPoint += letter(letterI, vec2(0.1+letterSpace*12, topLower), uv);
-        helloPoint += letter(letterE, vec2(0.1+letterSpace*4, topLower), uv);
-      }
-      helloPoint += letter(letterR, vec2(0.1+letterSpace*10, topLower), uv);
-      helloPoint += letter(letterC, vec2(0.1+letterSpace*14, topLower), uv);
+    if(iBouncingWeight == 2.0 && iCircularWeight == 0.0){
+      spellingConvergePoint = 0.5+0.5*sin(iGlobalTime*0.1);
     }
+
+    helloPoint += letter(letterE, vec2(0.12+letterSpace*0, topLower), uv);
+    helloPoint += letter(letterT, vec2(0.12+letterSpace*8, topLower), uv);
+    if(spellingConvergePoint < 0.3){
+      helloPoint += letter(letterC, vec2(0.12+letterSpace*6, topLower), uv);
+      helloPoint += letter(letterE, vec2(0.12+letterSpace*4, topLower), uv);
+    }
+    helloPoint += letter(letterL, vec2(0.12+letterSpace*2, topLower), uv);
+    helloPoint += letter(letterI, vec2(0.12+letterSpace*12, topLower), uv);
+
+    helloPoint += letter(letterR, vec2(0.12+letterSpace*10, topLower), uv);
+    helloPoint += letter(letterC, vec2(0.12+letterSpace*14, topLower), uv);
+  }
 
   }
   return helloPoint;
