@@ -459,14 +459,14 @@ vec4 letter(mat3 letter, vec2 offset, vec2 uv){
 }
 
 
-const mat3 complete = mat3(1, 1, 1,  1, 1, 1,  1, 1, 1);
-const mat3 letterR  = mat3(1, 1, 1,  1, 1, 0,  1, 0, 1);
-const mat3 letterE  = mat3(1, 1, 1,  1, 1, 0,  1, 1, 1);
-const mat3 letterP  = mat3(1, 1, 1,  1, 1, 1,  1, 0, 0);
-const mat3 letterL  = mat3(1, 0, 0,  1, 0, 0,  1, 1, 1);
-const mat3 letterC  = mat3(1, 1, 1,  1, 0, 0,  1, 1, 1);
-const mat3 letterT  = mat3(1, 1, 1,  0, 1, 0,  0, 1, 0);
-const mat3 letterI  = mat3(0, 1, 0,  0, 1, 0,  0, 1, 0);
+const mat3 LETTER_COMPLETE = mat3(1, 1, 1,  1, 1, 1,  1, 1, 1);
+const mat3 LETTER_R        = mat3(1, 1, 1,  1, 1, 0,  1, 0, 1);
+const mat3 LETTER_E        = mat3(1, 1, 1,  1, 1, 0,  1, 1, 1);
+const mat3 LETTER_P        = mat3(1, 1, 1,  1, 1, 1,  1, 0, 0);
+const mat3 LETTER_L        = mat3(1, 0, 0,  1, 0, 0,  1, 1, 1);
+const mat3 LETTER_C        = mat3(1, 1, 1,  1, 0, 0,  1, 1, 1);
+const mat3 LETTER_T        = mat3(1, 1, 1,  0, 1, 0,  0, 1, 0);
+const mat3 LETTER_I        = mat3(0, 1, 0,  0, 1, 0,  0, 1, 0);
 
 vec4 bouncingPerson(vec2 uv){
   float letterSpace = 0.05;
@@ -486,12 +486,12 @@ vec4 bouncingPerson(vec2 uv){
       helloPoint += buildCell(uv, vec2(0.5, 0.5), 0);
     }
     else{
-      helloPoint += letter(letterR, vec2(leftTop+letterSpace*0, top), uv);
-      helloPoint += letter(letterE, vec2(leftTop+letterSpace*2, top), uv);
+      helloPoint += letter(LETTER_R, vec2(leftTop+letterSpace*0, top), uv);
+      helloPoint += letter(LETTER_E, vec2(leftTop+letterSpace*2, top), uv);
 
     if(PANIC == 0){
-      helloPoint += letter(letterP, vec2(leftTop+letterSpace*4, top), uv);
-      helloPoint += letter(letterL, vec2(leftTop+letterSpace*6, top), uv);
+      helloPoint += letter(LETTER_P, vec2(leftTop+letterSpace*4, top), uv);
+      helloPoint += letter(LETTER_L, vec2(leftTop+letterSpace*6, top), uv);
     }
     }
   }
@@ -502,17 +502,17 @@ vec4 bouncingPerson(vec2 uv){
       spellingConvergePoint = 0.5+0.5*sin(iGlobalTime*0.1);
     }
 
-    helloPoint += letter(letterE, vec2(leftLower+letterSpace*0, topLower), uv);
-    helloPoint += letter(letterT, vec2(leftLower+letterSpace*8, topLower), uv);
+    helloPoint += letter(LETTER_E, vec2(leftLower+letterSpace*0, topLower), uv);
+    helloPoint += letter(LETTER_T, vec2(leftLower+letterSpace*8, topLower), uv);
     if(spellingConvergePoint < 0.3){
-      helloPoint += letter(letterC, vec2(leftLower+letterSpace*6, topLower), uv);
-      helloPoint += letter(letterE, vec2(leftLower+letterSpace*4, topLower), uv);
+      helloPoint += letter(LETTER_C, vec2(leftLower+letterSpace*6, topLower), uv);
+      helloPoint += letter(LETTER_E, vec2(leftLower+letterSpace*4, topLower), uv);
     }
-    helloPoint += letter(letterL, vec2(leftLower+letterSpace*2, topLower), uv);
-    helloPoint += letter(letterI, vec2(leftLower+letterSpace*12, topLower), uv);
+    helloPoint += letter(LETTER_L, vec2(leftLower+letterSpace*2, topLower), uv);
+    helloPoint += letter(LETTER_I, vec2(leftLower+letterSpace*12, topLower), uv);
 
-    helloPoint += letter(letterR, vec2(leftLower+letterSpace*10, topLower), uv);
-    helloPoint += letter(letterC, vec2(leftLower+letterSpace*14, topLower), uv);
+    helloPoint += letter(LETTER_R, vec2(leftLower+letterSpace*10, topLower), uv);
+    helloPoint += letter(LETTER_C, vec2(leftLower+letterSpace*14, topLower), uv);
   }
   return helloPoint;
 }
@@ -616,11 +616,11 @@ void main(void){
   float darkMode = 0.0;
 
   float snowSpeed = 0.000000000001; //0.00000001; //0.0000000001;
-  vec4 populationResult  = vec4(0., 0., 0., 0.);
-  vec4 circleResult      = vec4(0., 0., 0., 0.);
-  vec4 flareResult       = vec4(.0, .0, .0, .0);
-  vec4 bouncingResult    = vec4(0., 0., 0., 0.);
-  vec4 cellSpellResult   = vec4(.0,.0,.0,.0);
+  vec4 populationResult  = vec4(0.0,0.0,0.0,0.0);
+  vec4 circleResult      = vec4(0.0,0.0,0.0,0.0);
+  vec4 flareResult       = vec4(0.0,0.0,0.0,0.0);
+  vec4 bouncingResult    = vec4(0.0,0.0,0.0,0.0);
+  vec4 cellSpellResult   = vec4(0.0,0.0,0.0,0.0);
   vec4 circleDanceResult = vec4(0.0,0.0,0.0,0.0);
 
   if(iBouncingWeight > 0.0 && iOvertoneVolume > 0.01){
@@ -661,15 +661,7 @@ void main(void){
     circleDanceResult = circleDance();
   }
 
-  if(darkMode == 1.0){
-    //    c = 1.0-(circularWeight*circular()) -  snowResult - populationResult;
-  }
-  else{
-    c = (cellSpellResult +
-         populationResult +
-         circleResult +
-         bouncingResult +
-         flareResult);
-  }
+  c = (cellSpellResult + populationResult + circleResult + bouncingResult + flareResult);
+
   gl_FragColor = lineDistort(c, uv) + circleDanceResult;
 }
