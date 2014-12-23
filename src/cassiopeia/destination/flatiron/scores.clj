@@ -47,10 +47,8 @@
   (let [_ [0 0 0 0]
         [fu21 fu22 fu23 fu24 fu25 fu26 fu27]          (chords-with-inversion [1] :F2 :minor :up 3)
         [fuu21 fuu22 fuu23 fuu24 fuu25 fuu26 fuu27]   (chords-with-inversion [1 2] :F2 :minor :up 3)
-        [f21 f22 f23 f24 f25 f26 f27]                 (chords-for :F2 :minor 3)
-
-        all (chord-degree :ii :F3 :melodic-minor-asc)]
-    (let [chord-pat
+        [f21 f22 f23 f24 f25 f26 f27]                 (chords-for :F2 :minor 3)]
+    
           (concat
            (repeat 8 fuu21)
            (repeat 8 f26)
@@ -60,8 +58,7 @@
            (repeat 8 fuu21)
            (repeat 8 fuu21)
            (repeat 8 fu23)
-           [fu25 fu25 fu25 fu25 fu25 fu25  (chord :F2 :7sus4 2) (chord :F2 :7sus4 2)])]
-      chord-pat)))
+           [fu25 fu25 fu25 fu25 fu25 fu25  (chord :F2 :7sus4 2) (chord :F2 :7sus4 2)])))
 
 (def pinger-score-alternative
   (let [_ [0 0 0 0]
