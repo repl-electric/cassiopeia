@@ -198,7 +198,7 @@
     (defonce cell-dance-weight (atom 1.0)))
 
   ;;(kill beats)
-  (t/start "resources/shaders/nyc.glsl"
+  (start-graphics "resources/shaders/nyc.glsl"
            :textures [:overtone-audio :previous-frame
                       "resources/textures/tex16.png"]
            :user-data {"iGlobalBeatCount" (atom {:synth beats :tap "global-beat-count"})
@@ -217,8 +217,7 @@
                        "iInvertColor" invert-color
                        "iCircleDanceWeight" cell-dance-weight
                        })
-
-  (t/stop)
+  (stop-graphics "resources/shaders/nyc.glsl")
   (stop-everything!)
   (stop)
 )
