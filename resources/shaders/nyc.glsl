@@ -26,11 +26,9 @@ uniform float iBeatTotalCount;
 const float pi = 3.14159265;
 const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
 
-const float darkMode = 0.0;
-
 #define CIRCLE_ACCELERATOR 0.00000001
 #define CIRCLE_SCALE 1.25
-#define WAVE 2
+#define CELL_DANCE 2
 #define FLARE_SIZE 10
 
 #define TOTAL_BEATS 128.0
@@ -101,7 +99,6 @@ float fbm4( float x, float y ){
 }
 
 const float linesmooth = 0.0333;
-
 const float tau = 6.28318530717958647692;
 
 vec4 circleDance(void){
@@ -393,12 +390,14 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
     }
   }
 
-  if(WAVE==1){
+  if(CELL_DANCE==1){
+    //Cells become a sound wave
     float d = smoothstep(0, 1.0, texture2D(iChannel0, vec2(point.x, 0.75)).x) * 0.8;
     point.y = 0.1*(d)  + 0.5;
     point.y = 1.0-point.y;
   }
   else if(iBouncingWeight == 5.0 || wavey == 1){
+    //Cells dance in a circle
     float poo = point.x;
     float p = sin(iGlobalTime*speedFactor)*0.001;
     point.x = 0.5+ p*cos(mod((iGlobalTime+mod(iGlobalTime*0.2,360)*poo),360))*0.1;
@@ -408,7 +407,7 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
   //round cells
   float p;
   float cellBoundries;
-  p = 2.;
+  p = 2.0;
   cellBoundries = 0.5;
 
   float xy = sqrt(pow(uv.x-point.x, p) + pow(uv.y-point.y, p));
