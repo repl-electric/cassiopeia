@@ -1,13 +1,15 @@
 //NYC by Joseph Wilk <joe@josephwilk.net>
 uniform float iOvertoneVolume;
 uniform float iBeat;
-uniform float iBeatCount;
-uniform float iMeasureCount;
+uniform float iGlobalBeatCount;
 
 uniform float iCircleCount;
 uniform float iColor;
 uniform float iHalfPi;
 uniform float iInOutSpeed;
+uniform float iInvertColor;
+uniform float iSnowRatio;
+uniform float iDeformCircles;
 
 uniform float iCircularWeight;
 uniform float iFlareWeight;
@@ -15,13 +17,6 @@ uniform float iPopulationWeight;
 uniform float iBouncingWeight;
 uniform float iNycWeight;
 uniform float iCircleDanceWeight;
-
-uniform float iInvertColor;
-uniform float iSnowRatio;
-uniform float iDeformCircles;
-
-uniform float iGlobalBeatCount;
-uniform float iBeatTotalCount;
 
 const float pi = 3.14159265;
 const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
@@ -35,6 +30,9 @@ const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
 #define STATIC_LETTERS 0
 #define SHOW_GLOW 1
 #define PANIC 0
+
+float measureCount = mod(iGlobalBeatCount, 8 * 16) / 8;
+float beatTotalCount = mod(iGlobalBeatCount, 16);
 
 vec3 hsv2rgb(float h, float s, float v) {
   return mix(vec3(1.), clamp((abs(fract(h+vec3(3.,2.,1.)/3.)*6.-3.)-1.),0.,1.),s)*v;
@@ -88,14 +86,14 @@ float fbm4( float x, float y ){
   }
 
   f +=  0.5000*noise(p.x, p.y);
-  p = m*p*2.02 + iMeasureCount * 0.0009;
+  p = m*p*2.02 + measureCount * 0.0009;
   f +=  0.2500*noise(p.x, p.y);
-  p = m*p*2.03 + iMeasureCount * 0.0009;
+  p = m*p*2.03 + measureCount * 0.0009;
   f +=  0.1250*noise(p.x, p.y);
-  p = m*p*2.01 + iMeasureCount * 0.0009;
+  p = m*p*2.01 + measureCount * 0.0009;
   f +=  0.0625*noise(p.x, p.y);
 
-  return f / (0.9375 + (iMeasureCount * 0.009 * 4));
+  return f / (0.9375 + (measureCount * 0.009 * 4));
 }
 
 const float linesmooth = 0.0333;
@@ -136,7 +134,7 @@ vec4 populationDensity(vec2 pos)
   //incrementSize =+ iOvertoneVolume*0.01;
   float direction = 1.0;
 
-  if(iMeasureCount > 3.0){
+  if(measureCount > 3.0){
     direction = -1.0;
   }
   else{
@@ -150,12 +148,12 @@ vec4 populationDensity(vec2 pos)
     vec2 point = vec2(rand2(vec2(direction*seed, direction*0.5)), rand2(vec2(direction*0.5, direction*seed)));
 
     if (abs(sqrt(pow(pos.x-point.x,personGirth)+pow(pos.y-point.y-0.1,personGirth))/1.0) < 0.0001) {
-      person += (urgencyRate/i) * (iBeat + iMeasureCount * 0.09);
+      person += (urgencyRate/i) * (iBeat + measureCount * 0.09);
     }
   }
   //    }
 
-  return vec4(vec3(iMeasureCount*0.01+person, iBeatCount*0.01+person, iOvertoneVolume*0.01+person),1.0);
+  return vec4(vec3(measureCount*0.01+person, mod(iGlobalBeatCount,16)*0.01+person, iOvertoneVolume*0.01+person),1.0);
 }
 
 vec4 circular(void){
@@ -322,8 +320,8 @@ vec4 flare(void){
 vec3 hsvToRgb(float mixRate, float colorStrength){
   float colorChangeRate = 18.0;
   float time = fract(iGlobalTime/colorChangeRate);
-  float movementStart = (iBeatCount == 0) ? 1.0 : 0.5;
-  vec3 x = abs(fract((iBeatCount-1+time) + vec3(2.,3.,1.)/3.) * 6.-3.) - 1.;
+  float movementStart = (mod(iGlobalBeatCount,16) == 0) ? 1.0 : 0.5;
+  vec3 x = abs(fract((mod(iGlobalBeatCount,16)-1+time) + vec3(2.,3.,1.)/3.) * 6.-3.) - 1.;
   vec3 c = clamp(x, 0.,1.);
   //c = c*iBeat;
   //c = c * clamp(iBeat, 0.1, 0.4)+0.6;
@@ -525,7 +523,7 @@ vec4 theCell(vec2 uv){
 
   int rowCount = 4;
   int cellRate = 1;
-  for(int i = 0; i < iBeatTotalCount/4; i+= 4){
+  for(int i = 0; i < beatTotalCount/4; i+= 4){
     t = i/rowCount;
     vec2 thing = vec2(rand(vec2(0.45+0.03 * mod(i, rowCount), 0.03*t+0.05)), rand(vec2(0.4, i)));
     x += buildCell(uv, thing , 0);
@@ -541,7 +539,7 @@ vec4 theCellLife(vec2 uv, vec2 point){
   float rowCount = 1;
   float person = 1.0;
   float rate = 0.3;
-  float invBeatTotal = TOTAL_BEATS-iBeatTotalCount;
+  float invBeatTotal = TOTAL_BEATS-beatTotalCount;
   float p;
   float cellBoundries;
   float glow;
@@ -559,15 +557,15 @@ vec4 theCellLife(vec2 uv, vec2 point){
 
   if(iOvertoneVolume > 0.01){
     if(snail == 0.0){
-      if(iBeatTotalCount > 64.0){
-        point.y -= 0.2+0.5*sin(iBeatTotalCount*0.009/point.x)*1/invBeatTotal-0.2 *  rand2(vec2(point.y,point.x));
+      if(beatTotalCount > 64.0){
+        point.y -= 0.2+0.5*sin(beatTotalCount*0.009/point.x)*1/invBeatTotal-0.2 *  rand2(vec2(point.y,point.x));
       }
       else{
-        point.y -= (0.2+0.5*sin(invBeatTotal*0.009/point.x))*1/iBeatTotalCount;
+        point.y -= (0.2+0.5*sin(invBeatTotal*0.009/point.x))*1/beatTotalCount;
       }
     }
     else{
-      point.y -= 0.2+0.5*sin(iBeatTotalCount*0.009/point.x)*1/invBeatTotal-0.2;
+      point.y -= 0.2+0.5*sin(beatTotalCount*0.009/point.x)*1/invBeatTotal-0.2;
     }
 
   }
@@ -583,7 +581,7 @@ vec4 theCellLife(vec2 uv, vec2 point){
   vec4 helloPoint = vec4(vec3(person), 1.0);
   vec4 glowing = vec4(0.0);
   float res = glow / length(point - uv);
-  glowing = res * vec4(iMeasureCount*iOvertoneVolume, 0.1, 1/iGlobalTime, 1.0);
+  glowing = res * vec4(measureCount*iOvertoneVolume, 0.1, 1/iGlobalTime, 1.0);
 
   return helloPoint + glowing * 0.3;
 }
