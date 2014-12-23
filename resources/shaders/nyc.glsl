@@ -408,7 +408,7 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
   p = 2.0;
   cellBoundries = 0.5;
 
-  float xy = sqrt(pow(uv.x-point.x, p) + pow(uv.y-point.y, p));
+  float xy = length(uv-point);
   float cell = smoothstep(xy, 0.01+xy, 1.0);
 
   if (cell > cellBoundries){
