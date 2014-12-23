@@ -280,15 +280,13 @@ vec4 generateSnow(vec2 p, float speed){
 //#define INVERT *
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-float noise( in vec2 x )
-{
+float noise(in vec2 x){
   return texture2D(iChannel2, x*.01).x; // INCREASE MULTIPLIER TO INCREASE NOISE
 }
 
 // FLARING GENERATOR, A.K.A PURE AWESOME
 mat2 m2 = mat2( 0.80,  0.60, -0.60,  0.80 );
-float fbm( in vec2 p )
-{
+float fbm(in vec2 p){
   float z=5.;       // EDIT THIS TO MODIFY THE INTENSITY OF RAYS
   float rz = 0.09; // EDIT THIS TO MODIFY THE LENGTH OF RAYS
   p *= 0.25;        // EDIT THIS TO MODIFY THE FREQUENCY OF RAYS
@@ -301,10 +299,8 @@ float fbm( in vec2 p )
   return rz;
 }
 
-vec4 flare(void)
-{
+vec4 flare(void){
   float ray_density = clamp(texture2D(iChannel0, vec2(0.0,0.25)).x, 4.5,20.5);
-
   float t = DIRECTION iGlobalTime*.01;
   vec2 uv = gl_FragCoord.xy / iResolution.xy-0.5;
   uv.x *= iResolution.x/iResolution.y;
@@ -326,7 +322,6 @@ vec4 flare(void)
 
   return (vec4(col, 1) - vec4(1.8, 1.9, 1.9, 0));
 }
-
 
 vec3 hsvToRgb(float mixRate, float colorStrength){
   float colorChangeRate = 18.0;
@@ -358,7 +353,7 @@ vec4 lineDistort(vec4 cTextureScreen, vec2 uv1){
   return vec4(cResult, cTextureScreen.a);
 }
 
-float smoothbump(float center, float width, float x) {
+float smoothbump(float center, float width, float x){
   float w2 = width/2.0;
   float cp = center+w2;
   float cm = center-w2;
@@ -369,10 +364,10 @@ float smoothbump(float center, float width, float x) {
 vec4 colorCycle = vec4(hsvToRgb(0.5, 0.9), 1.0);
 
 vec4 addGlow(vec2 uv, vec2 point, float glow){
-  float res = glow / length(point - uv);
   if(iBeat == 1.0){
     glow += 0.00005;
   }
+  float res = glow / length(point - uv);
   return res * colorCycle;
 }
 
@@ -411,7 +406,6 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
   }
   else if(iBouncingWeight == 5.0 || wavey == 1){
     float poo = point.x;
-    //float f = smoothstep(0,1.0,(texture2D(iChannel0, vec2(0.0+1/2*point.x, 0.75)).x))+0.1;
     float p = sin(iGlobalTime*speedFactor)*0.001;
     point.x = 0.5+ p*cos(mod((iGlobalTime+mod(iGlobalTime*0.2,360)*poo),360))*0.1;
     point.y = iResolution.y*0.0004 + p*sin(mod(iGlobalTime+mod(iGlobalTime*0.2,360)*poo,360))*0.1;
@@ -511,9 +505,6 @@ vec4 bouncingPerson(vec2 uv){
 
   if(bounceWeight <= 3.0){
   if(RANDOM_LETTERS == 0){
-    float liveUntil =  1/iGlobalTime*4;
-    //Save processing if we have already faded out
-
     float spellingConvergePoint = 0.0;
     if(iBouncingWeight == 2.0 && iCircularWeight == 0.0){
       spellingConvergePoint = 0.5+0.5*sin(iGlobalTime*0.1);
