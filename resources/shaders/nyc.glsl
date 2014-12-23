@@ -368,13 +368,11 @@ float smoothbump(float center, float width, float x) {
 
 vec4 colorCycle = vec4(hsvToRgb(0.5, 0.9), 1.0);
 
-vec4 addGlow(vec2 uv, vec2 v, float glow){
-  float res = glow / length(v - uv);
-
+vec4 addGlow(vec2 uv, vec2 point, float glow){
+  float res = glow / length(point - uv);
   if(iBeat == 1.0){
     glow += 0.00005;
   }
-
   return res * colorCycle;
 }
 
@@ -404,22 +402,14 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
     else{
       point.y -= y1 * sin((TOTAL_BEATS-mod(iGlobalTime, TOTAL_BEATS))*0.1/point.x);
     }
-    //point.x += sin(iBeatTotalCount*0.1)*0.5;
   }
 
   if(WAVE==1){
-    //float g = 0.2*texture2D(iChannel0, vec2(point.x,0.25)).x + 0.2*texture2D(iChannel0, vec2(point.x,0.75)).x;
-    //point.y = g + 0.45;
     float d = smoothstep(0, 1.0, texture2D(iChannel0, vec2(point.x, 0.75)).x) * 0.8;
-    //    float q = smoothbump(0,1.0, texture2D(iChannel1, vec2(point.x, point.y)).x);
-    //d = smoothbump(0, 1.0, texture2D(iChannel0, vec2(point.x, 0.75)).x);
-    //d = smoothstep(0, 1.0, texture2D(iChannel0, vec2(uv.x, 0.75)).x);
-
     point.y = 0.1*(d)  + 0.5;
-    //point.y = d*0.09;
     point.y = 1.0-point.y;
   }
- else if(iBouncingWeight == 5.0 || wavey == 1){
+  else if(iBouncingWeight == 5.0 || wavey == 1){
     float poo = point.x;
     //float f = smoothstep(0,1.0,(texture2D(iChannel0, vec2(0.0+1/2*point.x, 0.75)).x))+0.1;
     float p = sin(iGlobalTime*speedFactor)*0.001;
@@ -460,16 +450,10 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
     }
   }
 
-  //square cells
-  //  p = 4.0;
-  //  cellBoundries = 0.0001;
-  //  glowFactor = 0.003;
-
   if(SHOW_GLOW==1){
     helloPoint += addGlow(uv, point, glowFactor);
   }
   }
-
   return helloPoint;
 }
 
