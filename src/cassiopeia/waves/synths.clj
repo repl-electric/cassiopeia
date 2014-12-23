@@ -135,6 +135,13 @@
         ])
   (out 0 0))
 
+(defsynth buffer->tap-lite [beat-buf 0 beat-bus 0 beat-size 16 measure 6]
+  (let [cnt (in:kr beat-bus)
+        beat (buf-rd:kr 1 beat-buf cnt)
+        _  (tap "global-beat-count" 60 (a2k cnt))
+        _  (tap "beat"              60 (a2k beat))])
+  (out 0 0))
+
 (defsynth kick2
   "We take the sting out of the overtone kick2 drum giving a softer more mellow kick"
   [amp 0.8 mod-freq  5 mod-index 5 sustain 0.4 noise 0.025 attack 0.005

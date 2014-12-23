@@ -181,7 +181,7 @@
 
 (comment
   (do ;;init graphics
-    (def beats (buffer->tap kick-seq-buf (:count time/beat-1th) :measure 8))
+    (def beats (buffer->tap-lite kick-seq-buf (:count time/beat-1th) :measure 8))
 
     (defonce circle-count        (atom 4.0))
     (defonce color               (atom 0.1))
@@ -201,11 +201,9 @@
   (t/start "resources/shaders/nyc.glsl"
            :textures [:overtone-audio :previous-frame
                       "resources/textures/tex16.png"]
-           :user-data {"iMeasureCount"   (atom {:synth beats :tap "measure-count"})
-                       "iBeatTotalCount" (atom {:synth beats :tap "beat-total-count"})
-                       "iGlobalBeatCount" (atom {:synth beats :tap "global-beat-count"})
-                       "iBeat"           (atom {:synth beats :tap "beat"})
-                       "iBeatCount"      (atom {:synth beats :tap "beat-count"})
+           :user-data {"iGlobalBeatCount" (atom {:synth beats :tap "global-beat-count"})
+                       "iBeat"            (atom {:synth beats :tap "beat"})
+
                        "iColor" color
                        "iCircleCount" circle-count
                        "iHalfPi" circle-slice
