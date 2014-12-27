@@ -1,8 +1,8 @@
 (ns cassiopeia.destination.flatiron.scores
-  (:use [cassiopeia.engine.expediency]
+  (:use [overtone.live]
+        [cassiopeia.engine.expediency]
         [mud.core]
-        [mud.chords]
-        [overtone.live]))
+        [mud.chords]))
 
 (def dark-chords-score
   (let [_ [0 0 0 0]
