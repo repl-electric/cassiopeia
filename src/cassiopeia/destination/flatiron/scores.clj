@@ -6,18 +6,19 @@
 
 (def dark-chords-score
   (let [_ [0 0 0 0]
-        [f31 f32 f33 f34 f35 f36 f37] (chords-for :F3 :minor 3)
-        chord-pat (concat
-                   (repeat 16 f31)
-                   (repeat 16 f33)
-                   (repeat 16 f34)
-                   (repeat 8 f36) (repeat 8 (chord :F3 :m+5))
+        [f31 f32 f33 f34 f35 f36 f37] (chords-for :F3 :minor 3)]
+    (chords-seq :minor [:F3 :1*16 :3*16 :4*16 :6*8 :m+5*8
+                        :F3 :1*16 :3*16 :4*16 :6*8 :m7+5*8])
+    (concat
+     (repeat 16 f31)
+     (repeat 16 f33)
+     (repeat 16 f34)
+     (repeat 8 f36) (repeat 8 (chord :F3 :m+5))
 
-                   (repeat 16 f31)
-                   (repeat 16 f33)
-                   (repeat 16 f34)
-                   (repeat 8 f36) (repeat 8 (chord :F3 :m7+5)))]
-    chord-pat))
+     (repeat 16 f31)
+     (repeat 16 f33)
+     (repeat 16 f34)
+     (repeat 8 f36) (repeat 8 (chord :F3 :m7+5)))))
 
 (def darker-pinger-score
   (let [_ [0 0 0 0]
@@ -27,12 +28,12 @@
         [f31 f32 f33 f34 f35 f36 f37]  (chords-for :F3 :minor 1)
         [f41 f42 f43 f44 f45 f46 f47]  (chords-for :F4 :minor 1)]
     (chord-score (repeat 6 [c41 f31 f33 f34  f31 f31 f41 f31  c41 f31 f33 f34  f31 f31 f41 f31])
-                 [c37 f31 f33 f34  f31 f31 f41 f31  c37 f31 f33 f34  f31 f31 f41 f31]
-                 [c41 f31 f33 f34  f31 f31 f41 f31  c34 f31 f33 f31  f31 f31 f41 f31]
+                           [c37 f31 f33 f34  f31 f31 f41 f31  c37 f31 f33 f34  f31 f31 f41 f31]
+                           [c41 f31 f33 f34  f31 f31 f41 f31  c34 f31 f33 f31  f31 f31 f41 f31]
 
                  (repeat 6 [c41 f31 f33 f34  f31 f31 f41 f31  c41 f31 f33 f34  f31 f31 f41 f31])
-                 [c37 f31 f33 f34  f31 f31 f41 f31  c37 f31 f33 f34  f31 f31 f41 f31]
-                 [c41 f31 f33 f41  f27 f31 f31 f31  c31 f31 f33 f41  f31 f31 f41 f31])))
+                           [c37 f31 f33 f34  f31 f31 f41 f31  c37 f31 f33 f34  f31 f31 f41 f31]
+                           [c41 f31 f33 f41  f27 f31 f31 f31  c31 f31 f33 f41  f31 f31 f41 f31])))
 
 (def apeg-swell
   (chord-score
@@ -49,17 +50,19 @@
         [f21b f22b f23b f24b f25b f26b f27b] (chords-with-inversion [1] :F2 :minor :up 3)
         [f21c f22c f23c f24c f25c f26c f27c] (chords-with-inversion [1 2] :F2 :minor :up 3)
         [f21 f22 f23 f24 f25 f26 f27]        (chords-for :F2 :minor 3)]
-    
-          (concat
-           (repeat 8 f21c)
-           (repeat 8 f26)
-           (repeat 8 f23b)
-           [f24b f24b f24b f24b f24b f24b (chord :F2 :sus4 2) (chord :F2 :sus4 2)]
 
-           (repeat 8 f21c)
-           (repeat 8 f21c)
-           (repeat 8 f23b)
-           [f25b f25b f25b f25b f25b f25b (chord :F2 :7sus4 2) (chord :F2 :7sus4 2)])))
+    (chords-seq :minor [:F2 :1c*8 :6*8  :3b*8 :4b*6 :sus4c*2
+                        :F2 :1c*8 :1c*8 :3b*8 :5b*6 :7sus4c*2])
+    (concat
+     (repeat 8 f21c)
+     (repeat 8 f26)
+     (repeat 8 f23b)
+     [f24b f24b f24b f24b f24b f24b (chord :F2 :sus4 2) (chord :F2 :sus4 2)]
+
+     (repeat 8 f21c)
+     (repeat 8 f21c)
+     (repeat 8 f23b)
+     [f25b f25b f25b f25b f25b f25b (chord :F2 :7sus4 2) (chord :F2 :7sus4 2)])))
 
 (def pinger-score-alternative
   (let [_ [0 0 0 0]
@@ -133,7 +136,7 @@
         [f41 f42 f43 f44 f45 f46 f47] (chords-for :F4 :minor 1)]
     (let [new-pat (chord-score
                    (repeat 15 [f41 f43 f41 f44 c37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))])
-                   [f41 _   f43 f44 c37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))])]
+                              [f41 _   f43 f44 c37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))])]
 
       [f41 f43 f41 f44 c37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))
        f41 f43 f41 f44 c37 c36 (as-chord (degrees [7] :minor :F3)) (as-chord (degrees [7] :minor :F3))
