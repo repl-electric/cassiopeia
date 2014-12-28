@@ -58,10 +58,10 @@
  15 16
  (fn []
    (do
-     (pattern! hats-buf (repeat 3 [0 0 0 0  1 0 0 0   0 0 1 0  0 0 0 0])
-                                  [0 0 0 0  1 0 0 0   0 0 1 0  1 0 0 0])
-     (pattern! kick-seq-buf (repeat 3 [1 0 0 0   0 0 0 0   1 0 0 0   0 0 0 0 ])
-                                      [1 0 0 0   0 0 0 0   1 0 0 0   1 0 1 0])
+     (pattern! hats-buf     (repeat 3 [0 0 0 0  1 0 0 0  0 0 1 0  0 0 0 0])
+                                      [0 0 0 0  1 0 0 0  0 0 1 0  1 0 0 0])
+     (pattern! kick-seq-buf (repeat 3 [1 0 0 0  0 0 0 0  1 0 0 0  0 0 0 0])
+                                      [1 0 0 0  0 0 0 0  1 0 0 0  1 0 1 0])
 
      (def white (doall (map #(whitenoise-hat [:head drums-g] :amp-buf hats-amp :seq-buf hats-buf :beat-bus (:count time/beat-1th) :beat-trg-bus (:beat time/beat-1th) :num-steps 16 :release 0.1 :attack 0.0 :beat-num %1) (range 0 1))))
      (ctl white :amp-buf hats-amp)
