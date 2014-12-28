@@ -469,12 +469,13 @@
                               (lpf (saw freq) saw-cutoff)
                               (lpf (pulse freq) saw-cutoff)
                               (mix [(lpf (saw freq) saw-cutoff) (pulse freq)])
-                              (sum [(lpf (saw (/ freq 2)) saw-cutoff) (lf-tri freq)])])
+                              (sum [(lpf (saw (/ freq 2)) saw-cutoff) (lf-tri freq)])
+                              (mix [(pitch-shift (lpf (sin-osc freq) saw-cutoff) 0.4 1 0 0.01)])])
         src (mix [wave
                   (lpf noize noise-cutoff)])
         src (g-verb src 200 1 0.2)
         e (env-gen (perc attack release) :gate gate-trg)
-        amp (+ (* amp 5) amp)]
+        amp (+ amp)]
     (* (* b-amp amp) e src)))
 
 (comment
