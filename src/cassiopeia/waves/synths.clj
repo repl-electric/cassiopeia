@@ -451,8 +451,7 @@
                               ])
         src (mix [wave (lpf noize noise-cutoff)])
         src (g-verb src 200 1 0.2)
-        e (env-gen (perc attack release) :gate gate-trg)
-        amp (+ (* amp 5) amp)]
+        e (env-gen (perc attack release) :gate gate-trg)]
     (* amp e src)))
 
 (definst general-purpose-assembly-pi [amp 1 note-buf 0 noise-level 0.05 beat-trg-bus (:beat time/beat-4th) beat-bus (:count time/beat-4th) attack-buf 0 release-buf 0 amp-buf 0 attack 0.4 release 0.9 saw-cutoff 300 noise-cutoff 100 wave 1]

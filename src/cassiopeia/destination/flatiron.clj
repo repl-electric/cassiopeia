@@ -90,10 +90,10 @@
    (doseq [s (:synths apeg-deep-melody-chord-g)]
      (ctl s :amp 0.00 :saw-cutoff 100 :wave 0 :attack 1.0 :release 5.0)
      (n-overtime! s :saw-cutoff 100 2000 50)
-     (n-overtime! s :amp 0.00 0.04 0.005))))
+     (n-overtime! s :amp 0.00 0.24 0.03))))
 
-(ctl main-melody-chord-g :amp 0.1 :saw-cutoff )
-(ctl apeg-deep-melody-chord-g :amp 0.038 :saw-cutoff  :wave 1)
+(ctl main-melody-chord-g :amp 0.6 :saw-cutoff)
+(ctl apeg-deep-melody-chord-g :amp 0.228 :saw-cutoff  :wave 1)
 (pattern! kick-seq-buf [1 0 0 0 1 0 0 0])
 (ctl kicker :amp 0)
 (ctl white :amp 0)
@@ -102,13 +102,13 @@
   (overtime! circle-slice (* 0.5 Math/PI)) (reset! invert-color 0.0) (reset! cells-weight 4.0)
   (ctl main-melody-chord-g :amp 0.0)
   (ctl apeg-deep-melody-spair-chord-g :amp 0.00 :saw-cutoff 2000 :wave 2 :attack 1.0 :release 5.0)
-  (n-overtime! apeg-deep-melody-spair-chord-g :amp 0 0.04 0.01)
+  (n-overtime! apeg-deep-melody-spair-chord-g :amp 0 0.24 0.06)
 
   (chord-pattern apeg-deep-melody-spair-chord-g pinger-growth-score-spair)
   (ctl drum-effects-g :amp 0.3) (ctl drums-g :amp 1.0)
 
   (pattern! effects-seq-buf  (repeat 12 [1 0])  [1 0 0 0])
-  (ctl apeg-deep-melody-chord-g :amp 0.05 :saw-cutoff 2600 :wave 0 :attack 1.0 :release 5.0)
+  (ctl apeg-deep-melody-chord-g :amp 0.3 :saw-cutoff 2600 :wave 0 :attack 1.0 :release 5.0)
   (def f (dulcet-fizzle :amp 2.0 :note-buf df-b))
   )
 
@@ -150,8 +150,8 @@
                             (ctl-time apeg-deep-melody-spair-chord-g time/beat-1th)
                             (ctl-time slow-deep-chord-g time/beat-2th)
 
-                            (ctl main-melody-chord-g :amp 0.03)
-                            (ctl apeg-deep-melody-spair2-chord-g :amp 0.03)
+                            (ctl main-melody-chord-g :amp 0.18)
+                            (ctl apeg-deep-melody-spair2-chord-g :amp 0.18)
                             (chord-pattern main-melody-chord-g pinger-score-spair)
                             (n-overtime! apeg-deep-melody-spair2-chord-g :saw-cutoff 0.0 1000 50)
                             (n-overtime! apeg-deep-melody-spair-chord-g  :saw-cutoff 0.0 2600 50)
@@ -175,8 +175,8 @@
 
   (reset! color 0.5)
   (chord-pattern main-melody2-chord-g  darker-pinger-score)
-  (ctl main-melody2-chord-g :amp 0.03 :saw-cutoff 1000)
-  (ctl main-melody-chord-g :saw-cutoff 300 :amp 0.03)
+  (ctl main-melody2-chord-g :amp 0.18 :saw-cutoff 1000)
+  (ctl main-melody-chord-g :saw-cutoff 300 :amp 0.18)
   (chord-pattern main-melody-chord-g apeg-swell))
 
 (comment
