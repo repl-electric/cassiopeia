@@ -58,8 +58,8 @@
  15 16
  (fn []
    (do
-     (add-watch beat-tap :cell-color (fn [key ref old-value new-value]
-                                       (when (and (= old-value 0.0) (= 1.0 new-value))
+     (add-watch beat-tap :cell-color (fn [_ _ old new]
+                                       (when (and (= old 0.0) (= 1.0 new))
                                          (reset! cell-dance-color (mod (+ @cell-dance-color 1.0) 100)))))
 
      (pattern! hats-buf     (repeat 3 [0 0 0 0  1 0 0 0  0 0 1 0  0 0 0 0])
