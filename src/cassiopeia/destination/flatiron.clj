@@ -58,6 +58,10 @@
  15 16
  (fn []
    (do
+     (add-watch beat-tap :cell-color (fn [key ref old-value new-value]
+                                       (when (and (= old-value 0.0) (= 1.0 new-value))
+                                         (reset! cell-dance-color (mod (+ @cell-dance-color 1.0) 100)))))
+
      (pattern! hats-buf     (repeat 3 [0 0 0 0  1 0 0 0  0 0 1 0  0 0 0 0])
                                       [0 0 0 0  1 0 0 0  0 0 1 0  1 0 0 0])
      (pattern! kick-seq-buf (repeat 3 [1 0 0 0  0 0 0 0  1 0 0 0  0 0 0 0])
@@ -90,7 +94,9 @@
    (doseq [s (:synths apeg-deep-melody-chord-g)]
      (ctl s :amp 0.00 :saw-cutoff 100 :wave 0 :attack 1.0 :release 5.0)
      (n-overtime! s :saw-cutoff 100 2000 50)
-     (n-overtime! s :amp 0.00 0.24 0.03))))
+     (n-overtime! s :amp 0.00 0.24 0.03))
+
+   (remove-watch beat-tap :cell-color)))
 
 (ctl main-melody-chord-g :amp 0.6 :saw-cutoff)
 (ctl apeg-deep-melody-chord-g :amp 0.228 :saw-cutoff  :wave 1)
@@ -195,14 +201,18 @@
     (defonce cells-weight      (atom 0.0))
     (defonce nyc-weight        (atom 0.0))
     (defonce invert-color      (atom 1.0))
-    (defonce cell-dance-weight (atom 1.0)))
+    (defonce cell-dance-weight (atom 1.0))
+    (def ibeat (atom {:synth beats :tap "beat"}))
+    (def beat-tap (get-in (:synth @ibeat) [:taps (:tap @ibeat)]))
+    (def cell-dance-color (atom 0.0))
+    )
 
   ;;(kill beats)
   (start-graphics "resources/shaders/nyc.glsl"
            :textures [:overtone-audio :previous-frame
                       "resources/textures/tex16.png"]
            :user-data {"iGlobalBeatCount" (atom {:synth beats :tap "global-beat-count"})
-                       "iBeat"            (atom {:synth beats :tap "beat"})
+                       "iBeat"            ibeat
 
                        "iColor" color
                        "iCircleCount" circle-count
@@ -216,6 +226,7 @@
                        "iNycWeight" nyc-weight
                        "iInvertColor" invert-color
                        "iCircleDanceWeight" cell-dance-weight
+                       "iCircleDanceColor" cell-dance-color
                        })
   (stop-graphics "resources/shaders/nyc.glsl")
   (stop-everything!)
