@@ -10,6 +10,7 @@ uniform float iInOutSpeed;
 uniform float iInvertColor;
 uniform float iSnowRatio;
 uniform float iDeformCircles;
+uniform float iDeath;
 
 uniform float iCircularWeight;
 uniform float iFlareWeight;
@@ -110,13 +111,11 @@ vec4 circleDance(void){
   vec3 wave = vec3(0.0);
   float colorOffset;
 
+  float n = min(60.0, iCircleDanceWeight);
 
- float n = min(60.0, iCircleDanceWeight);
-
- colorOffset = iCircleDanceColor;
+  colorOffset = iCircleDanceColor;
   for (int i=0; i < n; i++){
-
- float sound = texture2D(iChannel0, vec2(uv.x,.75)).x;
+    float sound = texture2D(iChannel0, vec2(uv.x,.75)).x;
     float a = 0.1*float(i)*tau/float(n) + colorOffset;
     vec3 phase = smoothstep(-1.0,.5,vec3(cos(a),cos(a-tau/3.0),cos(a-tau*2.0/3.0)));
     wave += phase*smoothstep(4.0/500, 0.0, abs(uv.y - ((sound*0.9)+0.2)));
@@ -160,82 +159,6 @@ vec4 populationDensity(vec2 pos)
   //    }
 
   return vec4(vec3(measureCount*0.01+person, mod(iGlobalBeatCount,16)*0.01+person, iOvertoneVolume*0.01+person),1.0);
-}
-
-vec4 circular(void){
-  vec2 mainuv = (gl_FragCoord.xy / iResolution.xy);
-  float aspect = iResolution.x/iResolution.y;
-  float finalval = iColor; // 0.1
-  float scale = CIRCLE_SCALE;
-  float speed = CIRCLE_ACCELERATOR;
-  float shading = 0.20025;
-  float halfpi = iHalfPi;
-
-  float circleScale = min(60, iCircleCount);
-  vec2 uv = mainuv * scale - scale * 0.5;
-  uv.x *= aspect;
-
-  float mainval = 1.0; //50-60 nice overpaint effect
-  float inverseLength;
-
-  if(iDeformCircles == 1.0){
-    inverseLength = saturate(length(uv)) + clamp(iBeat, 0.0, 0.002);
-  }
-  else{
-    inverseLength = saturate(length(uv)) * (uv.x + uv.y) * iDeformCircles;
-  }
-
-  //inverseLength = saturate(length(uv)) * rand(vec2(texture2D(iChannel0, vec2(0, 0)).x, texture2D(iChannel0, vec2(0, 0)).y));
-
-  float core = inverseLength * circleScale;
-  float coreident = ceil(core);
-
-  speed = 1e-4 + clamp(iBeat,0.0,0.0000001);
-  shading = 0.20025; //clamp(iOvertoneVolume, 0.20025, 0.20025);
-
-  //float musiz = texture2D(iChannel0, vec2(0.,0.)).x / 100.0 + iOvertoneVolume/1;
-  //
-  //vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.005 , iGlobalTime * 0.005) * pi * pi );
-  //rotatedUVs *= mm2( halfpi - fbm4( coreident * 2.0 , iGlobalTime * 0.05) * pi * pi )  * musiz;
-  //  * texture2D(iChannel0, vec2(0, 0)).x
-
-  float speedFactor= 0.1;
-
-  if(iOvertoneVolume < 0.1){
-    speedFactor = speedFactor * 0.9;
-  }
-
-  vec2 rotatedUVs = uv * mm2(halfpi + fbm4(coreident * 0.005 , iGlobalTime * 0.07 *
-                                           clamp(texture2D(iChannel0, vec2(0.0, 0.7)).x, 0.01, 0.2)) * pi * pi );
-  rotatedUVs *= mm2( halfpi - fbm4(coreident * 2.0 , iGlobalTime *  speedFactor *
-                                   clamp(texture2D(iChannel0, vec2(0, .7)).x, 0.02, 1.0) ) * pi * pi );
-
-  //  vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.5, iGlobalTime * 0.07 ) * pi * pi );
-  //rotatedUVs          *= mm2( halfpi - fbm4( coreident * 2.0, iGlobalTime * 0.1  ) * pi * pi );
-  float arcpos = ( pi + atan( rotatedUVs.y, rotatedUVs.x ) ) / halfpi;
-  arcpos /= pi;
-  arcpos = smoothstep( 0.2, shading - coreident * 0.0001, fract( arcpos ) * fract( -arcpos ) );
-
-
-  //  vec2 rotatedUVs = uv * mm2(halfpi + fbm4(coreident * 0.005 , iGlobalBeatCount * speed * texture2D(iChannel0, vec2(0, 0)).x) * pi * pi);
-  // rotatedUVs *= mm2(halfpi - fbm4(coreident * 2.0 , iGlobalBeatCount * speed * texture2D(iChannel0, vec2(0, 0)).x) * pi * pi);
-
-  //float arcpos = (pi + atan(rotatedUVs.y, rotatedUVs.x)) / halfpi;
-  //arcpos /= pi;
-
-  //arcpos = smoothstep(0.2, shading - coreident * 0.0001, fract(arcpos) * fract(-arcpos));
-  mainval *= fbm4(coreident, iGlobalBeatCount * iInOutSpeed) * arcpos;
-
-  float coresmooth = fract(core) * fract(-core);
-  float corewidth  = fwidth(coresmooth);
-  const float edgethreshold = 0.1;
-  mainval *= smoothstep(edgethreshold - corewidth, edgethreshold + corewidth, coresmooth);
-  finalval += mainval;
-
-  finalval = max(finalval, 0.0) + 0.0025;
-  finalval = min(finalval, 1.0);
-
-  return vec4(vec3(pow(finalval, 1.0/2.0)) - iBeat * 0.1, 1.0);
 }
 
 vec4 generateSnow(vec2 p, float speed){
@@ -321,6 +244,90 @@ vec4 flare(void){
   col = mix(col,vec3(1.), rad - 266.667 * r); // REMOVE THIS TO SEE THE FLARING
 
   return (vec4(col, 1) - vec4(1.8, 1.9, 1.9, 0));
+}
+
+
+vec4 circular(void){
+  vec2 mainuv = (gl_FragCoord.xy / iResolution.xy);
+  float aspect = iResolution.x/iResolution.y;
+  float finalval = iColor; // 0.1
+  float scale = CIRCLE_SCALE;
+  float speed = CIRCLE_ACCELERATOR;
+  float shading = 0.20025;
+  float halfpi = iHalfPi;
+  float circleScale = min(60, iCircleCount);
+
+  float speedFactor= 0.1;
+  if(iDeath < 3.0){
+    speedFactor = iDeath+8.0 * speedFactor;
+    scale = iDeath*0.325 * CIRCLE_SCALE;
+    //    halfpi= 2.0;
+    ///scale = iOvertoneVolume+10.1*10.0;
+    //    circleScale = circleScale * iDeath;
+  }
+  if(iOvertoneVolume < 0.001){
+    //halfpi = 0.01;
+  }
+
+  vec2 uv = mainuv * scale - scale * 0.5;
+  uv.x *= aspect;
+
+  float mainval = 1.0; //50-60 nice overpaint effect
+  float inverseLength;
+
+  if(iDeformCircles == 1.0){
+    inverseLength = saturate(length(uv)) + clamp(iBeat, 0.0, 0.002);
+  }
+  else{
+    inverseLength = saturate(length(uv)) * (uv.x + uv.y) * iDeformCircles;
+  }
+
+  //inverseLength = saturate(length(uv)) * rand(vec2(texture2D(iChannel0, vec2(0, 0)).x, texture2D(iChannel0, vec2(0, 0)).y));
+
+  float core = inverseLength * circleScale;
+  float coreident = ceil(core);
+
+  speed = 1e-4 + clamp(iBeat,0.0,0.0000001);
+  shading = 0.20025; //clamp(iOvertoneVolume, 0.20025, 0.20025);
+
+  //float musiz = texture2D(iChannel0, vec2(0.,0.)).x / 100.0 + iOvertoneVolume/1;
+  //
+  //vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.005 , iGlobalTime * 0.005) * pi * pi );
+  //rotatedUVs *= mm2( halfpi - fbm4( coreident * 2.0 , iGlobalTime * 0.05) * pi * pi )  * musiz;
+  //  * texture2D(iChannel0, vec2(0, 0)).x
+
+  vec2 rotatedUVs = uv * mm2(halfpi + fbm4(coreident * 0.005 , iGlobalTime * 0.07 *
+                                           clamp(texture2D(iChannel0, vec2(0.0, 0.7)).x, 0.01, 0.2)) * pi * pi );
+  rotatedUVs *= mm2( halfpi - fbm4(coreident * 2.0 , iGlobalTime *  speedFactor *
+                                   clamp(texture2D(iChannel0, vec2(0, .7)).x, 0.02, 1.0) ) * pi * pi );
+
+  //  vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.5, iGlobalTime * 0.07 ) * pi * pi );
+  //rotatedUVs          *= mm2( halfpi - fbm4( coreident * 2.0, iGlobalTime * 0.1  ) * pi * pi );
+  float arcpos = ( pi + atan( rotatedUVs.y, rotatedUVs.x ) ) / halfpi;
+  arcpos /= pi;
+  arcpos = smoothstep( 0.2, shading - coreident * 0.0001, fract( arcpos ) * fract( -arcpos ) );
+
+
+  //  vec2 rotatedUVs = uv * mm2(halfpi + fbm4(coreident * 0.005 , iGlobalBeatCount * speed * texture2D(iChannel0, vec2(0, 0)).x) * pi * pi);
+  // rotatedUVs *= mm2(halfpi - fbm4(coreident * 2.0 , iGlobalBeatCount * speed * texture2D(iChannel0, vec2(0, 0)).x) * pi * pi);
+
+  //float arcpos = (pi + atan(rotatedUVs.y, rotatedUVs.x)) / halfpi;
+  //arcpos /= pi;
+
+  //arcpos = smoothstep(0.2, shading - coreident * 0.0001, fract(arcpos) * fract(-arcpos));
+  mainval *= fbm4(coreident, iGlobalBeatCount * iInOutSpeed) * arcpos;
+
+  float coresmooth = fract(core) * fract(-core);
+  float corewidth  = fwidth(coresmooth);
+  const float edgethreshold = 0.1;
+  mainval *= smoothstep(edgethreshold - corewidth, edgethreshold + corewidth, coresmooth);
+  finalval += mainval;
+
+  finalval = max(finalval, 0.0) + 0.0025;
+  finalval = min(finalval, 1.0);
+
+  vec4 r = vec4(vec3(pow(finalval, 1.0/2.0)) - iBeat * 0.1, 1.0);
+  return r;
 }
 
 vec3 hsvToRgb(float mixRate, float colorStrength){
@@ -440,6 +447,10 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
       }
     }
 
+    if(iDeath != 3.0){
+      glowFactor *= (0.45*(iDeath));
+    }
+
     if(SHOW_GLOW==1){
       helloPoint += addGlow(uv, point, glowFactor);
     }
@@ -463,7 +474,6 @@ vec4 letter(mat3 letter, vec2 offset, vec2 uv){
   }
   return helloPoint;
 }
-
 
 const mat3 LETTER_COMPLETE = mat3(1, 1, 1,  1, 1, 1,  1, 1, 1);
 const mat3 LETTER_R        = mat3(1, 1, 1,  1, 1, 0,  1, 0, 1);
@@ -623,7 +633,6 @@ void main(void){
   vec2 uv = gl_FragCoord.xy / iResolution.x;
   float darkMode = 0.0;
 
-  float snowSpeed = 0.000000000001; //0.00000001; //0.0000000001;
   vec4 populationResult  = vec4(0.0,0.0,0.0,0.0);
   vec4 circleResult      = vec4(0.0,0.0,0.0,0.0);
   vec4 flareResult       = vec4(0.0,0.0,0.0,0.0);
@@ -631,11 +640,11 @@ void main(void){
   vec4 cellSpellResult   = vec4(0.0,0.0,0.0,0.0);
   vec4 circleDanceResult = vec4(0.0,0.0,0.0,0.0);
 
-  if(iBouncingWeight > 0.0 && iOvertoneVolume > 0.01){
+  if(iBouncingWeight > 0.0){
     bouncingResult = bouncingPerson(uv);
     bouncingResult = 2/bouncingResult;
 
-    if(iInvertColor == 0.0){
+    if(iInvertColor == 0.0 || iCircularWeight == 1.0 && iBouncingWeight >= 4.0){
       bouncingResult =  1.0-bouncingResult;
     }
     else if(iInvertColor == 1.0){
