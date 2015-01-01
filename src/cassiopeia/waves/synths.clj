@@ -474,7 +474,7 @@
                   (lpf noize noise-cutoff)])
         src (g-verb src 200 1 0.2)
         e (env-gen (perc attack release) :gate gate-trg)
-        amp (+ amp)]
+        amp amp]
     (* (* b-amp amp) e src)))
 
 (comment
