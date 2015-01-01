@@ -631,7 +631,6 @@ vec4 cellSpell(vec2 uv){
 
 void main(void){
   vec2 uv = gl_FragCoord.xy / iResolution.x;
-  float darkMode = 0.0;
 
   vec4 populationResult  = vec4(0.0,0.0,0.0,0.0);
   vec4 circleResult      = vec4(0.0,0.0,0.0,0.0);
