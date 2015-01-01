@@ -4,11 +4,6 @@
 
 (defonce vol (atom 3.0))
 
-(defn fadeout-master
-  ([] (fadeout-master 1))
-  ([current]
-     (traced-overtime! vol (foundation-output-group) :master-volume current 0 0.05)))
-
 (defn v [f] (reset! vol (float f)) (volume f))
 
 (defn- traced-overtime!
@@ -34,3 +29,8 @@
             (reset! trace (change-fn val))
             (when (not= val end)
               (recur (change-fn val)))))))))
+
+(defn fadeout-master
+  ([] (fadeout-master 1))
+  ([current]
+     (traced-overtime! vol (foundation-output-group) :master-volume current 0 0.05)))
