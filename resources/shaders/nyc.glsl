@@ -107,7 +107,7 @@ vec4 circleDance(void){
   uv = vec2(abs(atan(uv.x,uv.y)/(.5*tau)),length(uv));
   uv.x *= 1.0/80.0; //40 - BIG
 
-  float seperation = 0.5*(1.0-0.2);
+  float seperation = 0.4;
   vec3 wave = vec3(0.0);
   float colorOffset;
 
