@@ -68,7 +68,6 @@
   (let [_ [0 0 0 0]
         [c31 c32 c33 c34 c35 c36 c37] (chords-for :C3 :minor 1)
         [c41 c42 c43 c44 c45 c46 c47] (chords-for :C4 :minor 1)
-        [c41 c42 c43 c44 c45 c46 c47] (chords-for :C4 :minor 1)
         [f31 f32 f33 f34 f35 f36 f37] (chords-for :F3 :minor 1)
         [f41 f42 f43 f44 f45 f46 f47] (chords-for :F4 :minor 1)]
 
