@@ -204,7 +204,7 @@
     (defonce cell-dance-weight (atom 1.0))
     (def ibeat (atom {:synth beats :tap "beat"}))
     (def beat-tap (get-in (:synth @ibeat) [:taps (:tap @ibeat)]))
-    (def cell-dance-color (atom 0.0))
+    (def cell-dance-color (atom 0.01))
     )
 
   ;;(kill beats)
