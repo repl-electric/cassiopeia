@@ -31,7 +31,6 @@ const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
 #define TOTAL_BEATS 128.0
 #define STATIC_LETTERS 0
 #define SHOW_GLOW 1
-#define PANIC 0
 
 float measureCount = mod(iGlobalBeatCount, 8 * 16) / 8;
 float beatTotalCount = mod(iGlobalBeatCount, 16);
@@ -506,11 +505,8 @@ vec4 bouncingPerson(vec2 uv){
     else{
       helloPoint += letter(LETTER_R, vec2(leftTop+letterSpace*0, top), uv);
       helloPoint += letter(LETTER_E, vec2(leftTop+letterSpace*2, top), uv);
-
-    if(PANIC == 0){
       helloPoint += letter(LETTER_P, vec2(leftTop+letterSpace*4, top), uv);
       helloPoint += letter(LETTER_L, vec2(leftTop+letterSpace*6, top), uv);
-    }
     }
   }
 
