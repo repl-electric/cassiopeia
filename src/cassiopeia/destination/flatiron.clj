@@ -2,7 +2,7 @@
 	                              |-  |   |-|  |   |  |(  | | |\\|
                                       '   `-' ` '  '  `-' ' ' `-' ' ``"(:use [overtone.live][mud.core][mud.chords][cassiopeia.waves.synths][cassiopeia.samples][cassiopeia.engine.buffers][cassiopeia.dirt][cassiopeia.waves.buf-effects][cassiopeia.engine.expediency][cassiopeia.destination.flatiron.scores])(:require [mud.timing :as time][clojure.math.numeric-tower :as math][overtone.studio.fx :as fx] [cassiopeia.destination.flatiron.utils :as fl]))
 (reset! splatter 500000.0)
-(do (def master-vol 3.0) (volume master-vol))
+(do (def master-vol 3.0) (volume master-vol) (fl/v master-vol))
 (ctl-global-clock 0.0)
 
 (do
