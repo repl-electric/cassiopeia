@@ -13,7 +13,6 @@ uniform float iDeformCircles;
 uniform float iDeath;
 
 uniform float iCircularWeight;
-uniform float iFlareWeight;
 uniform float iPopulationWeight;
 uniform float iBouncingWeight;
 uniform float iNycWeight;
@@ -178,82 +177,6 @@ vec4 generateSnow(vec2 p, float speed){
   vec4 snow = vec4(rand(vec2(xs, ys * iGlobalBeatCount * speed)));
   return snow;
 }
-
-
-// original by nimitz https://www.shadertoy.com/view/lsSGzy#, slightly modified
-
-#define ray_brightness 0.8
-#define gamma 0.1
-
-#define curvature 15.
-#define red   4.
-#define green 1.0
-#define blue  .1
-
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!! UNCOMMENT ONE OF THESE TO CHANGE EFFECTS !!!!!!!!!!!
-// MODE IS THE PRIMARY MODE
-#define MODE normalize
-//#define MODE
-
-#define MODE3 +
-//#define MODE3 +
-
-#define MODE2 r +
-//#define MODE2
-
-#define DIRECTION +
-//#define DIRECTION -
-
-#define SIZE 0.05
-
-#define INVERT /
-//#define INVERT *
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-float noise(in vec2 x){
-  return texture2D(iChannel2, x*.01).x; // INCREASE MULTIPLIER TO INCREASE NOISE
-}
-
-// FLARING GENERATOR, A.K.A PURE AWESOME
-mat2 m2 = mat2( 0.80,  0.60, -0.60,  0.80 );
-float fbm(in vec2 p){
-  float z=5.;       // EDIT THIS TO MODIFY THE INTENSITY OF RAYS
-  float rz = 0.09; // EDIT THIS TO MODIFY THE LENGTH OF RAYS
-  p *= 0.25;        // EDIT THIS TO MODIFY THE FREQUENCY OF RAYS
-  for (int i= 1; i < 6; i++)
-    {
-      rz+= abs((noise(p)-0.5)*2.)/z;
-      z = z*2.;
-      p = p*2.*m2;
-    }
-  return rz;
-}
-
-vec4 flare(void){
-  float ray_density = clamp(texture2D(iChannel0, vec2(0.0,0.25)).x, 4.5,20.5);
-  float t = DIRECTION iGlobalTime*.01;
-  vec2 uv = gl_FragCoord.xy / iResolution.xy-0.5;
-  uv.x *= iResolution.x/iResolution.y;
-  uv*= curvature* SIZE;
-
-  float r = sqrt(dot(uv,uv)); // DISTANCE FROM CENTER, A.K.A CIRCLE
-  float x = dot(MODE(uv), vec2(.5,0.))+t;
-  float y = dot(MODE(uv), vec2(.0,.5))+t;
-
-  float val;
-  val = fbm(vec2(MODE2 y * ray_density, MODE2 x MODE3 ray_density)); // GENERATES THE FLARING
-  val = smoothstep(gamma*.02-.1,ray_brightness+(gamma*0.02-.1)+.001,val);
-  val = sqrt(val); // WE DON'T REALLY NEED SQRT HERE, CHANGE TO 15. * val FOR PERFORMANCE
-
-  vec3 col = val INVERT vec3(0.2, 0.1,0.1);
-  //  col = 0.-col; // WE DO NOT NEED TO CLAMP THIS LIKE THE NIMITZ SHADER DOES!
-  float rad = clamp(texture2D(iChannel0, vec2(0,0.25)).x, 1,1.1); // MODIFY THIS TO CHANGE THE RADIUS OF THE SUNS CENTER
-  col = mix(col,vec3(1.), rad - 266.667 * r); // REMOVE THIS TO SEE THE FLARING
-
-  return (vec4(col, 1) - vec4(1.8, 1.9, 1.9, 0));
-}
-
 
 vec4 circular(void){
   vec2 mainuv = (gl_FragCoord.xy / iResolution.xy);
@@ -639,7 +562,6 @@ void main(void){
 
   vec4 populationResult  = vec4(0.0,0.0,0.0,0.0);
   vec4 circleResult      = vec4(0.0,0.0,0.0,0.0);
-  vec4 flareResult       = vec4(0.0,0.0,0.0,0.0);
   vec4 bouncingResult    = vec4(0.0,0.0,0.0,0.0);
   vec4 cellSpellResult   = vec4(0.0,0.0,0.0,0.0);
   vec4 circleDanceResult = vec4(0.0,0.0,0.0,0.0);
@@ -668,12 +590,6 @@ void main(void){
     populationResult = min(1.0, iPopulationWeight)*populationDensity(uv);
   }
 
-  if(iFlareWeight > 0.0){
-    flareResult = 0.01*flare();
-    flareResult = 1-(3*flareResult - bouncingPerson(uv));
-    flareResult *= 0.3;
-  }
-
   if(iNycWeight > 0.0){
     cellSpellResult = cellSpell(uv);
   }
@@ -682,7 +598,7 @@ void main(void){
     circleDanceResult = circleDance();
   }
 
-  c = (cellSpellResult + populationResult + circleResult + bouncingResult + flareResult);
+  c = (cellSpellResult + populationResult + circleResult + bouncingResult);
 
   gl_FragColor = lineDistort(c, uv) + circleDanceResult;
 }
