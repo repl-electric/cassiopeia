@@ -19,6 +19,7 @@ uniform float iBouncingWeight;
 uniform float iNycWeight;
 uniform float iCircleDanceWeight;
 uniform float iCircleDanceColor;
+uniform float iSplatter;
 
 const float pi = 3.14159265;
 const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
@@ -103,19 +104,22 @@ const float tau = 6.28318530717958647692;
 vec4 circleDance(void){
   vec2 uv = (gl_FragCoord.xy - iResolution.xy*.5)/iResolution.x;
 
-  uv = vec2(abs(atan(uv.x,uv.y)/(.5*tau)),length(uv));
-  uv.x *= 1.0/80.0; //twiddle
-
   float seperation = 0.4;
   vec3 wave = vec3(0.0);
   float colorOffset;
 
   float n = min(60.0, iCircleDanceWeight);
   float width = 4.0/500;
+  uv = vec2(abs(atan(uv.x,uv.y)/(.5*tau)),length(uv));
+
 
   if(iCircleDanceWeight==1.0){
-    width = 4.0/500000;
+    width = min(4.0/500,4.0/iSplatter);
+    uv.x *= 1.0/10.0; //twiddle
   }
+  else{
+    uv.x *= 1.0/80.0; //twiddle
+}
 
   colorOffset = iCircleDanceColor;
   for (int i=0; i < n; i++){
