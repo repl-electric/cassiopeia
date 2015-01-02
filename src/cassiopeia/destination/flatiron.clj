@@ -58,10 +58,6 @@
  15 16
  (fn []
    (do
-     (add-watch beat-tap :cell-color (fn [_ _ old new]
-                                       (when (and (= old 0.0) (= 1.0 new))
-                                         (reset! cell-dance-color (mod (+ @cell-dance-color 1.0) 100)))))
-
      (pattern! hats-buf     (repeat 3 [0 0 0 0  1 0 0 0  0 0 1 0  0 0 0 0])
                                       [0 0 0 0  1 0 0 0  0 0 1 0  1 0 0 0])
      (pattern! kick-seq-buf (repeat 3 [1 0 0 0  0 0 0 0  1 0 0 0  0 0 0 0])
@@ -71,9 +67,6 @@
      (ctl white :amp-buf hats-amp)
      (ctl white :attack 0.04 :release 0.01 :amp 1)
      (ctl white :attack 0.002 :release 0.04 :amp 2)
-
-     (def kicker (space-kick2 [:head drums-g] :note-buf bass-notes-buf :seq-buf  kick-seq-buf :num-steps 16 :beat-num 0 :noise 0.05 :amp 4.2 :mod-index 0.1 :mod-freq 4.0 :mode-freq 0.2))
-     (ctl kicker :amp-buf kick-amp :attack 0.0 :sustain 0.2 :amp 1.0)
      )))
 
 ;;START
