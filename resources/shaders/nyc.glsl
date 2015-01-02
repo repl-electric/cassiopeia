@@ -111,14 +111,13 @@ vec4 circleDance(void){
   float width = 4.0/500;
   uv = vec2(abs(atan(uv.x,uv.y)/(.5*tau)),length(uv));
 
-
   if(iCircleDanceWeight==1.0){
     width = min(4.0/500,4.0/iSplatter);
-    uv.x *= 1.0/10.0; //twiddle
+    uv.x *= 1.0/10.0;
   }
   else{
-    uv.x *= 1.0/80.0; //twiddle
-}
+    uv.x *= 1.0/80.0;
+  }
 
   colorOffset = iCircleDanceColor;
   for (int i=0; i < n; i++){
