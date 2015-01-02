@@ -1,7 +1,7 @@
 (ns cassiopeia.destination.flatiron " .-. .   .-. .-. .-. .-. .-. .  .
 	                              |-  |   |-|  |   |  |(  | | |\\|
                                       '   `-' ` '  '  `-' ' ' `-' ' ``"(:use [overtone.live][mud.core][mud.chords][cassiopeia.waves.synths][cassiopeia.samples][cassiopeia.engine.buffers][cassiopeia.dirt][cassiopeia.waves.buf-effects][cassiopeia.engine.expediency][cassiopeia.destination.flatiron.scores])(:require [mud.timing :as time][clojure.math.numeric-tower :as math][overtone.studio.fx :as fx] [cassiopeia.destination.flatiron.utils :as fl]))
-
+(reset! splatter 500000.0)
 (do (def master-vol 3.0) (volume master-vol))
 (ctl-global-clock 0.0)
 
@@ -194,14 +194,13 @@
     (defonce circle-slice        (atom 8.0))
     (defonce circle-growth-speed (atom 0.1))
     (defonce circle-deform       (atom 1.0))
-
     (defonce circular-weight   (atom 0.0))
-    (defonce flare-weight      (atom 0.0))
     (defonce population-weight (atom 0.0))
     (defonce cells-weight      (atom 0.0))
     (defonce nyc-weight        (atom 0.0))
     (defonce invert-color      (atom 1.0))
     (defonce cell-dance-weight (atom 1.0))
+    (defonce splatter          (atom 50000.0))
     (def ibeat (atom {:synth beats :tap "beat"}))
     (def beat-tap (get-in (:synth @ibeat) [:taps (:tap @ibeat)]))
     (def cell-dance-color (atom 0.01))
@@ -224,7 +223,6 @@
                        "iInOutSpeed" circle-growth-speed
                        "iDeformCircles" circle-deform
                        "iCircularWeight"  circular-weight
-                       "iFlareWeight"      flare-weight
                        "iPopulationWeight" population-weight
                        "iBouncingWeight"   cells-weight
                        "iNycWeight" nyc-weight
@@ -232,6 +230,7 @@
                        "iCircleDanceWeight" cell-dance-weight
                        "iCircleDanceColor" cell-dance-color
                        "iDeath" fl/vol
+                       "iSplatter" splatter
                        })
   (stop-graphics "resources/shaders/nyc.glsl")
   (stop-everything!)
