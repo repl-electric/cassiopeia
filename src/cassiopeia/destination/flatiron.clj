@@ -13,15 +13,9 @@
 
       (def apeg-deep-melody-spair-chord-g (chord-synth general-purpose-assembly 4 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1))
       (def apeg-deep-melody-chord-g (chord-synth general-purpose-assembly 4 :amp 0.00 :saw-cutoff 2000 :wave 0 :attack 1.0 :release 5.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th)))
-      (def apeg-start (first (:bufs apeg-deep-melody-chord-g)))
       (def main-melody-chord-g (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :wave 1 :attack 1.0 :release 5.0))
 
-      (defonce sd-g (group "slow deep chords"))
-      (def slow-deep-chord-g (chord-synth general-purpose-assembly-pi 4 [:head sd-g] :saw-cutoff 300 :amp 0.0 :attack 0.1 :noise-level 0.05 :release 1.0 :wave 4 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :attack 0.3 :release 6.0 :noise-level 0.05 :amp-buf sd-amp-b :release-buf sd-release-b :attack-buf sd-attack-b))
-
       (chord-pattern! main-melody-chord-g apeg-swell)
-      (chord-pattern! slow-deep-chord-g chords-score)
-      (chord-pattern! apeg-deep-melody-chord-g pinger-score)
       (chord-pattern! apeg-deep-melody-spair-chord-g pinger-score-spair)
 
       (do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf]) (defonce hats-amp (buffer 256)) (defonce kick-amp (buffer 256)))
@@ -67,10 +61,8 @@
      (ctl white :amp-buf hats-amp)
      (ctl white :attack 0.04 :release 0.01 :amp 1)
      (ctl white :attack 0.002 :release 0.04 :amp 2)
+     (ctl kicker :amp 1.0)
      )))
-
-;;START
-(n-overtime! slow-deep-chord-g :amp 0.0 0.04 0.0008)
 
 (one-time-beat-trigger
  126 128
@@ -132,7 +124,6 @@
 
 (one-time-beat-trigger 126 128
                        (fn [& _]
-                         (reset! cells-weight 5.0)
                          (ctl-time apeg-deep-melody-chord-g time/beat-1th)
                          (ctl-time apeg-deep-melody-spair-chord-g time/beat-1th)
                          (ctl-time slow-deep-chord-g time/beat-2th)
