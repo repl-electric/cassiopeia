@@ -26,7 +26,6 @@ const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
 #define CIRCLE_ACCELERATOR 0.00000001
 #define CIRCLE_SCALE 1.25
 #define CELL_DANCE 2
-#define FLARE_SIZE 10
 
 #define TOTAL_BEATS 128.0
 #define STATIC_LETTERS 0
