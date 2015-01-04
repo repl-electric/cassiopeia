@@ -337,12 +337,12 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
     point.y = 0.1*(d)  + 0.5;
     point.y = 1.0-point.y;
   }
-  else if(iHalfPi <= 1.0){
+  else if(iBouncingWeight == 5.0 || wavey == 1){
     //Cells dance in a circle
     float poo = point.x;
     float p = sin(iGlobalTime*speedFactor)*0.001;
-    point.x = 0.5+ p*cos(mod((iGlobalTime+mod(iGlobalTime*0.2,360)*poo),360))*0.1;
-    point.y = iResolution.y*0.0004 + p*sin(mod(iGlobalTime+mod(iGlobalTime*0.2,360)*poo,360))*0.1;
+    point.x = 0.5 + p*cos(mod((iGlobalTime+mod(iGlobalTime*0.2,360)*poo),360))*0.1;
+    point.y = 0.5 + p*sin(mod(iGlobalTime+mod(iGlobalTime*0.2,360)*poo,360))*0.1;
   }
 
   //round cells
@@ -429,8 +429,7 @@ vec4 bouncingPerson(vec2 uv){
 
   //if(iOvertoneVolume > 0.01){
     if(bounceWeight >= 5.0){//single center cell
-      vec2 uvt = uv;
-      uvt.y -= 0.025;
+      vec2 uvt = gl_FragCoord.xy / iResolution.xy;
       helloPoint += buildCell(uvt, vec2(0.5, 0.5), 0);
     }
     else{
