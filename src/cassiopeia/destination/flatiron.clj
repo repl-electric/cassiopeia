@@ -80,8 +80,7 @@
      (ctl s :amp 0.00 :saw-cutoff 100 :wave 0 :attack 1.0 :release 5.0)
      (n-overtime! s :saw-cutoff 100 2000 50)
      (n-overtime! s :amp 0.00 0.24 0.03))
-
-   (remove-watch beat-tap :cell-color)))
+   (when beat-tap (remove-watch beat-tap :cell-color))))
 
 (ctl main-melody-chord-g :amp 0.6 :saw-cutoff)
 (ctl apeg-deep-melody-chord-g :amp 0.228 :saw-cutoff  :wave 1)
