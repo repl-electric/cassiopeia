@@ -427,7 +427,7 @@ vec4 bouncingPerson(vec2 uv){
     bounceWeight = 3.0;
   }
 
-  if(iOvertoneVolume > 0.01){
+  //if(iOvertoneVolume > 0.01){
     if(bounceWeight >= 5.0){//single center cell
       vec2 uvt = uv;
       uvt.y -= 0.025;
@@ -439,7 +439,8 @@ vec4 bouncingPerson(vec2 uv){
       helloPoint += letter(LETTER_P, vec2(leftTop+letterSpace*4, top), uv);
       helloPoint += letter(LETTER_L, vec2(leftTop+letterSpace*6, top), uv);
     }
-  }
+
+    //}
 
   if(bounceWeight <= 3.0){
     float spellingConvergePoint = 0.0;
