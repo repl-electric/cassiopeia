@@ -337,7 +337,7 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
     point.y = 0.1*(d)  + 0.5;
     point.y = 1.0-point.y;
   }
-  else if(iBouncingWeight == 5.0 || wavey == 1){
+  else if(iHalfPi <= 1.0){
     //Cells dance in a circle
     float poo = point.x;
     float p = sin(iGlobalTime*speedFactor)*0.001;
