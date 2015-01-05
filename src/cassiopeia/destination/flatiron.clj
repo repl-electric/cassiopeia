@@ -6,10 +6,7 @@
 (ctl-global-clock 0.0)
 
 (do
-  (defbufs 256 [df-b sd-attack-b sd-release-b sd-amp-b s-note-b])
-  (pattern! sd-attack-b  [0.06 0.12 0.12 0.12])
-  (pattern! sd-release-b [1.0  1.0 1.0 1.0])
-  (pattern! sd-amp-b     [1.2  1.0 1.0 1.0])
+  (defbufs 256 [df-b s-note-b])
 
   (do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf]) (defonce hats-amp (buffer 256)) (defonce kick-amp (buffer 256)))
   (pattern! kick-amp  [1.5 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1] (repeat 2 [1.2 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1]) [1.2 1 1 1 1 1 1 1   1.2 1 1 1 1.2 1 1.3 1])
