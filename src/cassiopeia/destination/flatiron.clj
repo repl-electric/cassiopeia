@@ -79,7 +79,7 @@
   (pattern! effects-seq-buf  (repeat 12 [1 0])  [1 0 0 0])
   (ctl nomad-chord-g :amp 0.3 :saw-cutoff 2600 :wave 0 :attack 1.0 :release 5.0)
   (def f (dulcet-fizzle :amp 2.0 :note-buf df-b))
-  )
+)
 
 (do
   (ctl westvil-chord-g :amp 0)
@@ -100,39 +100,40 @@
             [1 0 0 0 1 0 0 0] [1 0 0 0 1 0 1 0])
   (def f (dulcet-fizzle :amp 2.0 :note-buf df-b)))
 
-(one-time-beat-trigger 126 128
-                       (fn [& _]
-                         (ctl-time nomad-chord-g time/beat-1th)
-                         (ctl-time westvil-chord-g time/beat-1th)
-                         (ctl-time flatiron-chord-g time/beat-2th)
+(one-time-beat-trigger
+ 126 128
+ (fn [& _]
+   (ctl-time nomad-chord-g time/beat-1th)
+   (ctl-time westvil-chord-g time/beat-1th)
+   (ctl-time flatiron-chord-g time/beat-2th)
 
-                         (one-time-beat-trigger
-                          127 128
-                          (fn [& _]
-                            (def nolita-chord-g
-                              (chord-synth general-purpose-assembly 4 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1))
+   (one-time-beat-trigger
+    127 128
+    (fn [& _]
+      (def nolita-chord-g
+        (chord-synth general-purpose-assembly 4 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-1th) :beat-bus (:count time/beat-1th) :attack 0.1 :release 0.1))
 
-                            (chord-pattern nolita-chord-g pinger-score-alternative)
+      (chord-pattern nolita-chord-g pinger-score-alternative)
 
-                            (ctl-time nomad-chord-g time/beat-1th)
-                            (ctl-time westvil-chord-g time/beat-1th)
-                            (ctl-time flatiron-chord-g time/beat-2th)
+      (ctl-time nomad-chord-g time/beat-1th)
+      (ctl-time westvil-chord-g time/beat-1th)
+      (ctl-time flatiron-chord-g time/beat-2th)
 
-                            (ctl noho-chord-g :amp 0.18)
-                            (ctl nolita-chord-g :amp 0.18)
-                            (chord-pattern noho-chord-g pinger-score-spair)
-                            (n-overtime! nolita-chord-g :saw-cutoff 0.0 1000 50)
-                            (n-overtime! westvil-chord-g :saw-cutoff 0.0 2600 50)
-                            (n-overtime! noho-chord-g    :saw-cutoff 0.0 1000 50)
+      (ctl noho-chord-g :amp 0.18)
+      (ctl nolita-chord-g :amp 0.18)
+      (chord-pattern noho-chord-g pinger-score-spair)
+      (n-overtime! nolita-chord-g :saw-cutoff 0.0 1000 50)
+      (n-overtime! westvil-chord-g :saw-cutoff 0.0 2600 50)
+      (n-overtime! noho-chord-g    :saw-cutoff 0.0 1000 50)
 
-                            (chord-pattern westvil-chord-g pinger-growth-score-spair)
-                            (chord-pattern nomad-chord-g   pinger-score-highlighted)
+      (chord-pattern westvil-chord-g pinger-growth-score-spair)
+      (chord-pattern nomad-chord-g   pinger-score-highlighted)
 
-                            (let [_ (pattern! sd-attack-b  [0.06 0.12 0.12 0.12])
-                                  _ (pattern! sd-release-b [1.0  1.0 1.0 1.0])
-                                  _ (pattern! sd-amp-b     [1.2  1.0 1.0 1.0])]
-                              (chord-pattern flatiron-chord-g chords-score))
-                            ))))
+      (let [_ (pattern! sd-attack-b  [0.06 0.12 0.12 0.12])
+            _ (pattern! sd-release-b [1.0  1.0 1.0 1.0])
+            _ (pattern! sd-amp-b     [1.2  1.0 1.0 1.0])]
+        (chord-pattern flatiron-chord-g chords-score))
+))))
 
 ;;More fizzle
 ;;(doall (map #(n-overtime! % :saw-cutoff 2600.0 0 50) (:synths nomad-chord-g)))
