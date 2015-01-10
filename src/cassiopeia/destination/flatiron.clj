@@ -23,11 +23,27 @@
      (ctl kicker :amp 1.0)
      )))
 
+(on-beat-trigger 32 #(do (stereo-player click-s :amp 1)))
+(n-overtime! nomad-chord-g :saw-cutoff 2000 10 50)
+(pattern! nomad-start (def p
+                        (concat
+                         (degrees-seq [:f4 1311 :c3 66 :f3 11])
+                         (degrees-seq [:f4 1311 :c3 66 :f3 77])
+                         (degrees-seq [:f3 1311 :c3 66 :f3 77])
+                         )))
+
+(pattern! nomad-start (map (fn [z] (cond
+                                    (= (list z) (degrees [7] :minor :f3)) (degrees [1] :minor :f3)
+                                    ;;                                   (= (list z) (degrees [4] :minor :f4)) (degrees [1] :minor :f3)
+                                    ;;                                   (= (list z) (degrees [4] :minor :f4)) (degrees [1] :minor :f3)
+                                    :else z
+                                    )) (flatten p)))
+
 (one-time-beat-trigger
  126 128
  (fn [] ;;DARKER PROGRESSION
    (do
-     (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.45)
+     (plain-space-organ :tone (/ (midi->hz (note :F0)) 2) :duration 8 :amp 0.45)
      (doseq [loud-thing [nomad-chord-g drum-effects drums-g]](ctl loud-thing :amp 0.00))
 
      (def noho-chord-g (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :wave 1 :attack 1.0 :release 5.0))
