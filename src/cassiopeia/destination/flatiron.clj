@@ -3,23 +3,9 @@
    |-  |   |-|  |   |  |(  | | |\\|
    '   `-' ` '  '  `-' ' ' `-' ' ``"(:use [overtone.live][mud.core][mud.chords][cassiopeia.waves.synths][cassiopeia.samples][cassiopeia.engine.buffers][cassiopeia.dirt][cassiopeia.waves.buf-effects][cassiopeia.engine.expediency][cassiopeia.destination.flatiron.scores])(:require [mud.timing :as time][clojure.math.numeric-tower :as math][overtone.studio.fx :as fx] [cassiopeia.destination.flatiron.utils :as 
 (overtime! splatter 2000.0, 1500.0)
-(do (def master-vol 3.0) (volume master-vol) (fl/v master-vol))
+
 (ctl-global-clock 0.0)
 (boot-nyc)
-
-(do
-  (defbufs 256 [df-b s-note-b])
-
-  (do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf]) (defonce hats-amp (buffer 256)) (defonce kick-amp (buffer 256)))
-  (pattern! kick-amp  [1.5 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1] (repeat 2 [1.2 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1]) [1.2 1 1 1 1 1 1 1   1.2 1 1 1 1.2 1 1.3 1])
-  (pattern! hats-amp  (repeat 3 [2 2 2 2 2.1 2 2 2   2 2 2 2 2 2 2 2]) [2 2 2 2 2.1 2 2 2   2 2 2.4 2 2.4 2 2 2])
-  (pattern! bass-notes-buf
-            (repeat 8 (degrees [1] :minor :F1))
-            (repeat 2 (repeat 8 (degrees [1] :minor :F1)))
-            (repeat 2 (repeat 8 (degrees [3] :minor :F1)))
-            (repeat 2 (repeat 8 (degrees [3] :minor :F1)))
-            [(degrees [1 1 1 1  5 4 3 1] :minor :F1)])
-)
 
 (one-time-beat-trigger
  15 16
@@ -147,6 +133,20 @@
 
 
   (defn boot-nyc [] ;;init graphics
+    (do (def master-vol 3.0) (volume master-vol) (fl/v master-vol))
+
+    (defbufs 256 [df-b s-note-b])
+
+    (do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf])           (defonce hats-amp (buffer 256)) (defonce kick-amp (buffer 256)))
+  (pattern! kick-amp  [1.5 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1] (repeat 2 [1.2 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1]) [1.2 1 1 1 1 1 1 1   1.2 1 1 1 1.2 1 1.3 1])
+  (pattern! hats-amp  (repeat 3 [2 2 2 2 2.1 2 2 2   2 2 2 2 2 2 2 2]) [2 2 2 2 2.1 2 2 2   2 2 2.4 2 2.4 2 2 2])
+  (pattern! bass-notes-buf
+            (repeat 8 (degrees [1] :minor :F1))
+            (repeat 2 (repeat 8 (degrees [1] :minor :F1)))
+            (repeat 2 (repeat 8 (degrees [3] :minor :F1)))
+            (repeat 2 (repeat 8 (degrees [3] :minor :F1)))
+            [(degrees [1 1 1 1  5 4 3 1] :minor :F1)])
+
     (def beats (buffer->tap-lite kick-seq-buf (:count time/beat-1th) :measure 8))
 
     (defonce circle-count        (atom 4.0))
