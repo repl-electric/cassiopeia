@@ -28,9 +28,7 @@
  (fn [] ;;DARKER PROGRESSION
    (do
      (plain-space-organ :tone (/ (midi->hz (note :F1)) 2) :duration 3 :amp 0.45)
-     (ctl nomad-chord-g-g :amp 0.00)
-     (ctl drum-effects-g :amp 0.0)
-     (ctl drums-g :amp 0.0)
+     (doseq [loud-thing [nomad-chord-g drum-effects drums-g]](ctl loud-thing :amp 0.00))
 
      (def noho-chord-g (chord-synth general-purpose-assembly 3 :amp 0.0 :noise-level 0.05 :beat-trg-bus (:beat time/beat-2th) :beat-bus (:count time/beat-2th) :wave 1 :attack 1.0 :release 5.0))
 
