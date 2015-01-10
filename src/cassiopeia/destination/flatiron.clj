@@ -1,9 +1,11 @@
-(ns cassiopeia.destination.flatiron " .-. .   .-. .-. .-. .-. .-. .  .
-	                              |-  |   |-|  |   |  |(  | | |\\|
-                                      '   `-' ` '  '  `-' ' ' `-' ' ``"(:use [overtone.live][mud.core][mud.chords][cassiopeia.waves.synths][cassiopeia.samples][cassiopeia.engine.buffers][cassiopeia.dirt][cassiopeia.waves.buf-effects][cassiopeia.engine.expediency][cassiopeia.destination.flatiron.scores])(:require [mud.timing :as time][clojure.math.numeric-tower :as math][overtone.studio.fx :as fx] [cassiopeia.destination.flatiron.utils :as fl]))
-(reset! splatter 500000.0)
+(ns cassiopeia.destination.flatiron
+ " .-. .   .-. .-. .-. .-. .-. .  .
+   |-  |   |-|  |   |  |(  | | |\\|
+   '   `-' ` '  '  `-' ' ' `-' ' ``"(:use [overtone.live][mud.core][mud.chords][cassiopeia.waves.synths][cassiopeia.samples][cassiopeia.engine.buffers][cassiopeia.dirt][cassiopeia.waves.buf-effects][cassiopeia.engine.expediency][cassiopeia.destination.flatiron.scores])(:require [mud.timing :as time][clojure.math.numeric-tower :as math][overtone.studio.fx :as fx] [cassiopeia.destination.flatiron.utils :as 
+(overtime! splatter 2000.0, 1500.0)
 (do (def master-vol 3.0) (volume master-vol) (fl/v master-vol))
 (ctl-global-clock 0.0)
+(boot-nyc)
 
 (do
   (defbufs 256 [df-b s-note-b])
@@ -143,8 +145,8 @@
   (ctl noho-chord-g :saw-cutoff 300 :amp 0.18)
   (chord-pattern noho-chord-g apeg-swell))
 
-(comment
-  (do ;;init graphics
+
+  (defn boot-nyc [] ;;init graphics
     (def beats (buffer->tap-lite kick-seq-buf (:count time/beat-1th) :measure 8))
 
     (defonce circle-count        (atom 4.0))
@@ -158,7 +160,7 @@
     (defonce nyc-weight        (atom 0.0))
     (defonce invert-color      (atom 1.0))
     (defonce cell-dance-weight (atom 1.0))
-    (defonce splatter          (atom 50000.0))
+    (defonce splatter          (atom 500000.0))
     (def ibeat (atom {:synth beats :tap "beat"}))
     (def beat-tap (get-in (:synth @ibeat) [:taps (:tap @ibeat)]))
     (def cell-dance-color (atom 0.01))
@@ -166,10 +168,10 @@
                (fn [_ _ old new]
                  (when (and (= old 0.0) (= 1.0 new))
                    (reset! cell-dance-color (mod (+ @cell-dance-color 1.0) 100)))))
-    )
+    
 
-  ;;(kill beats)
-  (start-graphics "resources/shaders/nyc.glsl"
+    ;;(kill beats)
+    (start-graphics "resources/shaders/nyc.glsl"
            :textures [:overtone-audio :previous-frame
                       "resources/textures/tex16.png"]
            :user-data {"iGlobalBeatCount" (atom {:synth beats :tap "global-beat-count"})
@@ -189,7 +191,8 @@
                        "iCircleDanceColor" cell-dance-color
                        "iDeath" fl/vol
                        "iSplatter" splatter
-                       })
+                       }))
+(comment
   (stop-graphics "resources/shaders/nyc.glsl")
   (stop-everything!)
   (stop)
