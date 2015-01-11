@@ -9,6 +9,7 @@
 
 ;;Snares
 (defonce snare-organ-s (freesound-sample 45197))
+(defonce snare-s       (freesound-sample 100397))
 
 ;;Kicks
 (defonce fragmented-kick-s (freesound-sample 8098))
@@ -19,7 +20,9 @@
 (defonce soft-kick-s (freesound-sample 99522))
 (defonce glitchy-kick-s (freesound-sample 87262))
 (defonce kick-s               (freesound-sample 777))
-(defonce beatbox-kick-s (freesound-sample 70631))
+(defonce beatbox-kick-s    (freesound-sample 70631))
+(defonce heavy-bass-kick-s (freesound-sample 80509))
+(defonce hip-hop-kick-s    (freesound-sample 131336))
 
 (defonce hand-drum-s (freesound-sample 194114))
 
@@ -27,13 +30,9 @@
 (defonce high-hat-open-s (freesound-sample 207914))
 (defonce hat-s           (freesound-sample 178663))
 
-(defonce heavy-bass-kick-s  (freesound-sample 80509))
-
-(defonce snare-s              (freesound-sample 100397))
 (defonce sizzling-high-hat-s  (freesound-sample 44859))
-(defonce hip-hop-kick-s       (freesound-sample 131336))
-(defonce clap-s               (freesound-sample 24786))
 
+(defonce clap-s               (freesound-sample 24786))
 (defonce clap-s  (freesound-sample 48310))
 (defonce clap2-s (freesound-sample 132676))
 
