@@ -7,6 +7,9 @@
 (defonce ooo-s (freesound-sample 136627))
 (defonce g-ohh-s (freesound-sample 131911))
 
+;;Snares
+(defonce snare-organ-s (freesound-sample 45197))
+
 ;;Kicks
 (defonce fragmented-kick-s (freesound-sample 8098))
 (defonce wood-kick-s (freesound-sample 169190))
