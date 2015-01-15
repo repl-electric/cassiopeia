@@ -1,11 +1,12 @@
 (ns cassiopeia.destination.flatiron
  " .-. .   .-. .-. .-. .-. .-. .  .
    |-  |   |-|  |   |  |(  | | |\\|
-   '   `-' ` '  '  `-' ' ' `-' ' ``"(:use [overtone.live][mud.core][mud.chords][cassiopeia.waves.synths][cassiopeia.samples][cassiopeia.engine.buffers][cassiopeia.dirt][cassiopeia.waves.buf-effects][cassiopeia.engine.expediency][cassiopeia.destination.flatiron.scores])(:require [mud.timing :as time][clojure.math.numeric-tower :as math][overtone.studio.fx :as fx] [cassiopeia.destination.flatiron.utils :as fl]))
-(overtime! splatter 2000.0, 1500.0)
+   '   `-' ` '  '  `-' ' ' `-' ' ``"(:use [overtone.live][mud.core][mud.chords][cassiopeia.waves.synths][cassiopeia.samples][cassiopeia.engine.buffers][cassiopeia.dirt][cassiopeia.waves.buf-effects][cassiopeia.engine.expediency][cassiopeia.destination.flatiron.scores][cassiopeia.engine.scheduled-sampler])(:require [mud.timing :as time][clojure.math.numeric-tower :as math][overtone.studio.fx :as fx] [cassiopeia.destination.flatiron.utils :as fl]))
+(overtime! splatter 500.0, 1500.0)
+(ctl-global-clock 8.0)
 
-(ctl-global-clock 0.0)
-(boot-nyc)
+(nyc)
+(fl/v 3.0)
 
 (one-time-beat-trigger
  15 16
@@ -146,6 +147,7 @@
   (ctl noho-chord-g :saw-cutoff 300 :amp 0.18)
   (chord-pattern noho-chord-g apeg-swell))
 
+<<<<<<< HEAD
 
   (defn boot-nyc [] ;;init graphics
     (do (def master-vol 3.0) (volume master-vol) (fl/v master-vol))
@@ -153,6 +155,16 @@
     (defbufs 256 [df-b s-note-b])
 
     (do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf bass-notes2-buf hats-buf kick-seq-buf white-seq-buf effects-seq-buf effects2-seq-buf bass-notes-buf])           (defonce hats-amp (buffer 256)) (defonce kick-amp (buffer 256)))
+=======
+(defn nyc
+  "New york city"
+  []
+  (do (def master-vol 3.0) (volume master-vol) (fl/v master-vol))
+  (ctl-global-clock 0.0)
+  (defbufs 256 [df-b s-note-b])
+
+  (do (defonce drums-g (group "drums")) (defonce drum-effects-g (group "drums effects for extra sweetness")) (defbufs 128 [bass-notes-buf effects-seq-buf]) (defonce hats-amp (buffer 256)) (defonce kick-amp (buffer 256)) (defonce kick-seq-buf (buffer 256)))
+>>>>>>> tidy
   (pattern! kick-amp  [1.5 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1] (repeat 2 [1.2 1 1 1 1 1 1 1   1.1 1 1 1 1 1 1 1]) [1.2 1 1 1 1 1 1 1   1.2 1 1 1 1.2 1 1.3 1])
   (pattern! hats-amp  (repeat 3 [2 2 2 2 2.1 2 2 2   2 2 2 2 2 2 2 2]) [2 2 2 2 2.1 2 2 2   2 2 2.4 2 2.4 2 2 2])
   (pattern! bass-notes-buf
@@ -162,6 +174,7 @@
             (repeat 2 (repeat 8 (degrees [3] :minor :F1)))
             [(degrees [1 1 1 1  5 4 3 1] :minor :F1)])
 
+<<<<<<< HEAD
     (def beats (buffer->tap-lite kick-seq-buf (:count time/beat-1th) :measure 8))
 
     (defonce circle-count        (atom 4.0))
@@ -212,3 +225,49 @@
   (stop-everything!)
   (stop)
 )
+=======
+  (def beats (buffer->tap-lite kick-seq-buf (:count time/beat-1th) :measure 8))
+
+  (defonce circle-count        (atom 4.0))
+  (defonce color               (atom 0.1))
+  (defonce circle-slice        (atom 8.0))
+  (defonce circle-growth-speed (atom 0.1))
+  (defonce circle-deform       (atom 1.0))
+  (defonce circular-weight   (atom 0.0))
+  (defonce population-weight (atom 0.0))
+  (defonce cells-weight      (atom 0.0))
+  (defonce nyc-weight        (atom 0.0))
+  (defonce invert-color      (atom 1.0))
+  (defonce cell-dance-weight (atom 1.0))
+  (defonce splatter          (atom 500000.0))
+  (def ibeat (atom {:synth beats :tap "beat"}))
+  (def beat-tap (get-in (:synth @ibeat) [:taps (:tap @ibeat)]))
+  (def cell-dance-color (atom 0.01))
+  (add-watch beat-tap :cell-color
+             (fn [_ _ old new]
+               (when (and (= old 0.0) (= 1.0 new))
+                 (reset! cell-dance-color (mod (+ @cell-dance-color 1.0) 100)))))
+
+
+  ;;(kill beats)
+  (start-graphics "resources/shaders/nyc.glsl"
+                  :textures [:overtone-audio :previous-frame
+                             "resources/textures/tex16.png"]
+                  :user-data {"iGlobalBeatCount" (atom {:synth beats :tap "global-beat-count"})
+                              "iBeat"            ibeat
+
+                              "iColor" color
+                              "iCircleCount" circle-count
+                              "iHalfPi" circle-slice
+                              "iInOutSpeed" circle-growth-speed
+                              "iDeformCircles" circle-deform
+                              "iCircularWeight"  circular-weight
+                              "iPopulationWeight" population-weight
+                              "iBouncingWeight"   cells-weight
+                              "iNycWeight" nyc-weight
+                              "iInvertColor" invert-color
+                              "iCircleDanceWeight" cell-dance-weight
+                              "iCircleDanceColor" cell-dance-color
+                              "iDeath" fl/vol
+                              "iSplatter" splatter}))
+>>>>>>> tidy
