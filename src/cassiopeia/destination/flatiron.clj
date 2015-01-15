@@ -248,6 +248,7 @@
                (when (and (= old 0.0) (= 1.0 new))
                  (reset! cell-dance-color (mod (+ @cell-dance-color 1.0) 100)))))
 
+  (reset! splatter 500000.0)
 
   ;;(kill beats)
   (start-graphics "resources/shaders/nyc.glsl"
