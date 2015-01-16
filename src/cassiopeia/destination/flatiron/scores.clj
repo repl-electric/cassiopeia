@@ -170,8 +170,9 @@
   (let [_ [0 0 0 0]
         [f31 f32 f33 f34 f35 f36 f37] (chords-for :F3 :minor 1)
         [f41 f42 f43 f44 f45 f46 f47] (chords-for :F4 :minor 1)
-        _ (concat   (degrees-seq [:f4 1 _ 34  :f3 7677]
-                                 (repeat 3 (degrees-seq [:f4 1314  :f3 7677]))))]
+        ;;_ (concat   (degrees-seq [:f4 1 _ 34  :f3 7677] (repeat 3 (degrees-seq [:f4 1314  :f3 7677]))))
+        ]
+
     [f41 _ f43 f44 f37 f36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
      f41 f43 f41 f44 f37 f36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])
      f41 f43 f41 f44 f37 f36 (flatten [(degrees [7] :minor :F3) 0 0 0]) (flatten [(degrees [7] :minor :F3) 0 0 0])

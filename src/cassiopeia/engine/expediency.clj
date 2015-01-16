@@ -2,6 +2,7 @@
   (:require [shadertone.tone :as t])
   (:use [mud.core] [mud.chords] [overtone.live]))
 
+(defn flatcat [& things] (flatten (apply concat things)))
 (defn stop-everything! [] (remove-all-beat-triggers) (remove-all-sample-triggers) (stop-all-chord-synth-buffers) (full-stop))
 (defn as-chord [note] (flatten [note 0 0 0]))
 (defn chord-score [& score] (mapcat (fn [s] (if (sequential? (ffirst s)) (apply concat s) s)) score))
