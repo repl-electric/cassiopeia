@@ -186,7 +186,7 @@ vec4 circular(void){
   float halfpi = iHalfPi;
   float circleScale = min(60, iCircleCount);
 
-  float speedFactor= 0.1;
+  float speedFactor= 0.07;
   if(iDeath < 3.0){
     speedFactor = iDeath+8.0 * speedFactor;
     scale = iDeath*0.325 * CIRCLE_SCALE;
@@ -225,10 +225,10 @@ vec4 circular(void){
   //rotatedUVs *= mm2( halfpi - fbm4( coreident * 2.0 , iGlobalTime * 0.05) * pi * pi )  * musiz;
   //  * texture2D(iChannel0, vec2(0, 0)).x
 
-  vec2 rotatedUVs = uv * mm2(halfpi + fbm4(coreident * 0.005 , iGlobalTime * 0.07 *
-                                           clamp(texture2D(iChannel0, vec2(0.0, 0.7)).x, 0.01, 0.2)) * pi * pi );
+  vec2 rotatedUVs = uv * mm2(halfpi + fbm4(coreident * 0.005 , iGlobalTime * 0.03 *
+                                           clamp(texture2D(iChannel0, vec2(0., 0.75)).x, 0.4, 1.0)) * pi * pi );
   rotatedUVs *= mm2( halfpi - fbm4(coreident * 2.0 , iGlobalTime *  speedFactor *
-                                   clamp(texture2D(iChannel0, vec2(0, .7)).x, 0.02, 1.0) ) * pi * pi );
+                                   clamp(texture2D(iChannel0, vec2(0., .75)).x, 0.3, 1.0) ) * pi * pi );
 
   //  vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.5, iGlobalTime * 0.07 ) * pi * pi );
   //rotatedUVs          *= mm2( halfpi - fbm4( coreident * 2.0, iGlobalTime * 0.1  ) * pi * pi );
