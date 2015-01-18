@@ -170,7 +170,7 @@
   (defonce color               (atom 0.1))
   (defonce circle-slice        (atom 8.0))
   (defonce circle-growth-speed (atom 0.1))
-  (defonce circle-deform       (atom 1.0))
+  (defonce circle-edge        (atom 0.1))
   (defonce circular-weight   (atom 0.0))
   (defonce population-weight (atom 0.0))
   (defonce cells-weight      (atom 0.0))
@@ -178,6 +178,7 @@
   (defonce invert-color      (atom 1.0))
   (defonce cell-dance-weight (atom 1.0))
   (defonce splatter          (atom 500000.0))
+  (defonce circle-intensity  (atom 0.0025))
   (def ibeat (atom {:synth beats :tap "beat"}))
   (def beat-tap (get-in (:synth @ibeat) [:taps (:tap @ibeat)]))
   (def cell-dance-color (atom 0.01))
@@ -200,7 +201,7 @@
                               "iCircleCount" circle-count
                               "iHalfPi" circle-slice
                               "iInOutSpeed" circle-growth-speed
-                              "iDeformCircles" circle-deform
+                              "iDeformCircles" circle-edge
                               "iCircularWeight"  circular-weight
                               "iPopulationWeight" population-weight
                               "iBouncingWeight"   cells-weight
@@ -210,6 +211,7 @@
                               "iCircleDanceColor" cell-dance-color
                               "iDeath" fl/vol
                               "iSplatter" splatter
+                              "iCircleDistort" circle-intensity
                               }))
 (comment
   (stop-graphics "resources/shaders/nyc.glsl")

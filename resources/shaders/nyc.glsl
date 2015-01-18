@@ -19,6 +19,7 @@ uniform float iNycWeight;
 uniform float iCircleDanceWeight;
 uniform float iCircleDanceColor;
 uniform float iSplatter;
+uniform float iCircleDistort;
 
 const float pi = 3.14159265;
 const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
@@ -204,12 +205,12 @@ vec4 circular(void){
   float mainval = 1.0; //50-60 nice overpaint effect
   float inverseLength;
 
-  if(iDeformCircles == 1.0){
-    inverseLength = saturate(length(uv)) + clamp(iBeat, 0.0, 0.002);
-  }
-  else{
-    inverseLength = saturate(length(uv)) * (uv.x + uv.y) * iDeformCircles;
-  }
+  //  if(iDeformCircles == 1.0){
+  inverseLength = saturate(length(uv)) + clamp(iBeat, 0.0, 0.002);
+    //  }
+    //  else{
+  //        inverseLength = saturate(length(uv)) * (uv.x + uv.y) * iDeformCircles;
+    //  }
 
   //inverseLength = saturate(length(uv)) * rand(vec2(texture2D(iChannel0, vec2(0, 0)).x, texture2D(iChannel0, vec2(0, 0)).y));
 
@@ -248,11 +249,11 @@ vec4 circular(void){
 
   float coresmooth = fract(core) * fract(-core);
   float corewidth  = fwidth(coresmooth);
-  const float edgethreshold = 0.1;
+  float edgethreshold = min(iDeformCircles, 0.2101);
   mainval *= smoothstep(edgethreshold - corewidth, edgethreshold + corewidth, coresmooth);
   finalval += mainval;
 
-  finalval = max(finalval, 0.0) + 0.0025;
+  finalval = max(finalval, 0.0) + iCircleDistort; //0.0025;
   finalval = min(finalval, 1.0);
 
   vec4 r = vec4(vec3(pow(finalval, 1.0/2.0)) - iBeat * 0.1, 1.0);
