@@ -188,6 +188,23 @@
                (when (and (= old 0.0) (= 1.0 new))
                  (reset! cell-dance-color (mod (+ @cell-dance-color 1.0) 100)))))
 
+  (add-watch
+   buffer-change-event-nomad
+   :buffer-change-event-nomad
+   (fn [& _]
+     (let [n (int (first (buffer-data (second (:bufs nomad-chord-g)))))]
+       (case n
+         29 (do (overtime! circle-intensity 0.025 0.05) (overtime! circle-edge 0.1 0.1))
+         32 (overtime! circle-intensity -0.05 0.001)
+         34 (overtime! circle-intensity -0.1 0.05)
+         36 (do (overtime! circle-edge 1.1 0.1) (overtime! circle-intensity -0.1 0.1))
+
+         41 (do (overtime! circle-intensity 0.025 0.05) (overtime! circle-edge 0.1 0.1))
+         44 (overtime! circle-intensity -0.05 0.001)
+         46 (overtime! circle-intensity -0.1 0.05)
+         48 (do (overtime! circle-edge 1.1 0.1) (overtime! circle-intensity -0.1 0.1))
+         nil))))
+
   (reset! cell-dance-weight 1.0)
   (reset! splatter 500000.0)
 
