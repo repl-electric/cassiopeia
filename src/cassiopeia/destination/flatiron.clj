@@ -203,7 +203,8 @@
          44 (overtime! circle-intensity -0.05 0.001)
          46 (overtime! circle-intensity -0.1 0.05)
          48 (do (overtime! circle-edge 1.1 0.1) (overtime! circle-intensity -0.1 0.1))
-         nil))))
+
+         (do (overtime! circle-intensity 0.025 0.05) (overtime! circle-edge 0.1 0.1))))))
 
   (reset! cell-dance-weight 1.0)
   (reset! splatter 500000.0)

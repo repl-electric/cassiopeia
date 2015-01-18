@@ -92,7 +92,13 @@ float fbm4( float x, float y ){
   p = m*p*2.03 + measureCount * 0.0009;
   f +=  0.1250*noise(p.x, p.y);
   p = m*p*2.01 + measureCount * 0.0009;
-  f +=  0.0625*noise(p.x, p.y);
+
+  float fudge = 0.0625;
+  if(iCircleDistort == -0.1){
+    fudge = 0.0725;
+  }
+
+  f +=  fudge*noise(p.x, p.y);
 
   return f / (0.9375 + (measureCount * 0.009 * 4));
 }
@@ -206,7 +212,13 @@ vec4 circular(void){
   float inverseLength;
 
   //  if(iDeformCircles == 1.0){
-  inverseLength = saturate(length(uv)) + clamp(iBeat, 0.0, 0.002);
+
+  float beatBump = 0.002;
+  if(iCircleDistort < 0.025){
+    beatBump = 0.003;
+  }
+
+  inverseLength = saturate(length(uv)) + clamp(iBeat, 0.0, beatBump);
     //  }
     //  else{
   //        inverseLength = saturate(length(uv)) * (uv.x + uv.y) * iDeformCircles;
