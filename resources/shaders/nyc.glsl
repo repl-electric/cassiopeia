@@ -79,7 +79,7 @@ float saturate(float a){ return clamp( a, 0.0, 1.0 );}
 // http://en.wikipedia.org/wiki/Fractional_Brownian_motion
 
 float fbm4( float x, float y ){
-  vec2 p = vec2( x, y );
+  vec2 p = vec2( x, y ) * iCircleDistort;
   float f = 0.0;
 
   if(iBeat == 1.0){
@@ -214,11 +214,12 @@ vec4 circular(void){
   //  if(iDeformCircles == 1.0){
 
   float beatBump = 0.002;
-  if(iCircleDistort < 0.025){
-    beatBump = 0.003;
+  if(iNycWeight == 0.02){
+    beatBump = 0.004;
   }
 
-  inverseLength = saturate(length(uv)) + clamp(iBeat, 0.0, beatBump);
+  float fuzzCircle = iNycWeight * rand2(vec2(uv.x*iGlobalBeatCount, uv.y+iBeat)) + 0.008*iBeat;
+  inverseLength = saturate(length(uv)) + clamp(iBeat, 0.0, beatBump) - fuzzCircle;
     //  }
     //  else{
   //        inverseLength = saturate(length(uv)) * (uv.x + uv.y) * iDeformCircles;
@@ -261,14 +262,16 @@ vec4 circular(void){
 
   float coresmooth = fract(core) * fract(-core);
   float corewidth  = fwidth(coresmooth);
-  float edgethreshold = min(iDeformCircles, 0.2101);
+  float edgethreshold = 0.1; //min(iDeformCircles, 0.2101);
   mainval *= smoothstep(edgethreshold - corewidth, edgethreshold + corewidth, coresmooth);
   finalval += mainval;
 
-  finalval = max(finalval, 0.0) + iCircleDistort; //0.0025;
+  finalval = max(finalval, 0.0) + 0.0025;
   finalval = min(finalval, 1.0);
+  float colorIntensity = iDeformCircles;
+  finalval =  pow(finalval, 1.0/2.0) + colorIntensity;
 
-  vec4 r = vec4(vec3(pow(finalval, 1.0/2.0)) - iBeat * 0.1, 1.0);
+  vec4 r = vec4(vec3(finalval) - iBeat * 0.1, 1.0);
   return r;
 }
 
@@ -601,9 +604,9 @@ void main(void){
     populationResult = min(1.0, iPopulationWeight)*populationDensity(uv);
   }
 
-  if(iNycWeight > 0.0){
-    cellSpellResult = cellSpell(uv);
-  }
+  //  if(iNycWeight > 0.0){
+    //    cellSpellResult = cellSpell(uv);
+  //  }
 
   if(iCircleDanceWeight > 0.0 && iBouncingWeight == 0.0 && iCircularWeight == 0.0){
     circleDanceResult = circleDance();
