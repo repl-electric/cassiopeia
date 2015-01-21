@@ -196,13 +196,13 @@
      (when nomad-chord-g
        (let [n (int (buffer-get (second (:bufs nomad-chord-g)) 0))]
          (case n
-           29 (do (overtime! circle-edge 0.0)  (overtime! nyc-weight 0.0 0.005))
-           32 (do (overtime! circle-edge -0.3) (overtime! nyc-weight 0.004))
+           29 (do (overtime! circle-edge 0.0)  (overtime! nyc-weight 0.0 0.005) (reset! invert-color 1.0))
+           32 (do (overtime! circle-edge -0.3) (overtime! nyc-weight 0.004) (reset! invert-color 2.0))
            34 (do (overtime! circle-edge -0.5) (overtime! nyc-weight 0.01))
-           36 (do (overtime! circle-edge -0.55) (overtime! nyc-weight 0.012))
+           36 (do (overtime! circle-edge -0.55) (overtime! nyc-weight 0.0119))
 
-           41 (do (overtime! circle-edge 0.0)  (overtime! nyc-weight 0.0 0.005))
-           44 (do (overtime! circle-edge -0.3) (overtime! nyc-weight 0.004))
+           41 (do (overtime! circle-edge 0.0)  (overtime! nyc-weight 0.0 0.005) (reset! invert-color 1.0))
+           44 (do (overtime! circle-edge -0.3) (overtime! nyc-weight 0.004) (reset! invert-color 2.0))
            46 (do (overtime! circle-edge -0.5) (overtime! nyc-weight 0.01))
            48 (do (overtime! circle-edge -0.5) (overtime! nyc-weight 0.012))
 
