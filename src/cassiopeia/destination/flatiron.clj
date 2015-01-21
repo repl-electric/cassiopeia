@@ -213,6 +213,9 @@
   (reset! cell-dance-weight 1.0)
   (reset! splatter 500000.0)
 
+  (fl/v 3.0)
+  (ctl-global-clock 0.2)
+
   ;;(kill beats)
   (start-graphics "resources/shaders/nyc.glsl"
                   :textures [:overtone-audio :previous-frame
