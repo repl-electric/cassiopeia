@@ -199,12 +199,12 @@
            29 (do (overtime! circle-edge 0.0)  (overtime! nyc-weight 0.0 0.005))
            32 (do (overtime! circle-edge -0.3) (overtime! nyc-weight 0.004))
            34 (do (overtime! circle-edge -0.5) (overtime! nyc-weight 0.01))
-           36 (do (overtime! circle-edge -0.6) (overtime! nyc-weight 0.02))
+           36 (do (overtime! circle-edge -0.55) (overtime! nyc-weight 0.012))
 
            41 (do (overtime! circle-edge 0.0)  (overtime! nyc-weight 0.0 0.005))
            44 (do (overtime! circle-edge -0.3) (overtime! nyc-weight 0.004))
            46 (do (overtime! circle-edge -0.5) (overtime! nyc-weight 0.01))
-           48 (do (overtime! circle-edge -0.7) (overtime! nyc-weight 0.02))
+           48 (do (overtime! circle-edge -0.5) (overtime! nyc-weight 0.012))
 
            (do (reset! circle-edge 0.0) (reset! nyc-weight 0.0)))))))
 
