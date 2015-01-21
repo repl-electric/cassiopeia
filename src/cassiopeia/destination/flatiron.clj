@@ -208,8 +208,7 @@
 
            (do (reset! circle-edge 0.0) (reset! nyc-weight 0.0)))))))
 
-  (remove-watch buffer-change-event-nomad :buffer-change-event-nomad)
-
+  ;;(remove-watch buffer-change-event-nomad :buffer-change-event-nomad)
 
   (reset! cell-dance-weight 1.0)
   (reset! splatter 500000.0)
