@@ -291,11 +291,24 @@ vec4 lineDistort(vec4 cTextureScreen, vec2 uv1){
   float nIntensity=0.1;
   float sIntensity=0.2;
   if(iNycWeight >= 0.012){
-    sIntensity = 0.1 + 0.001*iBeat;
+    sIntensity = 0.5 + 0.001*iBeat;
+  }
+
+  float noiseEntry = 0.0;
+  float accelerator= 1000.0;
+
+  if(iNycWeight >= 0.012){
+    accelerator = 10.1;
+    noiseEntry = 0.5 + iBeat;
+  }
+
+  if(iDeath < 3.0){
+    noiseEntry = (4*(3-iDeath)/3.0);
+    sIntensity = 0.2;
   }
 
   // sample the source
-  float x = uv1.x * uv1.y * iGlobalTime *  1000.0;
+  float x = uv1.x * uv1.y * iGlobalTime * accelerator;
   x = mod( x, 13.0 ) * mod( x, 123.0 );
   float dx = mod( x, 0.05 );
   vec3 cResult = cTextureScreen.rgb + cTextureScreen.rgb * clamp( 0.1 + dx * 100.0, 0.0, 1.0 );
@@ -304,10 +317,6 @@ vec4 lineDistort(vec4 cTextureScreen, vec2 uv1){
   // add scanlines
   cResult += cTextureScreen.rgb * vec3( sc.x, sc.y, sc.x ) * sIntensity;
 
-  float noiseEntry = 0.0;
-  if(iNycWeight >= 0.012 || iDeath < 3.0){
-    noiseEntry = 0.5;
-  }
 
   // interpolate between source and result by intensity
   cResult = cTextureScreen.rgb + clamp(nIntensity, noiseEntry,1.0 ) * (cResult - cTextureScreen.rgb);
@@ -344,9 +353,9 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
   }
 
   float speedBumpCrazy = 0.0;
-  if(iNycWeight >= 0.012){
-    speedBumpCrazy = 0.1;
-  }
+  //  if(iNycWeight >= 0.012){
+    //speedBumpCrazy = 0.01;
+  //  }
 
   if(still==0){
     float y1 = 1.0;
