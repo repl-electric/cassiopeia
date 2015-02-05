@@ -39,7 +39,6 @@
   (defonce cell-dance-weight   (atom 1.0))
   (defonce splatter            (atom 500000.0))
   (defonce circle-intensity    (atom 0.0025))
-
   (defonce buffer-change-event-nomad (atom 0.0))
   (def ibeat (atom {:synth beats :tap "beat"}))
   (def beat-tap (get-in (:synth @ibeat) [:taps (:tap @ibeat)]))
@@ -48,6 +47,23 @@
              (fn [_ _ old new]
                (when (and (= old 0.0) (= 1.0 new))
                  (reset! cell-dance-color (mod (+ @cell-dance-color 1.0) 100)))))
+
+
+  (reset! circle-count 4.0)
+  (reset! color               0.1)
+  (reset! circle-slice        8.0)
+  (reset! circle-growth-speed 0.1)
+  (reset! circle-edge         0.1)
+  (reset! circular-weight     0.0)
+  (reset! population-weight   0.0)
+  (reset! cells-weight        0.0)
+  (reset! nyc-weight          0.0)
+  (reset! invert-color        1.0)
+  (reset! cell-dance-weight   1.0)
+  (reset! splatter            500000.0)
+  (reset! circle-intensity    0.0025)
+  (reset! buffer-change-event-nomad 0.0)
+  (reset! cell-dance-color 0.01)
 
   (def nomad-chord-g nil)
   (add-watch
