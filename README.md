@@ -13,12 +13,12 @@ Performances: https://vimeo.com/replelectric/videos
 
 http://www.repl-electric.com
 
-#### Influences
+#### Want to start Live coding?
 
-Inspired by Meta-ex https://github.com/meta-ex/ignite
+Here is a good place to start: https://github.com/josephwilk/strangeloop2014/blob/master/readme.md
 
 #### License
 
-Copyright © 2014 Joseph Wilk
+Copyright © 2014-2015 Joseph Wilk
 
 Distributed under the Eclipse Public License, the same as Clojure.
