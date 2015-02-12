@@ -3,7 +3,7 @@
   (:require [mud.timing :as time]))
 
 
-(ctl-global-clock 2.0)
+(ctl-global-clock 0.5)
 
 (defsynth dark-river
   "Dark, rough and sharp sea horn.
@@ -114,8 +114,26 @@
 (def nz [33, 35, 37, 40, 42, 45, 47, 49, 52, 54, 57])
 
 (ctl river-flowing :release 6.0 :attack 3.0)
-(pattern! d-notes-b (degrees-seq [:A2 4
-                                  :A2 1]))
+(pattern! d-notes-b (shuffle nz))
+
+(def trigger-g101518
+  (on-beat-trigger 1 #(do
+                       (ctl river-flowing :release 6.0 :attack 3.0)
+                       )))
+
+(remove-beat-trigger trigger-g101518)
+(remove-all-beat-triggers)
+
+
+(def trigger-g101517
+  (on-beat-trigger 32 #(do
+                       (ctl river-flowing :release 4.0 :attack 2.0)
+                       )))
+
+(remove-beat-trigger trigger-g101517)
+(remove-all-beat-triggers)
+
+
 
 
 (stop)
