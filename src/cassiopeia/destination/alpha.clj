@@ -15,12 +15,14 @@
         [cassiopeia.warm-up]
         [cassiopeia.samples]
         [overtone.synth.sampled-piano])
-  (:require [mud.timing :as timing]
+  (:require [mud.timing :as time]
             [launchpad.sequencer :as lp-sequencer]
             [launchpad.plugin.beat :as lp-beat]
+            [cassiopeia.engine.expediency :refer :all]
             [cassiopeia.engine.mixers :as m]
             [overtone.inst.synth :as s]
-            [overtone.synths :as syn]))
+            [overtone.synths :as syn]
+            [cassiopeia.waves.synths :as cs]))
 
 (do
   (def star-into-the-sun (load-sample "~/Workspace/music/samples/star-into-the-sun.wav"))
@@ -28,7 +30,7 @@
 
   (def windy (sample (freesound-path 17553)))
 
-  (defonce rhythm-g (group "Rhythm" :after timing/timing-g))
+  (defonce rhythm-g (group "Rhythm" :after time/timing-g))
   (defonce saw-bf1 (buffer 256))
   (defonce saw-bf2 (buffer 256))
 
@@ -43,18 +45,18 @@
   (defonce phasor-b4 (control-bus 1 "Timing Saw Phasor 4"))
   (defonce phasor-b5 (control-bus 1 "Timing Saw Phasor 5"))
 
-  (defonce saw-s1 (timing/saw-x [:head rhythm-g] :out-bus saw-x-b1))
-  (defonce saw-s2 (timing/saw-x [:head rhythm-g] :out-bus saw-x-b2))
+  (defonce saw-s1 (time/saw-x [:head rhythm-g] :out-bus saw-x-b1))
+  (defonce saw-s2 (time/saw-x [:head rhythm-g] :out-bus saw-x-b2))
 
-  (defonce saw-s3 (timing/saw-x [:head rhythm-g] :out-bus saw-x-b3))
+  (defonce saw-s3 (time/saw-x [:head rhythm-g] :out-bus saw-x-b3))
 
-  (defonce phasor-s1 (timing/buf-phasor [:after saw-s1] saw-x-b1 :out-bus phasor-b1 :buf saw-bf1))
-  (defonce phasor-s2 (timing/buf-phasor [:after saw-s2] saw-x-b2 :out-bus phasor-b2 :buf saw-bf2))
+  (defonce phasor-s1 (time/buf-phasor [:after saw-s1] saw-x-b1 :out-bus phasor-b1 :buf saw-bf1))
+  (defonce phasor-s2 (time/buf-phasor [:after saw-s2] saw-x-b2 :out-bus phasor-b2 :buf saw-bf2))
 
   (def space-notes-buf (buffer 5))
   (def space-tones-buf (buffer 3))
 
-  (defonce phasor-s3 (timing/buf-phasor [:after saw-s3] saw-x-b3 :out-bus phasor-b3 :buf space-notes-buf))
+  (defonce phasor-s3 (time/buf-phasor [:after saw-s3] saw-x-b3 :out-bus phasor-b3 :buf space-notes-buf))
 
   (defsynth buffered-plain-space-organ [out-bus 0 duration 4 amp 1]
     (let [tone (/ (in:kr phasor-b2) 2)
@@ -128,7 +130,7 @@
     (ctl thso :size 0)
     (ctl thso :size 200)
 
-    (def so (high-space-organ :amp 0.4 :trig timing/beat-count-b :noise 220 :t0 2 :t1 4 :t2 8 :out-bus 0))
+    (def so (high-space-organ :amp 0.4 :trig time/beat-count-b :noise 220 :t0 2 :t1 4 :t2 8 :out-bus 0))
 
     (show-graphviz-synth high-space-organ)
 
@@ -200,7 +202,7 @@
   (plain-space-organ :tone 22 :duration 1)
   (plain-space-organ :tone 20 :duration 3))
 
-(def so (high-space-organ :amp 0.4 :trig timing/beat-count-b :noise 220 :t0 2 :t1 4 :t2 8 :out-bus 0))
+(def so (high-space-organ :amp 0.4 :trig time/beat-count-b :noise 220 :t0 2 :t1 4 :t2 8 :out-bus 0))
 
 (kill so)
 
@@ -216,4 +218,16 @@
 (ctl so :size 200)
 (ctl so :amp 0.1)
 
+
+(volume 0.1)
 (comment (stop))
+(comment
+  (defonce kick-seq-buf (buffer 256))
+  (def beats (cs/buffer->tap-lite kick-seq-buf (:count time/beat-1th) :measure 8))
+
+  (start-graphics "resources/shaders/space_and_time.glsl"
+                  :textures [:overtone-audio :previous-frame
+                             "resources/textures/tex16.png"]
+                  :user-data {"iGlobalBeatCount" (atom {:synth beats :tap "global-beat-count"})})
+  (stop-graphics "resources/shaders/space_and_time.glsl")
+)
