@@ -226,8 +226,9 @@
   (def beats (cs/buffer->tap-lite kick-seq-buf (:count time/beat-1th) :measure 8))
 
   (start-graphics "resources/shaders/space_and_time.glsl"
-                  :textures [:overtone-audio :previous-frame
-                             "resources/textures/tex16.png"]
+                  :textures [:overtone-audio  "resources/textures/tex16.png"
+                             "resources/textures/time.png"
+                             "resources/textures/space.png"]
                   :user-data {"iGlobalBeatCount" (atom {:synth beats :tap "global-beat-count"})})
   (stop-graphics "resources/shaders/space_and_time.glsl")
 )

@@ -79,7 +79,7 @@ vec4 generateSpaceLights(vec2 uv1){
     float it = 0.001 * length(p * p);
     v += it;
 
-    acc += sqrt(it) * texture2D(iChannel3, ray.xy * 0.1 + ray.z * 0.1).xyz;
+    acc += sqrt(it) * texture2D(iChannel1, ray.xy * 0.1 + ray.z * 0.1).xyz;
     ray += dir * inc;
   }
 
@@ -88,8 +88,24 @@ vec4 generateSpaceLights(vec2 uv1){
   return vec4(col, 1.0);
 }
 
+vec4 textureCutout(vec4 w, vec4 tex){
+  vec4 logoAlpha = tex.aaaa;
+  vec4 negAlpha = logoAlpha * vec4(-1.,-1.,-1.,0.) + vec4(1.,1.,1.,0.);
+  w = negAlpha - (w + logoAlpha);
+  return w;
+}
+
 void main(void){
   vec2 uv = gl_FragCoord.xy / iResolution.x;
   vec4 r = generateSpaceLights(uv) + vec4(hsvToRgb(0.0,0.0),1.0);
-  gl_FragColor = lineDistort(r, uv);
+
+  float time = 1.0;
+  float space = 0.0;
+
+  uv.y+= 0.15;
+  r = r- time*(textureCutout(vec4(0.0,0.0,0.0,1.0), texture2D(iChannel2, uv)));
+  r = r- space*(textureCutout(vec4(0.0,0.0,0.0,1.0),texture2D(iChannel3, uv)));
+
+
+  gl_FragColor = r; //lineDistort(r, uv);
 }
