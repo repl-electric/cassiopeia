@@ -26,6 +26,7 @@
             [(degrees [1 1 1 1  5 4 3 1] :minor :F1)])
 
   (def beats (buffer->tap-lite kick-seq-buf (:count time/beat-1th) :measure 8))
+  (defonce stars-weight        (atom 0.0))
   (defonce circle-count        (atom 4.0))
   (defonce color               (atom 0.1))
   (defonce circle-slice        (atom 8.0))
@@ -100,6 +101,7 @@
                   :user-data {"iGlobalBeatCount" (atom {:synth beats :tap "global-beat-count"})
                               "iBeat"            ibeat
 
+                              "iStars" stars-weight
                               "iColor" color
                               "iCircleCount" circle-count
                               "iHalfPi" circle-slice

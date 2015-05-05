@@ -20,6 +20,7 @@ uniform float iCircleDanceWeight;
 uniform float iCircleDanceColor;
 uniform float iSplatter;
 uniform float iCircleDistort;
+uniform float iStars;
 
 const float pi = 3.14159265;
 const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
@@ -34,6 +35,59 @@ const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
 
 float measureCount = mod(iGlobalBeatCount, 8 * 16) / 8;
 float beatTotalCount = mod(iGlobalBeatCount, 16);
+
+vec2 rotate(vec2 p, float a){
+  return vec2(p.x * cos(a) - p.y * sin(a), p.x * sin(a) + p.y * cos(a));
+}
+
+float smoothedVolume;
+
+vec4 generateSpaceLights(vec2 uv1){
+  vec2 uv = uv1 * 2.0 - 1.0;
+  uv.x *= iResolution.x / iResolution.y;
+
+  float v = 0.0;
+
+  vec3 ray = vec3(sin(iGlobalTime * 0.1) * 0.2, cos(iGlobalTime * 0.13) * 0.2, 1.5);
+  vec3 dir;
+  dir = normalize(vec3(uv, 1.0));
+
+  ray.z += iGlobalTime * 0.001 - 20.0;
+  dir.xz = rotate(dir.xz, sin(iGlobalTime * 0.001) * 0.1);
+  dir.xy = rotate(dir.xy, iGlobalTime * 0.01);
+
+  #define STEPS 8
+
+  smoothedVolume += (iOvertoneVolume  - smoothedVolume) * 0.1;
+
+  float inc = smoothedVolume / float(STEPS);
+  if (iOvertoneVolume<=0.01){
+    inc = 0;
+  }
+  else{
+    inc = clamp(inc, 0.2,0.8);
+  }
+
+  vec3 acc = vec3(0.0);
+
+  for(int i = 0; i < STEPS; i ++){
+    vec3 p = ray * 0.4;
+
+    for(int i = 0; i < 14; i ++){
+      p = abs(p) / dot(p, p) * 2.0 - 1.0;
+    }
+    float it = 0.001 * length(p * p);
+    v += it;
+
+    acc += sqrt(it) * texture2D(iChannel1, ray.xy * 0.1 + ray.z * 0.1).xyz;
+    ray += dir * inc;
+  }
+
+  float br = pow(v * 2.0, 1.0) * 0.5;
+  vec3 col = pow(acc * 4.1, vec3(2.2)) + br;
+  return vec4(col, 1.0);
+}
+
 
 vec3 hsv2rgb(float h, float s, float v) {
   return mix(vec3(1.), clamp((abs(fract(h+vec3(3.,2.,1.)/3.)*6.-3.)-1.),0.,1.),s)*v;
@@ -636,7 +690,12 @@ void main(void){
     circleDanceResult = circleDance();
   }
 
-  c = (cellSpellResult + populationResult + circleResult + bouncingResult);
+  vec4 space = vec4(0.0);
+  if(iStars > 0.0){
+    space = generateSpaceLights(uv) * iStars;
+  }
+
+  c = (cellSpellResult + populationResult + circleResult + bouncingResult + space);
 
   gl_FragColor = lineDistort(c, uv) + circleDanceResult;
 }
