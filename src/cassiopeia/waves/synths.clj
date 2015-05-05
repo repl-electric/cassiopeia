@@ -27,7 +27,7 @@
     (detect-silence:ar (+ inv-trg b) 0.001 10 FREE)
     (out out-bus (* amp output))))
 
-(defsynth play-buf
+(defsynth repl-buf
   "Plays a stereo buffer from start pos to end pos (represented as
    values between 0 and 1). May be looped via the loop?
    argument. Release time is the release phase after the looping has
