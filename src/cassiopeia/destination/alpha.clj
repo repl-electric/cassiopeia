@@ -12,12 +12,13 @@
 * Magnitude: 2.24
 "
   (:use [overtone.live]
-        [cassiopeia.warm-up]
+        ;;[cassiopeia.warm-up]
         [cassiopeia.samples]
-        [overtone.synth.sampled-piano])
+        [overtone.synth.sampled-piano]
+        [mud.core])
   (:require [mud.timing :as time]
-            [launchpad.sequencer :as lp-sequencer]
-            [launchpad.plugin.beat :as lp-beat]
+            ;;[launchpad.sequencer :as lp-sequencer]
+            ;;[launchpad.plugin.beat :as lp-beat]
             [cassiopeia.engine.expediency :refer :all]
             [cassiopeia.engine.mixers :as m]
             [overtone.inst.synth :as s]
@@ -85,14 +86,42 @@
 
   (comment  (def csp  (crystal-space-organ :numharm 0 :amp 0.5)))
 
-  (defsynth high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 trig 0 t0 8 t1 16 t2 24 d0 1 d1 1/2 d2 1/4]
-    (let [notes (map #(midicps (duty:kr % (mod trig 16) (dseq space-notes INF))) [d0 d1 d2])
-          tones (map (fn [note tone] (blip (* note tone)
-                                          (mul-add:kr (lf-noise1:kr noise) 3 4))) notes [t0 t1 t2])]
-      (out out-bus (* amp (g-verb (sum tones) size r)))))
+  (def space-notes [8 16 32 16 8])
+  (defsynth high-space-organ [cutoff 90 out-bus 0 amp 1 size 200 r 8 noise 10 trig 0 t0 8 t1 16 t2 24 d0 1 d1 1/2 d2 1/4]
+    (let [space-notes1-buf (buf-rd:kr 1 space-notes-buf 0)
+          space-notes2-buf (buf-rd:kr 1 space-notes-buf 1)
+          space-notes3-buf (buf-rd:kr 1 space-notes-buf 2)
+          space-notes4-buf (buf-rd:kr 1 space-notes-buf 3)
+          space-notes5-buf (buf-rd:kr 1 space-notes-buf 4)
+          space-notes-in [space-notes1-buf space-notes2-buf space-notes3-buf space-notes4-buf space-notes5-buf]
+          notes (map #(duty:kr % (mod trig 16) (dseq space-notes-in INF)) [d0 d1 d2])
+          tones (map (fn [note tone]
+                       (println :none note :tone tone)
+                       (blip (* note tone) (mul-add:kr (lf-noise1:kr noise) 3 4))) notes [t0 t1 t2])
+          _ (println tones)
+          src (* amp (g-verb (sum tones) size r))
+          src (lpf src cutoff)]
+      (out out-bus src)))
+
+  (println (map midi->hz [8 16 32 16 8]))
+
+(ctl so :t0 1 :t1 1 :t2 1)
+
+(pattern! space-notes-buf (map midi->hz (degrees-seq [:C#0 1 :C#0 3 :C#1 5])))
+
+  ;;:t0 2 :t1 4 :t2 8 :out-bus 0
+  (pattern! space-notes-buf (map midi->hz [8 16 32 16 8]))
+  (def so (high-space-organ :amp 0.4
+                            :trig time/beat-count-b
+                            :noise 220 :t0 1 :t1 1 :t2 2 :out-bus 0))
+  (ctl so :cutoff 2000a)
+  (ctl so :amp 0.5)
+  (ctl so :t0 2)
+  (ctl so :t1 4)
+  (ctl so :t2 8)
+  (kill high-space-organ)
 
   (comment (high-space-organ))
-
 
   (defsynth timed-high-space-organ [out-bus 0 amp 1 size 200 r 8 noise 10 ]
     (let [note (in:kr phasor-b3)
@@ -159,7 +188,7 @@
 (syn/fallout-wind)
 (syn/soft-phasing :amp 0.0)
 (def dark (syn/dark-sea-horns :amp 0.3))
-(ctl dark :amp 0)
+(ctl dark :amp 1)
 
 (kill dark)
 (kill syn/soft-phasing)
@@ -172,7 +201,7 @@
 (buffer-write! saw-bf2 (repeat 256 (midi->hz (note :A3))))
 
 (buffer-write! saw-bf2 (map midi->hz
-                            (map (fn [midi-note] (+ -10 midi-note))
+                            (map (fn [midi-note] (+ -12 midi-note))
                                  (map note (take 256 (cycle score))))))
 
 (buffer-write! saw-bf2 (map midi->hz
@@ -184,32 +213,40 @@
                                  (map note (take 256 (cycle score))))))
 
 (ratatat :amp 0.9)
-(ctl saw-s2 :freq-mul 1/4000)
+(ctl saw-s2 :freq-mul 1/40)
 (kill ratatat)
 
 (buffered-plain-space-organ :amp 0.8)
 (kill buffered-plain-space-organ)
 
+(stop)
+
 ;;Jaming
 
-(do
-  (plain-space-organ :tone 24 :duration 3)
-  (plain-space-organ :tone 28 :duration 8)
-  (plain-space-organ :tone 22 :duration 1)
-  (plain-space-organ :tone 24 :duration 1)
-  (plain-space-organ :tone 20 :duration 1)
-  (plain-space-organ :tone 22 :duration 1)
-  (plain-space-organ :tone 22 :duration 1)
-  (plain-space-organ :tone 20 :duration 3))
+(plain-space-organ :tone (/ 24 2) :duration 16)
+
+(def note-cycle (degrees [1 2 3] :major :C#2))
+(def note-inc (atom 0))
+(def trigger-g99018
+  (on-beat-trigger 8 (fn []
+                       (swap! note-inc inc)
+                       (plain-space-organ :tone (/ (midi->hz (nth (degrees [1 2 3] :major :C#1) (mod @note-inc 3) )  ) 1) :duration 16.0 :amp 0.2)
+                        )))
+(remove-beat-trigger trigger-g99018)
+(remove-all-beat-triggers)
+
 
 (def so (high-space-organ :amp 0.4 :trig time/beat-count-b :noise 220 :t0 2 :t1 4 :t2 8 :out-bus 0))
+(def so (high-space-organ :amp 0.4 :trig time/beat-count-b :noise 220 :t0 1 :t1 1 :t2 1 :out-bus 0))
+
+(ctl so :cutoff 250)
 
 (kill so)
 
 (ctl so :noise 50)
 (ctl so :vol 1)
 
-(ctl so :t0 2 :t1 4 :t2 8)
+(ctl so :t0 1 :t1 1 :t2 1)
 (ctl so :t0 8 :t1 12 :t2 16)
 (ctl so :t0 8 :t1 16 :t2 24)
 
@@ -219,16 +256,19 @@
 (ctl so :amp 0.1)
 
 
-(volume 0.1)
+(volume 1.0)
 (comment (stop))
 (comment
   (defonce kick-seq-buf (buffer 256))
   (def beats (cs/buffer->tap-lite kick-seq-buf (:count time/beat-1th) :measure 8))
 
   (start-graphics "resources/shaders/space_and_time.glsl"
-                  :textures [:overtone-audio  "resources/textures/tex16.png"
+                  :textures [:overtone-audio
+                             :previous-frame
+                             "resources/textures/tex16.png"
                              "resources/textures/time.png"
-                             "resources/textures/space.png"]
+                             ;;"resources/textures/space.png"
+                             ]
                   :user-data {"iGlobalBeatCount" (atom {:synth beats :tap "global-beat-count"})})
   (stop-graphics "resources/shaders/space_and_time.glsl")
 )

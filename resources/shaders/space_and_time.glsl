@@ -88,6 +88,91 @@ vec4 generateSpaceLights(vec2 uv1){
   return vec4(col, 1.0);
 }
 
+float normpdf(in float x, in float sigma)
+{
+  return 0.39894*exp(-0.5*x*x/(sigma*sigma))/sigma;
+}
+
+
+
+float time = iGlobalTime;
+vec2 mouse = iMouse.xy/iResolution.xy;
+vec2 resolution = iResolution.xy;
+
+const float PI = 3.141592653589;
+
+float cap(vec2 a, vec2 b) {
+  vec2 abd = vec2(a.x*b.x+a.y*b.y, a.y*b.x-a.x*b.y);
+  float y_x = abd.y/(abd.x-1.);
+
+  return atan(-y_x)-y_x/(1.+y_x*y_x)+PI/2.;
+}
+
+float cap1(float p) {
+  p = max(min(p,1.),-1.);
+  return asin(p)+p*sqrt(1.-p*p)+PI/2.;
+}
+
+float ebok(vec2 p, vec2 a, vec2 b) {
+  vec2 an = vec2(a.y,-a.x);
+  vec2 bn = vec2(b.y,-b.x);
+
+  float surface;
+  if (dot(normalize(an),normalize(bn))>.9999) {
+    // This is neccessary to remove dot crawl around corners
+    surface = 0.;
+  } else if (dot(p,p) < .99) {
+    float pa = dot(p,a);
+    float ra = -pa+sqrt(pa*pa-dot(p,p)+1.);
+    vec2 pac = ra*a;
+
+    float pb = dot(p,b);
+    float rb = -pb+sqrt(pb*pb-dot(p,p)+1.);
+    vec2 pbc = rb*b;
+
+    surface = cap(p+pac,p+pbc)+(pac.x*pbc.y-pac.y*pbc.x)*.5;
+  } else {
+    float d1 = dot(an,p);
+    float d2 = -dot(bn,p);
+    float sda = step(dot(p,a),0.);
+    float sdb = step(dot(p,b),0.);
+    surface = PI*(sda+sdb-sda*sdb) - cap1(-d1)*sda - cap1(-d2)*sdb;
+
+  }
+  return surface;
+}
+
+float handleCorner(vec2 p, vec2 a, vec2 b, vec2 c) {
+  vec2 ba = normalize(a-b);
+  vec2 bc = normalize(c-b);
+  float h = dot(a-p,vec2(ba.y,-ba.x));
+  return ebok(p-b, bc, ba) - cap1(h);
+}
+
+float bokehtria(vec2 p, vec2 a, vec2 b, vec2 c) {
+  vec2 mi = min(min(a,b),c)-1.;
+  vec2 ma = max(max(a,b),c)+1.;
+  return (a.x-b.x)*(a.y-c.y)<(a.y-b.y)*(a.x-c.x)||p.x<mi.x||p.y<mi.y||p.x>ma.x||p.y>ma.y ? 0. :  handleCorner(p,a,b,c) + handleCorner(p,b,c,a) + handleCorner(p,c,a,b) + PI;
+}
+
+float bokehsquare(vec2 p, vec2 a, vec2 b, vec2 c, vec2 d, float scale) {
+  p *= scale; a *= scale; b *= scale; c *= scale; d *= scale;
+  vec2 mi = min(min(a,b),min(c,d))-1.;
+  vec2 ma = max(max(a,b),max(c,d))+1.;
+  return (a.x-b.x)*(a.y-c.y)<(a.y-b.y)*(a.x-c.x)||p.x<mi.x||p.y<mi.y||p.x>ma.x||p.y>ma.y ? 0. :  handleCorner(p,a,b,c) + handleCorner(p,b,c,d) + handleCorner(p,c,d,a) + handleCorner(p,d,a,b) + PI;
+}
+
+vec2 project(vec3 v) {
+  return v.xy/(v.z+14.);
+}
+
+vec4 shade(vec3 v, float f) {
+  float highlight = pow(f*.5+.5,100.);
+  return vec4(pow(f*.5+.5,10.)*v*1.5*(1.-highlight)+highlight,1.)/PI;
+}
+
+
+
 // Bluring fn froms:
 // Bokeh disc.
 // by David Hoskins.
@@ -116,7 +201,9 @@ vec3 Bokeh(sampler2D tex, vec2 uv, float radius, float amount){
   vec2 pixel = vec2(iResolution.y/iResolution.x, 1.0) * radius * .002;
   float r = 1.0;
   for (float j = 0.0; j < ITERATIONS; j += GOLDEN_ANGLE){
-      vec3 col = texture2D(tex, uv + pixel * Sample(j, r)).xyz;
+      vec2 idx = uv + pixel * Sample(j, r);
+      idx.y=0.25;
+      vec3 col = texture2D(tex, idx).xyz;
       col = col * col * 1.4; // ...contrast it for better highlights
       vec3 bokeh = vec3(5.0) + pow(col, vec3(9.0)) * amount;
       acc += col * bokeh;
@@ -126,20 +213,14 @@ vec3 Bokeh(sampler2D tex, vec2 uv, float radius, float amount){
 }
 
 vec4 blur(vec2 uv){
-  //vec2 uv = fragCoord.xy / iResolution.xy;
-  float time = iGlobalTime*.2 + .5;
-  float r = .7 - .7*cos(time * PI * 2.0);
+  vec2 uv2 = gl_FragCoord.xy / iResolution.xy;
+  float r = 0.3;
+  float a = 0.0;
+  uv2 = vec2(iResolution.y/uv.y, 0.25);
 
-  float a = 150.0;
-  if (iMouse.w >= 1.0)
-    {
-      r = (iMouse.x/iResolution.x)*3.0;
-      a = iMouse.y/iResolution.y * 80.0;
-    }
-
-  uv *= vec2(1.0, -1.0);
-
-  return vec4(Bokeh(iChannel0, uv, r, a), 1.0);
+  float d = clamp(uv.y/8, 0.0, iResolution.y);
+  uv2 = vec2(pow(d, 1.0), 0.25);
+  return vec4(Bokeh(iChannel0, uv2, r, a), 1.0);
 }
 
 vec4 textureCutout(vec4 w, vec4 tex){
@@ -204,21 +285,34 @@ vec2 warpedCords(vec2 p){
   return o;
 }
 
+
 void main(void){
   vec2 uv = gl_FragCoord.xy / iResolution.x;
   vec4 r = generateSpaceLights(uv) + vec4(hsvToRgb(0.0,0.0),1.0);
 
-  float time = 1.0;
+  float time = 0.0;
   float space = 0.0;
-  float blurWeight = 1.0;
+  float blurWeight = 0.0;
 
-  uv.y+= 0.0;
+  uv.y += 0.0;
   //  uv.x= uv.x*1.0;
   //  uv.y= uv.y*1;
 
-  r = r- time*(textureCutout(vec4(0.0,0.0,0.0,1.0), texture2D(iChannel2, warpedCords(uv))));
-  r = r- space*(textureCutout(vec4(0.0,0.0,0.0,1.0),texture2D(iChannel3, warpedCords(uv))));
+  //r = r+blur(uv);
+  //  vec4 poop = vec4(texture2D(iChannel0, uv).xyz, 1.0);
+  vec4 blurR = blur(uv);
+
+  if(blurWeight > 0.0){
+    r += blurR;}
+  else{
+    //
+  //    float d = clamp(uv.y/8, 0.0, iResolution.y);
+  //r += texture2D(iChannel0, vec2(pow(d, 1.0), 0.25));
+  }
+
+  r = r - time*(textureCutout(vec4(0.0,0.0,0.0,1.0), texture2D(iChannel2, warpedCords(uv))));
+  r = r - space*(textureCutout(vec4(0.0,0.0,0.0,1.0),texture2D(iChannel3, warpedCords(uv))));
 
 
-  gl_FragColor = r; //lineDistort(r, uv);
+  gl_FragColor = lineDistort(r, uv);
 }
