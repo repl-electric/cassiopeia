@@ -4,7 +4,7 @@
             [shadertone.shader :as shader]))
 
 ;;If we die due to gl errors keep the view screen running.
-(shader/throw-exceptions-on-gl-errors false)
+;;(shader/throw-exceptions-on-gl-errors false)
 
 ;;(demo (sin-osc))
 
