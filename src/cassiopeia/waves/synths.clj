@@ -201,7 +201,31 @@
         hit-env (env-gen (perc) :gate bar-trg)
         src (* amp (+ (* drum drum-env) (* hit hit-env)))
         src (free-verb src)]
-        (out out-bus (pan2 src))))
+    (out out-bus (pan2 src))))
+
+(defsynth space-kick3
+  "More randomness + a little pitch shift for a floater mellow kick"
+  [amp 1 amp-buf 0 mod-freq 5 mod-index 5 sustain 0.4 noise 0.025 attack 0.005
+   beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) note-buf 0 seq-buf 0 beat-num 0 num-steps 8 out-bus 0]
+  (let [cnt      (in:kr beat-bus)
+        beat-trg (in:kr beat-trg-bus)
+        note     (buf-rd:kr 1 note-buf cnt)
+        amp      (* amp (buf-rd:kr 1 amp-buf cnt))
+        bar-trg  (and (buf-rd:kr 1 seq-buf cnt)
+                      ;;                     (= beat-num cnt)
+                      beat-trg)
+        freq (midicps note)
+
+        pitch-contour (line:kr (* 2 freq) freq 0.02)
+        drum (lpf (sin-osc pitch-contour (sin-osc mod-freq (/ mod-index 1.3))) 1000)
+        drum-env (env-gen (perc attack sustain) :gate bar-trg)
+        hit (hpf (* noise (white-noise)) 500)
+        hit (lpf hit (line 6000 500 0.03))
+        hit-env (env-gen (perc) :gate bar-trg)
+        src (* amp (+ (* drum drum-env) (* hit hit-env)))
+        src (pitch-shift src 0.4 1 0 (t-rand:ar 0.01 0.0 bar-trg))
+        src (free-verb src)]
+            (out out-bus (pan2 src))))
 
 (defsynth shrill-pulsar [note-buf 0 beat-bus 0 beat-trg-bus 0 size 1 r 0 amp 1]
   (let [cnt (in:kr beat-bus)
@@ -275,6 +299,34 @@
         w (* 0.01 (white-noise:ar))
         e (env-gen (perc :attack attack :release release) :gate bar-trg)]
     (out out-bus (pan2 (* amp e w)))))
+
+(defsynth whitenoise-hat2 [out-bus 0
+                           amp-buf 0
+                           seq-buf 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) num-steps 0 beat-num 0
+                           verb-buf 0
+                           amp 1
+                           release 1 attack 0]
+  (let [cnt      (in:kr beat-bus)
+        amp      (* amp (buf-rd:kr 1 amp-buf cnt))
+        beat-trg (in:kr beat-trg-bus)
+        verb    (buf-rd:kr 1 verb-buf cnt)
+        bar-trg (and (buf-rd:kr 1 seq-buf cnt)
+                     ;;(= beat-num cntsteps)
+                     beat-trg)
+        w (* 0.01 (pitch-shift (white-noise:ar)))
+        attack-fuzz (* attack 0.4)
+        release-fuzz (* release 0.2)
+        attack (+ (t-rand:kr (- attack attack-fuzz) (+ attack attack-fuzz) bar-trg) attack)
+        release (+ (t-rand:kr (- release release-fuzz) (+ release release-fuzz) bar-trg) release)
+        e (env-gen (perc :attack attack :release release) :gate bar-trg)
+        src (* e w)
+        [s1 s2] [src src]
+        echo-src  (+ src (comb-n src 1.0 0.25 1))
+        ctl-wave-prob (coin-gate:kr 0.1 (impulse:kr (/ 1 0.5)))
+        s1 (select:ar ctl-wave-prob [echo-src s1])
+        src (free-verb [s1 s2] 0.3 (t-rand:kr 0.5 1.0 bar-trg) (t-rand:kr 0.0 1.0 bar-trg))
+        src (* slice-amp [s1 s2])]
+    (out out-bus (pan2 (* amp src)))))
 
 (defsynth high-hats [out-bus 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) note-buf 0 seq-buf 0 beat-num 0 num-steps 0
                      attack 0.001 release 0.1 mix 0 room 0 damp 0 amp 1]
