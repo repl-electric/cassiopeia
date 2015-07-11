@@ -28,7 +28,7 @@
 (defn repl-player [sample & rargs]
   (let [args (apply hash-map rargs)]
     (if (< (:rate args) 0)
-      (sample-player sample  :rate -1.0 :start-pos (/ (:size sample) 2))
+      (sample-player sample  :rate (:rate args) :start-pos (/ (:size sample) 2))
       (apply sample-player sample rargs))))
 
 ;;(repl-player (find-sample "cymbal" 11) :rate -1.0)
