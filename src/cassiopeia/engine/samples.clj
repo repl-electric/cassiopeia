@@ -24,3 +24,11 @@
                  sample (sample  (nth r (mod idx (count r))))]
              (swap! __sample_cache__ assoc sample-key sample)
              sample)))))
+
+(defn repl-player [sample & rargs]
+  (let [args (apply hash-map rargs)]
+    (if (< (:rate args) 0)
+      (sample-player sample  :rate -1.0 :start-pos (/ (:size sample) 2))
+      (apply sample-player sample rargs))))
+
+;;(repl-player (find-sample "cymbal" 11) :rate -1.0)
