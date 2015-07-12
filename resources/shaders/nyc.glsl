@@ -178,6 +178,10 @@ vec4 circleDance(void){
   else{
     uv.x *= 1.0/80.0;
   }
+  width = 4.0/(500*(sin(mod(iGlobalBeatCount, 256)*0.025)*0.5+0.5)+
+               2500*(sin((256-mod(iGlobalBeatCount,256))*0.025)*0.5+0.5));
+  width = min(4.0/500, width);
+  width = max(4.0/2500, width);
 
   colorOffset = iCircleDanceColor;
   for (int i=0; i < n; i++){
@@ -245,7 +249,7 @@ vec4 circular(void){
   float speed = CIRCLE_ACCELERATOR;
   float shading = 0.20025;
   float halfpi = iHalfPi;
-  float circleScale = min(60, iCircleCount);
+  float circleScale = min(50, iCircleCount);
 
   float speedFactor= 0.07;
   if(iDeath < 3.0){
