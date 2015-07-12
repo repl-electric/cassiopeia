@@ -38,7 +38,7 @@
   (defonce nyc-weight          (atom 0.0))
   (defonce invert-color        (atom 1.0))
   (defonce cell-dance-weight   (atom 1.0))
-  (defonce splatter            (atom 500000.0))
+  (defonce splatter            (atom 1.0))
   (defonce circle-intensity    (atom 0.0025))
   (defonce buffer-change-event-nomad (atom 0.0))
   (def ibeat (atom {:synth beats :tap "beat"}))
@@ -100,7 +100,7 @@
   ;;(remove-watch buffer-change-event-nomad :buffer-change-event-nomad)
 
   (reset! cell-dance-weight 1.0)
-  (reset! splatter 500000.0)
+  (reset! splatter 1.0)
 
   (fl/v 3.0)
   (ctl-global-clock 0.2)
