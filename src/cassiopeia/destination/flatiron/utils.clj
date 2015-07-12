@@ -34,3 +34,5 @@
   ([] (fadeout-master 1))
   ([current]
      (traced-overtime! vol (foundation-output-group) :master-volume current 0 0.05)))
+
+(defn binary->pat [b](map #(Integer/parseInt %1) (clojure.string/split (Integer/toBinaryString b) #"")))
