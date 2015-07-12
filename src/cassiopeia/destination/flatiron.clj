@@ -49,6 +49,17 @@
                (when (and (= old 0.0) (= 1.0 new))
                  (reset! cell-dance-color (mod (+ @cell-dance-color 1.0) 100)))))
 
+  (defonce converge-zoom-rate (atom 0.2))
+  (reset! converge-zoom-rate 0.2)
+  (reset! splatter 1.0)
+  (add-watch beat-tap :converge-circles
+             (fn [_ _ old new]
+               (when (>= @cell-dance-weight 8.0)
+                 (reset! splatter (max 0 (- @splatter @converge-zoom-rate))))
+               (reset! converge-zoom-rate (max 0.0005 (* @converge-zoom-rate 0.5)))
+               (when (<= @splatter 0.0)
+                 (remove-watch beat-tap :converge-circles)
+                 )))
 
   (reset! circle-count 4.0)
   (reset! color               0.1)
@@ -61,7 +72,7 @@
   (reset! nyc-weight          0.0)
   (reset! invert-color        1.0)
   (reset! cell-dance-weight   1.0)
-  (reset! splatter            500000.0)
+  (reset! splatter            1.0)
   (reset! circle-intensity    0.0025)
   (reset! buffer-change-event-nomad 0.0)
   (reset! cell-dance-color 0.01)

@@ -171,7 +171,7 @@ vec4 circleDance(void){
   float width = 4.0/500;
   uv = vec2(abs(atan(uv.x,uv.y)/(.5*tau)),length(uv));
 
-  if(iCircleDanceWeight==1.0){
+  if(iCircleDanceWeight<=1.0){
     width = min(4.0/500,4.0/iSplatter);
     uv.x *= 1.0/10.0;
   }
@@ -190,6 +190,7 @@ vec4 circleDance(void){
     vec3 phase = smoothstep(-1.0,.5,vec3(cos(a),cos(a-tau/3.0),cos(a-tau*2.0/3.0)));
     wave += phase*smoothstep(width, 0.0, abs(uv.y - ((sound*0.9)+0.2)));
     uv.x += seperation/float(n);
+    uv.y -= (0.05*iSplatter);
   }
 
   wave *= 10.0/float(n);
