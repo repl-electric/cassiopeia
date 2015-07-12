@@ -2,7 +2,6 @@
  " .-. .   .-. .-. .-. .-. .-. .  .
    |-  |   |-|  |   |  |(  | | |\\|
    '   `-' ` '  '  `-' ' ' `-' ' ``"(:use [overtone.live][mud.core][mud.chords][cassiopeia.waves.synths][cassiopeia.samples][cassiopeia.engine.buffers][cassiopeia.dirt][cassiopeia.waves.buf-effects][cassiopeia.engine.expediency][cassiopeia.destination.flatiron.scores][cassiopeia.engine.scheduled-sampler])(:require [mud.timing :as time][clojure.math.numeric-tower :as math][overtone.studio.fx :as fx] [cassiopeia.destination.flatiron.utils :as fl]))
-(overtime! splatter 500.0 1500.0)
 (ctl-global-clock 0.2)
 
 (nyc)
