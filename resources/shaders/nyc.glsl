@@ -701,7 +701,30 @@ void main(void){
     space = generateSpaceLights(uv) * iStars;
   }
 
-  c = (cellSpellResult + populationResult + circleResult + bouncingResult + space);
+  vec4 person = vec4(0.0);
+
+
+  c = (cellSpellResult + populationResult + circleResult + bouncingResult + space + person);
+
+
+  /*  uv.x = sin(uv.x+iGlobalTime*0.1);
+  if(uv.x > 0.490 && uv.x < 0.512 && uv.y < 0.12 && uv.y > 0.1){//head
+    c = vec4(0.8)-c;
+  }
+  if(uv.x > 0.5 && uv.x < 0.505 && uv.y < 0.1 && uv.y > 0.09){//neck
+    c = vec4(0.8)-c;
+  }
+  if(uv.x > 0.494 && uv.x < 0.512 && uv.y < 0.09){//body
+    c = vec4(0.9)-c;
+  }
+  if(uv.x > 0.491 && uv.x < 0.493 && uv.y < 0.09 && uv.y > 0.005){//arm
+    c = c+vec4(0.5);
+  }
+  if(uv.x > 0.513 && uv.x < 0.515 && uv.y < 0.09 && uv.y > 0.005){//arm
+    c = c+vec4(0.5);
+  }
+  */
+
 
   gl_FragColor = lineDistort(c, uv) + circleDanceResult;
 }
