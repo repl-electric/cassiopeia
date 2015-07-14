@@ -172,16 +172,17 @@ vec4 circleDance(void){
   uv = vec2(abs(atan(uv.x,uv.y)/(.5*tau)),length(uv));
 
   if(iCircleDanceWeight<=1.0){
-    width = min(4.0/500,4.0/iSplatter);
     uv.x *= 1.0/10.0;
   }
   else{
     uv.x *= 1.0/80.0;
   }
-  width = 4.0/(500*(sin(mod(iGlobalBeatCount, 256)*0.025)*0.5+0.5)+
+  if(iCircleDanceWeight>1.0){
+    width = 4.0/(500*(sin(mod(iGlobalBeatCount, 256)*0.025)*0.5+0.5)+
                2500*(sin((256-mod(iGlobalBeatCount,256))*0.025)*0.5+0.5));
-  width = min(4.0/500, width);
-  width = max(4.0/2500, width);
+    width = min(4.0/500, width);
+    width = max(4.0/2500, width);
+  }
 
   colorOffset = iCircleDanceColor;
   for (int i=0; i < n; i++){
