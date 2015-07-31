@@ -321,11 +321,13 @@
         e (env-gen (perc :attack attack :release release) :gate bar-trg)
         src (* e w)
         [s1 s2] [src src]
-        echo-src  (+ src (comb-n src 1.0 0.25 1))
-        ctl-wave-prob (coin-gate:kr 0.1 (impulse:kr (/ 1 0.5)))
-        s1 (select:ar ctl-wave-prob [echo-src s1])
-        src (free-verb [s1 s2] 0.3 (t-rand:kr 0.5 1.0 bar-trg) (t-rand:kr 0.0 1.0 bar-trg))
-        src (* slice-amp [s1 s2])]
+        ;;        echo-src  (+ src (comb-n src 1.0 0.25 1))
+        ;;        ctl-wave-prob (coin-gate:kr verb (impulse:kr (/ 1 0.5)))
+        ;;        s1 (select:ar ctl-wave-prob [echo-src s1])
+        ;;        s2 (select:ar ctl-wave-prob [echo-src s2])
+        src (free-verb src 0.3 (t-rand:kr 0.5 1.0 bar-trg) (t-rand:kr 0.0 1.0 bar-trg))
+        ;;        src (* slice-amp [s1 s2])
+        ]
     (out out-bus (pan2 (* amp src)))))
 
 (defsynth high-hats [out-bus 0 beat-bus (:count time/main-beat) beat-trg-bus (:beat time/main-beat) note-buf 0 seq-buf 0 beat-num 0 num-steps 0
