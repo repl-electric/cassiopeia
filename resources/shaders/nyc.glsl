@@ -252,7 +252,7 @@ vec4 circular(void){
   float speed = CIRCLE_ACCELERATOR;
   float shading = 0.20025;
   float halfpi = iHalfPi;
-  float circleScale = min(50, iCircleCount);
+  float circleScale = min(40, iCircleCount);
 
   float speedFactor= 0.07;
   if(iDeath < 3.0){
