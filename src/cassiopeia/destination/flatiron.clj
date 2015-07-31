@@ -94,6 +94,8 @@
            46 (do (overtime! circle-edge -0.5) (overtime! nyc-weight 0.01))
            48 (do (overtime! circle-edge -0.5) (overtime! nyc-weight 0.012))
 
+           53 (do (reset! nyc-weight 0.015))
+
            (do (reset! circle-edge 0.0) (reset! nyc-weight 0.0)))))))
 
   ;;(remove-watch buffer-change-event-nomad :buffer-change-event-nomad)

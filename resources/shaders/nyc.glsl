@@ -445,6 +445,11 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
     point.y = 0.5 + p*sin(mod(iGlobalTime+mod(iGlobalTime*0.2,360)*poo,360))*0.1;
   }
 
+  if(iNycWeight >= 0.015){
+    point.x += rand2(point.xy)*0.02;
+    point.y += rand2(point.xy/2)*0.02;
+  }
+
   //round cells
   float p;
   float cellBoundries;
