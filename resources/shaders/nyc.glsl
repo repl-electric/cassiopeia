@@ -172,7 +172,8 @@ vec4 circleDance(void){
   uv = vec2(abs(atan(uv.x,uv.y)/(.5*tau)),length(uv));
 
   if(iCircleDanceWeight<=1.0){
-    uv.x *= 1.0/10.0;
+    //Please don't crash. Really. Please. JVM reboots make people sad :(
+    //without(:not-jvm-death not((not(false)))) do
   }
   else{
     uv.x *= 1.0/80.0;
