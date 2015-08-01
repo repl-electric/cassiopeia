@@ -446,13 +446,13 @@ vec4 buildCell(vec2 uv, vec2 point, int still){
   }
 
   if(iNycWeight >= 0.012 && iNycWeight < 0.015){
-    point.x += rand2(point.xy)*0.02;
-    point.y += rand2(point.xy/2)*0.02;
+    point.x += rand2(point.xy)*0.04;
+    point.y += rand2(point.xy/2)*0.04;
   }
 
   if(iNycWeight >= 0.015){
-    point.x += rand2(point.xy)*0.1;
-    point.y += rand2(point.xy/2)*0.1;
+    point.x += rand2(point.xy)*0.3 - iBeat*0.005;
+    point.y += rand2(point.xy/2)*0.3 + iBeat*0.005;
   }
 
   //round cells
@@ -546,7 +546,7 @@ vec4 bouncingPerson(vec2 uv){
       helloPoint += letter(LETTER_R, vec2(leftTop+letterSpace*0, top), uv);
       helloPoint += letter(LETTER_E, vec2(leftTop+letterSpace*2, top), uv);
       helloPoint += letter(LETTER_P, vec2(leftTop+letterSpace*4, top), uv);
-      helloPoint += letter(LETTER_L, vec2(leftTop+letterSpace*6, top), uv);
+
     }
 
     //}
@@ -556,7 +556,7 @@ vec4 bouncingPerson(vec2 uv){
     if(iBouncingWeight == 2.0 && iCircularWeight == 0.0){
       spellingConvergePoint = 0.5+0.5*sin(iGlobalTime*0.1);
     }
-
+    helloPoint += letter(LETTER_L, vec2(leftTop+letterSpace*6, top), uv);
     helloPoint += letter(LETTER_E, vec2(leftLower+letterSpace*0, topLower), uv);
     helloPoint += letter(LETTER_T, vec2(leftLower+letterSpace*8, topLower), uv);
     if(spellingConvergePoint < 0.3){
