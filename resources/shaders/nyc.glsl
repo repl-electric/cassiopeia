@@ -139,8 +139,8 @@ float saturate(float a){
                 2.0);
     }
     else{
-      return clamp( dot(a/2.0,a)+(beat), 0.0,
-                    sin(rand2(uv))+iGlobalTime*0.2);
+      return clamp( dot(a/2.0,a)-floor(dot(a/2.0,a))+(beat), 0.0,
+                    sin(rand2(uv)) + iGlobalTime*0.8);
     }
     }
   else{
