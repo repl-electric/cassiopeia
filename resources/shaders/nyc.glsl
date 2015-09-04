@@ -128,7 +128,26 @@ mat2 mm2(in float a){
   return mat2(c * adjust, -s * adjust,s * adjust ,c * adjust);
 }
 
-float saturate(float a){ return clamp( a, 0.0, 1.0 );}
+float saturate(float a){
+  if(iNycWeight >= 0.015){
+    vec2 uv = (gl_FragCoord.xy - iResolution.xy)/iResolution.x;
+    float sound = texture2D(iChannel0, vec2(uv.x,.75)).x;
+    float glitch = uv.y-floor(uv.y) + uv.x-floor(uv.x);
+    float beat = max(iBeat, 0.8);
+    if(rand2(uv) > 0.5){
+      return clamp( a-floor(a)*(beat), sound,
+                2.0);
+    }
+    else{
+      return clamp( dot(a/2.0,a)+(beat), 0.0,
+                    sin(rand2(uv))+iGlobalTime*0.2);
+    }
+    }
+  else{
+    return clamp(a,0.0,1.0);
+  }
+;
+}
 // Fractional Brownian Motion code by IQ.
 // http://en.wikipedia.org/wiki/Fractional_Brownian_motion
 
