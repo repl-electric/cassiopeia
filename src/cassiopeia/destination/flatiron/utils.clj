@@ -36,3 +36,23 @@
      (traced-overtime! vol (foundation-output-group) :master-volume current 0 0.05)))
 
 (defn binary->pat [b](map #(Integer/parseInt %1) (clojure.string/split (Integer/toBinaryString b) #"")))
+
+(defn spread
+  "Euclidean distribution for beats
+
+  ```
+  (spread 1 4) => [1.0 0.0 0.0 0.0]
+  ```
+  "
+  ([num-accents size] (spread num-accents size 0))
+  ([num-accents size rotate-amount]
+     (if (> num-accents size)
+       (map (fn [_] 1.0) (range 0 size))
+       (let [pattern (map #(< (mod (* %1 num-accents) size) num-accents) (range 0 size))]
+         (loop [rotations rotate-amount
+                res pattern]
+           (if (> rotations 0)
+             (let [res (rotate 1 res)
+                   rotations  (if (= true (first res)) (dec rotations) rotations)]
+               (recur rotations res))
+             (map #(if %1 1.0 0.0) res)))))))
