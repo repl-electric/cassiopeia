@@ -193,8 +193,8 @@ vec4 circleDance(void){
 
   if(iCircleDanceWeight<=1.0){
     //Please don't crash. Really. Please. JVM reboots make people sad :(
-    //(without :not-jvm-death not((not(false)))
-    uv.x *= 1.0/8000;
+    //(offering-of-brackets-to-jvm-gods '((((((((((((((((((())))))))))))))))))) )
+    uv.x *= 1.0/10.0;
     //)
   }
   else{
