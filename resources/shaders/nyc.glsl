@@ -329,7 +329,16 @@ vec4 circular(void){
   //  vec2 rotatedUVs = uv * mm2( halfpi + fbm4( coreident * 0.5, iGlobalTime * 0.07 ) * pi * pi );
   //rotatedUVs          *= mm2( halfpi - fbm4( coreident * 2.0, iGlobalTime * 0.1  ) * pi * pi );
   float arcpos = ( pi + atan( rotatedUVs.y, rotatedUVs.x ) ) / halfpi;
-  arcpos /= pi;
+
+  if(iNycWeight >= 0.015){
+  float sound = texture2D(iChannel0, vec2(0.1,
+                                          uv.xy)).x;
+
+  arcpos /= (pi * (sound/4) );
+  }else{
+    arcpos /= pi;
+  }
+
   arcpos = smoothstep( 0.2, shading - coreident * 0.0001, fract( arcpos ) * fract( -arcpos ) );
 
 
