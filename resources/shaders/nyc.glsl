@@ -22,6 +22,8 @@ uniform float iSplatter;
 uniform float iCircleDistort;
 uniform float iStars;
 
+uniform float iSmashTheParens;
+
 const float pi = 3.14159265;
 const mat2 m = mat2(0.80,  0.60, -0.60,  0.80);
 
@@ -330,11 +332,9 @@ vec4 circular(void){
   //rotatedUVs          *= mm2( halfpi - fbm4( coreident * 2.0, iGlobalTime * 0.1  ) * pi * pi );
   float arcpos = ( pi + atan( rotatedUVs.y, rotatedUVs.x ) ) / halfpi;
 
-  if(iNycWeight >= 0.015){
-  float sound = texture2D(iChannel0, vec2(0.1,
-                                          uv.y)).x;
-
-  arcpos /= (pi * (sound/4)*1.0-iBeat );
+  if(iSmashTheParens > 0.0 && NycWeight >= 0.015){
+    float sound = texture2D(iChannel0, vec2(0.1, uv.y)).x;
+    arcpos /= (pi * (sound/4)*1.0-iBeat );
   }else{
     arcpos /= pi;
   }
