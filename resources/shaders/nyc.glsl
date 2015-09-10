@@ -332,7 +332,7 @@ vec4 circular(void){
   //rotatedUVs          *= mm2( halfpi - fbm4( coreident * 2.0, iGlobalTime * 0.1  ) * pi * pi );
   float arcpos = ( pi + atan( rotatedUVs.y, rotatedUVs.x ) ) / halfpi;
 
-  if(iSmashTheParens > 0.0 && NycWeight >= 0.015){
+  if(iSmashTheParens > 0.0 && iNycWeight >= 0.015){
     float sound = texture2D(iChannel0, vec2(0.1, uv.y)).x;
     arcpos /= (pi * (sound/4)*1.0-iBeat );
   }else{
