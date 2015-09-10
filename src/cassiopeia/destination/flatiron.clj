@@ -40,7 +40,7 @@
   (defonce splatter            (atom 1.0))
   (defonce circle-intensity    (atom 0.0025))
   (defonce buffer-change-event-nomad (atom 0.0))
-  (defonce smash-the-parens (atom 0.0))
+  (defonce break-parens-in-case-of-emergency (atom 0.0))
   (def ibeat (atom {:synth beats :tap "beat"}))
   (def beat-tap (get-in (:synth @ibeat) [:taps (:tap @ibeat)]))
   (def cell-dance-color (atom 0.01))
@@ -76,7 +76,7 @@
   (reset! circle-intensity    0.0025)
   (reset! buffer-change-event-nomad 0.0)
   (reset! cell-dance-color 0.01)
-  (reset! smash-the-parens 0.0)
+  (reset! break-parens-in-case-of-emergency 0.0)
 
   (def nomad-chord-g nil)
   (add-watch
@@ -131,7 +131,7 @@
                               "iDeath" fl/vol
                               "iSplatter" splatter
                               "iCircleDistort" circle-intensity
-                              "iSmashTheParens" smash-the-parens
+                              "iSmashTheParens" break-parens-in-case-of-emergency
                               })
 
   (comment
