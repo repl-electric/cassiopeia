@@ -332,9 +332,9 @@ vec4 circular(void){
 
   if(iNycWeight >= 0.015){
   float sound = texture2D(iChannel0, vec2(0.1,
-                                          uv.xy)).x;
+                                          uv.y)).x;
 
-  arcpos /= (pi * (sound/4) );
+  arcpos /= (pi * (sound/4)*1.0-iBeat );
   }else{
     arcpos /= pi;
   }
