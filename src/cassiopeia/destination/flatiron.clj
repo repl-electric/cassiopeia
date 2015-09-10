@@ -29,7 +29,6 @@
   (defonce circle-count        (atom 4.0))
   (defonce color               (atom 0.1))
   (defonce circle-slice        (atom 8.0))
-  (defonce circle-growth-speed (atom 0.1))
   (defonce circle-edge         (atom 0.1))
   (defonce circular-weight     (atom 0.0))
   (defonce population-weight   (atom 0.0))
@@ -64,7 +63,6 @@
   (reset! circle-count 4.0)
   (reset! color               0.1)
   (reset! circle-slice        8.0)
-  (reset! circle-growth-speed 0.1)
   (reset! circle-edge         0.1)
   (reset! circular-weight     0.0)
   (reset! population-weight   0.0)
@@ -119,7 +117,6 @@
                               "iColor" color
                               "iCircleCount" circle-count
                               "iHalfPi" circle-slice
-                              "iInOutSpeed" circle-growth-speed
                               "iDeformCircles" circle-edge
                               "iCircularWeight"  circular-weight
                               "iPopulationWeight" population-weight

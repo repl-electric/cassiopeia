@@ -6,7 +6,6 @@ uniform float iGlobalBeatCount;
 uniform float iCircleCount;
 uniform float iColor;
 uniform float iHalfPi;
-uniform float iInOutSpeed;
 uniform float iInvertColor;
 uniform float iSnowRatio;
 uniform float iDeformCircles;
@@ -349,7 +348,7 @@ vec4 circular(void){
   //arcpos /= pi;
 
   //arcpos = smoothstep(0.2, shading - coreident * 0.0001, fract(arcpos) * fract(-arcpos));
-  mainval *= fbm4(coreident, iGlobalBeatCount * iInOutSpeed) * arcpos;
+  mainval *= fbm4(coreident, iGlobalBeatCount * 0.1) * arcpos;
 
   float coresmooth = fract(core) * fract(-core);
   float corewidth  = fwidth(coresmooth);
