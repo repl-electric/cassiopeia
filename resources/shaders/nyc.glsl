@@ -194,7 +194,7 @@ vec4 circleDance(void){
   if(iCircleDanceWeight<=1.0){
     //Please don't crash. Really. Please. JVM reboots make people sad :(
     //(offering-of-brackets-to-jvm-gods '((((((((((((((((((())))))))))))))))))) )
-    uv.x *= 1.0/10.0;
+    uv.x *= 1.0/10000.0;
     //)
   }
   else{
