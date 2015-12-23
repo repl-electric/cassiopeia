@@ -19,7 +19,7 @@ Here is a good place to start: https://github.com/josephwilk/strangeloop2014/blo
 
 #### License
 
-Copyright © 2014-2015 Joseph Wilk
+Copyright © 2014-2016 Joseph Wilk
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
